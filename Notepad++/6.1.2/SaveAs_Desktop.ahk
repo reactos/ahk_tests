@@ -19,13 +19,13 @@
 
 ; Type some text and test if 'Save As' dialog can appear
 TestsTotal++
-szDocument = "" ; No file to open. Case sensitive!
-NotepadWndCaption = RunNotepad(szDocument)
-IfWinActive, %NotepadWndCaption%
+szDocument =  ; Case sensitive! [No file to open]
+RunNotepad(szDocument)
+IfWinActive, new  1 - Notepad++
 {
     SendInput, Line 1{ENTER}Line two with @{ENTER}Line 3 with question mark?{ENTER}{ENTER}This is line 5. Line 4 was empty.
     Sleep, 1500
-    IfWinActive, *%NotepadWndCaption%
+    IfWinActive, *new  1 - Notepad++
     {
         SendInput, {CTRLDOWN}s{CTRLUP}
         Sleep, 1500 ; It can appear and fail, so sleep
@@ -48,9 +48,16 @@ IfWinActive, %NotepadWndCaption%
     {
         TestsFailed++
         WinGetTitle, title, A
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: For some reason '*%szDocument% - Notepad++' window is not active anymore. Active window caption: '%title%'`n
+        OutputDebug, FAILED: %Module%:%A_LineNumber%: For some reason '*new  1 - Notepad++' window is not active anymore. Active window caption: '%title%'`n
         bContinue := false
     }
+}
+else
+{
+    TestsFailed++
+    WinGetTitle, title, A
+    OutputDebug, FAILED: %Module%:%A_LineNumber%: 'new  1 - Notepad++' failed to appear. Active window caption: '%title%'`n
+    bContinue := false
 }
 
 
@@ -110,7 +117,7 @@ if bContinue
     if not ErrorLevel
     {
         TestsOK++
-        OutputDebug, OK: %Module%:%A_LineNumber%: '%szDocumentPath% - Notepad++' was closed successfully.`n
+        OutputDebug, OK: %Module%:%A_LineNumber%: Window '%szDocumentPath% - Notepad++' was closed successfully.`n
         bContinue := true
     }
     else

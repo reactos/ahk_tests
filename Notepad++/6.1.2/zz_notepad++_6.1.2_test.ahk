@@ -26,8 +26,9 @@ params =
 (
 install
 SaveAsDesktop
+OpenDocument
 )
-OutputDebug, %params%
+FileAppend, %params%, *
 }
 else if 1 = install
 {
@@ -40,6 +41,10 @@ else
     if 1 = SaveAsDesktop
     {
         #include SaveAs_Desktop.ahk
+    }
+    else if 1 = OpenDocument
+    {
+        #include OpenDocument.ahk
     }
     else OutputDebug, Bad parameters!`r`n
 }

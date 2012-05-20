@@ -32,51 +32,25 @@ RunNotepad(PathToFile)
     global ModuleExe
     TestsTotal++
 
-    Sleep, 2500
+    Sleep, 500
     IfExist, %ModuleExe%
     {
         TestsOK++
-
-        ; Test if we can start the app
-        Run, %ModuleExe% %PathToFile%
-        TestsTotal++
         if PathToFile =
         {
-            WinWaitActive, new  1 - Notepad++,, 15
+            Run, %ModuleExe%,, Max ; Start maximized
+            Sleep, 1000
+            WinWaitActive, new  1 - Notepad++,,7
             if not ErrorLevel
-            {
-                Sleep, 2500
-                TestsOK++
-                OutputDebug, OK: %Module%:%A_LineNumber%: Window 'new 1 - Notepad++' appeared.`n
-                bContinue := true 
-                return new 1 - Notepad++
-            }
-            else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, FAILED: %Module%:%A_LineNumber%: Window 'new 1 - Notepad++' failed to appear. Active window caption: '%title%'`n
-                bContinue := false
-            }
+                bContinue := true
         }
         else
         {
-            WinWaitActive, %PathToFile% - Notepad++,, 15
+            Run, %ModuleExe% %PathToFile%,, Max
+            Sleep, 1000
+            WinWaitActive, %PathToFile% - Notepad++,,7
             if not ErrorLevel
-            {
-                Sleep, 2500
-                TestsOK++
-                OutputDebug, OK: %Module%:%A_LineNumber%: Window '%PathToFile% - Notepad++' appeared.`n
                 bContinue := true
-                return %PathToFile% - Notepad++
-            }
-            else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, FAILED: %Module%:%A_LineNumber%: Window '%PathToFile% - Notepad++' failed to appear. Active window caption: '%title%'`n
-                bContinue := false
-            }
         }
     }
     else
