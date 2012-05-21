@@ -27,6 +27,7 @@ params =
 install
 SaveAsDesktop
 OpenDocument
+Ctrl+F_FindDialog
 )
 FileAppend, %params%, *
 }
@@ -40,11 +41,15 @@ else
 
     if 1 = SaveAsDesktop
     {
-        #include SaveAs_Desktop.ahk
+        #include SaveAsDesktop.ahk
     }
     else if 1 = OpenDocument
     {
         #include OpenDocument.ahk
+    }
+    else if 1 = Ctrl+F_FindDialog
+    {
+        #include Ctrl+F_FindDialog.ahk
     }
     else OutputDebug, Bad parameters!`r`n
 }
@@ -63,5 +68,7 @@ if 1 != --list
 
     TestsSkipped := TestsTotal - TestsOK - TestsFailed
     TestsExecuted := TestsOK + TestsFailed
+    if (TestsSkipped < 0 or TestsExecuted < 0)
+        OutputDebug, %Module%: Check TestsTotal, TestsOK and TestsFailed, because results returns less than 0.
     OutputDebug, %Module%: %TestsExecuted% tests executed (0 marked as todo, %TestsFailed% failures), %TestsSkipped% skipped.`n
 }

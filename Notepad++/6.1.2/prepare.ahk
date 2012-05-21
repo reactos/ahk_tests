@@ -30,19 +30,31 @@ TestsExecuted := 0
 RunNotepad(PathToFile)
 {
     global ModuleExe
+    global TestsTotal
+    global TestsOK
+    global TestsFailed
     TestsTotal++
 
     Sleep, 500
     IfExist, %ModuleExe%
     {
-        TestsOK++
         if PathToFile =
         {
             Run, %ModuleExe%,, Max ; Start maximized
             Sleep, 1000
             WinWaitActive, new  1 - Notepad++,,7
             if not ErrorLevel
+            {
+                TestsOK++
                 bContinue := true
+            }
+            else
+            {
+                TestsFailed++
+                WinGetTitle, title, A
+                OutputDebug, FAILED: %Module%:%A_LineNumber%: Window 'new  1 - Notepad++' failed to appear. Active window caption: '%title%'`n
+                bContinue := false
+            }
         }
         else
         {
@@ -50,7 +62,17 @@ RunNotepad(PathToFile)
             Sleep, 1000
             WinWaitActive, %PathToFile% - Notepad++,,7
             if not ErrorLevel
+            {
+                TestsOK++
                 bContinue := true
+            }
+            else
+            {
+                TestsFailed++
+                WinGetTitle, title, A
+                OutputDebug, FAILED: %Module%:%A_LineNumber%: Window '%PathToFile% - Notepad++' failed to appear. Active window caption: '%title%'`n
+                bContinue := false
+            }
         }
     }
     else

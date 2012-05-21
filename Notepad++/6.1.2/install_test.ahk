@@ -25,13 +25,31 @@ TestsFailed := 0
 TestsOK := 0
 TestsTotal := 0
 
-; Test if Setup file exists
+; Test if Setup file exists, if so, delete installed files, and run Setup
 TestsTotal++
 IfExist, %SetupExe%
 {
-    TestsOK++
-    Run %SetupExe%
-    bContinue := true
+
+    ; Get rid of other versions
+    IfExist, %A_ProgramFiles%\Notepad++
+    {
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Notepad++
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Notepad++
+        FileRemoveDir, %A_ProgramFiles%\Notepad++, 1
+        Sleep, 1000
+        IfNotExist, %A_ProgramFiles%\Notepad++
+        {
+            TestsOK++
+            Run %SetupExe%
+            bContinue := true
+        }
+        else
+        {
+            TestsFailed++
+            OutputDebug, FAILED: %Module%:%A_LineNumber%: Failed to delete '%A_ProgramFiles%\Notepad++'.`n
+            bContinue := false
+        }
+    }
 }
 else
 {

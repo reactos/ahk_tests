@@ -81,7 +81,7 @@ if not ErrorLevel
     {
         TestsFailed++
         WinGetTitle, title, A
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: Window '%szDocument% - Notepad++' failed to appear. Active window caption: '%title%'`n
+        OutputDebug, FAILED: %Module%:%A_LineNumber%: Window '%szDocument% - Notepad++' is not active. Active window caption: '%title%'`n
         bContinue := false
     }
 }
