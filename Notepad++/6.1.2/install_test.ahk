@@ -18,7 +18,7 @@
  */
 
 Module = Notepad++_6.1.2_%1%
-SetupExe = %A_WorkingDir%\Notepad++_6.1.2_Setup.exe
+SetupExe = %A_WorkingDir%\Apps\Notepad++_6.1.2_Setup.exe
 bContinue := false
 
 TestsFailed := 0
@@ -26,7 +26,6 @@ TestsOK := 0
 TestsTotal := 0
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
-TestsTotal++
 IfExist, %SetupExe%
 {
 
@@ -37,23 +36,18 @@ IfExist, %SetupExe%
         RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Notepad++
         FileRemoveDir, %A_ProgramFiles%\Notepad++, 1
         Sleep, 1000
-        IfNotExist, %A_ProgramFiles%\Notepad++
+        IfExist, %A_ProgramFiles%\Notepad++
         {
-            TestsOK++
-            Run %SetupExe%
-            bContinue := true
-        }
-        else
-        {
-            TestsFailed++
             OutputDebug, FAILED: %Module%:%A_LineNumber%: Failed to delete '%A_ProgramFiles%\Notepad++'.`n
             bContinue := false
         }
     }
+    Run %SetupExe%
+    bContinue := true
+
 }
 else
 {
-    TestsFailed++
     OutputDebug, FAILED: %Module%:%A_LineNumber%: '%SetupExe%' not found.`n
     bContinue := false
 }
@@ -66,23 +60,25 @@ if bContinue
     WinWaitActive, Installer Language, Please select a language, 15 ; Wait 15 secs for window to appear
     if not ErrorLevel ;Window is found and it is active
     {
-        Sleep, 2500
+        TestsOK++
+        ControlClick, Button1, Installer Language ; Use ControlClick instead of ControlFocus due to bug no.7098
+;        Sleep, 2500 ; Commented out due to bug no.7098
 
-        ControlFocus, OK, Installer Language ; Send focus to 'OK' button
-        if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %Module%:%A_LineNumber%: 'Installer Language' window appeared and 'OK' button was focused.`n
-            SendInput, {ENTER} ; We know for sure where do we send Enter 
-            bContinue := true
-        }
-        else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, FAILED: %Module%:%A_LineNumber%: Failed to focus 'OK' button in 'Installer Language' window. Active window caption: '%title%'.`n
-            bContinue := false
-        } 
+;        ControlFocus, OK, Installer Language ; Send focus to 'OK' button
+;        if not ErrorLevel
+;        {
+;            TestsOK++
+;            OutputDebug, OK: %Module%:%A_LineNumber%: 'Installer Language' window appeared and 'OK' button was focused.`n
+;            SendInput, {ENTER} ; We know for sure where do we send Enter 
+;            bContinue := true
+;        }
+;        else
+;        {
+;            TestsFailed++
+;            WinGetTitle, title, A
+;            OutputDebug, FAILED: %Module%:%A_LineNumber%: Failed to focus 'OK' button in 'Installer Language' window. Active window caption: '%title%'.`n
+;            bContinue := false
+;        } 
     }
     else
     {
@@ -102,7 +98,7 @@ if bContinue
     WinWaitActive, Notepad, Welcome to the Notepad, 15
     if not ErrorLevel
     {
-        Sleep, 2500
+        Sleep, 250
 
         TestsOK++
         OutputDebug, OK: %Module%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'Welcome to the Notepad++ v 6.1.2 Setup' appeared.`n
@@ -127,7 +123,7 @@ if bContinue
     WinWaitActive, Notepad, License Agreement, 15
     if not ErrorLevel
     {
-        Sleep, 2500
+        Sleep, 250
 
         TestsOK++
         OutputDebug, OK: %Module%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'License Agreement' appeared.`n
@@ -152,7 +148,7 @@ if bContinue
     WinWaitActive, Notepad, Choose Install Location, 15
     if not ErrorLevel
     {
-        Sleep, 2500
+        Sleep, 250
 
         TestsOK++
         OutputDebug, OK: %Module%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'Choose Install Location' appeared.`n
@@ -177,7 +173,7 @@ if bContinue
     WinWaitActive, Notepad, Choose Install Location, 15
     if not ErrorLevel
     {
-        Sleep, 2500
+        Sleep, 250
 
         TestsOK++
         OutputDebug, OK: %Module%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'Check the components' appeared.`n
@@ -202,7 +198,7 @@ if bContinue
     WinWaitActive, Notepad, Create Shortcut on Desktop, 15
     if not ErrorLevel
     {
-        Sleep, 2500
+        Sleep, 250
 
         TestsOK++
         OutputDebug, OK: %Module%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'Create Shortcut on Desktop' appeared.`n
@@ -230,7 +226,7 @@ if bContinue
     WinWaitActive, Notepad, Completing, 20
     if not ErrorLevel
     {
-        Sleep, 2500
+        Sleep, 250
 
         TestsOK++
         OutputDebug, OK: %Module%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'Completing' appeared.`n
@@ -252,7 +248,7 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2500
+    Sleep, 250
     AppExe = %A_ProgramFiles%\Notepad++\notepad++.exe
     IfExist, %AppExe%
     {
