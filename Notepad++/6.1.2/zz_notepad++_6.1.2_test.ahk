@@ -25,10 +25,10 @@ if 1 = --list
 params =
 (
 
-     install
-     SaveAsDesktop
-     OpenDocument
-     Ctrl+F_FindDialog
+    install
+    SaveAsDesktop
+    OpenDocument
+    Ctrl+F_FindDialog
 
 )
 FileAppend, %params%, *
