@@ -18,9 +18,11 @@
  */
 
 ; Test Ctrl-F 'Find' dialog
+
 TestsTotal++
-TestName = Ctrl-F.Find.Dialog
+TestName = 4.Ctrl-F.FindDialog
 szDocument =  C:\NotepadTestFile.ini ; Case sensitive!
+
 FileDelete, %szDocument%
 FileAppend, This text`nwill contain some`nlines. We will use`nit to test dialogs., %szDocument%
 if not ErrorLevel

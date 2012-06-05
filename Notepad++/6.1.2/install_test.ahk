@@ -19,7 +19,7 @@
 
 SetupExe = %A_WorkingDir%\Apps\Notepad++_6.1.2_Setup.exe
 bContinue := false
-TestName = install
+TestName = 1.install
 
 TestsFailed := 0
 TestsOK := 0

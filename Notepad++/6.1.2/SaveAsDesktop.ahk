@@ -17,10 +17,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-TestName = SaveAsDesktop 
 ; Type some text and test if 'Save As' dialog can appear
 TestsTotal++
+TestName = 2.SaveAsDesktop
 szDocument =  ; Case sensitive! [No file to open]
+
 RunNotepad(szDocument)
 IfWinActive, new  1 - Notepad++
 {

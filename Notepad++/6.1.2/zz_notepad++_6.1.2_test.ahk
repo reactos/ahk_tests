@@ -25,15 +25,15 @@ if 1 = --list
 params =
 (
 
-    install
-    SaveAsDesktop
-    OpenDocument
-    Ctrl-F.Find.Dialog
+    1.install
+    2.SaveAsDesktop
+    3.OpenDocument
+    4.Ctrl-F.FindDialog
 
 )
 FileAppend, %params%, *
 }
-else if 1 = install
+else if 1 = 1.install
 {
     #include install_test.ahk
 }
@@ -41,17 +41,17 @@ else
 {
     #include prepare.ahk
 
-    if 1 = SaveAsDesktop
+    if 1 = 2.SaveAsDesktop
     {
         #include SaveAsDesktop.ahk
     }
-    else if 1 = OpenDocument
+    else if 1 = 3.OpenDocument
     {
         #include OpenDocument.ahk
     }
-    else if 1 = Ctrl+F_FindDialog
+    else if 1 = 4.Ctrl-F.FindDialog
     {
-        #include Ctrl+F_FindDialog.ahk
+        #include Ctrl-F.FindDialog.ahk
     }
     else OutputDebug, Bad parameters!`r`n
 }

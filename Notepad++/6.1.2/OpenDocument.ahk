@@ -17,11 +17,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-TestName = OpenDocument
-
 ; Test if can create document, open it with Notepad++, delete text, write new one, save and exit
 TestsTotal++
+TestName = 3.OpenDocument
 szDocument =  %A_Desktop%\Notepad++Test.txt ; Case sensitive!
+
 FileAppend, One line.`nLine two`nLine 3, %szDocument%
 if not ErrorLevel
 {
