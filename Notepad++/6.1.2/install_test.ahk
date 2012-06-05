@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-Module = Notepad++_6.1.2_%1%
+Module = NotepadPP.6.1.2.%1%
 SetupExe = %A_WorkingDir%\Apps\Notepad++_6.1.2_Setup.exe
 bContinue := false
 
