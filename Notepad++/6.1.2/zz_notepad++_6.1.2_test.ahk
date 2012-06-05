@@ -28,7 +28,7 @@ params =
     install
     SaveAsDesktop
     OpenDocument
-    Ctrl+F_FindDialog
+    Ctrl-F.Find.Dialog
 
 )
 FileAppend, %params%, *
