@@ -29,6 +29,6 @@ else
 {
     TestsFailed++
     WinGetTitle, title, A
-    OutputDebug, FAILED: %Module%:%A_LineNumber%: Window '%szDocument% - Notepad++' is not active. Active window caption: '%title%'`n
+    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window '%szDocument% - Notepad++' is not active. Active window caption: '%title%'`n
     bContinue := false
 }

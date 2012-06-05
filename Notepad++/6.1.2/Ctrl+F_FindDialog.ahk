@@ -17,8 +17,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-; Test Ctrl+F 'Find' dialog
+; Test Ctrl-F 'Find' dialog
 TestsTotal++
+TestName = Ctrl-F.Find.Dialog
 szDocument =  C:\NotepadTestFile.ini ; Case sensitive!
 FileDelete, %szDocument%
 FileAppend, This text`nwill contain some`nlines. We will use`nit to test dialogs., %szDocument%
@@ -38,7 +39,7 @@ if not ErrorLevel
         {
             TestsFailed++
             WinGetTitle, title, A
-            OutputDebug, FAILED: %Module%:%A_LineNumber%: Window 'Find' failed to appear, so Ctrl+F doesn't work, bug #6734. Active window caption: '%title%'`n
+            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Find' failed to appear, so Ctrl+F doesn't work, bug #6734. Active window caption: '%title%'`n
             
             ; Check if can open 'Find' from main menu
             SendInput, {ALTDOWN}s ; Hit 'Search'
@@ -53,7 +54,7 @@ if not ErrorLevel
             {
                 TestsFailed++
                 WinGetTitle, title, A
-                OutputDebug, FAILED: %Module%:%A_LineNumber%: Can't open 'Find' from main menu. Active window caption: '%title%'`n
+                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can't open 'Find' from main menu. Active window caption: '%title%'`n
                 bContinue := false
             }
         }
@@ -62,7 +63,7 @@ if not ErrorLevel
     {
         TestsFailed++
         WinGetTitle, title, A
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: Window '%szDocument% - Notepad++' is not active. Active window caption: '%title%'`n
+        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window '%szDocument% - Notepad++' is not active. Active window caption: '%title%'`n
         bContinue := false
     }
 }
@@ -70,7 +71,7 @@ else
 {
     TestsFailed++
     WinGetTitle, title, A
-    OutputDebug, FAILED: %Module%:%A_LineNumber%: Failed to create '%szDocument%'. Active window caption: '%title%'`n
+    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to create '%szDocument%'. Active window caption: '%title%'`n
     bContinue := false
 }
 
@@ -97,7 +98,7 @@ TestFindDialog()
         {
             TestsFailed++
             WinGetTitle, title, A
-            OutputDebug, FAILED: %Module%:%A_LineNumber%: Can't find match. Active window caption: '%title%'`n
+            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can't find match. Active window caption: '%title%'`n
             bContinue := false
         }
     }

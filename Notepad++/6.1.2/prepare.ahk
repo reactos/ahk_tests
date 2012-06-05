@@ -17,7 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-Module = NotepadPP.6.1.2.%1%
 ModuleExe = %A_ProgramFiles%\Notepad++\notepad++.exe
 bContinue := false
 TestsTotal := 0
@@ -52,7 +51,7 @@ RunNotepad(PathToFile)
             {
                 TestsFailed++
                 WinGetTitle, title, A
-                OutputDebug, FAILED: %Module%:%A_LineNumber%: Window 'new  1 - Notepad++' failed to appear. Active window caption: '%title%'`n
+                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'new  1 - Notepad++' failed to appear. Active window caption: '%title%'`n
                 bContinue := false
             }
         }
@@ -70,7 +69,7 @@ RunNotepad(PathToFile)
             {
                 TestsFailed++
                 WinGetTitle, title, A
-                OutputDebug, FAILED: %Module%:%A_LineNumber%: Window '%PathToFile% - Notepad++' failed to appear. Active window caption: '%title%'`n
+                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window '%PathToFile% - Notepad++' failed to appear. Active window caption: '%title%'`n
                 bContinue := false
             }
         }
@@ -78,7 +77,7 @@ RunNotepad(PathToFile)
     else
     {
         TestsFailed++
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: Can NOT find '%ModuleExe%'.`n
+        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%ModuleExe%'.`n
         bContinue := false
     }
 }

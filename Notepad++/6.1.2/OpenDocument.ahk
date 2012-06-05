@@ -17,6 +17,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+TestName = OpenDocument
+
 ; Test if can create document, open it with Notepad++, delete text, write new one, save and exit
 TestsTotal++
 szDocument =  %A_Desktop%\Notepad++Test.txt ; Case sensitive!
@@ -49,7 +51,7 @@ if not ErrorLevel
                     {
                         TestsFailed++
                         WinGetTitle, title, A
-                        OutputDebug, FAILED: %Module%:%A_LineNumber%: For some reason number of lines is wrong! Is %iLines% and should be 1. Active window caption: '%title%'`n
+                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: For some reason number of lines is wrong! Is %iLines% and should be 1. Active window caption: '%title%'`n
                         bContinue := false
                     }
                 }
@@ -57,7 +59,7 @@ if not ErrorLevel
                 {
                     TestsFailed++
                     WinGetTitle, title, A
-                    OutputDebug, FAILED: %Module%:%A_LineNumber%: Failed to close '%szDocument% - Notepad++' window. Active window caption: '%title%'`n
+                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to close '%szDocument% - Notepad++' window. Active window caption: '%title%'`n
                     bContinue := false
                 }
             }
@@ -65,7 +67,7 @@ if not ErrorLevel
             {
                 TestsFailed++
                 WinGetTitle, title, A
-                OutputDebug, FAILED: %Module%:%A_LineNumber%: Failed to save. Active window caption: '%title%'`n
+                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to save. Active window caption: '%title%'`n
                 bContinue := false
             }
         }
@@ -73,7 +75,7 @@ if not ErrorLevel
         {
             TestsFailed++
             WinGetTitle, title, A
-            OutputDebug, FAILED: %Module%:%A_LineNumber%: Failed to change text. Active window caption: '%title%'`n
+            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to change text. Active window caption: '%title%'`n
             bContinue := false
         }
     }
@@ -81,7 +83,7 @@ if not ErrorLevel
     {
         TestsFailed++
         WinGetTitle, title, A
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: Window '%szDocument% - Notepad++' is not active. Active window caption: '%title%'`n
+        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window '%szDocument% - Notepad++' is not active. Active window caption: '%title%'`n
         bContinue := false
     }
 }
@@ -89,6 +91,6 @@ else
 {
         TestsFailed++
         WinGetTitle, title, A
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: Failed to create '%szDocument%'. Active window caption: '%title%'`n
+        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to create '%szDocument%'. Active window caption: '%title%'`n
         bContinue := false
 }

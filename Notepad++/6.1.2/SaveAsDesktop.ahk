@@ -17,6 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+TestName = SaveAsDesktop 
 ; Type some text and test if 'Save As' dialog can appear
 TestsTotal++
 szDocument =  ; Case sensitive! [No file to open]
@@ -33,14 +34,14 @@ IfWinActive, new  1 - Notepad++
         if not ErrorLevel
         {
             TestsOK++
-            OutputDebug, OK: %Module%:%A_LineNumber%: 'Save As' dialog appeared.`n
+            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Save As' dialog appeared.`n
             bContinue := true
         }
          else
         {
             TestsFailed++
             WinGetTitle, title, A
-            OutputDebug, FAILED: %Module%:%A_LineNumber%: 'Save As' dialog failed to appear. Active window caption: '%title%'`n
+            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Save As' dialog failed to appear. Active window caption: '%title%'`n
             bContinue := false
         }
     }
@@ -48,7 +49,7 @@ IfWinActive, new  1 - Notepad++
     {
         TestsFailed++
         WinGetTitle, title, A
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: For some reason '*new  1 - Notepad++' window is not active anymore. Active window caption: '%title%'`n
+        OutputDebug, %TestName%:%A_LineNumber%: Test failed: The '*new  1 - Notepad++' window is not active anymore. Active window caption: '%title%'`n
         bContinue := false
     }
 }
@@ -56,7 +57,7 @@ else
 {
     TestsFailed++
     WinGetTitle, title, A
-    OutputDebug, FAILED: %Module%:%A_LineNumber%: Window 'new  1 - Notepad++' is not active. Active window caption: '%title%'`n
+    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'new  1 - Notepad++' is not active. Active window caption: '%title%'`n
     bContinue := false
 }
 
@@ -79,14 +80,14 @@ if bContinue
             IfExist, %szDocumentPath%
             {
                 TestsOK++
-                OutputDebug, OK: %Module%:%A_LineNumber%: '%szDocumentPath%' exist as it should.`n
+                OutputDebug, OK: %TestName%:%A_LineNumber%: '%szDocumentPath%' exist as it should.`n
                 bContinue := true
             }
             else
             {
                 TestsFailed++
                 WinGetTitle, title, A
-                OutputDebug, FAILED: %Module%:%A_LineNumber%: File '%szDocumentPath%' does not exist, but it should. Active window caption: '%title%'`n
+                OutputDebug, %TestName%:%A_LineNumber%: Test failed: File '%szDocumentPath%' does not exist, but it should. Active window caption: '%title%'`n
                 bContinue := false
             }
         }
@@ -94,7 +95,7 @@ if bContinue
         {
             TestsFailed++
             WinGetTitle, title, A
-            OutputDebug, FAILED: %Module%:%A_LineNumber%: There was a problem selecting 'Desktop' from ComboBox1. Active window caption: '%title%'`n
+            OutputDebug, %TestName%:%A_LineNumber%: Test failed: There was a problem selecting 'Desktop' from ComboBox1. Active window caption: '%title%'`n
             bContinue := false
         }
     }
@@ -102,7 +103,7 @@ if bContinue
     {
         TestsFailed++
         WinGetTitle, title, A
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: For some reason 'Save As' dialog is not active anymore. Active window caption: '%title%'`n
+        OutputDebug, %TestName%:%A_LineNumber%: Test failed: For some reason 'Save As' dialog is not active anymore. Active window caption: '%title%'`n
         bContinue := false
     }
 }
@@ -117,14 +118,14 @@ if bContinue
     if not ErrorLevel
     {
         TestsOK++
-        OutputDebug, OK: %Module%:%A_LineNumber%: Window '%szDocumentPath% - Notepad++' was closed successfully.`n
+        OutputDebug, OK: %TestName%:%A_LineNumber%: Window '%szDocumentPath% - Notepad++' was closed successfully.`n
         bContinue := true
     }
     else
     {
         TestsFailed++
         WinGetTitle, title, A
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: Failed to close '%szDocumentPath% - Notepad++' window. Active window caption: '%title%'`n
+        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to close '%szDocumentPath% - Notepad++' window. Active window caption: '%title%'`n
         bContinue := false
     }
 }

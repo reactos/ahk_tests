@@ -17,9 +17,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-Module = NotepadPP.6.1.2.%1%
 SetupExe = %A_WorkingDir%\Apps\Notepad++_6.1.2_Setup.exe
 bContinue := false
+TestName = install
 
 TestsFailed := 0
 TestsOK := 0
@@ -38,7 +38,7 @@ IfExist, %SetupExe%
         Sleep, 1000
         IfExist, %A_ProgramFiles%\Notepad++
         {
-            OutputDebug, FAILED: %Module%:%A_LineNumber%: Failed to delete '%A_ProgramFiles%\Notepad++'.`n
+            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to delete '%A_ProgramFiles%\Notepad++'.`n
             bContinue := false
         }
     }
@@ -48,7 +48,7 @@ IfExist, %SetupExe%
 }
 else
 {
-    OutputDebug, FAILED: %Module%:%A_LineNumber%: '%SetupExe%' not found.`n
+    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%SetupExe%' not found.`n
     bContinue := false
 }
 
@@ -68,7 +68,7 @@ if bContinue
 ;        if not ErrorLevel
 ;        {
 ;            TestsOK++
-;            OutputDebug, OK: %Module%:%A_LineNumber%: 'Installer Language' window appeared and 'OK' button was focused.`n
+;            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installer Language' window appeared and 'OK' button was focused.`n
 ;            SendInput, {ENTER} ; We know for sure where do we send Enter 
 ;            bContinue := true
 ;        }
@@ -76,7 +76,7 @@ if bContinue
 ;        {
 ;            TestsFailed++
 ;            WinGetTitle, title, A
-;            OutputDebug, FAILED: %Module%:%A_LineNumber%: Failed to focus 'OK' button in 'Installer Language' window. Active window caption: '%title%'.`n
+;            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to focus 'OK' button in 'Installer Language' window. Active window caption: '%title%'.`n
 ;            bContinue := false
 ;        } 
     }
@@ -84,7 +84,7 @@ if bContinue
     {
         TestsFailed++
         WinGetTitle, title, A
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: 'Installer Language' window failed to appear. Active window caption: '%title%'.`n
+        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Installer Language' window failed to appear. Active window caption: '%title%'.`n
         bContinue := false
     }
 }
@@ -101,7 +101,7 @@ if bContinue
         Sleep, 250
 
         TestsOK++
-        OutputDebug, OK: %Module%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'Welcome to the Notepad++ v 6.1.2 Setup' appeared.`n
+        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'Welcome to the Notepad++ v 6.1.2 Setup' appeared.`n
         SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
         bContinue := true
     }
@@ -109,7 +109,7 @@ if bContinue
     {
         TestsFailed++
         WinGetTitle, title, A
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'Welcome to the Notepad++ v 6.1.2 Setup' failed to appear. Active window caption: '%title%'.`n
+        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Notepad++ v6.1.2 Setup' window with 'Welcome to the Notepad++ v 6.1.2 Setup' failed to appear. Active window caption: '%title%'.`n
         bContinue := false
     }
 }
@@ -126,7 +126,7 @@ if bContinue
         Sleep, 250
 
         TestsOK++
-        OutputDebug, OK: %Module%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'License Agreement' appeared.`n
+        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'License Agreement' appeared.`n
         SendInput, {ALTDOWN}a{ALTUP} ; Hit 'I Agree' button
         bContinue := true
     }
@@ -134,7 +134,7 @@ if bContinue
     {
         TestsFailed++
         WinGetTitle, title, A
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'License Agreement' failed to appear. Active window caption: '%title%'.`n
+        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Notepad++ v6.1.2 Setup' window with 'License Agreement' failed to appear. Active window caption: '%title%'.`n
         bContinue := false
     }
 }
@@ -151,7 +151,7 @@ if bContinue
         Sleep, 250
 
         TestsOK++
-        OutputDebug, OK: %Module%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'Choose Install Location' appeared.`n
+        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'Choose Install Location' appeared.`n
         SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
         bContinue := true
     }
@@ -159,7 +159,7 @@ if bContinue
     {
         TestsFailed++
         WinGetTitle, title, A
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'Choose Install Location' failed to appear. Active window caption: '%title%'.`n
+        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Notepad++ v6.1.2 Setup' window with 'Choose Install Location' failed to appear. Active window caption: '%title%'.`n
         bContinue := false
     }
 }
@@ -176,7 +176,7 @@ if bContinue
         Sleep, 250
 
         TestsOK++
-        OutputDebug, OK: %Module%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'Check the components' appeared.`n
+        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'Check the components' appeared.`n
         SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
         bContinue := true
     }
@@ -184,7 +184,7 @@ if bContinue
     {
         TestsFailed++
         WinGetTitle, title, A
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'Check the components' failed to appear. Active window caption: '%title%'.`n
+        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Notepad++ v6.1.2 Setup' window with 'Check the components' failed to appear. Active window caption: '%title%'.`n
         bContinue := false
     }
 }
@@ -201,7 +201,7 @@ if bContinue
         Sleep, 250
 
         TestsOK++
-        OutputDebug, OK: %Module%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'Create Shortcut on Desktop' appeared.`n
+        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'Create Shortcut on Desktop' appeared.`n
 
         Control, Check, , Button5, Notepad ; Check 'Allow plugins'
         Control, Check, , Button6, Notepad ; Check 'Create Shortcut'
@@ -212,7 +212,7 @@ if bContinue
     {
         TestsFailed++
         WinGetTitle, title, A
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'Create Shortcut on Desktop' failed to appear. Active window caption: '%title%'.`n
+        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Notepad++ v6.1.2 Setup' window with 'Create Shortcut on Desktop' failed to appear. Active window caption: '%title%'.`n
         bContinue := false
     }
 }
@@ -229,7 +229,7 @@ if bContinue
         Sleep, 250
 
         TestsOK++
-        OutputDebug, OK: %Module%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'Completing' appeared.`n
+        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'Completing' appeared.`n
 
         SendInput, {ALTDOWN}r{ALTUP} ; Uncheck 'Run Notepad'
         SendInput, {ALTDOWN}f{ALTUP} ; Hit 'Finish' button
@@ -239,7 +239,7 @@ if bContinue
     {
         TestsFailed++
         WinGetTitle, title, A
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'Completing' failed to appear. Active window caption: '%title%'.`n
+        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Notepad++ v6.1.2 Setup' window with 'Completing' failed to appear. Active window caption: '%title%'.`n
         bContinue := false
     }
 }
@@ -253,13 +253,13 @@ if bContinue
     IfExist, %AppExe%
     {
         TestsOK++
-        OutputDebug, OK: %Module%:%A_LineNumber%: Should be installed, because '%AppExe%' was found.`n
+        OutputDebug, OK: %TestName%:%A_LineNumber%: Should be installed, because '%AppExe%' was found.`n
         bContinue := true
     }
     else
     {
         TestsFailed++
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: Can NOT find '%AppExe%'.`n
+        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%AppExe%'.`n
         bContinue := false
     }
 }
