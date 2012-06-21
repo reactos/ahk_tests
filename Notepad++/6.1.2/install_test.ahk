@@ -62,23 +62,19 @@ if bContinue
     {
         TestsOK++
         ControlClick, Button1, Installer Language ; Use ControlClick instead of ControlFocus due to bug no.7098
-;        Sleep, 2500 ; Commented out due to bug no.7098
-
-;        ControlFocus, OK, Installer Language ; Send focus to 'OK' button
-;        if not ErrorLevel
-;        {
-;            TestsOK++
-;            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installer Language' window appeared and 'OK' button was focused.`n
-;            SendInput, {ENTER} ; We know for sure where do we send Enter 
-;            bContinue := true
-;        }
-;        else
-;        {
-;            TestsFailed++
-;            WinGetTitle, title, A
-;            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to focus 'OK' button in 'Installer Language' window. Active window caption: '%title%'.`n
-;            bContinue := false
-;        } 
+        if not ErrorLevel
+        {
+            TestsOK++
+            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installer Language' window appeared and 'OK' button was clicked.`n
+            bContinue := true
+        }
+        else
+        {
+            TestsFailed++
+            WinGetTitle, title, A
+            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to hit 'OK' button in 'Installer Language' window. Active window caption: '%title%'.`n
+            bContinue := false
+        }
     }
     else
     {
