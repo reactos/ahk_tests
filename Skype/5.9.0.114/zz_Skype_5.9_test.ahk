@@ -17,23 +17,27 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#Include ..\helper_functions.ahk
+#Include ..\..\helper_functions.ahk
 
 
 if 1 = --list
 {
 params =
 (
-install
+
+    1.install
+
 )
 FileAppend, %params%, *
 }
-else if 1 = install
+else if 1 = 1.install
 {
-    #include Install.ahk
+    #include install_test.ahk
 }
-else OutputDebug, Bad parameters!`r`n
-
+else
+{
+    OutputDebug, Bad parameters!`r`n
+}
 
 if 1 != --list
 {
@@ -49,5 +53,7 @@ if 1 != --list
 
     TestsSkipped := TestsTotal - TestsOK - TestsFailed
     TestsExecuted := TestsOK + TestsFailed
-    OutputDebug, %Module%: %TestsExecuted% tests executed (0 marked as todo, %TestsFailed% failures), %TestsSkipped% skipped.`n
+    if (TestsSkipped < 0 or TestsExecuted < 0)
+        OutputDebug, %TestName%: Check TestsTotal, TestsOK and TestsFailed, because results returns less than 0.
+    OutputDebug, %TestName%: %TestsExecuted% tests executed (0 marked as todo, %TestsFailed% failures), %TestsSkipped% skipped.`n
 }

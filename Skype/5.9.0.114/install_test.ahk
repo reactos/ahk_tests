@@ -17,19 +17,25 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#Include ..\helper_functions.ahk
+#Include ..\..\helper_functions.ahk
 
 Module = Skype5.9.0.114:%1%
 bContinue := false
 
-if StrLen(A_WorkingDir) = 3 ;No need percent sign here
-    SetupExe = %A_WorkingDir%Skype Setup.exe ;We are working in root dir, no need to append slash
-else
-    SetupExe = %A_WorkingDir%\Skype Setup.exe    
+SetupExe = %A_WorkingDir%\Apps\Skype_5.9_Setup.exe    
 
 TestsFailed := 0
 TestsOK := 0
 TestsTotal := 0
+
+; Delete previous versions of Skype if any or "Updating Skype" window 
+; will appear instead of "Installing Skype" and we don't want that
+Process, Close, Skype.exe
+FileRemoveDir, %A_ProgramFiles%\Skype, 1
+FileRemoveDir, %A_AppData%\Skype, 1
+RegDelete, HKEY_CLASSES_ROOT, Installer\Products\2A7527EE2A93F2D4D9CA9F2FB5A81E8D
+RegDelete, HKEY_CLASSES_ROOT, Installer\Products\7692FC6BE18C0C0489510C7547EF1F02
+Sleep, 2500
 
 ; Test if Setup file exists
 TestsTotal++
