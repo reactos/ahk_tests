@@ -21,6 +21,67 @@
 SendMode Input ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir% ; Ensures a consistent starting directory.
 
+
+LeftClickControl(ControlName)
+{
+    ; Usage:
+    ; if LeftClickControl("Button1") {}
+    
+    ; http://www.autohotkey.com/docs/commands/PostMessage.htm
+    SendMessage, 0x201, 0, 0, %ControlName% ; Left click down
+    if ErrorLevel <> FAIL
+    {
+        Sleep, 120 ; Just in case
+        SendMessage, 0x202, 0, 0, %ControlName% ; Left click up 
+        if ErrorLevel <> FAIL
+        {
+            ; Everything went OK
+            return 1
+        }
+        else
+        {
+            OutputDebug, HelperFunctions: Test failed: SendMessage(left click up) reported an error, trying PostMessage.`n
+            PostMessage, 0x202, 0, 0, %ControlName% ; Left click up 
+            if ErrorLevel <> FAIL
+            {
+                ; Everything went OK
+                return 1
+            }
+            else
+            {
+                OutputDebug, HelperFunctions: Test failed: PostMessage(left click up) failed too.`n
+                return 0
+            }
+        }
+    }
+    else
+    {
+        OutputDebug, HelperFunctions: Test failed: SendMessage(left click down) reported an error, trying PostMessage.`n
+        PostMessage, 0x201, 0, 0, %ControlName% ; Left click down
+        if ErrorLevel <> FAIL
+        {
+            Sleep, 120 ; Just in case
+            PostMessage, 0x202, 0, 0, %ControlName% ; Left click up 
+            if ErrorLevel <> FAIL
+            {
+                ; Everything went OK
+                return 1
+            }
+            else
+            {
+                OutputDebug, HelperFunctions: Test failed: PostMessage(left click up) failed too.`n
+                return 0
+            }
+        }
+        else
+        {
+            OutputDebug, HelperFunctions: Test failed: PostMessage(left click down) failed too.`n
+            return 0
+        }
+    }
+}
+
+
 FileCountLines(PathToFile)
 {
     NumberOfLines := 0 ; In case there is no such file or something
