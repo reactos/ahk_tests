@@ -36,6 +36,13 @@ else if 1 = 1.install
 }
 else
 {
+    #include prepare.ahk
+    
+    if 1 = 2.AddArchive
+    {
+        #include AddArchive.ahk
+    }
+    else
     OutputDebug, Bad parameters!`r`n
 }
 
@@ -46,10 +53,6 @@ if 1 != --list
         SplitPath, ModuleExe, fName ; Extract filename from given path
         WindowCleanUp(fName)  
     }
-
-    ; Delete saved settings
-    Sleep, 1500
-    RegDelete, HKEY_CURRENT_USER, SOFTWARE\7-Zip
 
     TestsSkipped := TestsTotal - TestsOK - TestsFailed
     TestsExecuted := TestsOK + TestsFailed
