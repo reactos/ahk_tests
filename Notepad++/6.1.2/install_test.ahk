@@ -166,7 +166,7 @@ TestsTotal++
 if bContinue
 {
     SetTitleMatchMode, 1
-    WinWaitActive, Notepad, Choose Install Location, 15
+    WinWaitActive, Notepad, Check the components, 15
     if not ErrorLevel
     {
         Sleep, 250
