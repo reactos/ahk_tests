@@ -36,6 +36,13 @@ else if 1 = 1.install
 }
 else
 {
+    #include prepare.ahk
+    
+    if 1 = 2.address_bar
+    {
+        #include address_bar.ahk
+    }
+    else
     OutputDebug, Bad parameters!`r`n
 }
 
