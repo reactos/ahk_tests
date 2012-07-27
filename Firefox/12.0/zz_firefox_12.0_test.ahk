@@ -42,6 +42,10 @@ else
     {
         #include address_bar.ahk
     }
+    else if 1 = 3.download
+    {
+        #include download.ahk
+    }
     else
     OutputDebug, Bad parameters!`r`n
 }
