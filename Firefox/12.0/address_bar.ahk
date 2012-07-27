@@ -42,14 +42,14 @@ if bContinue
         {
             TestsFailed++
             WinGetTitle, title, A
-            OutputDebug, FAILED: %Module%:%A_LineNumber%: 'DSx86 by Patrick Aalto - Mozilla Firefox' window failed to appear, so, typing URL failed. Active window caption: '%title%'.`n
+            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'DSx86 by Patrick Aalto - Mozilla Firefox' window failed to appear, so, typing URL failed. Active window caption: '%title%'.`n
         }
     }
     else
     {
         TestsFailed++
         WinGetTitle, title, A
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: 'Mozilla Firefox Start Page - Mozilla Firefox' is not active window. Active window caption: '%title%'.`n
+        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Firefox Start Page - Mozilla Firefox' is not active window. Active window caption: '%title%'.`n
     }
 }
 
