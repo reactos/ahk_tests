@@ -172,7 +172,7 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Extracting' window appeared, waiting for it to close.`n
+        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installing' window appeared, waiting for it to close.`n
         WinWaitClose, Mozilla Firefox Setup, Installing, 25
         if not ErrorLevel
         {
