@@ -43,11 +43,12 @@ IfExist, %ModuleExe%
                 szNoFirstRun := "user_pref(""browser.startup.homepage_override.mstone""`, ""rv:12.0"")`;" ; Lets pretend we ran it once
                 szRightsShown := "user_pref(""browser.rights.3.shown""`, true)`;" ; We know your rights, no need to ask
                 szNoImprvHelp := "user_pref(""toolkit.telemetry.prompted""`, 2)`;`nuser_pref(""toolkit.telemetry.rejected""`, true)`;" ; We don't want to help to improve
-                FileAppend, %szNoWarningOnClose%`n%szNoFirstRun%`n%szRightsShown%`n%szNoImprvHelp%, %A_AppData%\Mozilla\Firefox\Profiles\ReactOS.default\prefs.js
+                szDownloadDir := "user_pref(""browser.download.folderList""`, 0)`;" ; Desktop is our default download directory
+                FileAppend, %szNoWarningOnClose%`n%szNoFirstRun%`n%szRightsShown%`n%szNoImprvHelp%`n`n%szDownloadDir%, %A_AppData%\Mozilla\Firefox\Profiles\ReactOS.default\prefs.js
                 if not ErrorLevel
                 {
                     Run, %ModuleExe%,,Max ; Start maximized
-                    WinWaitActive, Mozilla Firefox Start Page - Mozilla Firefox,, 7
+                    WinWaitActive, Mozilla Firefox Start Page - Mozilla Firefox,, 12
                     if not ErrorLevel
                     {
                         bContinue := true ; We are up and running
