@@ -17,6 +17,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+TestName = 2.address_bar
+ 
 ; Check if can open some website by typing text in address bar
 TestsTotal++
 if bContinue
