@@ -46,6 +46,10 @@ else
     {
         #include download.ahk
     }
+    else if 1 = 4.search_bar
+    {
+        #include search_bar.ahk
+    }
     else
     OutputDebug, Bad parameters!`r`n
 }
