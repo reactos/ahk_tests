@@ -114,7 +114,7 @@ if bContinue
 
         TestsOK++
         OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Tux Paint' window with 'License Agreement' appeared.`n
-        SendInput, {ALTDOWN}a{ALTUP} ; Check 'I accept' radiobutton
+        SendInput, {ALTDOWN}a{ALTUP} ; Check 'I accept' radiobutton (Fails to check? Bug 7215)
         Sleep, 1000 ; Wait until 'Next' button is enabled
         SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
         bContinue := true
