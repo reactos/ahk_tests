@@ -192,7 +192,7 @@ if bContinue
     {
         TestsFailed++
         WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Firefox Setup' window with 'Summary' failed to appear. Active window caption: '%title%'.`n
+        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Firefox Setup' window with 'Installing' failed to appear. Active window caption: '%title%'.`n
         bContinue := false
     }
 }
