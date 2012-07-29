@@ -116,6 +116,7 @@ if bContinue
         OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Tux Paint' window with 'License Agreement' appeared.`n
         SendInput, {ALTDOWN}a{ALTUP} ; Check 'I accept' radiobutton (Fails to check? Bug 7215)
         Sleep, 1000 ; Wait until 'Next' button is enabled
+        ; FIXME: check if button is enabled before sending keystroke
         SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
         bContinue := true
     }
@@ -147,7 +148,7 @@ if bContinue
     {
         TestsFailed++
         WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - Tux Paint' window with 'Choose Installation Type' failed to appear. Active window caption: '%title%'.`n
+        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - Tux Paint' window with 'Choose Installation Type' failed to appear (bug 7215?). Active window caption: '%title%'.`n
         bContinue := false
     }
 }
@@ -282,7 +283,7 @@ if bContinue
     }
 }
 
-; Test if 'Completing' window appeared
+; Test if 'Completing' window appeared and all checkboxes were unchecked correctly
 TestsTotal++
 if bContinue
 {
@@ -291,12 +292,25 @@ if bContinue
     {
         Sleep, 250
 
-        TestsOK++
         OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Tux Paint' window with 'Completing' appeared.`n
         SendInput, {SPACE}{DOWN}{SPACE} ; FIXME: Find better solution. AHK 'Control, Uncheck' won't work here!
         Sleep, 500
         SendInput, {ALTDOWN}f{ALTUP} ; Hit 'Finish' button
-        bContinue := true
+        Sleep, 2000
+        
+        Process, Exist, tuxpaint-config.exe
+        if not ErrorLevel
+        {
+            TestsOK++
+            OutputDebug, OK: %TestName%:%A_LineNumber%: Unchecking went OK.`n
+            bContinue := true
+        }
+        else
+        {
+            TestsFailed++
+            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Process 'tuxpaint-config.exe' detected, so failed to uncheck checkboxes in 'Completing'.`n
+            bContinue := false
+        }
     }
     else
     {
