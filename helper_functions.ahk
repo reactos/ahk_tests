@@ -99,9 +99,6 @@ WindowCleanup(ProcessName)
     if NewPID != 0
     {
         Process, close, %ProcessName%
-    }
-    else
-    {
         SplitPath, ProcessName, name, dir, ext, name_no_ext, drive
         Process, close, %name_no_ext%.tmp ; Will kill some setups
         Process, close, Setup.exe
