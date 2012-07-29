@@ -63,18 +63,11 @@ else
 
 if 1 != --list
 {
-    if bContinue ; Succeeded, close normally
+    if not bContinue
     {
-        SetTitleMatchMode, 2
-        WinClose, Opera,,5
-        if ErrorLevel
-        {
-            Process, close, Opera.exe ; Failed to close, terminate
-        }
-    }
-    else ; We failed, so kill process
-    {
-        SplitPath, ModuleExe, fName ; Extract filename from given path
+        SplitPath, SetupExe, fName ; Extract filename from given path
+        WindowCleanUp(fName)
+        SplitPath, ModuleExe, fName
         WindowCleanUp(fName)  
     }
 
