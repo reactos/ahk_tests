@@ -309,6 +309,7 @@ if bContinue
         {
             TestsFailed++
             OutputDebug, %TestName%:%A_LineNumber%: Test failed: Process 'tuxpaint-config.exe' detected, so failed to uncheck checkboxes in 'Completing'.`n
+            Process, Close, tuxpaint-config.exe
             bContinue := false
         }
     }
