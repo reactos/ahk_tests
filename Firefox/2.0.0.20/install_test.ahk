@@ -64,8 +64,22 @@ IfExist, %ModuleExe%
         ; Check in default directory to be extra sure
         IfExist, %A_ProgramFiles%\Mozilla Firefox
         {
-            OutputDebug, %TestName%:%A_LineNumber%: Test Failed: Previous version detected by hardcoded path.`n
-            bContinue := false
+            Process, Close, firefox.exe ; Teminate process
+            Sleep, 1500
+            RunWait, %UninstallerPath% /S ; Silently uninstall it
+            Sleep, 2500
+            FileRemoveDir, %InstalledDir%, 1
+            FileRemoveDir, %A_AppData%\Mozilla, 1
+            Sleep, 1000
+            IfExist, %InstalledDir%
+            {
+                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Previous version detected and failed to delete '%InstalledDir%'.`n
+                bContinue := false
+            }
+            else
+            {
+                bContinue := true
+            }
         }
         else
         {
