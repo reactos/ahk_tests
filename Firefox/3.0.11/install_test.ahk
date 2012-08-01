@@ -43,7 +43,7 @@ IfExist, %ModuleExe%
             RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\mozilla.org
             RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MozillaPlugins
             RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Mozilla Firefox (3.0.11)
-            SplitPath, %UninstallerPath%,, InstalledDir
+            SplitPath, UninstallerPath,, InstalledDir
             FileRemoveDir, %InstalledDir%, 1
             FileRemoveDir, %A_AppData%\Mozilla, 1
             Sleep, 1000

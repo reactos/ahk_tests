@@ -42,7 +42,7 @@ IfExist, %ModuleExe%
             RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Mozilla\Mozilla Sunbird
             RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Mozilla Sunbird 9.0
             RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Mozilla Sunbird (2.0.0.18)
-            SplitPath, %UninstallerPath%,, InstalledDir
+            SplitPath, UninstallerPath,, InstalledDir
             FileRemoveDir, %InstalledDir%, 1
             FileRemoveDir, %A_AppData%\Mozilla, 1
             Sleep, 1000

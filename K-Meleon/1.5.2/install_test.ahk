@@ -43,7 +43,7 @@ IfExist, %ModuleExe%
             RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\K-Meleon
             RegDelete, HKEY_CURRENT_USER, SOFTWARE\K-Meleon
             RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\K-Meleon
-            SplitPath, %UninstallerPath%,, InstalledDir
+            SplitPath, UninstallerPath,, InstalledDir
             FileRemoveDir, %InstalledDir%, 1
             Sleep, 1000
             IfExist, %InstalledDir%

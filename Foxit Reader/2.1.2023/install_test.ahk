@@ -39,7 +39,7 @@ IfExist, %ModuleExe%
             RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Foxit Software
             RegDelete, HKEY_CURRENT_USER, SOFTWARE\Foxit Software
             RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Foxit Reader
-            SplitPath, %UninstallerPath%,, InstalledDir
+            SplitPath, UninstallerPath,, InstalledDir
             FileRemoveDir, %InstalledDir%, 1
             Sleep, 1000
             IfExist, %InstalledDir%
