@@ -66,14 +66,14 @@ IfExist, %ModuleExe%
         {
             Process, Close, firefox.exe ; Teminate process
             Sleep, 1500
-            RunWait, %UninstallerPath% /S ; Silently uninstall it
+            RunWait, %A_ProgramFiles%\Mozilla Firefox\uninstall.exe /S ; Silently uninstall it
             Sleep, 2500
-            FileRemoveDir, %InstalledDir%, 1
+            FileRemoveDir, %A_ProgramFiles%\Mozilla Firefox, 1
             FileRemoveDir, %A_AppData%\Mozilla, 1
             Sleep, 1000
-            IfExist, %InstalledDir%
+            IfExist, %A_ProgramFiles%\Mozilla Firefox
             {
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Previous version detected and failed to delete '%InstalledDir%'.`n
+                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Previous version detected and failed to delete '%A_ProgramFiles%\Mozilla Firefox'.`n
                 bContinue := false
             }
             else
