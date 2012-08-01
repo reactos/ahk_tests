@@ -62,7 +62,7 @@ IfExist, %ModuleExe%
         ; There was a problem (such as a nonexistent key or value). 
         ; That probably means we have not installed this app before.
         ; Check in default directory to be extra sure
-        IfExist, %A_ProgramFiles%\Mozilla
+        IfExist, %A_ProgramFiles%\Mozilla Firefox
         {
             OutputDebug, %TestName%:%A_LineNumber%: Test Failed: Previous version detected by hardcoded path.`n
             bContinue := false
