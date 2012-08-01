@@ -43,6 +43,7 @@ IfExist, %ModuleExe%
             RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\mozilla.org
             RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MozillaPlugins
             RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Mozilla Firefox (2.0.0.20)
+            SplitPath, %UninstallerPath%,, InstalledDir
             FileRemoveDir, %InstalledDir%, 1
             FileRemoveDir, %A_AppData%\Mozilla, 1
             Sleep, 1000
