@@ -226,7 +226,7 @@ if bContinue
 }
 
 
-; Test if 'Choose Components' window appeared
+; Test if 'Choose Install Location' window appeared
 TestsTotal++
 if bContinue
 {
@@ -380,7 +380,7 @@ if bContinue
             WinGetTitle, title, A
             OutputDebug, %TestName%:%A_LineNumber%: Test failed: unable to uncheck 'Run AbiWord 2.6.4' in 'Completing' window. Active window caption: '%title%'.`n
             bContinue := false
-            Process, Close, thunderbird.exe ; Just in case
+            Process, Close, AbiWord.exe ; Just in case
         }
     }
     else
