@@ -61,7 +61,7 @@ IfExist, %ModuleExe%
         }
         else
         {
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to delete '%InstalledDir%'.`n
+            OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%UninstallerPath%' does not exist.`n
             bContinue := false
         }
     }
