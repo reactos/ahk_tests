@@ -81,7 +81,7 @@ IfExist, %ModuleExe%
             Sleep, 2500
             FileRemoveDir, %A_ProgramFiles%\7-Zip, 1
             Sleep, 1000
-            IfExist, %A_ProgramFiles%\-Zip
+            IfExist, %A_ProgramFiles%\7-Zip
             {
                 OutputDebug, %TestName%:%A_LineNumber%: Test failed: Previous version detected and failed to delete '%A_ProgramFiles%\7-Zip'.`n
                 bContinue := false
