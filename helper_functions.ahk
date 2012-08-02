@@ -24,6 +24,7 @@ SetWorkingDir %A_ScriptDir% ; Ensures a consistent starting directory.
 TestsOK()
 {
     global TestsOK
+    global bContinue
     TestsOK++
     bContinue := true
 }
@@ -31,6 +32,7 @@ TestsOK()
 TestsFailed()
 {
     global TestsFailed
+    global bContinue
     TestsFailed++
     bContinue := false
 }
