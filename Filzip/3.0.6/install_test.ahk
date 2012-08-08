@@ -62,7 +62,7 @@ IfExist, %ModuleExe%
         {
             Process, Close, Filzip.exe ; Teminate process
             Sleep, 1500
-            RegDelete, HKEY_CURRENT\USER, SOFTWARE\Filzip
+            RegDelete, HKEY_CURRENT_USER, SOFTWARE\Filzip
             RunWait, %A_ProgramFiles%\Filzip\unins000.exe /SILENT ; Silently uninstall it
             Sleep, 2500
             FileRemoveDir, %A_ProgramFiles%\Filzip, 1
