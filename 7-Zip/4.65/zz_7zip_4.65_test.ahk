@@ -42,6 +42,10 @@ else
     {
         #include ExtractArchive.ahk
     }
+    else if 1 = 3.Benchmark
+    {
+        #include Benchmark.ahk
+    }
     else
     OutputDebug, Bad parameters!`r`n
 }

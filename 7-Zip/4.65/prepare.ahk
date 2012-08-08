@@ -25,6 +25,7 @@ TestsOK := 0
 TestsExecuted := 0
 TestName = prepare
 
+Process, Close, 7zFM.exe
 
 RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\7-Zip, UninstallString
 if not ErrorLevel
