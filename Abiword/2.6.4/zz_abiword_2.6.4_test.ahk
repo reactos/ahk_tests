@@ -36,6 +36,13 @@ else if 1 = 1.install
 }
 else
 {
+    #include prepare.ahk
+
+    if 1 = 2.SaveAsDesktop
+    {
+        #include SaveAsDesktop.ahk
+    }
+    else
     OutputDebug, Bad parameters!`r`n
 }
 
