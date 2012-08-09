@@ -36,6 +36,13 @@ else if 1 = 1.install
 }
 else
 {
+    #include prepare.ahk
+    
+    if 1 = 2.SearchCurrentDoc
+    {
+        #include SearchCurrentDoc.ahk
+    }
+    else
     OutputDebug, Bad parameters!`r`n
 }
 
@@ -47,10 +54,7 @@ if 1 != --list
         WindowCleanUp(fName)  
     }
 
-    ; Delete saved settings
-    Sleep, 1500
-    FileRemoveDir, %A_AppData%\Adobe\Acrobat, 1
-
+    ; Saved settings are deleted in prepare.ahk everytime before test
     TestsSkipped := TestsTotal - TestsOK - TestsFailed
     TestsExecuted := TestsOK + TestsFailed
     if (TestsSkipped < 0 or TestsExecuted < 0)
