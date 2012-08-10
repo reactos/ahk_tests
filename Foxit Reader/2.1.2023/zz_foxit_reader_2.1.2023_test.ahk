@@ -36,6 +36,13 @@ else if 1 = 1.install
 }
 else
 {
+    #include prepare.ahk
+    
+    if 1 = 2.GoToPage
+    {
+        #include GoToPage.ahk ; Open PDF document, go to page 29, close document, exit Foxit Reader.
+    }
+    else
     OutputDebug, Bad parameters!`r`n
 }
 
@@ -47,6 +54,8 @@ if 1 != --list
         WindowCleanUp(fName)  
     }
 
+    Process, Close, Foxit Reader.exe
+    
     TestsSkipped := TestsTotal - TestsOK - TestsFailed
     TestsExecuted := TestsOK + TestsFailed
     if (TestsSkipped < 0 or TestsExecuted < 0)
