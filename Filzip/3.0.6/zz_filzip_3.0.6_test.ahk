@@ -36,6 +36,13 @@ else if 1 = 1.install
 }
 else
 {
+    #include prepare.ahk
+    
+    if 1 = 2.ExtractArchive
+    {
+        #include ExtractArchive.ahk
+    }
+    else
     OutputDebug, Bad parameters!`r`n
 }
 
@@ -46,11 +53,9 @@ if 1 != --list
         SplitPath, ModuleExe, fName ; Extract filename from given path
         WindowCleanUp(fName)  
     }
-    
-    ; Delete saved settings
-    Sleep, 1500
-    RegDelete, HKEY_CURRENT\USER, SOFTWARE\Filzip
 
+    Process, Close, Filzip.exe
+    
     TestsSkipped := TestsTotal - TestsOK - TestsFailed
     TestsExecuted := TestsOK + TestsFailed
     if (TestsSkipped < 0 or TestsExecuted < 0)
