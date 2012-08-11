@@ -1,5 +1,5 @@
 /*
- * Designed for 10.3.183.11
+ * Designed for Flash Player 10.3.183.11
  * Copyright (C) 2012 Edijs Kolesnikovics
  *
  * This library is free software; you can redistribute it and/or
@@ -36,6 +36,13 @@ else if 1 = 1.install
 }
 else
 {
+    #include prepare.ahk
+    
+    if 1 = 2.SA_LoadLocalFlash ; StandAlone Flash Player: play locally located SWF
+    {
+        #include SA_LoadLocalFlash.ahk
+    }
+    else
     OutputDebug, Bad parameters!`r`n
 }
 
