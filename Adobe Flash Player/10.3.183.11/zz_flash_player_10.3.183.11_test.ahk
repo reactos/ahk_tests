@@ -42,6 +42,10 @@ else
     {
         #include SA_LoadLocalFlash.ahk
     }
+    else if 1 = 2.SA_LoadOnlineFlash ; StandAlone Flash Player: play online located SWF
+    {
+        #include SA_LoadOnlineFlash.ahk
+    }
     else
     OutputDebug, Bad parameters!`r`n
 }
