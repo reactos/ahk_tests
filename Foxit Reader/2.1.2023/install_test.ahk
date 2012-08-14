@@ -82,7 +82,15 @@ IfExist, %ModuleExe%
     }
     if bContinue
     {
-        Run %ModuleExe%
+        IfExist, %A_WinDir%\System32\mfc42.dll
+        {
+            Run %ModuleExe%
+        }
+        else
+        {
+            OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%A_WinDir%\System32\mfc42.dll' is required, but it was not found (VC++6).`n
+            bContinue := false
+        }
     }
 }
 else
