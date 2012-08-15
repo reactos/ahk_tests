@@ -36,6 +36,13 @@ else if 1 = 1.install
 }
 else
 {
+    #include prepare.ahk
+
+    if 1 = 2.ChatTest
+    {
+        #include ChatTest.ahk ; Type some text in chat window (IRC channel) and exit application correctly
+    }
+    else
     OutputDebug, Bad parameters!`r`n
 }
 

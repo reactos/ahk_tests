@@ -83,6 +83,7 @@ IfExist, %ModuleExe%
     }
     if bContinue
     {
+        FileRemoveDir, %A_AppData%\mIRC, 1
         Run %ModuleExe%
     }
 }
