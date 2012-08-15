@@ -36,6 +36,13 @@ else if 1 = 1.install
 }
 else
 {
+    #include prepare.ahk
+    
+    if 1 = 2.OpenDocument
+    {
+        #include OpenDocument.ahk ; Open html document using File -> Open and close application
+    }
+    else
     OutputDebug, Bad parameters!`r`n
 }
 
@@ -47,9 +54,6 @@ if 1 != --list
         WindowCleanUp(fName)  
     }
 
-    ; Delete saved settings
-    Sleep, 1500
-    FileRemoveDir, %A_AppData%\K-Meleon, 1
 
     TestsSkipped := TestsTotal - TestsOK - TestsFailed
     TestsExecuted := TestsOK + TestsFailed
