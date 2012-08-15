@@ -36,6 +36,13 @@ else if 1 = 1.install
 }
 else
 {
+    #include prepare.ahk
+    
+    if 1 = 2.OpenDocument
+    {
+        #include OpenDocument.ahk ; Open picture using File -> Open dialog and close app
+    }
+    else
     OutputDebug, Bad parameters!`r`n
 }
 
@@ -46,10 +53,6 @@ if 1 != --list
         SplitPath, ModuleExe, fName ; Extract filename from given path
         WindowCleanUp(fName)  
     }
-    
-    ; Delete saved settings
-    Sleep, 1500
-    FileRemoveDir, %A_AppData%\IrfanView, 1
 
     TestsSkipped := TestsTotal - TestsOK - TestsFailed
     TestsExecuted := TestsOK + TestsFailed
