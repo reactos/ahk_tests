@@ -36,6 +36,13 @@ else if 1 = 1.install
 }
 else
 {
+    #include prepare.ahk
+    
+    if 1 = 2.SendMail
+    {
+        #include SendMail.ahk
+    }
+    else
     OutputDebug, Bad parameters: '%1%'!`r`n
 }
 
