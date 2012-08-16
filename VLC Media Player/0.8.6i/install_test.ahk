@@ -85,6 +85,7 @@ IfExist, %ModuleExe%
     }
     if bContinue
     {
+        FileRemoveDir, %A_AppData%\vlc, 1
         Run %ModuleExe%
     }
 }
