@@ -36,6 +36,13 @@ else if 1 = 1.install
 }
 else
 {
+    #include prepare.ahk
+    
+    if 1 = 2.ExtractPwdProtected
+    {
+        #include ExtractPwdProtected.ahk ; Extract password protected RAR archive
+    }
+    else
     OutputDebug, Bad parameters!`r`n
 }
 
