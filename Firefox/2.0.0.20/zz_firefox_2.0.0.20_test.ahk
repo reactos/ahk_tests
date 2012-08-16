@@ -36,6 +36,21 @@ else if 1 = 1.install
 }
 else
 {
+    #include prepare.ahk
+    
+    if 1 = 2.address_bar
+    {
+        #include address_bar.ahk
+    }
+    else if 1 = 3.download
+    {
+        #include download.ahk
+    }
+    else if 1 = 4.search_bar
+    {
+        #include search_bar.ahk
+    }
+    else
     OutputDebug, Bad parameters: '%1%'!`r`n
 }
 
@@ -47,9 +62,6 @@ if 1 != --list
         WindowCleanUp(fName)  
     }
 
-    ; Delete saved settings
-    Sleep, 1500
-    FileRemoveDir, %A_AppData%\Mozilla, 1
 
     TestsSkipped := TestsTotal - TestsOK - TestsFailed
     TestsExecuted := TestsOK + TestsFailed
