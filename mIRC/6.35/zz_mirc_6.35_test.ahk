@@ -43,7 +43,7 @@ else
         #include ChatTest.ahk ; Type some text in chat window (IRC channel) and exit application correctly
     }
     else
-    OutputDebug, Bad parameters!`r`n
+    OutputDebug, Bad parameters: '%1%'!`r`n
 }
 
 if 1 != --list

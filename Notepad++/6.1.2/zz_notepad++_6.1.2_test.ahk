@@ -53,7 +53,7 @@ else
     {
         #include Ctrl-F.FindDialog.ahk
     }
-    else OutputDebug, Bad parameters!`r`n
+    else OutputDebug, Bad parameters: '%1%'!`r`n
 }
 
 if 1 != --list

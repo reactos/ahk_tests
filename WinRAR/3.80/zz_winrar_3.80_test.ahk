@@ -43,7 +43,7 @@ else
         #include ExtractPwdProtected.ahk ; Extract password protected RAR archive
     }
     else
-    OutputDebug, Bad parameters!`r`n
+    OutputDebug, Bad parameters: '%1%'!`r`n
 }
 
 if 1 != --list

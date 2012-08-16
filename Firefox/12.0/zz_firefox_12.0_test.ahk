@@ -51,7 +51,7 @@ else
         #include search_bar.ahk
     }
     else
-    OutputDebug, Bad parameters!`r`n
+    OutputDebug, Bad parameters: '%1%'!`r`n
 }
 
 if 1 != --list

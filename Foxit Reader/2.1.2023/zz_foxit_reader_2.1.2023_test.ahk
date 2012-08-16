@@ -43,7 +43,7 @@ else
         #include GoToPage.ahk ; Open PDF document, go to page 29, close document, exit Foxit Reader.
     }
     else
-    OutputDebug, Bad parameters!`r`n
+    OutputDebug, Bad parameters: '%1%'!`r`n
 }
 
 if 1 != --list

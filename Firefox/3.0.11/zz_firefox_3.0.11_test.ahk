@@ -42,8 +42,12 @@ else
     {
         #include address_bar.ahk
     }
+    else if 1 = 4.search_bar
+    {
+        #include search_bar.ahk
+    }
     else
-    OutputDebug, Bad parameters!`r`n
+    OutputDebug, Bad parameters: '%1%'!`r`n
 }
 
 if 1 != --list

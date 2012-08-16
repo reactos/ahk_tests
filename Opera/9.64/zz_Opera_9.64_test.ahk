@@ -57,7 +57,7 @@ else
         {
             #include CloseDownload.ahk
         }
-        else OutputDebug, Bad parameters!`r`n
+        else OutputDebug, Bad parameters: '%1%'!`r`n
     }
 }
 

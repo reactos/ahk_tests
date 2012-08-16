@@ -43,7 +43,7 @@ else
         #include OpenDocument.ahk ; Open picture using File -> Open dialog and close app
     }
     else
-    OutputDebug, Bad parameters!`r`n
+    OutputDebug, Bad parameters: '%1%'!`r`n
 }
 
 if 1 != --list
