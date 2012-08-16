@@ -48,6 +48,7 @@ if bContinue
                 WinWaitActive, Inbox for reactos.dev@gmail.com - Thunderbird,,10
                 if not ErrorLevel
                 {
+                    Sleep, 7000 ; Sleep to actually send the message
                     OutputDebug, OK: %TestName%:%A_LineNumber%: Composed and sent new email successfully.`n
                     TestsOK()
                 }
