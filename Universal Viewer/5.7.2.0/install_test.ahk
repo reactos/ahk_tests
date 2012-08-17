@@ -83,6 +83,10 @@ IfExist, %ModuleExe%
     }
     if bContinue
     {
+        ; Delete saved settings
+        FileRemoveDir, %A_AppData%\SumatraPDF, 1
+        FileRemoveDir, %A_AppData%\ATViewer, 1
+        FileRemoveDir, %A_AppData%\Adobe, 1
         Run %ModuleExe%
     }
 }
