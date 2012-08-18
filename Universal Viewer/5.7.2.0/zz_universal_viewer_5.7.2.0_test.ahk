@@ -36,6 +36,13 @@ else if 1 = 1.install
 }
 else
 {
+    #include prepare.ahk
+    
+    if 1 = 2.GoToPage
+    {
+        #include GoToPage.ahk ; Open PDF document, go to page 29, close document, exit Universal Viewer.
+    }
+    else
     OutputDebug, Bad parameters: '%1%'!`r`n
 }
 
@@ -46,10 +53,6 @@ if 1 != --list
         SplitPath, ModuleExe, fName ; Extract filename from given path
         WindowCleanUp(fName)  
     }
-    
-    ; Delete saved settings
-    Sleep, 1500
-    FileRemoveDir, %A_AppData%\ATViewer, 1
 
     TestsSkipped := TestsTotal - TestsOK - TestsFailed
     TestsExecuted := TestsOK + TestsFailed
