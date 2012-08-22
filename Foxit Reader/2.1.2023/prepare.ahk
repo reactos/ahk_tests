@@ -52,7 +52,7 @@ RunApplication(PathToFile)
     RegDelete, HKEY_CURRENT_USER, SOFTWARE\Foxit Sofrware\Foxit Reader
     Sleep, 500
     ; Disable 'Set Foxit Readed to be default PDF reader' dialog
-    RegWrite, REG_DWORD, HKEY_CURRENT_USER, Software\Foxit Sofrware\Foxit Reader\MainFrame, CheckRegister, 0
+    RegWrite, REG_SZ, HKEY_CURRENT_USER, Software\Foxit Software\Foxit Reader\MainFrame, CheckRegister, 0
     
     IfExist, %ModuleExe%
     {
