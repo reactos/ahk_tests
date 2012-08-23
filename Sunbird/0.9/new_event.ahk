@@ -107,4 +107,4 @@ else
     OutputDebug, %TestName%:%A_LineNumber%: Test failed: We failed somewhere in prepare.ahk. Active window caption: '%title%'`n
 }
 
-; Process, Close, sunbird.exe ; Teminate process
+Process, Close, sunbird.exe ; Teminate process
