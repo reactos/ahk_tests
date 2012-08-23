@@ -60,7 +60,6 @@ if bContinue
     WinWaitActive, Installer Language, Please select a language, 15 ; Wait 15 secs for window to appear
     if not ErrorLevel ;Window is found and it is active
     {
-        TestsOK++
         ControlClick, Button1, Installer Language ; Use ControlClick instead of ControlFocus due to bug no.7098
         if not ErrorLevel
         {
