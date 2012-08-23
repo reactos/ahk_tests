@@ -36,13 +36,13 @@ else if 1 = 1.install
 }
 else
 {
-    ; #include prepare.ahk
+    #include prepare.ahk
 
-    ;if 1 = 2.replace
-    ;{
-    ;    #include replace.ahk ; Open document, replace some text, save it and exit SciTE.
-    ;}
-    ;else
+    if 1 = 2.debug_run
+    {
+        #include debug_run.ahk
+    }
+    else
     OutputDebug, Bad parameters: '%1%'!`r`n
 }
 
