@@ -36,6 +36,13 @@ else if 1 = 1.install
 }
 else
 {
+    #include prepare.ahk
+    
+    if 1 = 2.find_files
+    {
+        #include find_files.ahk
+    }
+    else
     OutputDebug, Bad parameters: '%1%'!`r`n
 }
 
