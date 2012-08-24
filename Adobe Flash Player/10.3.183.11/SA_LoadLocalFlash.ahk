@@ -79,7 +79,7 @@ IfWinActive, Adobe Flash Player 10
                                     
                                     if bFound
                                     {
-                                        OutputDebug, %TestName%:%A_LineNumber%: OK: Found '%SearchImg%' on the screen, so, we can play '%szDocument%'.`n
+                                        OutputDebug, OK: %TestName%:%A_LineNumber%: Found '%SearchImg%' on the screen, so, we can play '%szDocument%'.`n
                                         TestsOK()
                                     }
                                     else

@@ -52,7 +52,7 @@ if bContinue
         if not ErrorLevel
         {
             TestsOK()
-            OutputDebug, %TestName%:%A_LineNumber%: OK: 'VCRedist Installation (Please read)' window appeared and 'Yes' button was clicked.`n
+            OutputDebug, OK: %TestName%:%A_LineNumber%: 'VCRedist Installation (Please read)' window appeared and 'Yes' button was clicked.`n
         }
         else
         {
@@ -85,7 +85,7 @@ if bContinue
             if not ErrorLevel
             {
                 TestsOK()
-                OutputDebug, %TestName%:%A_LineNumber%: OK: 'VCRedist Installation (Please type)' window appeared and 'OK' button was clicked.`n
+                OutputDebug, OK: %TestName%:%A_LineNumber%: 'VCRedist Installation (Please type)' window appeared and 'OK' button was clicked.`n
             }
             else
             {
@@ -118,7 +118,7 @@ if bContinue
     if not ErrorLevel
     {
         TestsOK()
-        OutputDebug, %TestName%:%A_LineNumber%: OK: 'VCRedist Installation (Please type)' window went away.`n
+        OutputDebug, OK: %TestName%:%A_LineNumber%: 'VCRedist Installation (Please type)' window went away.`n
     }
     else
     {

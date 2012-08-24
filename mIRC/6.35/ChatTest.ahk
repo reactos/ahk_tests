@@ -66,7 +66,7 @@ if not ErrorLevel
                     if not ErrorLevel
                     {
                         TestsOK()
-                        OutputDebug, %TestName%:%A_LineNumber%: OK: Connected to IRC server, entered some text in channel and closed application successfully.`n
+                        OutputDebug, OK: %TestName%:%A_LineNumber%: Connected to IRC server, entered some text in channel and closed application successfully.`n
                     }
                     else
                     {

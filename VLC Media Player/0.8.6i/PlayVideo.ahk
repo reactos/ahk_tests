@@ -61,7 +61,7 @@ if not ErrorLevel
                                 if not ErrorLevel
                                 {
                                     TestsOK()
-                                    OutputDebug, %TestName%:%A_LineNumber%: OK: Size of 'VLC media player' window is %Width%x%Height%, so, probably we can play '%szDocument%'.`n
+                                    OutputDebug, OK: %TestName%:%A_LineNumber%: Size of 'VLC media player' window is %Width%x%Height%, so, probably we can play '%szDocument%'.`n
                                 }
                                 else
                                 {

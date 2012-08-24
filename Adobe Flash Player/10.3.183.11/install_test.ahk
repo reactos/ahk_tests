@@ -133,7 +133,7 @@ if bContinue
             if not ErrorLevel
             {
                 TestsOK()
-                OutputDebug, %TestName%:%A_LineNumber%: OK: 'Adobe® Flash® Player 10.3 Installer' appeared and 'Install' button was clicked.`n
+                OutputDebug, OK: %TestName%:%A_LineNumber%: 'Adobe® Flash® Player 10.3 Installer' appeared and 'Install' button was clicked.`n
             }
             else
             {
@@ -173,7 +173,7 @@ if bContinue
         if not ErrorLevel
         {
             TestsOK()
-            OutputDebug, %TestName%:%A_LineNumber%: OK: 'Adobe® Flash® Player 10.3 Installer' appeared and 'Done' button was clicked.`n
+            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Adobe® Flash® Player 10.3 Installer' appeared and 'Done' button was clicked.`n
         }
         else
         {

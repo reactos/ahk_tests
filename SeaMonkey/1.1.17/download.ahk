@@ -76,7 +76,7 @@ if bContinue
                                 {
                                     TestsOK()
                                     SetTitleMatchMode, 3 ; A window's title must exactly match WinTitle to be a match.
-                                    OutputDebug, %TestName%:%A_LineNumber%: OK: '%szFileURL%' downloaded, terminating application.`n
+                                    OutputDebug, OK: %TestName%:%A_LineNumber%: '%szFileURL%' downloaded, terminating application.`n
                                     Process, Close, seamonkey.exe
                                 }
                                 else

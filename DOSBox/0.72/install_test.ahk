@@ -79,7 +79,7 @@ if bContinue
         if not ErrorLevel
         {
             TestsOK()
-            OutputDebug, %TestName%:%A_LineNumber%: OK: 'DOSBox 0.72 Installer Setup: License Agreement' appeared and 'Next' button was clicked.`n
+            OutputDebug, OK: %TestName%:%A_LineNumber%: 'DOSBox 0.72 Installer Setup: License Agreement' appeared and 'Next' button was clicked.`n
         }
         else
         {
@@ -108,7 +108,7 @@ if bContinue
         if not ErrorLevel
         {
             TestsOK()
-            OutputDebug, %TestName%:%A_LineNumber%: OK: 'DOSBox 0.72 Installer Setup: Installation Options' appeared and 'Next' button was clicked.`n
+            OutputDebug, OK: %TestName%:%A_LineNumber%: 'DOSBox 0.72 Installer Setup: Installation Options' appeared and 'Next' button was clicked.`n
         }
         else
         {
@@ -140,7 +140,7 @@ if bContinue
             if not ErrorLevel
             {
                 TestsOK()
-                OutputDebug, %TestName%:%A_LineNumber%: OK: 'DOSBox 0.72 Installer Setup: Installation Folder' appeared and 'Install' button was clicked.`n
+                OutputDebug, OK: %TestName%:%A_LineNumber%: 'DOSBox 0.72 Installer Setup: Installation Folder' appeared and 'Install' button was clicked.`n
             }
             else
             {
@@ -176,7 +176,7 @@ if bContinue
         if not ErrorLevel
         {
             TestsOK()
-            OutputDebug, %TestName%:%A_LineNumber%: OK: 'DOSBox 0.72 Installer Setup: Completed' appeared and 'Close' button was clicked.`n
+            OutputDebug, OK: %TestName%:%A_LineNumber%: 'DOSBox 0.72 Installer Setup: Completed' appeared and 'Close' button was clicked.`n
         }
         else
         {

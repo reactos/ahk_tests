@@ -56,7 +56,7 @@ if bContinue
                             if (OutputVar == ControlText)
                             {
                                 TestsOK()
-                                OutputDebug, %TestName%:%A_LineNumber%: OK: 'Find Files' executed by 'Commands -> Search' successfully.`n
+                                OutputDebug, OK: %TestName%:%A_LineNumber%: 'Find Files' executed by 'Commands -> Search' successfully.`n
                                 Sleep, 1000
                                 Process, Close, TOTALCMD.EXE ; Teminate process
                             }
