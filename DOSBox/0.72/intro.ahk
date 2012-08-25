@@ -42,34 +42,17 @@ if bContinue
             WinWaitClose, Program:    INTRO,,5
             if not ErrorLevel
             {
-                TestsOK()
+                TestsOK("Typed 'intro' and 'exit' successfully.")
                 SetTitleMatchMode, 3 ; A window's title must exactly match WinTitle to be a match
-                OutputDebug, OK: %TestName%:%A_LineNumber%: typed 'intro' and 'exit' successfully.`n
             }
             else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Program:    INTRO' failed to close (SetTitleMatchMode=2). Active window caption: '%title%'`n
-            }
+                TestsFailed("Window 'Program:    INTRO' failed to close (SetTitleMatchMode=2).")
         }
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Program:    INTRO' is not active (SetTitleMatchMode=2). Active window caption: '%title%'`n
-        }
+            TestsFailed("Window 'Program:    INTRO' is not active (SetTitleMatchMode=2).")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'DOSBox 0.72' is not active (SetTitleMatchMode=1). Active window caption: '%title%'`n
-    }
+        TestsFailed("Window 'DOSBox 0.72' is not active (SetTitleMatchMode=1).")
 }
 else
-{
-    TestsFailed()
-    WinGetTitle, title, A
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: We failed somewhere in prepare.ahk. Active window caption: '%title%'`n
-}
+    TestsFailed("We failed somewhere in prepare.ahk.")

@@ -47,19 +47,13 @@ IfExist, %ModuleExe%
             bContinue := false
         }
         else
-        {
             bContinue := true
-        }
     }
     else
-    {
-        ; No previous versions detected.
-        bContinue := true
-    }
+        bContinue := true ; No previous versions detected.
+
     if bContinue
-    {
         Run %ModuleExe%
-    }
 }
 else
 {
@@ -77,23 +71,12 @@ if bContinue
     {
         ControlClick, Button2, DOSBox 0.72 Installer Setup: License Agreement, DOSBox v0.72 License ; Hit 'Next' button
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'DOSBox 0.72 Installer Setup: License Agreement' appeared and 'Next' button was clicked.`n
-        }
+            TestsOK("'DOSBox 0.72 Installer Setup: License Agreement' window appeared and 'Next' button was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: unable to hit 'Next' button in 'License Agreement'. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Next' button in 'License Agreement' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'DOSBox 0.72 Installer Setup: License Agreement' window with 'Next' button failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'DOSBox 0.72 Installer Setup: License Agreement' window with 'Next' button failed to appear.")
 }
 
 
@@ -106,23 +89,12 @@ if bContinue
     {
         ControlClick, Button2, DOSBox 0.72 Installer Setup: Installation Options, Select components ; Hit 'Next' button
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'DOSBox 0.72 Installer Setup: Installation Options' appeared and 'Next' button was clicked.`n
-        }
+            TestsOK("'DOSBox 0.72 Installer Setup: Installation Options' appeared and 'Next' button was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: unable to hit 'Next' button in 'Installation Options' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Next' button in 'DOSBox 0.72 Installer Setup: Installation Options' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'DOSBox 0.72 Installer Setup: Installation Options' window with 'Next' button failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'DOSBox 0.72 Installer Setup: Installation Options' window with 'Next' button failed to appear.")
 }
 
 
@@ -138,30 +110,15 @@ if bContinue
         {
             ControlClick, Button2, DOSBox 0.72 Installer Setup: Installation Folder, This will install ; Hit 'Install' button
             if not ErrorLevel
-            {
-                TestsOK()
-                OutputDebug, OK: %TestName%:%A_LineNumber%: 'DOSBox 0.72 Installer Setup: Installation Folder' appeared and 'Install' button was clicked.`n
-            }
+                TestsOK("'DOSBox 0.72 Installer Setup: Installation Folder' appeared and 'Install' button was clicked.")
             else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: unable to hit 'Install' button in 'Installation Folder' window. Active window caption: '%title%'.`n
-            }
+                TestsFailed("Unable to hit 'Install' button in 'DOSBox 0.72 Installer Setup: Installation Folder' window.")
         }
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: unable to set installation folder in 'Installation Folder' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to set installation folder to '" A_ProgramFiles "\DOSBox' in 'Installation Folder' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'DOSBox 0.72 Installer Setup: Installation Folder' window with 'Install' button failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'DOSBox 0.72 Installer Setup: Installation Folder' window with 'Install' button failed to appear.")
 }
 
 
@@ -174,39 +131,22 @@ if bContinue
     {
         ControlClick, Button2, DOSBox 0.72 Installer Setup: Completed, Completed ; Hit 'Close' button
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'DOSBox 0.72 Installer Setup: Completed' appeared and 'Close' button was clicked.`n
-        }
+            TestsOK("'DOSBox 0.72 Installer Setup: Completed' appeared and 'Close' button was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: unable to hit 'Close' button in 'Completed' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Close' button in 'DOSBox 0.72 Installer Setup: Completed' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'DOSBox 0.72 Installer Setup: Completed' window with 'Close' button failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'DOSBox 0.72 Installer Setup: Completed' window with 'Close' button failed to appear.")
 }
 
 
-;Check if program exists in program files
+; Check if program exists in program files
 TestsTotal++
 if bContinue
 {
     Sleep, 2000
     IfExist, %InstallLocation%
-    {
-        TestsOK()
-        OutputDebug, OK: %TestName%:%A_LineNumber%: The application has been installed, because '%InstallLocation%' was found.`n
-    }
+        TestsOK("The application has been installed, because '" InstallLocation "' was found.")
     else
-    {
-        TestsFailed()
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Something went wrong, can't find '%InstallLocation%'.`n
-    }
+        TestsFailed("Something went wrong, can't find '" InstallLocation "'.")
 }
