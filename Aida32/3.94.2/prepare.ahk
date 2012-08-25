@@ -35,6 +35,8 @@ ModuleExe = %A_ProgramFiles%\Aida32\aida32.exe
 RunApplication()
 {
     global ModuleExe
+    global TestName
+    global bContinue
     
     IfExist, %ModuleExe%
     {
@@ -45,6 +47,7 @@ RunApplication()
         {
             Sleep, 1500
             WinMaximize, AIDA32 - Enterprise System Information ; Maximize the window
+            bContinue := true
         }
         else
         {
