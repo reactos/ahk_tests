@@ -46,6 +46,7 @@ RunApplication(PathToFile)
 {
     global ModuleExe
     global TestName
+    global bContinue
 
     Sleep, 500
     RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\AbiSuite
@@ -58,7 +59,7 @@ RunApplication(PathToFile)
             WinWaitActive, Untitled1 - AbiWord,,7
             if not ErrorLevel
             {
-                ; TestsOK()
+                bContinue := true
             }
             else
             {
@@ -74,7 +75,7 @@ RunApplication(PathToFile)
             WinWaitActive, %NameExt% - AbiWord,,7
             if not ErrorLevel
             {
-                ; TestsOK()
+                bContinue := true
             }
             else
             {

@@ -18,12 +18,13 @@
  */
 
 ModuleExe = %A_WorkingDir%\Apps\Abiword 2.6.4 Setup.exe
-bContinue := false
 TestName = 1.install
 
+bContinue := false
 TestsFailed := 0
 TestsOK := 0
 TestsTotal := 0
+
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
 IfExist, %ModuleExe%
@@ -31,7 +32,7 @@ IfExist, %ModuleExe%
     ; Get rid of other versions
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Abiword2, UninstallString
     if not ErrorLevel
-    {   
+    {
         IfExist, %UninstallerPath%
         {
             Process, Close, AbiWord.exe ; Teminate process
@@ -48,9 +49,7 @@ IfExist, %ModuleExe%
                 bContinue := false
             }
             else
-            {
                 bContinue := true
-            }
         }
     }
     else
@@ -72,20 +71,13 @@ IfExist, %ModuleExe%
                 bContinue := false
             }
             else
-            {
                 bContinue := true
-            }
         }
         else
-        {
-            ; No previous versions detected.
-            bContinue := true
-        }
+            bContinue := true ; No previous versions detected.
     }
     if bContinue
-    {
         Run %ModuleExe%
-    }
 }
 else
 {
@@ -94,7 +86,7 @@ else
 }
 
 
-; Test if 'Installer Language' window appeared
+; Test if 'Installer Language (Please select)' window appeared, if so, hit 'OK' button
 TestsTotal++
 if bContinue
 {
@@ -104,30 +96,16 @@ if bContinue
         Sleep, 250
         ControlClick, Button1, Installer Language, Please select
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installer Language' window with 'Please select' appeared and 'OK' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'Installer Language (Please select)' window appeared and 'OK' button was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'OK' in 'Installer Language' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'OK' button in 'Installer Language (Please select)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Installer Language' window with 'Please select' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Installer Language (Please select)' window failed to appear.")
 }
 
 
-; Test if 'This wizard' window appeared
+; Test if 'AbiWord 2.6.4 Setup (This wizard)' window appeared
 TestsTotal++
 if bContinue
 {
@@ -135,160 +113,90 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-        ControlClick, Button2, AbiWord 2.6.4 Setup, This wizard
+        ControlClick, Button2, AbiWord 2.6.4 Setup, This wizard ; Hit 'Next' button
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'AbiWord 2.6.4 Setup' window with 'This wizard' appeared and 'Next' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'AbiWord 2.6.4 Setup (This wizard)' window appeared and 'Next' button was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'This wizard' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'Next' button in 'AbiWord 2.6.4 Setup (This wizard)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'AbiWord 2.6.4 Setup' window with 'This wizard' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'AbiWord 2.6.4 Setup (This wizard)' window failed to appear.")
 }
 
 
-; Test if 'License Agreement' window appeared
+; Test if 'AbiWord 2.6.4 Setup (License Agreement)' window appeared
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, AbiWord 2.6.4 Setup, License Agreement, 15
+    WinWaitActive, AbiWord 2.6.4 Setup, License Agreement, 5
     if not ErrorLevel
     {
         Sleep, 250
         ControlClick, Button2, AbiWord 2.6.4 Setup, License Agreement
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'AbiWord 2.6.4 Setup' window with 'License Agreement' appeared and 'Next' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'AbiWord 2.6.4 Setup (License Agreement)' window appeared and 'Next' button was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'License Agreement' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'Next' button in 'AbiWord 2.6.4 Setup (License Agreement)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'AbiWord 2.6.4 Setup' window with 'License Agreement' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'AbiWord 2.6.4 Setup (License Agreement)' window failed to appear.")
 }
 
 
-; Test if 'Choose Components' window appeared
+; Test if 'AbiWord 2.6.4 Setup (Choose Components)' window appeared
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, AbiWord 2.6.4 Setup, Choose Components, 7
+    WinWaitActive, AbiWord 2.6.4 Setup, Choose Components, 5
     if not ErrorLevel
     {
         Sleep, 250
         ControlClick, Button2, AbiWord 2.6.4 Setup, Choose Components
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'AbiWord 2.6.4 Setup' window with 'Choose Components' appeared and 'Next' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'AbiWord 2.6.4 Setup (Choose Components)' window appeared and 'Next' button was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'Choose Components' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'Next' button in 'AbiWord 2.6.4 Setup (Choose Components)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'AbiWord 2.6.4 Setup' window with 'Choose Components' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'AbiWord 2.6.4 Setup (Choose Components)' window failed to appear.")
 }
 
 
-; Test if 'Choose Install Location' window appeared
+; Test if 'AbiWord 2.6.4 Setup (Choose Install Location)' window appeared
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, AbiWord 2.6.4 Setup, Choose Install Location, 7
+    WinWaitActive, AbiWord 2.6.4 Setup, Choose Install Location, 5
     if not ErrorLevel
     {
         Sleep, 250
         ControlClick, Button2, AbiWord 2.6.4 Setup, Choose Install Location
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'AbiWord 2.6.4 Setup' window with 'Choose Install Location' appeared and 'Next' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'AbiWord 2.6.4 Setup (Choose Install Location)' window appeared and 'Next' button was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'Choose Install Location' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'Next' button in 'AbiWord 2.6.4 Setup (Choose Install Location)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'AbiWord 2.6.4 Setup' window with 'Choose Install Location' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'AbiWord 2.6.4 Setup (Choose Install Location)' window failed to appear.")
 }
 
 
-; Test if 'Choose Start Menu Folder' window appeared
+; Test if 'AbiWord 2.6.4 Setup (Choose Start Menu Folder)' window appeared
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, AbiWord 2.6.4 Setup, Choose Start Menu Folder, 7
+    WinWaitActive, AbiWord 2.6.4 Setup, Choose Start Menu Folder, 5
     if not ErrorLevel
     {
         Sleep, 250
         ControlClick, Button2, AbiWord 2.6.4 Setup, Choose Start Menu Folder
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'AbiWord 2.6.4 Setup' window with 'Choose Start Menu Folder' appeared and 'Next' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'AbiWord 2.6.4 Setup (Choose Start Menu Folder)' window appeared and 'Next' button was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'Choose Start Menu Folder' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'Next' button in 'AbiWord 2.6.4 Setup (Choose Start Menu Folder)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'AbiWord 2.6.4 Setup' window with 'Choose Start Menu Folder' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'AbiWord 2.6.4 Setup (Choose Start Menu Folder)' window failed to appear.")
 }
 
 
@@ -296,11 +204,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, AbiWord 2.6.4 Setup, Installing, 7
+    WinWaitActive, AbiWord 2.6.4 Setup, Installing, 5
     if not ErrorLevel
     {
         Sleep, 250
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installing' window appeared, waiting for it to close.`n
+        OutputDebug, OK: %TestName%: 'Installing' window appeared, waiting for it to close.`n
         WinWaitClose, AbiWord 2.6.4 Setup, Installing, 35
         if not ErrorLevel
         {
@@ -309,42 +217,18 @@ if bContinue
             {
                 ControlClick, Button2, AbiWord 2.6.4 Setup, Installation Complete
                 if not ErrorLevel
-                {
-                    TestsOK++
-                    OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installing' went away, and 'Next' was clicked in 'Installation Complete' window.`n
-                    bContinue := true
-                }
+                    TestsOK("'AbiWord 2.6.4 Setup (Installing)' went away, and 'Next' button was clicked in 'AbiWord 2.6.4 Setup (Installation Complete)' window.")
                 else
-                {
-                    TestsFailed++
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'Installation Complete' window. Active window caption: '%title%'.`n
-                    bContinue := false
-                }
+                    TestsFailed("Unable to hit 'Next' button in 'AbiWord 2.6.4 Setup (Installation Complete)' window.")
             }
             else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'AbiWord 2.6.4 Setup' window with 'Installation Complete' failed to appear. Active window caption: '%title%'.`n
-                bContinue := false
-            }
+                TestsFailed("'AbiWord 2.6.4 Setup (Installation Complete)' window failed to appear.")
         }
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'AbiWord 2.6.4 Setup' window with 'Installing' failed to dissapear. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("'AbiWord 2.6.4 Setup (Installing)' window failed to disappear.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'AbiWord 2.6.4 Setup' window with 'Installing' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'AbiWord 2.6.4 Setup (Installing)' window failed to appear.")
 }
 
 
@@ -361,39 +245,22 @@ if bContinue
         {
             ControlClick, Button2, AbiWord 2.6.4 Setup, Completing ; Hit 'Finish'
             if not ErrorLevel
-            {
-                TestsOK++
-                OutputDebug, OK: %TestName%:%A_LineNumber%: 'AbiWord 2.6.4 Setup' window with 'Completing' appeared and 'Finish' was clicked.`n
-                bContinue := true
-            }
+                TestsOK("'AbiWord 2.6.4 Setup (Completing)' window appeared and 'Finish' button was clicked.")
             else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Finish' in 'Completing' window. Active window caption: '%title%'.`n
-                bContinue := false
-            }
+                TestsFailed("Unable to hit 'Finish' button in 'AbiWord 2.6.4 Setup (Completing)' window.")
         }
         else
         {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: unable to uncheck 'Run AbiWord 2.6.4' in 'Completing' window. Active window caption: '%title%'.`n
-            bContinue := false
+            TestsFailed("Unable to uncheck 'Run AbiWord 2.6.4' checkbox in 'AbiWord 2.6.4 Setup (Completing)' window.")
             Process, Close, AbiWord.exe ; Just in case
         }
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'AbiWord 2.6.4 Setup' window with 'Completing' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'AbiWord 2.6.4 Setup (Completing)' window failed to appear.")
 }
 
 
-;Check if program exists in program files
+; Check if program exists in program files
 TestsTotal++
 if bContinue
 {
@@ -402,23 +269,10 @@ if bContinue
     if not ErrorLevel
     {
         IfExist, %UninstallerPath%
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: The application has been installed, because '%UninstallerPath%' was found.`n
-            bContinue := true
-        }
+            TestsOK("The application has been installed, because '" UninstallerPath "' was found.")
         else
-        {
-            TestsFailed++
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Something went wrong, can't find '%UninstallerPath%'.`n
-            bContinue := false
-        }
+            TestsFailed("Something went wrong, can't find '" UninstallerPath "'.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Either we can't read from registry or data doesn't exist. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
 }

@@ -17,150 +17,97 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-bContinue := false
-TestsTotal := 0
-TestsSkipped := 0
-TestsFailed := 0
-TestsOK := 0
-TestsExecuted := 0
 TestName = 2.SaveAsDesktop
 
 ; Test if can properly save document to desktop
 TestsTotal++
 RunApplication("")
-WinWaitActive, Untitled1 - AbiWord,,5
-if not ErrorLevel
+if bContinue
 {
-    SendInput, AbiWord %TestName% test by Edijus
-    WinWaitActive, *Untitled1 - AbiWord,,5
+    WinWaitActive, Untitled1 - AbiWord,,5
     if not ErrorLevel
     {
-        WinClose, *Untitled1 - AbiWord
-        WinWaitActive, AbiWord, Save changes, 5
+        SendInput, AbiWord %TestName% test by Edijus
+        WinWaitActive, *Untitled1 - AbiWord,,5
         if not ErrorLevel
         {
-            ControlGetText, OutputVar, Static2, AbiWord ; Get control text
+            WinClose, *Untitled1 - AbiWord
+            WinWaitActive, AbiWord, Save changes, 5
             if not ErrorLevel
             {
-                ControlText = Save changes to document Untitled1 before closing? ; 
-                if OutputVar = %ControlText% ; Check if text matches
+                ControlGetText, OutputVar, Static2, AbiWord ; Get control text
+                if not ErrorLevel
                 {
-                    ControlClick, Button1, AbiWord, Save changes ; Click 'Yes' button
-                    if not ErrorLevel
+                    ControlText = Save changes to document Untitled1 before closing? ; 
+                    if OutputVar = %ControlText% ; Check if text matches
                     {
-                        WinWaitActive, Save File As,, 7
+                        ControlClick, Button1, AbiWord, Save changes ; Click 'Yes' button
                         if not ErrorLevel
                         {
-                            FileDelete, %A_Desktop%\AbiWordTest.txt
-                            Sleep, 1500
-                            ControlSetText, Edit1, %A_Desktop%\AbiWordTest.txt, Save File As
+                            WinWaitActive, Save File As,, 7
                             if not ErrorLevel
                             {
-                                ControlClick, Button2, Save File As ; Click 'Save' button
+                                FileDelete, %A_Desktop%\AbiWordTest.txt
+                                Sleep, 1500
+                                ControlSetText, Edit1, %A_Desktop%\AbiWordTest.txt, Save File As
                                 if not ErrorLevel
                                 {
-                                    WinWaitClose, *Untitled1 - AbiWord,,5
+                                    ControlClick, Button2, Save File As ; Click 'Save' button
                                     if not ErrorLevel
                                     {
-                                        IfExist, %A_Desktop%\AbiWordTest.txt
+                                        WinWaitClose, *Untitled1 - AbiWord,,5
+                                        if not ErrorLevel
                                         {
-                                            FileReadLine, OutputVar, %A_Desktop%\AbiWordTest.txt, 1 ; Read first line
-                                            if not ErrorLevel
+                                            IfExist, %A_Desktop%\AbiWordTest.txt
                                             {
-                                                TestText = <?xml version="1.0" encoding="UTF-8"?> ; This is what you get
-                                                if OutputVar = %TestText% ; Check if text matches
+                                                FileReadLine, OutputVar, %A_Desktop%\AbiWordTest.txt, 1 ; Read first line
+                                                if not ErrorLevel
                                                 {
-                                                    TestsOK()
+                                                    TestText = <?xml version="1.0" encoding="UTF-8"?> ; This is what you get
+                                                    if OutputVar = %TestText% ; Check if text matches
+                                                    {
+                                                        TestsOK("")
+                                                    }
+                                                    else
+                                                        TestsFailed("Text is not the same (is '" OutputVar "', should be '" TestText "').")
                                                 }
                                                 else
-                                                {
-                                                    TestsFailed()
-                                                    WinGetTitle, title, A
-                                                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Text is not the same (is '%OutputVar%', should be '%TestText%'). Active window caption: '%title%'`n
-                                                }
+                                                    TestsFailed("Unable to read '" A_Desktop "\AbiWordTest.txt'.")
                                             }
                                             else
-                                            {
-                                                TestsFailed()
-                                                WinGetTitle, title, A
-                                                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to read '%A_Desktop%\AbiWordTest.txt'. Active window caption: '%title%'`n
-                                            }
+                                                TestsFailed("'" A_Desktop "\AbiWordTest.txt' does NOT exist, but it should.")
                                         }
                                         else
-                                        {
-                                            TestsFailed()
-                                            WinGetTitle, title, A
-                                            OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%A_Desktop%\AbiWordTest.txt' does NOT exist, but it should. Active window caption: '%title%'`n
-                                        }
+                                            TestsFailed("'*Untitled1 - AbiWord' window failed to close.")
                                     }
                                     else
-                                    {
-                                        TestsFailed()
-                                        WinGetTitle, title, A
-                                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: '*Untitled1 - AbiWord' window failed to close. Active window caption: '%title%'`n
-                                    }
+                                        TestsFailed("Unable to hit 'Save' button in 'Save File As' window.")
                                 }
                                 else
-                                {
-                                    TestsFailed()
-                                    WinGetTitle, title, A
-                                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Save' button in 'Save File As' window. Active window caption: '%title%'`n
-                                }
+                                    TestsFailed("Unable to change Edit1 control text to '" A_Desktop "\AbiWordTest.txt' in 'Save File As' window.")
                             }
                             else
-                            {
-                                TestsFailed()
-                                WinGetTitle, title, A
-                                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to change Edit1 control text to '%A_Desktop%\AbiWordTest.txt' in 'Save File As' window. Active window caption: '%title%'`n
-                            }
+                                TestsFailed("Window 'Save File As' failed to appear.")
                         }
                         else
-                        {
-                            TestsFailed()
-                            WinGetTitle, title, A
-                            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Save File As' failed to appear. Active window caption: '%title%'`n
-                        }
+                            TestsFailed("Unable to hit 'Yes' button in 'AbiWord (Save changes)' window.")
                     }
                     else
-                    {
-                        TestsFailed()
-                        WinGetTitle, title, A
-                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Yes' in 'AbiWord (Save changes)' window. Active window caption: '%title%'`n
-                    }
+                        TestsFailed("Control text is not the same as expected in 'AbiWord (Save changes)' window (is '" OutputVar "', should be '" ControlText "', bug 6035?).")
                 }
                 else
-                {
-                    TestsFailed()
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Control text is not the same as expected in 'AbiWord (Save changes)' window (is '%OutputVar%', should be '%ControlText%', bug 6035). Active window caption: '%title%'`n
-                }
+                    TestsFailed("Unable to get Static2 control text of 'AbiWord (Save changes)' window.")
             }
             else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to get Static2 control text of 'AbiWord (Save changes)' window. Active window caption: '%title%'`n
-            }
+                TestsFailed("Window 'AbiWord (Save changes)' failed to appear.")
         }
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'AbiWord (Save changes)' failed to appear. Active window caption: '%title%'`n
-        }
+            TestsFailed("Window '*Untitled1 - AbiWord' failed to appear.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window '*Untitled1 - AbiWord' failed to appear. Active window caption: '%title%'`n
-    }
+        TestsFailed("Window 'Untitled1 - AbiWord' failed to appear.")
 }
 else
-{
-    TestsFailed()
-    WinGetTitle, title, A
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Untitled1 - AbiWord' failed to appear. Active window caption: '%title%'`n
-}
+    TestsFailed("We failed somwehere in 'prepare.ahk'.")
 
 Process, Close, AbiWord.exe
