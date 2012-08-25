@@ -17,122 +17,79 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-bContinue := false
-TestsTotal := 0
-TestsSkipped := 0
-TestsFailed := 0
-TestsOK := 0
-TestsExecuted := 0
 TestName = 2.ExtractArchive
 szDocument = %A_WorkingDir%\Media\Filzip_TestFile.zip
 
 ; Test if can extract file to the C:\Filzip_Test
 TestsTotal++
-IfExist, %szDocument%
-{
-    FileRemoveDir, C:\Filzip_Test, 1
-    RunApplication(szDocument)
-    SplitPath, szDocument, NameExt
-    WinWaitActive, Filzip - %NameExt%,,7
-    if not ErrorLevel
-    {
-        ControlClick, TArcListView1, Filzip - %NameExt%
-        if not ErrorLevel
-        {
-            SendInput, {CTRLDOWN}a{CTRLUP} ; Select all files in archive
-            SendInput, {CTRLDOWN}{ALTDOWN}e{ALTUP}{CTRLUP} ; Open 'Exctract files' dialog
-            WinWaitActive, Extract files,,7
-            if not ErrorLevel
-            {
-                ControlSetText, Edit1, C:\Filzip_Test, Extract files
-                if not ErrorLevel
-                {
-                    Sleep, 500
-                    ControlClick, TButton3, Extract files
-                    if not ErrorLevel
-                    {
-                        WinWaitClose, Extract files,,7
-                        if not ErrorLevel
-                        {
-                            Sleep, 500
-                            IfExist, C:\Filzip_Test\TestFile.txt
-                            {
-                                FileReadLine, OutputVar, C:\Filzip_Test\TestFile.txt, 1
-                                if not ErrorLevel
-                                {
-                                    TestText = Test was successfull.
-                                    if OutputVar = %TestText%
-                                    {
-                                        TestsOK()
-                                        OutputDebug, OK: %TestName%:%A_LineNumber%: Archive was extracted. Text file contents were the same as expected.`n
-                                    }
-                                    else
-                                    {
-                                        TestsFailed()
-                                        WinGetTitle, title, A
-                                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Line 1 of 'C:\Filzip_Test\TestFile.txt' is not the same as expected (is '%OutputVar%', expected '%TestText%'). Active window caption: '%title%'.`n
-                                    }
-                                }
-                                else
-                                {
-                                    TestsFailed()
-                                    WinGetTitle, title, A
-                                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT read contents of 'C:\Filzip_Test\TestFile.txt'. Active window caption: '%title%'.`n
-                                }
-                            }
-                            else
-                            {
-                                TestsFailed()
-                                WinGetTitle, title, A
-                                OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'C:\Filzip_Test\TestFile.txt' does NOT exist, but it should. Active window caption: '%title%'`n
-                            }
-                        }
-                        else
-                        {
-                            TestsFailed()
-                            WinGetTitle, title, A
-                            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Extract files' window failed to close. Active window caption: '%title%'`n
-                        }
-                    }
-                    else
-                    {
-                        TestsFailed()
-                        WinGetTitle, title, A
-                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Extract' button in 'Extract files' window. Active window caption: '%title%'`n
-                    }
-                }
-                else
-                {
-                    TestsFailed()
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to set destination path in 'Extract files' window to 'C:\Filzip_Test'. Active window caption: '%title%'`n
-                }
-            }
-            else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Extract files' failed to appear when using Ctrl+Alt+E shortcut. Active window caption: '%title%'`n
-            }
-        }
-        else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'TArcListView1' control in 'Filzip - %NameExt%' window. Active window caption: '%title%'`n
-        }
-    }
-    else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Filzip - %NameExt%' failed to appear. Active window caption: '%title%'`n
-    }
-}
+if not bContinue
+    TestsFailed("We failed somwehere in 'prepare.ahk'.")
 else
 {
-    TestsFailed()
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%szDocument%'.`n
+    IfExist, %szDocument%
+    {
+        FileRemoveDir, C:\Filzip_Test, 1
+        RunApplication(szDocument)
+        SplitPath, szDocument, NameExt
+        WinWaitActive, Filzip - %NameExt%,,7
+        if not ErrorLevel
+        {
+            ControlClick, TArcListView1, Filzip - %NameExt%
+            if not ErrorLevel
+            {
+                SendInput, {CTRLDOWN}a{CTRLUP} ; Select all files in archive
+                SendInput, {CTRLDOWN}{ALTDOWN}e{ALTUP}{CTRLUP} ; Open 'Exctract files' dialog
+                WinWaitActive, Extract files,,7
+                if not ErrorLevel
+                {
+                    ControlSetText, Edit1, C:\Filzip_Test, Extract files
+                    if not ErrorLevel
+                    {
+                        Sleep, 500
+                        ControlClick, TButton3, Extract files
+                        if not ErrorLevel
+                        {
+                            WinWaitClose, Extract files,,7
+                            if not ErrorLevel
+                            {
+                                Sleep, 500
+                                IfExist, C:\Filzip_Test\TestFile.txt
+                                {
+                                    FileReadLine, OutputVar, C:\Filzip_Test\TestFile.txt, 1
+                                    if not ErrorLevel
+                                    {
+                                        TestText = Test was successfull.
+                                        if OutputVar = %TestText%
+                                            TestsOK("Archive was extracted. Text file contents were the same as expected.")
+                                        else
+                                            TestsFailed("Line 1 of 'C:\Filzip_Test\TestFile.txt' is not the same as expected (is '" OutputVar "', expected '" TestText "').")
+                                    }
+                                    else
+                                        TestsFailed("Can NOT read contents of 'C:\Filzip_Test\TestFile.txt'.")
+                                }
+                                else
+                                    TestsFailed("'C:\Filzip_Test\TestFile.txt' does NOT exist, but it should.")
+                            }
+                            else
+                                TestsFailed("'Extract files' window failed to close.")
+                        }
+                        else
+                            TestsFailed("Unable to hit 'Extract' button in 'Extract files' window.")
+                    }
+                    else
+                        TestsFailed("Unable to set destination path in 'Extract files' window to 'C:\Filzip_Test'.")
+                }
+                else
+                    TestsFailed("Window 'Extract files' failed to appear when using Ctrl+Alt+E shortcut.")
+            }
+            else
+                TestsFailed("Unable to click 'TArcListView1' control in 'Filzip - %NameExt%' window.")
+        }
+        else
+            TestsFailed("Window 'Filzip - %NameExt%' failed to appear.")
+    }
+    else
+        TestsFailed("Can NOT find '" szDocument "'.")
 }
 
 Process, Close, 7zFM.exe

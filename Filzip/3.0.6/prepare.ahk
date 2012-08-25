@@ -47,6 +47,7 @@ RunApplication(PathToFile)
 {
     global ModuleExe
     global TestName
+    global bContinue
 
     Sleep, 500
     RegDelete, HKEY_CURRENT_USER, SOFTWARE\Filzip
@@ -65,7 +66,7 @@ RunApplication(PathToFile)
             if not ErrorLevel
             {
                 Sleep, 1000
-                ; TestsOK()
+                bContinue := true
             }
             else
             {
@@ -82,7 +83,8 @@ RunApplication(PathToFile)
             WinWaitActive, Filzip - %NameExt%,,7
             if not ErrorLevel
             {
-                ; TestsOK()
+                bContinue := true
+                Sleep, 1000
             }
             else
             {

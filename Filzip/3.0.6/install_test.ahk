@@ -103,28 +103,14 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-        ControlClick, TButton1, Select Setup Language, Select the language
+        ControlClick, TButton1, Select Setup Language, Select the language ; hit 'OK' button
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Select Setup Language (Select the language)' window appeared and 'OK' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'Select Setup Language (Select the language)' window appeared and 'OK' button was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'OK' in 'Select Setup Language (Select the language)' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'OK' button in 'Select Setup Language (Select the language)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Select Setup Language (Select the language)' window failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Select Setup Language (Select the language)' window failed to appear.")
 }
 
 
@@ -138,23 +124,12 @@ if bContinue
         Sleep, 250
         ControlClick, TButton1, Setup - Filzip, Welcome ; Hit 'Next' button
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Filzip (Welcome)' window appeared and 'Next' was clicked.`n
-        }
+            TestsOK("'Setup - Filzip (Welcome)' window appeared and 'Next' was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'Setup - Filzip (Welcome)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Next' button in 'Setup - Filzip (Welcome)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - Filzip (Welcome)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'Setup - Filzip (Welcome)' window failed to appear.")
 }
 
 
@@ -172,30 +147,15 @@ if bContinue
             Sleep, 500
             ControlClick, TButton2, Setup - Filzip, License Agreement ; Hit 'Next' button
             if not ErrorLevel
-            {
-                TestsOK()
-                OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Filzip (License Agreement)' window appeared and 'Next' was clicked.`n
-            }
+                TestsOK("'Setup - Filzip (License Agreement)' window appeared, radiobutton 'I accept' checked and 'Next' button was clicked.")
             else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'Setup - Filzip (License Agreement)' window. Active window caption: '%title%'.`n
-            }
+                TestsFailed("Unable to hit 'Next' button in 'Setup - Filzip (License Agreement)' window.")
         }
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to check 'I accept the agreement' radiobutton in 'Setup - Filzip (License Agreement)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to check 'I accept the agreement' radiobutton in 'Setup - Filzip (License Agreement)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - Filzip (License Agreement)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'Setup - Filzip (License Agreement)' window failed to appear.")
 }
 
 
@@ -209,23 +169,12 @@ if bContinue
         Sleep, 250
         ControlClick, TButton3, Setup - Filzip, Select Destination Location ; Hit 'Next' button
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Filzip (Select Destination Location)' window appeared and 'Next' was clicked.`n
-        }
+            TestsOK("'Setup - Filzip (Select Destination Location)' window appeared and 'Next' was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'Setup - Filzip (Select Destination Location)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Next' button in 'Setup - Filzip (Select Destination Location)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - Filzip (Select Destination Location)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'Setup - Filzip (Select Destination Location)' window failed to appear.")
 }
 
 
@@ -239,23 +188,12 @@ if bContinue
         Sleep, 250
         ControlClick, TButton3, Setup - Filzip, Select Components ; Hit 'Next' button
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Filzip (Select Components)' window appeared and 'Next' was clicked.`n
-        }
+            TestsOK("'Setup - Filzip (Select Components)' window appeared and 'Next' was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'Setup - Filzip (Select Components)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Next' button in 'Setup - Filzip (Select Components)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - Filzip (Select Components)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'Setup - Filzip (Select Components)' window failed to appear.")
 }
 
 
@@ -269,23 +207,12 @@ if bContinue
         Sleep, 250
         ControlClick, TButton4, Setup - Filzip, Select Start Menu Folder ; Hit 'Next' button
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Filzip (Select Start Menu Folder)' window appeared and 'Next' was clicked.`n
-        }
+            TestsOK("'Setup - Filzip (Select Start Menu Folder)' window appeared and 'Next' was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'Setup - Filzip (Select Start Menu Folder)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Next' button in 'Setup - Filzip (Select Start Menu Folder)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - Filzip (Select Start Menu Folder)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'Setup - Filzip (Select Start Menu Folder)' window failed to appear.")
 }
 
 
@@ -299,23 +226,12 @@ if bContinue
         Sleep, 250
         ControlClick, TButton4, Setup - Filzip, Ready to Install ; Hit 'Install' button
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Filzip (Ready to Install)' window appeared and 'Install' was clicked.`n
-        }
+            TestsOK("'Setup - Filzip (Ready to Install)' window appeared and 'Install' was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Install' button in 'Setup - Filzip (Ready to Install)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Install' button in 'Setup - Filzip (Ready to Install)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - Filzip (Ready to Install)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'Setup - Filzip (Ready to Install)' window failed to appear.")
 }
 
 
@@ -329,23 +245,12 @@ if bContinue
         OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Filzip (Installing)' window appeared, waiting for it to close.`n
         WinWaitClose, Setup - Filzip, Installing, 20
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Filzip (Installing)' window went away.`n
-        }
+            TestsOK("'Setup - Filzip (Installing)' window went away.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - Filzip (Installing)' window failed to close. Active window caption: '%title%'.`n
-        }
+            TestsFailed("'Setup - Filzip (Installing)' window failed to close.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - Filzip (Installing)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'Setup - Filzip (Installing)' window failed to appear.")
 }
 
 
@@ -361,24 +266,15 @@ if bContinue
         ControlClick, TButton4, Setup - Filzip, Completing ; Hit 'Finish' button
         if not ErrorLevel
         {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Filzip (Completing)' window appeared, 'View readme.txt', 'Run Filzip' were unchecked and 'Finish' was clicked.`n
+            TestsOK("'Setup - Filzip (Completing)' window appeared, 'View readme.txt', 'Run Filzip' were unchecked and 'Finish' was clicked.")
             Process, Close, Filzip.exe ; Just in case
             Process, Close, Notepad.exe ; Just in case
         }
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Finish' button in 'Setup - Filzip (Completing)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Finish' button in 'Setup - Filzip (Completing)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - Filzip (Completing)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'Setup - Filzip (Completing)' window failed to appear.")
 }
 
 
@@ -392,20 +288,10 @@ if bContinue
     {
         StringReplace, UninstallString, UninstallString, `",, All
         IfExist, %UninstallString%
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: The application has been installed, because '%UninstallString%' was found.`n
-        }
+            TestsOK("The application has been installed, because '" UninstallString "' was found.")
         else
-        {
-            TestsFailed()
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Something went wrong, can't find '%UninstallString%'.`n
-        }
+            TestsFailed("Something went wrong, can't find '" UninstallString "'.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Either we can't read from registry or data doesn't exist. Active window caption: '%title%'.`n
-    }
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
 }
