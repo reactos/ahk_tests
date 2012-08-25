@@ -26,20 +26,32 @@ SendMode Input ; Recommended for new scripts due to its superior speed and relia
 SetWorkingDir %A_ScriptDir% ; Ensures a consistent starting directory.
 
 
-TestsOK()
+TestsOK(DebugText)
 {
+    ; Usage: 
+    ; TestsOK("Your text here '" SomeVariable "'.") - will output "OK: NameOfTest: Your text here 'VariableText'."
+    ; TestsOK("") - will not output anything
     global TestsOK
     global bContinue
+    global TestName
+
     TestsOK++
     bContinue := true
+    if DebugText <> ; We have nothing to output
+        OutputDebug, OK: %TestName%: %DebugText%`n
 }
 
-TestsFailed()
+TestsFailed(DebugText)
 {
     global TestsFailed
     global bContinue
+    global TestName
+
     TestsFailed++
     bContinue := false
+    WinGetActiveTitle, WndTitle
+    if DebugText <>
+        OutputDebug, %TestName%: Test failed: %DebugText% Active Wnd: '%WndTitle%'.`n ; Include some window text and active control caption?
 }
 
 LeftClickControl(ControlName)
