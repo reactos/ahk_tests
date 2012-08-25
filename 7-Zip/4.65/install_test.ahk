@@ -18,9 +18,9 @@
  */
 
 ModuleExe = %A_WorkingDir%\Apps\7-Zip 4.65 Setup.exe
-bContinue := false
 TestName = 1.install
 
+bContinue := false
 TestsFailed := 0
 TestsOK := 0
 TestsTotal := 0
@@ -87,20 +87,13 @@ IfExist, %ModuleExe%
                 bContinue := false
             }
             else
-            {
                 bContinue := true
-            }
         }
         else
-        {
-            ; No previous versions detected.
-            bContinue := true
-        }
+            bContinue := true ; No previous versions detected.
     }
     if bContinue
-    {
         Run %ModuleExe%
-    }
 }
 else
 {
@@ -109,7 +102,7 @@ else
 }
 
 
-; Test if 'Choose Install Location' window appeared
+; Test if '7-Zip 4.65 Setup (Choose Install Location)' window appeared, is so, hit 'Install' button
 TestsTotal++
 if bContinue
 {
@@ -119,27 +112,16 @@ if bContinue
         Sleep, 250
         ControlClick, Button2, 7-Zip 4.65 Setup, Choose Install Location ; Hit 'Install' button
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: '7-Zip 4.65 Setup' window with 'Choose Install Location' appeared and 'Next' was clicked.`n
-        }
+            TestsOK("'7-Zip 4.65 Setup (Choose Install Location)' window appeared and 'Next' button was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Install' in 'Choose Install Location' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Install' button in '7-Zip 4.65 Setup (Choose Install Location)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: '7-Zip 4.65 Setup' window with 'Choose Install Location' failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'7-Zip 4.65 Setup (Choose Install Location)' window failed to appear.")
 }
 
 
-; Test if '7-Zip 4.65 has been installed' window appeared
+; Test if '7-Zip 4.65 (7-Zip 4.65 has been installed)' window appeared, if so, hit 'Finish' button
 TestsTotal++
 if bContinue
 {
@@ -149,23 +131,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button2, 7-Zip 4.65 Setup, 7-Zip 4.65 has been installed ; Hit 'Finish'
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: '7-Zip 4.65 Setup' window with '7-Zip 4.65 has been installed' appeared and 'Finish' was clicked.`n
-        }
+            TestsOK("'7-Zip 4.65 Setup (7-Zip 4.65 has been installed)' window appeared and 'Finish' button was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Finish' in '7-Zip 4.65 has been installed' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Finish' button in '7-Zip 4.65 Setup (7-Zip 4.65 has been installed)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: '7-Zip 4.65 Setup' window with '7-Zip 4.65 has been installed' failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'7-Zip 4.65 Setup (7-Zip 4.65 has been installed)' window failed to appear.")
 }
 
 
@@ -179,20 +150,10 @@ if bContinue
     {
         StringReplace, UninstallerPath, UninstallerPath, `",, All ; String contains quotes, replace em
         IfExist, %UninstallerPath%
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: The application has been installed, because '%UninstallerPath%' was found.`n
-        }
+            TestsOK("The application has been installed, because '" UninstallerPath "' was found.")
         else
-        {
-            TestsFailed()
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Something went wrong, can't find '%UninstallerPath%'.`n
-        }
+            TestsFailed("Something went wrong, can't find '" UninstallerPath "'.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Either we can't read from registry or data doesn't exist. Active window caption: '%title%'.`n
-    }
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
 }
