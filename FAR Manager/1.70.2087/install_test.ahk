@@ -107,26 +107,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button1, Installer Language, Please select
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installer Language' window with 'Please select' appeared and 'OK' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'Installer Language (Please select)' window appeared and 'OK' button was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'OK' in 'Installer Language' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'OK' button in 'Installer Language (Please select)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Installer Language' window with 'Please select' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Installer Language (Please select)' window failed to appear.")
 }
 
 
@@ -140,26 +126,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button2, Far Manager v1.70 Setup, This program will install
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Far Manager v1.70 Setup' window with 'This program will install' appeared and 'Next' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'Far Manager v1.70 Setup (This program will install)' window appeared and 'Next' button was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'This program will install' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'Next' button in 'Far Manager v1.70 Setup (This program will install)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Far Manager v1.70 Setup' window with 'This program will install' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Far Manager v1.70 Setup (This program will install')' window failed to appear.")
 }
 
 
@@ -180,42 +152,18 @@ if bContinue
             {
                 ControlClick, Button2, Far Manager v1.70 Setup, License Agreement
                 if not ErrorLevel
-                {
-                    TestsOK++
-                    OutputDebug, OK: %TestName%:%A_LineNumber%: 'Far Manager v1.70 Setup' window with 'License Agreement' appeared and 'Next' was clicked.`n
-                    bContinue := true
-                }
+                    TestsOK("'Far Manager v1.70 Setup (License Agreement)' window appeared and 'Next' button was clicked.")
                 else
-                {
-                    TestsFailed++
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'License Agreement' window despite it is enabled. Active window caption: '%title%'.`n
-                    bContinue := false
-                }
+                    TestsFailed("Unable to hit 'Next' button in 'Far Manager v1.70 Setup (License Agreement)' window despite it is enabled.")
             }
             else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'I agree' radio button is checked in 'License Agreement', but 'Next' button is disabled. Active window caption: '%title%'.`n
-                bContinue := false
-            }
+                TestsFailed("'I agree' radio button is checked in 'Far Manager v1.70 Setup (License Agreement)' window, but 'Next' button is disabled.")
         }
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to check 'I agree' radio button in 'License Agreement' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to check 'I agree' radio button in 'Far Manager v1.70 Setup (License Agreement)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Far Manager v1.70 Setup' window with 'License Agreement' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Far Manager v1.70 Setup (License Agreement)' window failed to appear.")
 }
 
 
@@ -229,26 +177,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button2, Far Manager v1.70 Setup, Choose Install Location
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Far Manager v1.70 Setup' window with 'Choose Install Location' appeared and 'Next' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'Far Manager v1.70 Setup (Choose Install Location)' window appeared and 'Next' was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'Choose Install Location' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'Next' button in 'Far Manager v1.70 Setup (Choose Install Location)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Far Manager v1.70 Setup' window with 'Choose Install Location' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Far Manager v1.70 Setup (Choose Install Location)' window failed to appear.")
 }
 
 
@@ -262,26 +196,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button2, Far Manager v1.70 Setup, Choose Components
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Far Manager v1.70 Setup' window with 'Choose Components' appeared and 'Next' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'Far Manager v1.70 Setup (Choose Components)' window appeared and 'Next' button was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'Choose Components' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'Next' button in 'Far Manager v1.70 Setup (Choose Components)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Far Manager v1.70 Setup' window with 'Choose Components' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Far Manager v1.70 Setup (Choose Components)' window failed to appear.")
 }
 
 
@@ -295,26 +215,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button2, Far Manager v1.70 Setup, Choose Start Menu Folder ; Hit 'Install' button
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Far Manager v1.70 Setup' window with 'Choose Start Menu Folder' appeared and 'Install' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'Far Manager v1.70 Setup (Choose Start Menu Folder)' window appeared and 'Install' button was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Install' in 'Choose Start Menu Folder' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'Install' button in 'Far Manager v1.70 Setup (Choose Start Menu Folder)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Far Manager v1.70 Setup' window with 'Choose Start Menu Folder' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Far Manager v1.70 Setup (Choose Start Menu Folder)' window failed to appear.")
 }
 
 
@@ -330,47 +236,23 @@ if bContinue
         WinWaitClose, Far Manager v1.70 Setup, Installing, 35
         if not ErrorLevel
         {
-            WinWaitActive, Far Manager v1.70 Setup, Installation Complete, 7
+            WinWaitActive, Far Manager v1.70 Setup, Installation Complete, 5
             if not ErrorLevel
             {
                 ControlClick, Button2, Far Manager v1.70 Setup, Installation Complete
                 if not ErrorLevel
-                {
-                    TestsOK++
-                    OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installing' went away, and 'Next' was clicked in 'Installation Complete' window.`n
-                    bContinue := true
-                }
+                    TestsOK("'Installing' went away, 'Next' button was clicked in 'Far Manager v1.70 Setup (Installation Complete)' window.")
                 else
-                {
-                    TestsFailed++
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'Installation Complete' window. Active window caption: '%title%'.`n
-                    bContinue := false
-                }
+                    TestsFailed("Unable to hit 'Next' button in 'Far Manager v1.70 Setup (Installation Complete)' window.")
             }
             else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Far Manager v1.70 Setup' window with 'Installation Complete' failed to appear. Active window caption: '%title%'.`n
-                bContinue := false
-            }
+                TestsFailed("'Far Manager v1.70 Setup (Installation Complete)' window failed to appear.")
         }
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Far Manager v1.70 Setup' window with 'Installing' failed to dissapear. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("'Far Manager v1.70 Setup (Installing)' window failed to dissapear.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Far Manager v1.70 Setup' window with 'Installing' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Far Manager v1.70 Setup (Installing)' window failed to appear.")
 }
 
 
@@ -384,26 +266,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button2, Far Manager v1.70 Setup, Additional tasks
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Far Manager v1.70 Setup' window with 'Additional tasks' appeared and 'Next' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'Far Manager v1.70 Setup (Additional tasks)' window appeared and 'Next' button was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'Additional tasks' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'Next' button in 'Far Manager v1.70 Setup (Additional tasks)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Far Manager v1.70 Setup' window with 'Additional tasks' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Far Manager v1.70 Setup (Additional tasks)' window failed to appear.")
 }
 
 
@@ -423,47 +291,25 @@ if bContinue
             {
                 ControlClick, Button2, Far Manager v1.70 Setup, Completing ; Hit 'Finish'
                 if not ErrorLevel
-                {
-                    TestsOK++
-                    OutputDebug, OK: %TestName%:%A_LineNumber%: 'Far Manager v1.70 Setup' window with 'Completing' appeared and 'Finish' was clicked.`n
-                    bContinue := true
-                }
+                    TestsOK("'Far Manager v1.70 Setup (Completing)' window appeared and 'Finish' button was clicked.")
                 else
-                {
-                    TestsFailed++
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Finish' in 'Completing' window. Active window caption: '%title%'.`n
-                    bContinue := false
-                }
+                    TestsFailed("Unable to hit 'Finish' button in 'Far Manager v1.70 Setup (Completing)' window.")
             }
             else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: unable to uncheck 'Show whats new' in 'Completing' window. Active window caption: '%title%'.`n
-                bContinue := false
-            }
+                TestsFailed("Unable to uncheck 'Show whats new' checkbox in 'Far Manager v1.70 Setup (Completing)' window.")
         }
         else
         {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: unable to uncheck 'Run Far Manager v1.70' in 'Completing' window. Active window caption: '%title%'.`n
-            bContinue := false
+            TestsFailed("Unable to uncheck 'Run Far Manager v1.70' in 'Far Manager v1.70 Setup (Completing)' window.")
             Process, Close, Far.exe ; Just in case
         }
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Far Manager v1.70 Setup' window with 'Completing' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Far Manager v1.70 Setup (Completing)' window failed to appear.")
 }
 
 
-;Check if program exists in program files
+; Check if program exists
 TestsTotal++
 if bContinue
 {
@@ -472,23 +318,10 @@ if bContinue
     if not ErrorLevel
     {
         IfExist, %UninstallerPath%
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: The application has been installed, because '%UninstallerPath%' was found.`n
-            bContinue := true
-        }
+            TestsOK("The application has been installed, because '" UninstallerPath "' was found.")
         else
-        {
-            TestsFailed++
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Something went wrong, can't find '%UninstallerPath%'.`n
-            bContinue := false
-        }
+            TestsFailed("Something went wrong, can't find '" UninstallerPath "'.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Either we can't read from registry or data doesn't exist. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
 }

@@ -31,29 +31,14 @@ if bContinue
         SendInput, {ENTER} ; Open 'Plugins' folder
         WinWaitActive, {%A_ProgramFiles%\Far\Plugins} - Far,,5
         if not ErrorLevel
-        {
-            Sleep, 1000
-            TestsOK()
-        }
+            TestsOK("")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window '{%A_ProgramFiles%\Far\Plugins} - Far' is not active. Active window caption: '%title%'`n
-        }
+            TestsFailed("Window '{" A_ProgramFiles "\Far\Plugins} - Far' is not active.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window '{%A_ProgramFiles%\Far} - Far' is not active. Active window caption: '%title%'`n
-    }
+        TestsFailed("Window '{" A_ProgramFiles "\Far} - Far' is not active.")
 }
 else
-{
-    TestsFailed()
-    WinGetTitle, title, A
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: We failed somewhere in prepare.ahk. Active window caption: '%title%'`n
-}
+    TestsFailed("We failed somewhere in prepare.ahk.")
 
 Process, Close, Far.exe
