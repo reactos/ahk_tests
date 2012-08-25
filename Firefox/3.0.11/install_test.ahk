@@ -111,27 +111,12 @@ if bContinue
         OutputDebug, OK: %TestName%:%A_LineNumber%: 'Extracting' window appeared, waiting for it to close.`n
         WinWaitClose, Extracting, Cancel, 15
         if not ErrorLevel
-        {
-            
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Extracting' window appeared and went away.`n
-            bContinue := true
-        }
+            TestsOK("'Extracting' window appeared and went away.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Extracting' window failed to dissapear. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("'Extracting' window failed to dissapear.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Extracting' window failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Extracting' window failed to appear.")
 }
 
 
@@ -145,26 +130,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button2, Mozilla Firefox Setup, Welcome to the Mozilla Firefox
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Mozilla Firefox Setup' window with 'Welcome to the Mozilla Firefox' appeared and 'Next' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'Mozilla Firefox Setup (Welcome to the Mozilla Firefox)' window appeared and 'Next' was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'Welcome to the Mozilla Firefox' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'Next' button in 'Mozilla Firefox Setup (Welcome to the Mozilla Firefox)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Firefox Setup' window with 'Welcome to the Mozilla Firefox' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Mozilla Firefox Setup (Welcome to the Mozilla Firefox)' window failed to appear.")
 }
 
 
@@ -178,26 +149,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button2, Mozilla Firefox Setup, Setup Type
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Mozilla Firefox Setup' window with 'Setup Type' appeared and 'Next' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'Mozilla Firefox Setup (Setup Type)' window appeared and 'Next' was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'Setup Type' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'Next' button in 'Mozilla Firefox Setup (Setup Type)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Firefox Setup' window with 'Setup Type' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Mozilla Firefox Setup (Setup Type)' window failed to appear.")
 }
 
 
@@ -211,26 +168,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button2, Mozilla Firefox Setup, Summary ; Hit 'Install' button
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Mozilla Firefox Setup' window with 'Summary' appeared and 'Install' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'Mozilla Firefox Setup (Summary)' window appeared and 'Install' button was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Install' in 'Summary' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'Install' button in 'Mozilla Firefox Setup (Summary)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Firefox Setup' window with 'Summary' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Mozilla Firefox Setup (Summary)' window failed to appear.")
 }
 
 
@@ -245,26 +188,12 @@ if bContinue
         OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installing' window appeared, waiting for it to close.`n
         WinWaitClose, Mozilla Firefox Setup, Installing, 25
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Mozilla Firefox Setup' window with 'Installing' went away.`n
-            bContinue := true
-        }
+            TestsOK("'Mozilla Firefox Setup (Installing)' window went away.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Firefox Setup' window with 'Installing' failed to dissapear. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("'Mozilla Firefox Setup (Installing)' window failed to dissapear.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Firefox Setup' window with 'Installing' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Mozilla Firefox Setup (Installing)' window failed to appear.")
 }
 
 
@@ -281,38 +210,22 @@ if bContinue
         {
             ControlClick, Button2, Mozilla Firefox Setup, Completing ; Hit 'Finish'
             if not ErrorLevel
-            {
-                TestsOK++
-                OutputDebug, OK: %TestName%:%A_LineNumber%: 'Mozilla Firefox Setup' window with 'Completing' appeared and 'Finish' was clicked.`n
-                bContinue := true
-            }
+                TestsOK("'Mozilla Firefox Setup (Completing)' window appeared and 'Finish' was clicked.")
             else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Finish' in 'Completing' window. Active window caption: '%title%'.`n
-                bContinue := false
-            }
+                TestsFailed("Unable to hit 'Finish' button in 'Mozilla Firefox Setup (Completing)' window.")
         }
         else
         {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: unable to uncheck 'Launch Mozilla Firefox now' in 'Completing' window. Active window caption: '%title%'.`n
-            bContinue := false
+            TestsFailed("Unable to uncheck 'Launch Mozilla Firefox now' in 'Mozilla Firefox Setup (Completing)' window.")
+            Process, Close, firefox.exe
         }
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Firefox Setup' window with 'Completing' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Mozilla Firefox Setup (Completing)' window failed to appear.")
 }
 
 
-;Check if program exists in program files
+;Check if program exists
 TestsTotal++
 if bContinue
 {
@@ -321,23 +234,10 @@ if bContinue
     if not ErrorLevel
     {
         IfExist, %UninstallerPath%
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: The application has been installed, because '%UninstallerPath%' was found.`n
-            bContinue := true
-        }
+            TestsOK("The application has been installed, because '" UninstallerPath "' was found.")
         else
-        {
-            TestsFailed++
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Something went wrong, can't find '%UninstallerPath%'.`n
-            bContinue := false
-        }
+            TestsFailed("Something went wrong, can't find '" UninstallerPath "'.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Either we can't read from registry or data doesn't exist. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
 }

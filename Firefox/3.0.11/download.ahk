@@ -47,49 +47,23 @@ if bContinue
                     FileGetSize, DFileSize, %A_Desktop%\livecd-56407-dbg.7z ; Desktop is our download dir. See prepare.ahk
                     ExpectedSize = 23030114
                     if (InStr(%DFileSize%, %ExpectedSize%))
-                    {
-                        TestsOK++
-                        OutputDebug, OK: %TestName%:%A_LineNumber%: File downloaded. Size the same as expected.`n
-                        bContinue := true
-                    }
+                        TestsOK("File downloaded. Size the same as expected.")
                     else
-                    {
-                        TestsFailed++
-                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Downloaded file size is NOT the same as expected [is %DFileSize% and should be %ExpectedSize%].`n
-                        bContinue := false
-                    }
+                        TestsFailed("Downloaded file size is NOT the same as expected [is " DFileSize " and should be " ExpectedSize "].")
                 }
                 else
-                {
-                    TestsFailed++
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Downloads' window failed to appear, so, downloading failed. Wasn't enough time?. Active window caption: '%title%'.`n
-                    bContinue := false
-                }
+                    TestsFailed("'Downloads' window failed to appear, so, downloading failed. Wasn't enough time?")
             }
             else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Opening livecd-56407-dbg.7z' window failed to appear, so, downloading failed. Active window caption: '%title%'.`n
-                bContinue := false
-            }
+                TestsFailed("'Opening livecd-56407-dbg.7z' window failed to appear, so, downloading failed.")
         }
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to delete '%A_Desktop%\livecd-56407-dbg.7z'. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Failed to delete '" A_Desktop "\livecd-56407-dbg.7z'.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Firefox Start Page - Mozilla Firefox' is not active window. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Mozilla Firefox Start Page - Mozilla Firefox' is not active window.")
 }
+else
+    TestsFailed("We failed somwehere in 'prepare.ahk'.")
 
 Process, Close, firefox.exe ; Teminate process

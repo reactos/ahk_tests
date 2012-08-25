@@ -30,17 +30,9 @@ if bContinue
         Sleep, 1000
         ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, *11 %SearchArrowImg%
         if ErrorLevel = 2
-        {
-            TestsFailed++
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Could not conduct the ImageSearch (%SearchArrowImg% is missing?).`n
-            bContinue := false
-        }
+            TestsFailed("Could not conduct the ImageSearch ('" SearchArrowImg "' is missing?).")
         else if ErrorLevel = 1
-        {
-            TestsFailed++
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: The search arrow image %SearchArrowImg% could NOT be found on the screen.`n
-            bContinue := false
-        }
+            TestsFailed("The search arrow image '" SearchArrowImg "' could NOT be found on the screen.")
         else
         {
             MouseClick, left, %FoundX%, %FoundY%
@@ -51,27 +43,15 @@ if bContinue
             Sleep, 7500 ; Let it to load, maybe something will fail
             WinWaitActive, edijus - Yahoo! Search Results - Mozilla Firefox,,25
             if not ErrorLevel
-            {
-                TestsOK++
-                OutputDebug, OK: %TestName%:%A_LineNumber%: 'edijus - Yahoo! Search Results - Mozilla Firefox' window appeared, so search bar works.`n
-                bContinue := true
-            }
+                TestsOK("'edijus - Yahoo! Search Results - Mozilla Firefox' window appeared, so search bar works.")
             else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'edijus - Yahoo! Search Results - Mozilla Firefox' window failed to appear, so, search bar do not work. Bugs 5574, 5930, 6990?. Active window caption: '%title%'.`n
-                bContinue := false
-           }
+                TestsFailed("'edijus - Yahoo! Search Results - Mozilla Firefox' window failed to appear, so, search bar do not work. Bugs 5574, 5930, 6990?")
         }
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Firefox Start Page - Mozilla Firefox' is not active window. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Mozilla Firefox Start Page - Mozilla Firefox' is not active window.")
 }
+else
+    TestsFailed("We failed somwehere in 'prepare.ahk'.")
 
 Process, Close, firefox.exe ; Teminate process
