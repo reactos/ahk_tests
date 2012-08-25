@@ -17,12 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-bContinue := false
-TestsTotal := 0
-TestsSkipped := 0
-TestsFailed := 0
-TestsOK := 0
-TestsExecuted := 0
 TestName = 3.Benchmark
 
 ; Test if can run benchmark (bug 5906)
@@ -49,36 +43,19 @@ if not ErrorLevel
                     ControlGetText, OutputVar, Static30, Benchmark
                     Sleep, 1000
                 }
-                TestsOK()
-                OutputDebug, OK: %TestName%:%A_LineNumber%: Amount of percent in 'Total Rating' changed, so there is no bug #5906.`n
+                TestsOK("Amount of percent in 'Total Rating' changed, so there is no bug #5906.")
             }
             else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: unable to choose '32MB' as 'Dictionary size' in 'Benchmark'. Active window caption: '%title%'.`n
-            }
+                TestsFailed("Unable to choose '32MB' as 'Dictionary size' in 'Benchmark'.")
         }
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Benchmark (Dictionary size)' window failed to appear. Active window caption: '%title%'.`n
-        }
+            TestsFailed("'Benchmark (Dictionary size)' window failed to appear.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Tools -> Benchmark'. Active window caption: '%title%'`n
-    }
+        TestsFailed("Unable to hit 'Tools -> Benchmark'.")
 }
 else
-{
-    TestsFailed()
-    WinGetTitle, title, A
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window '7-Zip File Manager' failed to appear. Active window caption: '%title%'`n
-}
+    TestsFailed("Window '7-Zip File Manager' failed to appear.")
 
 
 Process, Close, 7zFM.exe

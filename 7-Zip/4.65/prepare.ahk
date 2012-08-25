@@ -45,6 +45,7 @@ RunApplication(PathToFile)
 {
     global ModuleExe
     global TestName
+    global bContinue
 
     Sleep, 500
     RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\7-Zip
@@ -58,7 +59,7 @@ RunApplication(PathToFile)
             WinWaitActive, 7-Zip File Manager,,7
             if not ErrorLevel
             {
-                ; TestsOK()
+                bContinue := true
             }
             else
             {
@@ -73,7 +74,7 @@ RunApplication(PathToFile)
             WinWaitActive, %PathToFile%\,,7
             if not ErrorLevel
             {
-                ; TestsOK()
+                bContinue := true
             }
             else
             {
