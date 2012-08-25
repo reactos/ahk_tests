@@ -17,136 +17,94 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-bContinue := false
-TestsTotal := 0
-TestsSkipped := 0
-TestsFailed := 0
-TestsOK := 0
-TestsExecuted := 0
 TestName = 2.SA_LoadLocalFlash
 szDocument =  %A_WorkingDir%\Media\Shockwave_Flash_Object.swf ; Case insensitive.
 
 ; Test if can play locally located SWF
 TestsTotal++
-IfWinActive, Adobe Flash Player 10
+if bContinue
 {
-    IfExist, %szDocument%
+    IfWinActive, Adobe Flash Player 10
     {
-        WinMenuSelectItem, Adobe Flash Player 10, , File, Open ; File -> Open
-        if not ErrorLevel
+        IfExist, %szDocument%
         {
-            WinWaitActive, Open, Enter the, 7
+            WinMenuSelectItem, Adobe Flash Player 10, , File, Open ; File -> Open
             if not ErrorLevel
             {
-                ControlSetText, Edit1, %szDocument%, Open, Enter the ; Enter path in 'Open' dialog
+                WinWaitActive, Open, Enter the, 7
                 if not ErrorLevel
                 {
-                    ControlClick, Button1, Open, Enter the
+                    ControlSetText, Edit1, %szDocument%, Open, Enter the ; Enter path in 'Open' dialog
                     if not ErrorLevel
                     {
-                        Sleep, 2000 ; Give it some time to fail
-                        IfWinActive, Adobe Flash Player 10
+                        ControlClick, Button1, Open, Enter the
+                        if not ErrorLevel
                         {
-                            WinMenuSelectItem, Adobe Flash Player 10, , Control, Play ; Control -> Play
-                            if not ErrorLevel
+                            Sleep, 2000 ; Give it some time to fail
+                            IfWinActive, Adobe Flash Player 10
                             {
-                                SearchImg = %A_WorkingDir%\Media\SA_LoadLocalFlashIMG.jpg
-                    
-                                IfExist, %SearchImg%
+                                WinMenuSelectItem, Adobe Flash Player 10, , Control, Play ; Control -> Play
+                                if not ErrorLevel
                                 {
-                                    bFound := false
-                                    while TimeOut < 400
+                                    SearchImg = %A_WorkingDir%\Media\SA_LoadLocalFlashIMG.jpg
+                        
+                                    IfExist, %SearchImg%
                                     {
-                                        ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, *35 %SearchImg% ; Works on both XP SP3 and win2k3 SP2
-                                        if ErrorLevel = 2
+                                        bFound := false
+                                        while TimeOut < 400
                                         {
-                                            TestsFailed()
-                                            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Could not conduct the ImageSearch ('%SearchImg%' exist).`n
-                                            TimeOut := 400 ; Exit the loop
+                                            ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, *35 %SearchImg% ; Works on both XP SP3 and win2k3 SP2
+                                            if ErrorLevel = 2
+                                            {
+                                                TestsFailed("Could not conduct the ImageSearch ('" SearchImg "' exist).")
+                                                TimeOut := 400 ; Exit the loop
+                                            }
+                                            else if ErrorLevel = 1
+                                            {
+                                                bFound := false
+                                            }
+                                            else
+                                            {
+                                                TimeOut := 400 ; Exit the loop
+                                                bFound := true
+                                            }
+                                            TimeOut++
+                                            Sleep, 10
                                         }
-                                        else if ErrorLevel = 1
-                                        {
-                                            bFound := false
-                                        }
+                                        
+                                        if bFound
+                                            TestsOK("Found '" SearchImg "' on the screen, so, we can play '" szDocument "'.")
                                         else
-                                        {
-                                            TimeOut := 400 ; Exit the loop
-                                            bFound := true
-                                        }
-                                        TimeOut++
-                                        Sleep, 10
-                                    }
-                                    
-                                    if bFound
-                                    {
-                                        OutputDebug, OK: %TestName%:%A_LineNumber%: Found '%SearchImg%' on the screen, so, we can play '%szDocument%'.`n
-                                        TestsOK()
+                                            TestsFailed("The search image '" SearchImg "' could NOT be found on the screen.")
                                     }
                                     else
-                                    {
-                                        TestsFailed()
-                                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: The search image '%SearchImg%' could NOT be found on the screen.`n
-                                    }
+                                        TestsFailed("Can NOT find '" SearchImg "'.")
                                 }
                                 else
-                                {
-                                    TestsFailed()
-                                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%SearchImg%'.`n
-                                }
+                                    TestsFailed("Unable to click 'Control -> Play' in 'Adobe Flash Player 10' window.")
                             }
                             else
-                            {
-                                TestsFailed()
-                                WinGetTitle, title, A
-                                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Control -> Play' in 'Adobe Flash Player 10' window. Active window caption: '%title%'.`n
-                            }
+                                TestsFailed("Loaded '" szDocument "'. 'Adobe Flash Player 10' is not active anymore.")
                         }
                         else
-                        {
-                            TestsFailed()
-                            WinGetTitle, title, A
-                            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Loaded '%szDocument%'. 'Adobe Flash Player 10' is not active anymore. Active window caption: '%title%'.`n
-                        }
+                            TestsFailed("Unable to hit 'OK' button in 'Open (Enter the)' window.")
                     }
                     else
-                    {
-                        TestsFailed()
-                        WinGetTitle, title, A
-                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'OK' button in 'Open (Enter the)' window. Active window caption: '%title%'.`n
-                    }
+                        TestsFailed("Unable to enter path '" szDocument "' in 'Open (Enter the)' window.")
                 }
                 else
-                {
-                    TestsFailed()
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to enter path '%szDocument%' in 'Open (Enter the)' window. Active window caption: '%title%'.`n
-                }
+                    TestsFailed("'Open (Enter the)' window is not active window.")
             }
             else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Open (Enter the)' window is not active window. Active window caption: '%title%'.`n
-            }
+                TestsFailed("Unable to click 'File -> Open' in 'Adobe Flash Player 10' window.")
         }
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'File -> Open' in 'Adobe Flash Player 10' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Can NOT find '" szDocument "'.")
     }
     else
-    {
-        TestsFailed()
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%szDocument%'.`n
-    }
+        TestsFailed("'Adobe Flash Player 10' window is not active window.")
 }
 else
-{
-    TestsFailed()
-    WinGetTitle, title, A
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Adobe Flash Player 10' window is not active window. Active window caption: '%title%'.`n
-}
+    TestsFailed("We failed somwehere in 'prepare.ahk'.")
 
 Process, Close, Standalone Flash Player 10.3.183.11.exe

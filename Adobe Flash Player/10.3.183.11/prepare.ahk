@@ -36,10 +36,10 @@ IfExist, %ModuleExe%
     if not ErrorLevel
     {
         Sleep, 1000 ; We are good to go
+        bContinue := true
     }
     else
     {
-        TestsFailed()
         WinGetTitle, title, A
         OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Adobe Flash Player 10' window failed to appear. Active window caption: '%title%'.`n
     }

@@ -18,9 +18,9 @@
  */
 
 ModuleExe = %A_WorkingDir%\Apps\Flash Player 10.3.183.11 Setup.exe
-bContinue := false
 TestName = 1.install
 
+bContinue := false
 TestsFailed := 0
 TestsOK := 0
 TestsTotal := 0
@@ -131,30 +131,15 @@ if bContinue
             Sleep, 1500 ; Wait until 'Install' button is enabled
             ControlClick, Button3, Adobe® Flash® Player 10.3 Installer ; Hit 'Install' button
             if not ErrorLevel
-            {
-                TestsOK()
-                OutputDebug, OK: %TestName%:%A_LineNumber%: 'Adobe® Flash® Player 10.3 Installer' appeared and 'Install' button was clicked.`n
-            }
+                TestsOK("'Adobe® Flash® Player 10.3 Installer' window appeared and 'Install' button was clicked.")
             else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: unable to hit 'Install' button. Active window caption: '%title%'.`n
-            }
+                TestsFailed("Unable to hit 'Install' button in 'Adobe® Flash® Player 10.3 Installer' window.")
         }
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: unable to check 'I have read and agree' checkbox. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to check 'I have read and agree' checkbox in 'Adobe® Flash® Player 10.3 Installer' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Adobe® Flash® Player 10.3 Installer' window with 'Install' button failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'Adobe® Flash® Player 10.3 Installer' window with 'Install' button failed to appear.")
 }
 
 
@@ -171,39 +156,22 @@ if bContinue
         }
         ControlClick, Button3, Adobe® Flash® Player 10.3 Installer ; Hit 'Done' button
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Adobe® Flash® Player 10.3 Installer' appeared and 'Done' button was clicked.`n
-        }
+            TestsOK("'Adobe® Flash® Player 10.3 Installer' window appeared and 'Done' button was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: unable to hit 'Done' button. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Done' button in 'Adobe® Flash® Player 10.3 Installer' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Adobe® Flash® Player 10.3 Installer' is not active window. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'Adobe® Flash® Player 10.3 Installer' is not active window.")
 }
 
 
-;Check if program exists in program files
+; Check if program file exist
 TestsTotal++
 if bContinue
 {
     Sleep, 2000
     IfExist, %InstallLocation%
-    {
-        TestsOK()
-        OutputDebug, OK: %TestName%:%A_LineNumber%: The application has been installed, because '%InstallLocation%' was found.`n
-    }
+        TestsOK("The application has been installed, because '" InstallLocation "' was found.")
     else
-    {
-        TestsFailed()
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Something went wrong, can't find '%InstallLocation%'.`n
-    }
+        TestsFailed("Something went wrong, can't find '" InstallLocation "'.")
 }
