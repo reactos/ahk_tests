@@ -46,6 +46,7 @@ RunApplication(PathToFile)
 {
     global ModuleExe
     global TestName
+    global bContinue
 
     Sleep, 500
     ; Get rid of application settings
@@ -64,7 +65,7 @@ RunApplication(PathToFile)
             WinWaitActive, Adobe Reader,,15
             if not ErrorLevel
             {
-                ; TestsOK()
+                bContinue := true
             }
             else
             {
@@ -80,7 +81,7 @@ RunApplication(PathToFile)
             WinWaitActive, Adobe Reader - [%NameExt%],,15
             if not ErrorLevel
             {
-                ; TestsOK()
+                bContinue := true
             }
             else
             {

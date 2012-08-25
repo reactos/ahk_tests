@@ -18,9 +18,9 @@
  */
 
 ModuleExe = %A_WorkingDir%\Apps\Adobe Reader 7.1.0 Setup.exe
-bContinue := false
 TestName = 1.install
 
+bContinue := false
 TestsFailed := 0
 TestsOK := 0
 TestsTotal := 0
@@ -80,20 +80,13 @@ IfExist, %ModuleExe%
                 bContinue := false
             }
             else
-            {
                 bContinue := true
-            }
         }
         else
-        {
-            ; No previous versions detected.
-            bContinue := true
-        }
+            bContinue := true ; No previous versions detected.
     }
     if bContinue
-    {
         Run %ModuleExe%
-    }
 }
 else
 {
@@ -116,38 +109,19 @@ if bContinue
             Sleep, 250
             ControlClick, Button1, Adobe Reader 7.1.0 - Setup, Next
             if not ErrorLevel
-            {
-                TestsOK++
-                OutputDebug, OK: %TestName%:%A_LineNumber%: 'Adobe Reader 7.1.0 - Setup' window appeared and first 'Next' button was clicked.`n
-                bContinue := true
-            }
+                TestsOK("'Adobe Reader 7.1.0 - Setup' window appeared and first 'Next' button was clicked.")
             else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click first 'Next' in 'Adobe Reader 7.1.0 - Setup' window. Active window caption: '%title%'.`n
-                bContinue := false
-            }
+                TestsFailed("Unable to click first 'Next' in 'Adobe Reader 7.1.0 - Setup' window.")
         }
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: First 'Adobe Reader 7.1.0 - Setup' window failed to appear. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("First 'Adobe Reader 7.1.0 - Setup' window failed to appear.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Adobe Reader 7.1.0' window with 'Please wait' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Adobe Reader 7.1.0' window with 'Please wait' failed to appear.")
 }
 
 
-; Test if 'Welcome to Setup' window appeared
+; Test if 'Adobe Reader 7.1.0 - Setup (Welcome to Setup)' window appeared
 TestsTotal++
 if bContinue
 {
@@ -157,30 +131,16 @@ if bContinue
         Sleep, 250
         ControlClick, Button1, Adobe Reader 7.1.0 - Setup, Welcome to Setup
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Adobe Reader 7.1.0 - Setup' window with 'Welcome to Setup' appeared and 'Next' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'Adobe Reader 7.1.0 - Setup (Welcome to Setup)' window appeared and 'Next' button was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'Welcome to Setup' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'Next' button in 'Adobe Reader 7.1.0 - Setup (Welcome to Setup)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Adobe Reader 7.1.0 - Setup' window with 'Welcome to Setup' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Adobe Reader 7.1.0 - Setup (Welcome to Setup)' window failed to appear.")
 }
 
 
-; Test if 'Destination Folder' window appeared
+; Test if 'Adobe Reader 7.1.0 - Setup (Destination Folder)' window appeared
 TestsTotal++
 if bContinue
 {
@@ -190,30 +150,16 @@ if bContinue
         Sleep, 250
         ControlClick, Button1, Adobe Reader 7.1.0 - Setup, Destination Folder
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Adobe Reader 7.1.0 - Setup' window with 'Destination Folder' appeared and 'Next' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'Adobe Reader 7.1.0 - Setup (Destination Folder)' window appeared and 'Next' button was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'Destination Folder' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'Next' button in ' Adobe Reader 7.1.0 - Setup (Destination Folder)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Adobe Reader 7.1.0 - Setup' window with 'Destination Folder' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Adobe Reader 7.1.0 - Setup (Destination Folder)' window failed to appear.")
 }
 
 
-; Test if 'Ready to Install' window appeared
+; Test if 'Adobe Reader 7.1.0 - Setup (Ready to Install)' window appeared
 TestsTotal++
 if bContinue
 {
@@ -223,26 +169,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button1, Adobe Reader 7.1.0 - Setup, Ready to Install ; Hit 'Install' button
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Adobe Reader 7.1.0 - Setup' window with 'Ready to Install' appeared and 'Install' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'Adobe Reader 7.1.0 - Setup (Ready to Install)' window appeared and 'Install' button was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Install' in 'Ready to Install' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'Install' button in 'Adobe Reader 7.1.0 - Setup (Ready to Install)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Adobe Reader 7.1.0 - Setup' window with 'Ready to Install' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Adobe Reader 7.1.0 - Setup (Ready to Install)' window failed to appear.")
 }
 
 
@@ -254,7 +186,7 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installing Adobe' window appeared, waiting for it to close.`n
+        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Adobe Reader 7.1.0 - Setup (Installing Adobe)' window appeared, waiting for it to close.`n
         WinWaitClose, Adobe Reader 7.1.0 - Setup, Installing Adobe, 50
         if not ErrorLevel
         {
@@ -263,46 +195,22 @@ if bContinue
             {
                 ControlClick, Button1, Adobe Reader 7.1.0 - Setup, Setup Completed ; Hit 'Finish' button
                 if not ErrorLevel
-                {
-                    TestsOK++
-                    OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installing Adobe' went away, 'Setup Completed' appeared, and 'Next' was clicked.`n
-                    bContinue := true
-                }
+                    TestsOK("'Installing Adobe' went away, 'Setup Completed' appeared, and 'Next' button was clicked.")
                 else
-                {
-                    TestsFailed++
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Finish' button in 'Setup Completed' window. Active window caption: '%title%'.`n
-                    bContinue := false
-                }
+                    TestsFailed("Unable to hit 'Finish' button in 'Adobe Reader 7.1.0 - Setup (Setup Completed)' window.")
             }
             else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Adobe Reader 7.1.0 - Setup' window with 'Setup Completed' failed to appear. Active window caption: '%title%'.`n
-                bContinue := false
-            }
+                TestsFailed("'Adobe Reader 7.1.0 - Setup (Setup Completed)' window failed to appear.")
         }
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Adobe Reader 7.1.0 - Setup' window with 'Installing Adobe' failed to dissapear. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("'Adobe Reader 7.1.0 - Setup (Installing Adobe)' window failed to dissapear.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Adobe Reader 7.1.0 - Setup' window with 'Installing' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Adobe Reader 7.1.0 - Setup (Installing)' window failed to appear.")
 }
 
 
-;Check if program exists in program files
+; Check if program exists
 TestsTotal++
 if bContinue
 {
@@ -311,23 +219,10 @@ if bContinue
     if not ErrorLevel
     {
         IfExist, %InstallLocation%
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: The application has been installed, because '%InstallLocation%' was found.`n
-            bContinue := true
-        }
+            TestsOK("The application has been installed, because '" InstallLocation "' was found.")
         else
-        {
-            TestsFailed++
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Something went wrong, can't find '%InstallLocation%'.`n
-            bContinue := false
-        }
+            TestsFailed("Something went wrong, can't find '" InstallLocation "'.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Either we can't read from registry or data doesn't exist. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
 }
