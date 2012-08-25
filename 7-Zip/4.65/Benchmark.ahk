@@ -23,39 +23,44 @@ TestName = 3.Benchmark
 TestsTotal++
 Process, Close, 7zG.exe ; Close Benchmark
 RunApplication("")
-WinWaitActive, 7-Zip File Manager,,7
-if not ErrorLevel
+if bContinue
 {
-    Sleep, 1500 ; Let it to fully load
-    WinMenuSelectItem, 7-Zip File Manager, , Tools, Benchmark
+    WinWaitActive, 7-Zip File Manager,,7
     if not ErrorLevel
     {
-        WinWaitActive, Benchmark, Dictionary size, 5
+        Sleep, 1500 ; Let it to fully load
+        WinMenuSelectItem, 7-Zip File Manager, , Tools, Benchmark
         if not ErrorLevel
         {
-            Control, Choose, 9, ComboBox1, Benchmark ; Choose '32MB' as 'Dictionary size' (9th item of list)
+            WinWaitActive, Benchmark, Dictionary size, 5
             if not ErrorLevel
             {
-                Sleep, 2000
-                ControlGetText, OutputVar, Static30, Benchmark
-                while OutputVar = "..."
+                Control, Choose, 9, ComboBox1, Benchmark ; Choose '32MB' as 'Dictionary size' (9th item of list)
+                if not ErrorLevel
                 {
+                    Sleep, 2000
                     ControlGetText, OutputVar, Static30, Benchmark
-                    Sleep, 1000
+                    while OutputVar = "..."
+                    {
+                        ControlGetText, OutputVar, Static30, Benchmark
+                        Sleep, 1000
+                    }
+                    TestsOK("Amount of percent in 'Total Rating' changed, so there is no bug #5906.")
                 }
-                TestsOK("Amount of percent in 'Total Rating' changed, so there is no bug #5906.")
+                else
+                    TestsFailed("Unable to choose '32MB' as 'Dictionary size' in 'Benchmark'.")
             }
             else
-                TestsFailed("Unable to choose '32MB' as 'Dictionary size' in 'Benchmark'.")
+                TestsFailed("'Benchmark (Dictionary size)' window failed to appear.")
         }
         else
-            TestsFailed("'Benchmark (Dictionary size)' window failed to appear.")
+            TestsFailed("Unable to hit 'Tools -> Benchmark'.")
     }
     else
-        TestsFailed("Unable to hit 'Tools -> Benchmark'.")
+        TestsFailed("Window '7-Zip File Manager' failed to appear.")
 }
 else
-    TestsFailed("Window '7-Zip File Manager' failed to appear.")
+    TestsFailed("We failed somwehere in 'prepare.ahk'.")
 
 
 Process, Close, 7zFM.exe
