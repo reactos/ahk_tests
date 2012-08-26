@@ -55,37 +55,19 @@ IfExist, %ModuleExe%
                         Sleep, 700
                     }
                     else
-                    {
                         OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Firefox Start Page - Mozilla Firefox' window failed to appear.`n
-                        bContinue := false
-                    }
                 }
                 else
-                {
                     OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to create and edit '%A_AppData%\Mozilla\Firefox\Profiles\ReactOS.default\prefs.js'.`n
-                    bContinue := false
-                }
             }
             else
-            {
                 OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to create and edit '%A_AppData%\Mozilla\Firefox\profiles.ini'.`n
-                bContinue := false
-            }
         }
         else
-        {
             OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to create dir tree '%A_AppData%\Mozilla\Firefox\ReactOS.default'.`n
-            bContinue := false
-        }
     }
     else
-    {
         OutputDebug, %TestName%:%A_LineNumber%: Test failed: Seems like we failed to delete '%A_AppData%\Mozilla'.`n
-        bContinue := false
-    }
 }
 else
-{
     OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%ModuleExe%'.`n
-    bContinue := false
-}

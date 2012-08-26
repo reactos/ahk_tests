@@ -68,27 +68,12 @@ if bContinue
         OutputDebug, OK: %TestName%:%A_LineNumber%: 'Extracting' window appeared, waiting for it to close.`n
         WinWaitClose, Extracting, Cancel, 15
         if not ErrorLevel
-        {
-            
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Extracting' window appeared and went away.`n
-            bContinue := true
-        }
+            TestsOK("'Extracting' window appeared and went away.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Extracting' window failed to dissapear. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("'Extracting' window failed to dissapear.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Extracting' window failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Extracting' window failed to appear.")
 }
 
 
@@ -100,19 +85,11 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Mozilla Firefox Setup' window with 'Welcome to the Mozilla Firefox' appeared.`n
-        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
-        bContinue := true
+        SendInput, !n ; Hit 'Next' button
+        TestsOK("'Mozilla Firefox Setup (Welcome to the Mozilla Firefox)' window appeared and Alt+N was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Firefox Setup' window with 'Welcome to the Mozilla Firefox' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Mozilla Firefox Setup (Welcome to the Mozilla Firefox)' window failed to appear.")
 }
 
 
@@ -124,19 +101,11 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Mozilla Firefox Setup' window with 'Setup Type' appeared.`n
-        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
-        bContinue := true
+        SendInput, !n ; Hit 'Next' button
+        TestsOK("'Mozilla Firefox Setup (Setup Type)' window appeared and Alt+N was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Firefox Setup' window with 'Setup Type' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Mozilla Firefox Setup (Setup Type)' window failed to appear.")
 }
 
 
@@ -148,19 +117,11 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Mozilla Firefox Setup' window with 'Summary' appeared.`n
         SendInput, {ALTDOWN}i{ALTUP} ; Hit 'Install' button
-        bContinue := true
+        TestsOK("'Mozilla Firefox Setup (Summary)' window appeared and Alt+I was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Firefox Setup' window with 'Summary' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Mozilla Firefox Setup (Summary)' window failed to appear.")
 }
 
 
@@ -172,29 +133,15 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installing' window appeared, waiting for it to close.`n
+        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Mozilla Firefox Setup (Installing)' window appeared, waiting for it to close.`n
         WinWaitClose, Mozilla Firefox Setup, Installing, 25
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Mozilla Firefox Setup' window with 'Installing' went away.`n
-            bContinue := true
-        }
+            TestsOK("'Mozilla Firefox Setup (Installing)' window went away.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Firefox Setup' window with 'Installing' failed to dissapear. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("'Mozilla Firefox Setup (Installing)' window failed to dissapear.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Firefox Setup' window with 'Installing' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Mozilla Firefox Setup (Installing)' window failed to appear.")
 }
 
 
@@ -206,39 +153,24 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Mozilla Firefox Setup' window with 'Completing' appeared.`n
-        SendInput, {ALTDOWN}l{ALTUP} ; Uncheck 'Lounch Firefox now'
-        SendInput, {ALTDOWN}f{ALTUP} ; Hit 'Finish' button
-        bContinue := true
+        SendInput, !l ; Uncheck 'Lounch Firefox now'
+        SendInput, !f ; Hit 'Finish' button
+        TestsOK("'Mozilla Firefox Setup (Completing)' window appeared, Alt+L and Alt+F was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Firefox Setup' window with 'Completing' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Mozilla Firefox Setup (Completing)' window failed to appear.")
 }
 
+Process, Close, firefox.exe ; Just in case
 
-;Check if program exists in program files
+;Check if program exists
 TestsTotal++
 if bContinue
 {
     Sleep, 250
     AppExe = %A_ProgramFiles%\Mozilla Firefox\firefox.exe
     IfExist, %AppExe%
-    {
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: Should be installed, because '%AppExe%' was found.`n
-        bContinue := true
-    }
+        TestsOK("Should be installed, because '" AppExe "' was found.")
     else
-    {
-        TestsFailed++
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%AppExe%'.`n
-        bContinue := false
-    }
+        TestsFailed("Can NOT find '" AppExe "'.")
 }
