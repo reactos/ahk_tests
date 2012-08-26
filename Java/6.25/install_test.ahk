@@ -114,30 +114,15 @@ if bContinue
         {
             ControlClick, Button3, Java Setup - Welcome, Welcome to ; Hit 'Install' button
             if not ErrorLevel
-            {
-                TestsOK()
-                OutputDebug, OK: %TestName%:%A_LineNumber%: 'Java Setup - Welcome (Welcome to)' window appeared, 'Change Destination Folder' checkbox checked and 'Install' button was clicked.`n
-            }
+                TestsOK("'Java Setup - Welcome (Welcome to)' window appeared, 'Change Destination Folder' checkbox checked and 'Install' button was clicked.")
             else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Install' button in 'Java Setup - Welcome (Welcome to)' window. Active window caption: '%title%'.`n
-            }
+                TestsFailed("Unable to hit 'Install' button in 'Java Setup - Welcome (Welcome to)' window.")
         }
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to check 'Change Destination Folder' checkbox in 'Java Setup - Welcome (Welcome to)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to check 'Change Destination Folder' checkbox in 'Java Setup - Welcome (Welcome to)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Java Setup - Welcome (Welcome to)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'Java Setup - Welcome (Welcome to)' window failed to appear.")
 }
 
 
@@ -151,23 +136,12 @@ if bContinue
         Sleep, 1050
         ControlClick, Button1, Java Setup - Destination Folder, Install to ; Hit 'Next' button
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Java Setup - Destination Folder (Install to)' window appeared and 'Next' button was clicked.`n
-        }
+            TestsOK("'Java Setup - Destination Folder (Install to)' window appeared and 'Next' button was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'Java Setup - Destination Folder (Install to)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Next' button in 'Java Setup - Destination Folder (Install to)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Java Setup - Destination Folder (Install to)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'Java Setup - Destination Folder (Install to)' window failed to appear.")
 }
 
 
@@ -181,23 +155,12 @@ if bContinue
         OutputDebug, OK: %TestName%:%A_LineNumber%: 'Java Setup - Progress (Status)' window appeared, waiting for it to close.`n
         WinWaitClose, Java Setup - Progress, Status, 25 ; Should be enough time to get it installed
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Java Setup - Progress (Status)' window went away.`n
-        }
+            TestsOK("'Java Setup - Progress (Status)' window went away.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Java Setup - Progress (Status)' window failed to close. Active window caption: '%title%'.`n
-        }
+            TestsFailed("'Java Setup - Progress (Status)' window failed to close.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Java Setup - Progress (Status)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'Java Setup - Progress (Status)' window failed to appear.")
 }
 
 
@@ -211,27 +174,16 @@ if bContinue
         Sleep, 1050
         ControlClick, Button2, Java Setup - Complete, You have ; Hit 'Close' button
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Java Setup - Complete (You have)' window appeared and 'Close' button was clicked.`n
-        }
+            TestsOK("'Java Setup - Complete (You have)' window appeared and 'Close' button was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Close' button in 'Java Setup - Complete (You have)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Close' button in 'Java Setup - Complete (You have)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Java Setup - Complete (You have)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'Java Setup - Complete (You have)' window failed to appear.")
 }
 
 
-; Check if program exists in program files
+; Check if program exists
 TestsTotal++
 if bContinue
 {
@@ -241,20 +193,10 @@ if bContinue
     {
         StringReplace, InstalledDir, InstalledDir, `",, All ; String contains quotes, replace em
         IfExist, %InstalledDir%
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: The application has been installed, because '%InstalledDir%' was found.`n
-        }
+            TestsOK("The application has been installed, because '" InstalledDir "' was found.")
         else
-        {
-            TestsFailed()
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Something went wrong, can't find '%InstalledDir%'.`n
-        }
+            TestsFailed("Something went wrong, can't find '" InstalledDir "'.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Either we can't read from registry or data doesn't exist. Active window caption: '%title%'.`n
-    }
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
 }
