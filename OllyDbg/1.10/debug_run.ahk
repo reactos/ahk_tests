@@ -49,55 +49,24 @@ if bContinue
                         WinClose, OllyDbg - %NameExt%
                         WinWaitClose, OllyDbg - %NameExt%,,7
                         if not ErrorLevel
-                        {
-                            TestsOK()
-                            OutputDebug, OK: %TestName%:%A_LineNumber%: '%NameExt%' was opened via command line, ran it via 'Debug -> Run', closed its window and closed OllyDbg successfully.`n
-                        }
+                            TestsOK("'" NameExt "' was opened via command line, ran it via 'Debug -> Run', closed its window and closed OllyDbg successfully.")
                         else
-                        {
-                            TestsFailed()
-                            WinGetTitle, title, A
-                            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'OllyDbg - %NameExt%' window failed to close. Active window caption: '%title%'`n
-                        }
+                            TestsFailed("'OllyDbg - " NameExt "' window failed to close.")
                     }
                     else
-                    {
-                        TestsFailed()
-                        WinGetTitle, title, A
-                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'OllyDbg - %NameExt%' did not became active after closing 'Calculator' window. Active window caption: '%title%'`n
-                    }
+                        TestsFailed("Window 'OllyDbg - " NameExt "' did not became active after closing 'Calculator' window.")
                 }
                 else
-                {
-                    TestsFailed()
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Calculator' window failed to close. Active window caption: '%title%'`n
-                }
+                    TestsFailed("'Calculator' window failed to close.")
             }
             else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Calculator' window failed to appear. Active window caption: '%title%'`n
-            }
+                TestsFailed("'Calculator' window failed to appear.")
         }
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Debug -> Run' in 'OllyDbg - %NameExt%' window. Active window caption: '%title%'`n
-        }
+            TestsFailed("Unable to hit 'Debug -> Run' in 'OllyDbg - " NameExt "' window.")
     }    
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'OllyDbg - %NameExt%' is not active. Active window caption: '%title%'`n
-    }
+        TestsFailed("Window 'OllyDbg - " NameExt "' is not active.")
 }
 else
-{
-    TestsFailed()
-    WinGetTitle, title, A
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: We failed somewhere in prepare.ahk. Active window caption: '%title%'`n
-}
+    TestsFailed("We failed somewhere in prepare.ahk.")
