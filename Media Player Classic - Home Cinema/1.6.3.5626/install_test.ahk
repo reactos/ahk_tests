@@ -64,19 +64,11 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Select Setup Language' window with 'Select the language' appeared.`n
         SendInput, {ENTER} ; Hit 'OK' button
-        bContinue := true
+        TestsOK("'Select Setup Language (Select the language)' window appeared, 'ENTER' was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Select Setup Language' window with 'Select the language' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Select Setup Language (Select the language)' window failed to appear.")
 }
 
 
@@ -88,19 +80,11 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - MPC-HC' window with 'This will install' appeared.`n
-        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
-        bContinue := true
+        SendInput, !n ; Hit 'Next' button
+        TestsOK("'Setup - MPC-HC (This will install)' window appeared, Alt+N was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - MPC-HC' window with 'This will install' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Setup - MPC-HC (This will install)' window failed to appear.")
 }
 
 ; Test if 'License Agreement' window appeared
@@ -111,20 +95,12 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - MPC-HC' window with 'License Agreement' appeared.`n
-        SendInput, {ALTDOWN}a{ALTUP} ; Check 'I accept' radiobutton
-        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
-        bContinue := true
+        SendInput, !a ; Check 'I accept' radiobutton
+        SendInput, !n ; Hit 'Next' button
+        TestsOK("'Setup - MPC-HC (License Agreement)' window appeared, Alt+A and Alt+N was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - MPC-HC' window with 'License Agreement' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Setup - MPC-HC (License Agreement)' window failed to appear.")
 }
 
 
@@ -136,19 +112,11 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - MPC-HC' window with 'Select Destination Location' appeared.`n
-        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
-        bContinue := true
+        SendInput, !n ; Hit 'Next' button
+        TestsOK("'Setup - MPC-HC (Select Destination Location)' window appeared, Alt+N was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - MPC-HC' window with 'Select Destination Location' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Setup - MPC-HC (Select Destination Location)' window failed to appear.")
 }
 
 
@@ -160,19 +128,11 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - MPC-HC' window with 'Select Components' appeared.`n
-        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
-        bContinue := true
+        SendInput, !n ; Hit 'Next' button
+        TestsOK("'Setup - MPC-HC (Select Components)' window appeared, Alt+N was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - MPC-HC' window with 'Select Components' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Setup - MPC-HC (Select Components)' window failed to appear.")
 }
 
 
@@ -184,19 +144,11 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - MPC-HC' window with 'Select Start Menu Folder' appeared.`n
-        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
-        bContinue := true
+        SendInput, !n ; Hit 'Next' button
+        TestsOK("'Setup - MPC-HC (Select Start Menu Folder)' window appeared, Alt+N was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - MPC-HC' window with 'Select Start Menu Folder' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Setup - MPC-HC (Select Start Menu Folder)' window failed to appear.")
 }
 
 
@@ -208,20 +160,12 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - MPC-HC' window with 'Select Additional Tasks' appeared.`n
-        SendInput, {ALTDOWN}q{ALTUP} ; Check 'Create a Quick Launch icon' checkbox //We want to test more things
-        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
-        bContinue := true
+        SendInput, !q ; Check 'Create a Quick Launch icon' checkbox //We want to test more things
+        SendInput, !n ; Hit 'Next' button
+        TestsOK("'Setup - MPC-HC (Select Additional Tasks)' window appeared, Alt+Q and Alt+N was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - MPC-HC' window with 'Select Additional Tasks' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Setup - MPC-HC (Select Additional Tasks)' window failed to appear.")
 }
 
 
@@ -233,19 +177,11 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - MPC-HC' window with 'Ready to Install' appeared.`n
-        SendInput, {ALTDOWN}i{ALTUP} ; Hit 'Install' button
-        bContinue := true
+        SendInput, !i ; Hit 'Install' button
+        TestsOK("'Setup - MPC-HC (Ready to Install)' window appeared and Alt+I was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - MPC-HC' window with 'Ready to Install' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Setup - MPC-HC (Ready to Install)' window failed to appear.")
 }
 
 
@@ -260,26 +196,12 @@ if bContinue
         OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installing' window appeared, waiting for it to close.`n
         WinWaitClose, Setup - MPC-HC, Installing, 25
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - MPC-HC' window with 'Installing' went away.`n
-            bContinue := true
-        }
+            TestsOK("'Setup - MPC-HC (Installing)' window went away.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - MPC-HC' window with 'Installing' failed to dissapear. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("'Setup - MPC-HC (Installing)' window failed to dissapear.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - MPC-HC' window with 'Installing' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Setup - MPC-HC (Installing)' window failed to appear.")
 }
 
 ; Test if 'Completing' window appeared
@@ -290,38 +212,22 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - MPC-HC' window with 'Completing' appeared.`n
-        SendInput, {ALTDOWN}f{ALTUP} ; Hit 'Finish' button
-        bContinue := true
+        SendInput, !f ; Hit 'Finish' button
+        TestsOK("'Setup - MPC-HC (Completing)' window appeared, Alt+F was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - MPC-HC' window with 'Completing' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Setup - MPC-HC (Completing)' window failed to appear.")
 }
 
 
-;Check if program exists in program files
+; Check if program exists
 TestsTotal++
 if bContinue
 {
     Sleep, 1500
     AppExe = %A_ProgramFiles%\MPC-HC\mpc-hc.exe
     IfExist, %AppExe%
-    {
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: Should be installed, because '%AppExe%' was found.`n
-        bContinue := true
-    }
+        TestsOK("Should be installed, because '" AppExe "' was found.")
     else
-    {
-        TestsFailed++
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%AppExe%'.`n
-        bContinue := false
-    }
+        TestsFailed("Can NOT find '" AppExe "'.")
 }
