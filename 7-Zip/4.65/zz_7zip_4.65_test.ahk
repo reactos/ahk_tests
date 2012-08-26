@@ -26,6 +26,8 @@ params =
 (
 
     1.install
+    2.ExtractArchive
+    3.Benchmark
 
 )
 FileAppend, %params%, *
