@@ -28,7 +28,7 @@ FileAppend, One line.`nLine two`nLine 3, %A_ProgramFiles%\7-Zip\AHK_Test\SampleF
 RegWrite, REG_SZ, HKEY_CURRENT_USER, SOFTWARE\7-Zip\FM, PanelPath0, %A_ProgramFiles%\7-Zip\AHK_Test
 if not ErrorLevel
 {
-    Run, %A_ProgramFiles%\7-Zip\7zFM.exe,, Max
+    Run, %ModuleExe%,, Max ; Start maximized (we dont want 'RunApplication("")' here, as we write settings ourself)
     WinWaitActive, %A_ProgramFiles%\7-Zip\AHK_Test,, 7
     if not ErrorLevel
     {
@@ -43,42 +43,18 @@ if not ErrorLevel
             {
                 Sleep, 2500 ; Give it some time to archive
                 IfExist, %A_ProgramFiles%\7-Zip\AHK_Test\SampleFile.7z
-                {
-                    TestsOK++
-                    OutputDebug, %TestName%:%A_LineNumber%:OK: '%A_ProgramFiles%\7-Zip\AHK_Test\SampleFile.7z' exist. Active window caption: '%title%'`n
-                    bContinue := true
-                }
+                    TestsOK("'" A_ProgramFiles "\7-Zip\AHK_Test\SampleFile.7z' exist.")
                 else
-                {
-                    TestsFailed++
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%A_ProgramFiles%\7-Zip\AHK_Test\SampleFile.7z' doesn't exist. Active window caption: '%title%'`n
-                    bContinue := false
-                }
+                    TestsFailed("'" A_ProgramFiles "\7-Zip\AHK_Test\SampleFile.7z' doesn't exist.")
             }
             else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'OK' button was not clicked in 'Add to Archive' window. Active window caption: '%title%'`n
-                bContinue := false
-            }
+                TestsFailed("'OK' button was not clicked in 'Add to Archive' window.")
         }
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Add to Archive' window failed to appear. Active window caption: '%title%'`n
-            bContinue := false
-        }
+            TestsFailed("'Add to Archive' window failed to appear.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%A_ProgramFiles%\7-Zip\' window failed to appear. Active window caption: '%title%'`n
-        bContinue := false
-    }
+        TestsFailed("'" A_ProgramFiles "\7-Zip\' window failed to appear.")
 }
 
 

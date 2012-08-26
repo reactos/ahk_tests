@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-SetupExe = %A_WorkingDir%\Apps\7zip_9.20_Setup.exe
+ModuleExe = %A_WorkingDir%\Apps\7zip_9.20_Setup.exe
 bContinue := false
 TestName = 1.install
 
@@ -26,149 +26,194 @@ TestsOK := 0
 TestsTotal := 0
 
 ; Test if Setup file exists, if so, delete already installed files if any, and run Setup
-IfExist, %SetupExe%
+IfExist, %ModuleExe%
 {
-
     ; Get rid of other versions
-    IfExist, %A_ProgramFiles%\7-Zip
+    RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\7-Zip, UninstallString
+    if not ErrorLevel
     {
-        IfExist, %A_ProgramFiles%\7-Zip\Uninstall.exe
+        StringReplace, UninstallerPath, UninstallerPath, `",, All ; String contains quotes, replace em
+        IfExist, %UninstallerPath%
         {
-            OutputDebug, %TestName%:%A_LineNumber%: '%A_ProgramFiles%\7-Zip\Uninstall.exe' was found. Running it in silent mode then terminating explorer.exe.`n
-            Run, %A_ProgramFiles%\7-Zip\Uninstall.exe /S
-        }
-        Process, close, 7zFM.exe
-        Run, regsvr32 /s /u "C:\Program Files\7-Zip\7-zip.dll"
-        Process, Close, explorer.exe ; Sadly uninstalling and unregistering dll isn't enough
-        RegDelete, HKEY_CURRENT_USER, SOFTWARE\7-Zip
-        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\7-Zip
-        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\7-Zip
-        FileRemoveDir, %A_ProgramFiles%\7-Zip, 1
-        Run, explorer.exe
-        Sleep, 5000 ; Let explorer to load all its windows
-        IfExist, %A_ProgramFiles%\7-Zip
-        {
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to delete '%A_ProgramFiles%\7-Zip'.`n
-            bContinue := false
+            Process, Close, 7zFM.exe ; Teminate process
+            Sleep, 1500
+            RunWait, %UninstallerPath% /S ; Silently uninstall it
+            Sleep, 2500
+            ; Delete everything just in case
+            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\7-Zip
+            RegDelete, HKEY_CURRENT_USER, SOFTWARE\7-Zip
+            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\7-Zip
+            SplitPath, UninstallerPath,, InstalledDir
+            Run, regsvr32 /s /u "%A_ProgramFiles%\7-Zip\7-zip.dll"
+            Process, Close, explorer.exe ; Explorer restart is required
+            Sleep, 2500
+            FileRemoveDir, %InstalledDir%, 1
+            Sleep, 1000
+            IfExist, %InstalledDir%
+            {
+                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to delete '%InstalledDir%'.`n
+                bContinue := false
+            }
+            else
+            {
+                bContinue := true
+            }
         }
         else
         {
-            Run %SetupExe%
-            bContinue := true
+            OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%UninstallerPath%' does not exist.`n
+            bContinue := false
         }
     }
     else
     {
-        Run %SetupExe%
-        bContinue := true
+        ; There was a problem (such as a nonexistent key or value). 
+        ; That probably means we have not installed this app before.
+        ; Check in default directory to be extra sure
+        IfExist, %A_ProgramFiles%\7-Zip\Uninstall.exe
+        {
+            Process, Close, 7zFM.exe ; Teminate process
+            Sleep, 1500
+            RunWait, %A_ProgramFiles%\7-Zip\Uninstall.exe /S ; Silently uninstall it
+            Sleep, 2500
+            Run, regsvr32 /s /u "%A_ProgramFiles%\7-Zip\7-zip.dll"
+            Process, Close, explorer.exe
+            Sleep, 2500
+            FileRemoveDir, %A_ProgramFiles%\7-Zip, 1
+            Sleep, 1000
+            IfExist, %A_ProgramFiles%\7-Zip
+            {
+                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Previous version detected and failed to delete '%A_ProgramFiles%\7-Zip'.`n
+                bContinue := false
+            }
+            else
+                bContinue := true
+        }
+        else
+            bContinue := true ; No previous versions detected.
     }
+    if bContinue
+        Run %ModuleExe%
 }
 else
 {
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%SetupExe%' not found.`n
+    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%ModuleExe%' not found.`n
     bContinue := false
 }
 
 
-; Test if can start setup
+; Test if '7-Zip 9.20 Setup (Choose Install Location)' window appeared, if so, hit 'Install' button
 TestsTotal++
 if bContinue
 {
-        WinActivate, 7-Zip 9.20 Setup, Choose Install Location ; If we have explorer terminated, make sure we bring 7-Zip window to the top
-        WinWaitActive, 7-Zip 9.20 Setup, Choose Install Location, 15 ; Wait 15 secs for window to appear
-        if not ErrorLevel ;Window is found and it is active
+    WinWait, 7-Zip 9.20 Setup, Choose Install Location, 15
+    if ErrorLevel
+        TestsFailed("'7-Zip 9.20 Setup (Choose Install Location)' window does not exist.")
+    else
+    {
+        ; We had to kill explorer, so, make sure 7-Zip window is active
+        WinActivate, 7-Zip 9.20 Setup, Choose Install Location
+        WinWaitActive, 7-Zip 9.20 Setup, Choose Install Location, 7
+        if ErrorLevel
+            TestsFailed("Unable to activate existing '7-Zip 9.20 Setup (Choose Install Location)' window.")
+        else
         {
-            if LeftClickControl("Button2")
-            {
-                TestsOK++
-                OutputDebug, OK: %TestName%:%A_LineNumber%: 'Choose Install Location' window appeared and 'Install' button was clicked.`n
-                bContinue := true
-            }
+            ControlClick, Button2, 7-Zip 9.20 Setup, Choose Install Location ; Hit 'Install' button
+            if ErrorLevel
+                TestsFailed("Unable to hit 'Install' button in '7-Zip 9.20 Setup (Choose Install Location)' window.")
             else
             {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: There was some problem with LeftClickControl. Active window caption: '%title%'.`n
-                bContinue := false
+                TestsOK("'7-Zip 9.20 Setup (Choose Install Location)' window appeared and 'Install' button was clicked.")
+            }
+        }
+    }
+}
+
+
+; Test if can get thru '7-Zip 9.20 Setup (Installing)' window
+TestsTotal++
+if bContinue
+{
+    WinWaitActive, 7-Zip 9.20 Setup, Installing, 5
+    if ErrorLevel
+        TestsFailed("'7-Zip 9.20 Setup (Installing)' window failed to appear.")
+    else
+    {
+        OutputDebug, %TestName%:%A_LineNumber%: '7-Zip 9.20 Setup (Installing)' window appeared, waiting for it to close.`n
+        WinWaitClose, 7-Zip 9.20 Setup, Installing, 20
+        if ErrorLevel
+            TestsFailed("'7-Zip 9.20 Setup (Installing)' window failed to close.")
+        else
+        {
+            TestsOK("'7-Zip 9.20 Setup (Installing)' window appeared and closed.")
+        }
+    }
+}
+
+
+; Test if '7-Zip 9.20 Setup (Completing)' window appeared, if so
+; check 'I want to reboot manually' radio button (if exist) and hit 'Finish' button
+TestsTotal++
+if bContinue
+{
+    WinWaitActive, 7-Zip 9.20 Setup, Completing, 5
+    if ErrorLevel
+        TestsFailed("'7-Zip 9.20 Setup (Completing)' window failed to appear.")
+    else
+    {
+        ControlGet, bVisible, Visible,, 7-Zip 9.20 Setup, Completing
+        if bVisible = 1 ; Control is visible
+        {
+            Control, Check, , Button5, 7-Zip 9.20 Setup, Completing ; Check 'I want to reboot manually' radiobutton
+            if ErrorLevel
+                TestsFailed("Unable to check 'I want to reboot manually' radiobutton in '7-Zip 9.20 Setup (Completing)' window.")
+            else
+            {
+                ControlClick, Button2, 7-Zip 9.20 Setup, Completing ; Hit 'Finish' button
+                if ErrorLevel
+                    TestsFailed("Unable to hit 'Finish' button in '7-Zip 9.20 Setup (Completing)' window.")
+                else
+                {
+                    WinWaitClose, 7-Zip 9.20 Setup, Completing, 5
+                    if ErrorLevel
+                        TestsFailed("'7-Zip 9.20 Setup (Completing)' window failed to close after clicking on 'Finish' button.")
+                    else
+                        TestsOK("'I want to reboot manually' radiobutton was checked and 'Finish' button was clicked in '7-Zip 9.20 Setup (Completing)' window and it closed.")
+                }
             }
         }
         else
         {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: '7-Zip 9.20 Setup' window with 'Choose Install Location' text failed to appear. Active window caption: '%title%'.`n
-            bContinue := false
+            ControlClick, Button2, 7-Zip 9.20 Setup, Completing ; Hit 'Finish' button
+            if ErrorLevel
+                TestsFailed("Unable to hit 'Finish' button in '7-Zip 9.20 Setup (Completing)' window.")
+            else
+            {
+                WinWaitClose, 7-Zip 9.20 Setup, Completing, 5
+                if ErrorLevel
+                    TestsFailed("'7-Zip 9.20 Setup (Completing)' window failed to close after clicking on 'Finish' button.")
+                else
+                    TestsOK("'Finish' button was clicked in '7-Zip 9.20 Setup (Completing)' window and it closed.")
+            }
         }
-}
-
-
-; Test if 'Installing' window can appear
-TestsTotal++
-if bContinue
-{
-    WinWaitActive, 7-Zip 9.20 Setup, Installing, 15 ; Wait 15 secs for window to appear
-    if not ErrorLevel ;Window is found and it is active
-    {
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installing' window appeared.`n
-        bContinue := true
-    }
-    else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Installing' window failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
     }
 }
 
 
-; Test if 'Completing' window and 'Finish' button can appear
+; Check if program exists in program files
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, 7-Zip 9.20 Setup, Completing the, 15 ; Wait 15 secs for window to appear
-    if not ErrorLevel ;Window is found and it is active
+    Sleep, 2000
+    RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\7-Zip, UninstallString
+    if not ErrorLevel
     {
-        if LeftClickControl("Button2")
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Completing' window appeared and 'Finish' button was clicked.`n
-            bContinue := true
-        }
+        StringReplace, UninstallerPath, UninstallerPath, `",, All ; String contains quotes, replace em
+        IfExist, %UninstallerPath%
+            TestsOK("The application has been installed, because '" UninstallerPath "' was found.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: There was some problem with LeftClickControl. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Something went wrong, can't find '" UninstallerPath "'.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Completing' window failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
-}
-
-;Check if program exists in program files
-TestsTotal++
-if bContinue
-{
-    Sleep, 250
-    AppExe = %A_ProgramFiles%\7-Zip\7zFM.exe
-    IfExist, %AppExe%
-    {
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: Should be installed, because '%AppExe%' was found.`n
-        bContinue := true
-    }
-    else
-    {
-        TestsFailed++
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%AppExe%'.`n
-        bContinue := false
-    }
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
 }
