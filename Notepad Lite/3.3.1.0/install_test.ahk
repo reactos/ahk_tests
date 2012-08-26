@@ -73,30 +73,15 @@ if bContinue
         {
             ControlClick, Button2, 7-Zip self-extracting archive, Extract ; Hit 'Extract' button
             if not ErrorLevel
-            {
-                TestsOK()
-                OutputDebug, OK: %TestName%:%A_LineNumber%: '7-Zip self-extracting archive' window appeared and 'Extract' was clicked.`n
-            }
+                TestsOK("'7-Zip self-extracting archive' window appeared, path changed and 'Extract' was clicked.")
             else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Extract' in '7-Zip self-extracting archive' window. Active window caption: '%title%'.`n
-            }
+                TestsFailed("Unable to click 'Extract' in '7-Zip self-extracting archive' window.")
         }
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to change 'Edit1' control text to '%A_ProgramFiles%\Notepad Lite'. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to change path to '" A_ProgramFiles "\Notepad Lite'.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: '7-Zip self-extracting archive' window with 'Extract' button failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'7-Zip self-extracting archive' window with 'Extract' button failed to appear.")
 }
 
 
@@ -105,29 +90,17 @@ if bContinue
 {
     SetTitleMatchMode, 1
     WinWaitActive, Extracting, Cancel, 10 ; Wait 10 secs for window to appear
-    if not ErrorLevel ;Window is found and it is active
+    if not ErrorLevel ; Window is found and it is active
     {
         OutputDebug, OK: %TestName%:%A_LineNumber%: 'Extracting' window appeared, waiting for it to close.`n
         WinWaitClose, Extracting, Cancel, 15
         if not ErrorLevel
-        {
-            
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Extracting' window appeared and went away.`n
-        }
+            TestsOK("'Extracting' window appeared and went away.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Extracting' window failed to dissapear. Active window caption: '%title%'.`n
-        }
+            TestsFailed("'Extracting' window failed to dissapear.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Extracting' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'Extracting' window failed to appear.")
 }
 
 
@@ -138,13 +111,7 @@ if bContinue
     Sleep, 2000
     ProgramDir = %A_ProgramFiles%\Notepad Lite
     IfExist, %ProgramDir%
-    {
-        TestsOK()
-        OutputDebug, OK: %TestName%:%A_LineNumber%: The application has been installed, because '%ProgramDir%' was found.`n
-    }
+        TestsOK("The application has been installed, because '" ProgramDir "' was found.")
     else
-    {
-        TestsFailed()
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Something went wrong, can't find '%ProgramDir%'.`n
-    }
+        TestsFailed("Something went wrong, can't find '" ProgramDir "'.")
 }

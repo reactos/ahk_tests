@@ -75,104 +75,45 @@ if not ErrorLevel
                                                 {
                                                     WinWaitClose, GridinSoft Notepad Lite - [%szDocument%],,5
                                                     if not ErrorLevel
-                                                    {
-                                                        TestsOK()
-                                                        OutputDebug, OK: %TestName%:%A_LineNumber%: Opened document, replaced some text, saved and closed Notepad Lite successfully.`n
-                                                    }
+                                                        TestsOK("Opened document, replaced some text, saved and closed Notepad Lite successfully.")
                                                     else
-                                                    {
-                                                        TestsFailed()
-                                                        WinGetTitle, title, A
-                                                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'GridinSoft Notepad Lite - [%szDocument%]' failed to close. Active window caption: '%title%'`n
-                                                    }
+                                                        TestsFailed("Window 'GridinSoft Notepad Lite - [" szDocument "]' failed to close.")
                                                 }
                                                 else
-                                                {
-                                                    TestsFailed()
-                                                    WinGetTitle, title, A
-                                                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Yes' button in '*%NameExt% - GridinSoft Notepad' window. Active window caption: '%title%'`n
-                                                }
+                                                    TestsFailed("Unable to hit 'Yes' button in '*" NameExt " - GridinSoft Notepad' window.")
                                             }
                                             else
-                                            {
-                                                TestsFailed()
-                                                WinGetTitle, title, A
-                                                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window '*%NameExt% - GridinSoft Notepad' failed to appear. Active window caption: '%title%'`n
-                                            }
+                                                TestsFailed("Window '*" NameExt " - GridinSoft Notepad' failed to appear.")
                                         }
                                         else
-                                        {
-                                            TestsFailed()
-                                            WinGetTitle, title, A
-                                            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'GridinSoft Notepad Lite - [%szDocument%]' is not active. Active window caption: '%title%'`n
-                                        }
+                                            TestsFailed("Window 'GridinSoft Notepad Lite - [" szDocument "]' is not active.")
                                     }
                                     else
-                                    {
-                                        TestsFailed()
-                                        WinGetTitle, title, A
-                                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Confirm replace' failed to close. Active window caption: '%title%'`n
-                                    }
+                                        TestsFailed("Window 'Confirm replace' failed to close.")
                                 }
                                 else
-                                {
-                                    TestsFailed()
-                                    WinGetTitle, title, A
-                                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Yes to all' button in 'Confirm replace' window. Active window caption: '%title%'`n
-                                }
+                                    TestsFailed("Unable to hit 'Yes to all' button in 'Confirm replace' window.")
                             }
                             else
-                            {
-                                TestsFailed()
-                                WinGetTitle, title, A
-                                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Confirm replace' failed to appear. Active window caption: '%title%'`n
-                            }
+                                TestsFailed("Window 'Confirm replace' failed to appear.")
                         }
                         else
-                        {
-                            TestsFailed()
-                            WinGetTitle, title, A
-                            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'GridinSoft Notepad - Replace' failed to close. Active window caption: '%title%'`n
-                        }
+                            TestsFailed("Window 'GridinSoft Notepad - Replace' failed to close.")
                     }
                     else
-                    {
-                        TestsFailed()
-                        WinGetTitle, title, A
-                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to set 'Replace with' text in 'GridinSoft Notepad - Replace' window. Active window caption: '%title%'`n
-                    }
+                        TestsFailed("Unable to set 'Replace with' text in 'GridinSoft Notepad - Replace' window.")
                 }
                 else
-                {
-                    TestsFailed()
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to set 'Search for' text in 'GridinSoft Notepad - Replace' window. Active window caption: '%title%'`n
-                }
+                    TestsFailed("Unable to set 'Search for' text in 'GridinSoft Notepad - Replace' window.")
             }
             else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'GridinSoft Notepad - Replace' failed to appear. Active window caption: '%title%'`n
-            }
+                TestsFailed("Window 'GridinSoft Notepad - Replace' failed to appear.")
         }
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'GridinSoft Notepad Lite - [%szDocument%]' failed to appear. Active window caption: '%title%'`n
-        }
+            TestsFailed("Window 'GridinSoft Notepad Lite - [" szDocument "]' failed to appear.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: We failed somewhere in prepare.ahk. Active window caption: '%title%'`n
-    }
+        TestsFailed("We failed somewhere in prepare.ahk.")
 }
 else
-{
-    TestsFailed()
-    WinGetTitle, title, A
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to create '%szDocument%'. Active window caption: '%title%'`n
-}
+    TestsFailed("Unable to create '%szDocument%'.")
