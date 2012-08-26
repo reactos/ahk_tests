@@ -25,7 +25,7 @@ if 1 = --list
 params =
 (
 
-    1.install
+    1.SaveScreenShot
 
 )
 FileAppend, %params%, *

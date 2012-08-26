@@ -24,11 +24,13 @@ if 1 = --list
 {
 params =
 (
-install
-AddressBar
-Download
-FlashPlayer
-CloseDownload
+
+    install
+    AddressBar
+    Download
+    FlashPlayer
+    CloseDownload
+
 )
 FileAppend, %params%, *
 }

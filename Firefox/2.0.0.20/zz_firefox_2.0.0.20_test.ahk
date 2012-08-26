@@ -26,6 +26,9 @@ params =
 (
 
     1.install
+    2.address_bar
+    3.download
+    4.search_bar
 
 )
 FileAppend, %params%, *

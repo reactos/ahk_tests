@@ -26,6 +26,7 @@ params =
 (
 
     1.install
+    2.AddArchive
 
 )
 FileAppend, %params%, *
