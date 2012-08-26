@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-TestName = 2.SA_LoadLocalFlash
+TestName = 3.SA_LoadOnlineFlash
 szDocument =  http://beastybombs.com/game/beastybombs_1_0_beta_1.swf ; Case insensitive.
 
 ; Test if can play online located SWF

@@ -26,6 +26,8 @@ params =
 (
 
     1.install
+    2.SA_LoadLocalFlash
+    3.SA_LoadOnlineFlash
 
 )
 FileAppend, %params%, *
@@ -42,7 +44,7 @@ else
     {
         #include SA_LoadLocalFlash.ahk
     }
-    else if 1 = 2.SA_LoadOnlineFlash ; StandAlone Flash Player: play online located SWF
+    else if 1 = 3.SA_LoadOnlineFlash ; StandAlone Flash Player: play online located SWF
     {
         #include SA_LoadOnlineFlash.ahk
     }
