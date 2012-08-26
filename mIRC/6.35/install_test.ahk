@@ -104,23 +104,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button2, mIRC Setup, This wizard ; Hit 'Next' button
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'mIRC Setup' window with 'This wizard' appeared and 'Next' was clicked.`n
-        }
+            TestsOK("'mIRC Setup (This wizard)' window appeared and 'Next' was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'This wizard' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to click 'Next' in 'mIRC Setup (This wizard)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'mIRC Setup' window with 'This wizard' failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'mIRC Setup (This wizard)' window failed to appear.")
 }
 
 
@@ -134,23 +123,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button2, mIRC Setup, License Agreement ; Hit 'I Agree' button
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'mIRC Setup' window with 'License Agreement' appeared and 'I Agree' was clicked.`n
-        }
+            TestsOK("'mIRC Setup (License Agreement)' window appeared and 'I Agree' button was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'I Agree' in 'License Agreement' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to click 'I Agree' button in 'mIRC Setup (License Agreement)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'mIRC Setup' window with 'License Agreement' failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'mIRC Setup (License Agreement)' window failed to appear.")
 }
 
 
@@ -164,23 +142,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button2, mIRC Setup, Choose Install Location
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'mIRC Setup' window with 'Choose Install Location' appeared and 'Next' was clicked.`n
-        }
+            TestsOK("'mIRC Setup (Choose Install Location)' window appeared and 'Next' was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'Choose Install Location' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to click 'Next' in 'mIRC Setup (Choose Install Location)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'mIRC Setup' window with 'Choose Install Location' failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'mIRC Setup (Choose Install Location)' window failed to appear.")
 }
 
 
@@ -194,23 +161,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button2, mIRC Setup, Choose Components
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'mIRC Setup' window with 'Choose Components' appeared and 'Next' was clicked.`n
-        }
+            TestsOK("'mIRC Setup (Choose Components)' window appeared and 'Next' was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'Choose Components' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to click 'Next' in 'mIRC Setup (Choose Components)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'mIRC Setup' window with 'Choose Components' failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'mIRC Setup (Choose Components)' window failed to appear.")
 }
 
 
@@ -230,37 +186,18 @@ if bContinue
             {
                 ControlClick, Button2, mIRC Setup, Select Additional Tasks
                 if not ErrorLevel
-                {
-                    TestsOK()
-                    OutputDebug, OK: %TestName%:%A_LineNumber%: 'mIRC Setup' window with 'Select Additional Tasks' appeared, some checkboxes unchecked and 'Next' was clicked.`n
-                }
+                    TestsOK("'mIRC Setup (Select Additional Tasks)' window appeared, 'Automatically Check for Updates', 'Backup Current Files' checkboxes unchecked and 'Next' was clicked.")
                 else
-                {
-                    TestsFailed()
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'Select Additional Tasks' window. Active window caption: '%title%'.`n
-                }
+                    TestsFailed("Unable to click 'Next' in 'mIRC Setup (Select Additional Tasks)' window.")
             }
             else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to uncheck 'Automatically Check for Updates' in 'Select Additional Tasks' window. Active window caption: '%title%'.`n
-            }
+                TestsFailed("Unable to uncheck 'Automatically Check for Updates' checkbox in 'mIRC Setup (Select Additional Tasks)' window. ")
         }
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to uncheck 'Backup Current Files' in 'Select Additional Tasks' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to uncheck 'Backup Current Files' checkbox in 'mIRC Setup (Select Additional Tasks)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'mIRC Setup' window with 'Select Additional Tasks' failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'mIRC Setup (Select Additional Tasks)' window failed to appear.")
 }
 
 
@@ -274,23 +211,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button2, mIRC Setup, Ready to Install ; Hit 'Install'
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'mIRC Setup' window with 'Ready to Install' appeared and 'Install' was clicked.`n
-        }
+            TestsOK("'mIRC Setup (Ready to Install)' window appeared and 'Install' was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Install' in 'Ready to Install' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to click 'Install' in 'mIRC Setup (Ready to Install)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'mIRC Setup' window with 'Ready to Install' failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'mIRC Setup (Ready to Install)' window failed to appear.")
 }
 
 
@@ -305,29 +231,20 @@ if bContinue
         ControlClick, Button2, mIRC Setup, mIRC has been installed ; Hit 'Finish'
         if not ErrorLevel
         {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'mIRC Setup' window with 'mIRC has been installed' appeared and 'Finish' was clicked.`n
+            TestsOK("'mIRC Setup (mIRC has been installed)' window appeared and 'Finish' was clicked.")
             Sleep, 1500
             ; There are two checkboxes, but unchecked by default. Just to be sure, terminate processes
             Process, Close, hh.exe
             Process, Close, mirc.exe
         }
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Finish' in 'mIRC has been installed' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to click 'Finish' in 'mIRC Setup (mIRC has been installed)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'mIRC Setup' window with 'mIRC has been installed' failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'mIRC Setup (mIRC has been installed)' window failed to appear.")
 }
 
-;Check if program exists in program files
+; Check if program exists
 TestsTotal++
 if bContinue
 {
@@ -337,20 +254,10 @@ if bContinue
     {
         StringReplace, InstallLocation, InstallLocation, `",, All
         IfExist, %InstallLocation%
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: The application has been installed, because '%InstallLocation%' was found.`n
-        }
+            TestsOK("The application has been installed, because '" InstallLocation "' was found.")
         else
-        {
-            TestsFailed()
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Something went wrong, can't find '%InstallLocation%'.`n
-        }
+            TestsFailed("Something went wrong, can't find '" InstallLocation "'.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Either we can't read from registry or data doesn't exist. Active window caption: '%title%'.`n
-    }
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
 }
