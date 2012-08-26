@@ -60,6 +60,7 @@ RunApplication(PathToFile)
             WinWaitActive, IrfanView,,7
             if not ErrorLevel
             {
+                bContinue := true
                 Sleep, 1000
             }
             else
@@ -76,6 +77,7 @@ RunApplication(PathToFile)
             WinWaitActive, %NameExt% - IrfanView,,7
             if not ErrorLevel
             {
+                bContinue := true
                 Sleep, 1000
             }
             else

@@ -17,115 +17,73 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-bContinue := false
-TestsTotal := 0
-TestsSkipped := 0
-TestsFailed := 0
-TestsOK := 0
-TestsExecuted := 0
 TestName = 2.GoToPage
 szDocument =  %A_WorkingDir%\Media\BookPage29Img.jpg ; Case sensitive!
 
 ; Test if can open picture using File -> Open dialog and close application successfully
 TestsTotal++
 RunApplication("")
-SplitPath, szDocument, NameExt
-WinWaitActive, IrfanView,,7
-if not ErrorLevel
+if not bContinue
+    TestsFailed("We failed somwehere in 'prepare.ahk'.")
+else
 {
-    IfExist, %szDocument%
+    SplitPath, szDocument, NameExt
+    WinWaitActive, IrfanView,,7
+    if not ErrorLevel
     {
-        WinMenuSelectItem, IrfanView, , File, Open
-        if not ErrorLevel
+        IfExist, %szDocument%
         {
-            WinWaitActive, Open, Look &in,7
+            WinMenuSelectItem, IrfanView, , File, Open
             if not ErrorLevel
             {
-                Sleep, 1500
-                ControlSetText, Edit1, %szDocument%, Open, Look &in
+                WinWaitActive, Open, Look &in,7
                 if not ErrorLevel
                 {
                     Sleep, 1500
-                    ControlClick, Button2, Open, Look &in
+                    ControlSetText, Edit1, %szDocument%, Open, Look &in
                     if not ErrorLevel
                     {
                         Sleep, 1500
-                        WinWaitActive, %NameExt% - IrfanView,,7
+                        ControlClick, Button2, Open, Look &in
                         if not ErrorLevel
                         {
-                            ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, *14 %szDocument%
-                            if ErrorLevel = 2
+                            Sleep, 1500
+                            WinWaitActive, %NameExt% - IrfanView,,7
+                            if not ErrorLevel
                             {
-                                TestsFailed()
-                                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Could not conduct the ImageSearch ('%szDocument%' exist).`n
-                            }
-                            else if ErrorLevel = 1
-                            {
-                                TestsFailed()
-                                OutputDebug, %TestName%:%A_LineNumber%: Test failed: The search image '%szDocument%' could NOT be found on the screen. Color depth not 32bit?.`n
-                            }
-                            else
-                            {
-                                WinClose, %NameExt% - IrfanView
-                                WinWaitClose, %NameExt% - IrfanView,,7
-                                if not ErrorLevel
-                                {
-                                    TestsOK()
-                                    OutputDebug, OK: %TestName%:%A_LineNumber%: Opened '%szDocument%' using 'File -> Open' and closed application successfully.`n
-                                }
+                                ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, *14 %szDocument%
+                                if ErrorLevel = 2
+                                    TestsFailed("Could not conduct the ImageSearch ('" szDocument "' exist).")
+                                else if ErrorLevel = 1
+                                    TestsFailed("The search image '" szDocument "' could NOT be found on the screen. Color depth not 32bit?")
                                 else
                                 {
-                                    TestsFailed()
-                                    WinGetTitle, title, A
-                                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to close '%NameExt% - IrfanView' window. Active window caption: '%title%'`n
+                                    WinClose, %NameExt% - IrfanView
+                                    WinWaitClose, %NameExt% - IrfanView,,7
+                                    if not ErrorLevel
+                                        TestsOK("Opened '" szDocument "' using 'File -> Open' and closed application successfully.")
+                                    else
+                                        TestsFailed("Unable to close '" NameExt " - IrfanView' window.")
                                 }
                             }
+                            else
+                                TestsFailed("Window '" NameExt " - IrfanView' failed to appear.")
                         }
                         else
-                        {
-                            TestsFailed()
-                            WinGetTitle, title, A
-                            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window '%NameExt% - IrfanView' failed to appear. Active window caption: '%title%'`n
-                        }
+                            TestsFailed("Unable to click 'Open' button in 'Open (Look in)' window.")
                     }
                     else
-                    {
-                        TestsFailed()
-                        WinGetTitle, title, A
-                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Open' button in 'Open (Look in)' window. Active window caption: '%title%'`n
-                    }
+                        TestsFailed("Unable to change 'File name' control text to '" szDocument "' in 'Open (Look in)' window, bug 7089?")
                 }
                 else
-                {
-                    TestsFailed()
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to change 'File name' control text to '%szDocument%' in 'Open (Look in)' window, bug 7089?. Active window caption: '%title%'`n
-                }
+                    TestsFailed("Window 'Open (Look in)' failed to appear.")
             }
             else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Open (Look in)' failed to appear. Active window caption: '%title%'`n
-            }
+                TestsFailed("Unable to hit 'File -> Open' in 'IrfanView' window.")
         }
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'File -> Open' in 'IrfanView' window. Active window caption: '%title%'`n
-        }
+            TestsFailed("File '" szDocument "' was NOT found.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: File '%szDocument%' was NOT found. Active window caption: '%title%'`n
-    }
-}
-else
-{
-    TestsFailed()
-    WinGetTitle, title, A
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'IrfanView' failed to appear. Active window caption: '%title%'`n
+        TestsFailed("Window 'IrfanView' failed to appear.")
 }

@@ -106,19 +106,19 @@ if bContinue
         ControlClick, Button11, IrfanView Setup, Welcome ; Hit 'Next' button
         if not ErrorLevel
         {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'IrfanView Setup (Welcome)' window appeared and 'Next' was clicked.`n
+            TestsOK("")
+            OutputDebug, OK: %TestName%:%A_LineNumber%: 'IrfanView Setup (Welcome)' window appeared and 'Next' button was clicked.`n
         }
         else
         {
-            TestsFailed()
+            TestsFailed("")
             WinGetTitle, title, A
             OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'IrfanView Setup (Welcome)' window. Active window caption: '%title%'.`n
         }
     }
     else
     {
-        TestsFailed()
+        TestsFailed("")
         WinGetTitle, title, A
         OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'IrfanView Setup (Welcome)' window failed to appear. Active window caption: '%title%'.`n
     }
@@ -135,23 +135,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button11, IrfanView Setup, What's new ; Hit 'Next' button
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'IrfanView Setup (What's new)' window appeared and 'Next' was clicked.`n
-        }
+            TestsOK("'IrfanView Setup (What's new)' window appeared and 'Next' button was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'IrfanView Setup (What's new)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Next' button in 'IrfanView Setup (What's new)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'IrfanView Setup (What's new)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'IrfanView Setup (What's new)' window failed to appear.")
 }
 
 
@@ -169,30 +158,15 @@ if bContinue
             Sleep, 500
             ControlClick, Button16, IrfanView Setup, Do you want to associate ; Hit 'Next' button
             if not ErrorLevel
-            {
-                TestsOK()
-                OutputDebug, OK: %TestName%:%A_LineNumber%: 'IrfanView Setup (Do you want to associate)' window appeared and 'Next' was clicked.`n
-            }
+                TestsOK("'IrfanView Setup (Do you want to associate)' window appeared, 'Images only' and 'Next' buttons were clicked.")
             else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'IrfanView Setup (Do you want to associate)' window. Active window caption: '%title%'.`n
-            }
+                TestsFailed("Unable to hit 'Next' button in 'IrfanView Setup (Do you want to associate)' window.")
         }
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Images only' button in 'IrfanView Setup (Do you want to associate)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Images only' button in 'IrfanView Setup (Do you want to associate)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'IrfanView Setup (Do you want to associate)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'IrfanView Setup (Do you want to associate)' window failed to appear.")
 }
 
 
@@ -215,30 +189,15 @@ if bContinue
                 {
                     ControlClick, Button18, IrfanView Setup, Google Desktop Search ; Hit 'Next' button
                     if not ErrorLevel
-                    {
-                        TestsOK()
-                        OutputDebug, OK: %TestName%:%A_LineNumber%: 'IrfanView Setup (Google Desktop Search)' window appeared, 'Google Toolbar', 'Google Desktop Search' was unchecked, 'Next' was clicked.`n
-                    }
+                        TestsOK(" 'IrfanView Setup (Google Desktop Search)' window appeared, 'Google Toolbar', 'Google Desktop Search' checkboxes were unchecked, 'Next' was clicked (XP OS).")
                     else
-                    {
-                        TestsFailed()
-                        WinGetTitle, title, A
-                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'IrfanView Setup (Google Desktop Search)' window. Active window caption: '%title%'.`n
-                    }
+                        TestsFailed("Unable to hit 'Next' button in 'IrfanView Setup (Google Desktop Search)' window.")
                 }
                 else
-                {
-                    TestsFailed()
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to uncheck 'Google Desktop Search' in 'IrfanView Setup (Google Desktop Search)' window. Active window caption: '%title%'.`n
-                }
+                    TestsFailed("Unable to uncheck 'Google Desktop Search' in 'IrfanView Setup (Google Desktop Search)' window.")
             }
             else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to uncheck 'Google Toolbar for Internet Explorer' in 'IrfanView Setup (Google Desktop Search)' window. Active window caption: '%title%'.`n
-            }
+                TestsFailed("Unable to uncheck 'Google Toolbar for Internet Explorer' in 'IrfanView Setup (Google Desktop Search)' window.")
         }
         else
         {
@@ -248,31 +207,16 @@ if bContinue
             {
                 ControlClick, Button18, IrfanView Setup, Google Desktop Search ; Hit 'Next' button
                 if not ErrorLevel
-                {
-                    TestsOK()
-                    OutputDebug, OK: %TestName%:%A_LineNumber%: 'IrfanView Setup (Google Desktop Search)' window appeared, 'Google Toolbar', 'Google Desktop Search' was unchecked, 'Next' was clicked.`n
-                }
+                    TestsOK("'IrfanView Setup (Google Desktop Search)' window appeared, 'Google Toolbar', 'Google Desktop Search' checkboxes were unchecked, 'Next' was clicked (win2k3 OS).")
                 else
-                {
-                    TestsFailed()
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'IrfanView Setup (Google Desktop Search)' window. Active window caption: '%title%'.`n
-                }
+                    TestsFailed("Unable to hit 'Next' button in 'IrfanView Setup (Google Desktop Search)' window.")
             }
             else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to check 'Dont install Google Desktop Search' in 'IrfanView Setup (Google Desktop Search)' window. Active window caption: '%title%'.`n
-            }
+                TestsFailed("Unable to check 'Dont install Google Desktop Search' in 'IrfanView Setup (Google Desktop Search)' window.")
         }
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'IrfanView Setup (Google Desktop Search)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'IrfanView Setup (Google Desktop Search)' window failed to appear.")
 }
 
 
@@ -289,30 +233,15 @@ if bContinue
         {
             ControlClick, Button23, IrfanView Setup, Ready to install ; Hit 'Next' button
             if not ErrorLevel
-            {
-                TestsOK()
-                OutputDebug, OK: %TestName%:%A_LineNumber%: 'IrfanView Setup (Ready to install)' window appeared and 'Next' was clicked.`n
-            }
+                TestsOK("'IrfanView Setup (Ready to install)' window appeared and 'Next' button was clicked.")
             else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'IrfanView Setup (Ready to install)' window. Active window caption: '%title%'.`n
-            }
+                TestsFailed("Unable to hit 'Next' button in 'IrfanView Setup (Ready to install)' window.")
         }
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to check 'Users Application Data folder' in 'IrfanView Setup (Ready to install)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to check 'Users Application Data folder' in 'IrfanView Setup (Ready to install)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'IrfanView Setup (Ready to install)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'IrfanView Setup (Ready to install)' window failed to appear.")
 }
 
 
@@ -326,23 +255,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button1, IrfanView Setup, You want to change ; Hit 'Yes' button
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'IrfanView Setup (You want to change)' window appeared and 'Yes' was clicked.`n
-        }
+            TestsOK("'IrfanView Setup (You want to change)' window appeared and 'Yes' was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Yes' button in 'IrfanView Setup (You want to change)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Yes' button in 'IrfanView Setup (You want to change)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'IrfanView Setup (You want to change)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'IrfanView Setup (You want to change)' window failed to appear.")
 }
 
 
@@ -360,34 +278,21 @@ if bContinue
             ControlClick, Button27, IrfanView Setup, Installation successfull ; Hit 'Done' button
             if not ErrorLevel
             {
-                TestsOK()
-                OutputDebug, OK: %TestName%:%A_LineNumber%: 'IrfanView Setup (Installation successfull)' window appeared and 'Done' was clicked. FIXME: terminate browser process.`n
+                TestsOK("'IrfanView Setup (Installation successfull)' window appeared, 'Start IrfanView' unchecked and 'Done' was clicked. FIXME: terminate browser process.")
                 Process, Close, i_view32.exe ; Just in case
             }
             else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Done' button in 'IrfanView Setup (Installation successfull)' window. Active window caption: '%title%'.`n
-            }
+                TestsFailed("Unable to hit 'Done' button in 'IrfanView Setup (Installation successfull)' window.")
         }
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to uncheck 'Start IrfanView' in 'IrfanView Setup (Installation successfull)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to uncheck 'Start IrfanView' in 'IrfanView Setup (Installation successfull)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'IrfanView Setup (Installation successfull)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'IrfanView Setup (Installation successfull)' window failed to appear.")
 }
 
 
-;Check if program exists in program files
+;Check if program exists
 TestsTotal++
 if bContinue
 {
@@ -397,20 +302,10 @@ if bContinue
     {
         StringReplace, UninstallString, UninstallString, `",, All
         IfExist, %UninstallString%
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: The application has been installed, because '%UninstallString%' was found.`n
-        }
+            TestsOK("The application has been installed, because '" UninstallString "' was found.")
         else
-        {
-            TestsFailed()
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Something went wrong, can't find '%UninstallString%'.`n
-        }
+            TestsFailed("Something went wrong, can't find '" UninstallString "'.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Either we can't read from registry or data doesn't exist. Active window caption: '%title%'.`n
-    }
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
 }
