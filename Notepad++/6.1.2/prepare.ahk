@@ -29,10 +29,8 @@ TestsExecuted := 0
 RunNotepad(PathToFile)
 {
     global ModuleExe
-    global TestsTotal
-    global TestsOK
-    global TestsFailed
-    TestsTotal++
+    global TestName
+    global bContinue
 
     Sleep, 500
     IfExist, %ModuleExe%
@@ -44,15 +42,13 @@ RunNotepad(PathToFile)
             WinWaitActive, new  1 - Notepad++,,7
             if not ErrorLevel
             {
-                TestsOK++
+                Sleep, 1000
                 bContinue := true
             }
             else
             {
-                TestsFailed++
                 WinGetTitle, title, A
                 OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'new  1 - Notepad++' failed to appear. Active window caption: '%title%'`n
-                bContinue := false
             }
         }
         else
@@ -62,22 +58,16 @@ RunNotepad(PathToFile)
             WinWaitActive, %PathToFile% - Notepad++,,7
             if not ErrorLevel
             {
-                TestsOK++
+                Sleep, 1000
                 bContinue := true
             }
             else
             {
-                TestsFailed++
                 WinGetTitle, title, A
                 OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window '%PathToFile% - Notepad++' failed to appear. Active window caption: '%title%'`n
-                bContinue := false
             }
         }
     }
     else
-    {
-        TestsFailed++
         OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%ModuleExe%'.`n
-        bContinue := false
-    }
 }

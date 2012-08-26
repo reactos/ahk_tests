@@ -34,12 +34,12 @@ if not ErrorLevel
         WinWaitActive, Find,, 5
         if not ErrorLevel
         {
-            TestsOK++
             TestFindDialog()
+            if bContinue
+                TestsOK("")
         }
         else
         {
-            TestsFailed++
             WinGetTitle, title, A
             OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Find' failed to appear, so Ctrl+F doesn't work, bug #6734. Active window caption: '%title%'`n
             
@@ -50,41 +50,24 @@ if not ErrorLevel
             if not ErrorLevel
             {
                 TestFindDialog()
-                bContinue := true
+                if bContinue
+                    TestsOK("")
             }
             else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can't open 'Find' from main menu. Active window caption: '%title%'`n
-                bContinue := false
-            }
+                TestsFailed("Can't open 'Find' from main menu")
         }
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window '%szDocument% - Notepad++' is not active. Active window caption: '%title%'`n
-        bContinue := false
-    }
+        TestsFailed("Window '" szDocument " - Notepad++' is not active.")
 }
 else
-{
-    TestsFailed++
-    WinGetTitle, title, A
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to create '%szDocument%'. Active window caption: '%title%'`n
-    bContinue := false
-}
+    TestsFailed("Failed to create '" szDocument "'.")
 
 TestFindDialog()
 {
-    global TestsTotal
-    global TestsOK
-    global TestsFailed
+    global TestName
     global bContinue
 
-    TestsTotal++
     IfWinActive, Find
     {
         SendInput, {ALTDOWN}f{ALTUP} ; Go to 'Find what'
@@ -93,16 +76,10 @@ TestFindDialog()
         WinWaitActive, Count, 1 match, 5 ; We have only 1 match
         if not ErrorLevel
         {
-            TestsOK++
             bContinue := true
         }
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can't find match. Active window caption: '%title%'`n
-            bContinue := false
-        }
+            TestsFailed("Can't find a match.")
     }
 }
 

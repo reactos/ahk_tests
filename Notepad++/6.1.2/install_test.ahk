@@ -60,28 +60,12 @@ if bContinue
     WinWaitActive, Installer Language, Please select a language, 15 ; Wait 15 secs for window to appear
     if not ErrorLevel ;Window is found and it is active
     {
-        ControlClick, Button1, Installer Language ; Use ControlClick instead of ControlFocus due to bug no.7098
-        if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installer Language' window appeared and 'OK' button was clicked.`n
-            bContinue := true
-        }
-        else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to hit 'OK' button in 'Installer Language' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+        Sleep, 1000
+        SendInput, {ENTER} ; Hit 'OK' button
+        TestsOK("'Installer Language' window appeared and 'OK' button was clicked (Sent 'ENTER' to window).")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Installer Language' window failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Installer Language (Please select a language)' window failed to appear.")
 }
 
 
@@ -93,20 +77,12 @@ if bContinue
     WinWaitActive, Notepad, Welcome to the Notepad, 15
     if not ErrorLevel
     {
-        Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'Welcome to the Notepad++ v 6.1.2 Setup' appeared.`n
-        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
-        bContinue := true
+        Sleep, 700
+        SendInput, !n ; Hit 'Next' button
+        TestsOK("'Notepad++ v6.1.2 Setup (Welcome to the Notepad++ v 6.1.2 Setup)' window appeared, Alt+N sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Notepad++ v6.1.2 Setup' window with 'Welcome to the Notepad++ v 6.1.2 Setup' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Notepad++ v6.1.2 Setup (Welcome to the Notepad++ v 6.1.2 Setup)' window failed to appear.")
 }
 
 
@@ -115,23 +91,15 @@ TestsTotal++
 if bContinue
 {
     SetTitleMatchMode, 1
-    WinWaitActive, Notepad, License Agreement, 15
+    WinWaitActive, Notepad, License Agreement, 5
     if not ErrorLevel
     {
-        Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'License Agreement' appeared.`n
-        SendInput, {ALTDOWN}a{ALTUP} ; Hit 'I Agree' button
-        bContinue := true
+        Sleep, 700
+        SendInput, !a ; Hit 'I Agree' button
+        TestsOK("'Notepad++ v6.1.2 Setup (License Agreement)' window appeared and Alt+A was sent.`")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Notepad++ v6.1.2 Setup' window with 'License Agreement' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Notepad++ v6.1.2 Setup (License Agreement)' window failed to appear.")
 }
 
 
@@ -140,23 +108,15 @@ TestsTotal++
 if bContinue
 {
     SetTitleMatchMode, 1
-    WinWaitActive, Notepad, Choose Install Location, 15
+    WinWaitActive, Notepad, Choose Install Location, 5
     if not ErrorLevel
     {
-        Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'Choose Install Location' appeared.`n
-        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
-        bContinue := true
+        Sleep, 700
+        SendInput, !n ; Hit 'Next' button
+        TestsOK("'Notepad++ v6.1.2 Setup (Choose Install Location)' window appeared and Alt+N was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Notepad++ v6.1.2 Setup' window with 'Choose Install Location' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Notepad++ v6.1.2 Setup (Choose Install Location)' window failed to appear.")
 }
 
 
@@ -165,23 +125,15 @@ TestsTotal++
 if bContinue
 {
     SetTitleMatchMode, 1
-    WinWaitActive, Notepad, Check the components, 15
+    WinWaitActive, Notepad, Check the components, 5
     if not ErrorLevel
     {
-        Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'Check the components' appeared.`n
-        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
-        bContinue := true
+        Sleep, 700
+        SendInput, !n ; Hit 'Next' button
+        TestsOK("'Notepad++ v6.1.2 Setup (Check the components)' window appeared and Alt+N was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Notepad++ v6.1.2 Setup' window with 'Check the components' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Notepad++ v6.1.2 Setup (Check the components)' window failed to appear.")
 }
 
 
@@ -190,26 +142,47 @@ TestsTotal++
 if bContinue
 {
     SetTitleMatchMode, 1
-    WinWaitActive, Notepad, Create Shortcut on Desktop, 15
+    WinWaitActive, Notepad, Create Shortcut on Desktop, 5
     if not ErrorLevel
     {
-        Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'Create Shortcut on Desktop' appeared.`n
-
+        Sleep, 700
         Control, Check, , Button5, Notepad ; Check 'Allow plugins'
-        Control, Check, , Button6, Notepad ; Check 'Create Shortcut'
-        SendInput, {ALTDOWN}i{ALTUP} ; Hit 'Install' button
-        bContinue := true
+        if not ErrorLevel
+        {
+            Control, Check, , Button6, Notepad ; Check 'Create Shortcut'
+            if not ErrorLevel
+            {
+                SendInput, !i ; Hit 'Install' button
+                TestsOK("'Notepad++ v6.1.2 Setup (Create Shortcut on Desktop)' window appeared, 'Allow plugins', 'Create Shortcut' checkboxes were checked and Alt+I was sent.")
+            }
+            else
+                TestsFailed("Unable to check 'Create Shortcut' checkbox in 'Notepad++ v6.1.2 Setup (Create Shortcut on Desktop)' window.")
+        }
+        else
+            TestsFailed("Unable to check 'Allow plugins' checkbox in 'Notepad++ v6.1.2 Setup (Create Shortcut on Desktop)' window.")
     }
     else
+        TestsFailed("'Notepad++ v6.1.2 Setup (Create Shortcut on Desktop)' window failed to appear.")
+}
+
+; Test if can get thru 'Installing' window
+TestsTotal++
+if bContinue
+{
+    WinWaitActive, Notepad, Installing, 7
+    if not ErrorLevel
     {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Notepad++ v6.1.2 Setup' window with 'Create Shortcut on Desktop' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
+        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installing' window appeared, waiting for it to close.`n
+        WinWaitClose, Notepad, Installing, 25
+        if not ErrorLevel
+        {
+            TestsOK("'Notepad++ v6.1.2 Setup (Installing)' went away.")
+        }
+        else
+            TestsFailed("'Notepad++ v6.1.2 Setup (Installing)' window failed to dissapear.")
     }
+    else
+        TestsFailed("'Notepad++ v6.1.2 Setup (Installing)' window failed to appear.")
 }
 
 
@@ -218,43 +191,27 @@ TestsTotal++
 if bContinue
 {
     SetTitleMatchMode, 1
-    WinWaitActive, Notepad, Completing, 20
+    WinWaitActive, Notepad, Completing, 5
     if not ErrorLevel
     {
-        Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Notepad++ v6.1.2 Setup' window with 'Completing' appeared.`n
-
-        SendInput, {ALTDOWN}r{ALTUP} ; Uncheck 'Run Notepad'
-        SendInput, {ALTDOWN}f{ALTUP} ; Hit 'Finish' button
-        bContinue := true
+        Sleep, 700
+        SendInput, !r ; Uncheck 'Run Notepad'
+        Sleep, 1000
+        SendInput, !f ; Hit 'Finish' button
+        TestsOK("'Notepad++ v6.1.2 Setup (Completing)' window appeared, Alt+R and Alt+F were sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Notepad++ v6.1.2 Setup' window with 'Completing' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Notepad++ v6.1.2 Setup (Completing)' window failed to appear.")
 }
 
-;Check if program exists in program files
+; Check if program exists
 TestsTotal++
 if bContinue
 {
-    Sleep, 250
+    Sleep, 700
     AppExe = %A_ProgramFiles%\Notepad++\notepad++.exe
     IfExist, %AppExe%
-    {
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: Should be installed, because '%AppExe%' was found.`n
-        bContinue := true
-    }
+        TestsOK("Should be installed, because '" AppExe "' was found.")
     else
-    {
-        TestsFailed++
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%AppExe%'.`n
-        bContinue := false
-    }
+        TestsFailed("Can NOT find '" AppExe "'.")
 }

@@ -26,71 +26,45 @@ FileAppend, One line.`nLine two`nLine 3, %szDocument%
 if not ErrorLevel
 {
     RunNotepad(szDocument)
-    IfWinActive, %szDocument% - Notepad++
-    {
-        Sleep, 700
-        SendInput, {CTRLDOWN}a{CTRLUP}{BACKSPACE}New text.
-        WinWaitActive, *%szDocument% - Notepad++,, 5 ; We were able to change text
-        if not ErrorLevel
-        {
-            SendInput, {CTRLDOWN}s{CTRLUP}
-            WinWaitActive, %szDocument% - Notepad++,, 5 ; We were able to save
-            if not ErrorLevel
-            {
-                WinClose, %szDocument% - Notepad++,, 5 
-                if not ErrorLevel
-                {
-                    iLines := FileCountLines(szDocument)
-                    if iLines = 1
-                    {
-                        TestsOK++
-                        FileDelete, %szDocument%
-                        bContinue := true
-                    }
-                    else
-                    {
-                        TestsFailed++
-                        WinGetTitle, title, A
-                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: For some reason number of lines is wrong! Is %iLines% and should be 1. Active window caption: '%title%'`n
-                        bContinue := false
-                    }
-                }
-                else
-                {
-                    TestsFailed++
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to close '%szDocument% - Notepad++' window. Active window caption: '%title%'`n
-                    bContinue := false
-                }
-            }
-            else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to save. Active window caption: '%title%'`n
-                bContinue := false
-            }
-        }
-        else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to change text. Active window caption: '%title%'`n
-            bContinue := false
-        }
-    }
+    if not bContinue
+        TestsFailed("We failed somewhere in prepare.ahk.")
     else
     {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window '%szDocument% - Notepad++' is not active. Active window caption: '%title%'`n
-        bContinue := false
+        IfWinActive, %szDocument% - Notepad++
+        {
+            Sleep, 700
+            SendInput, {CTRLDOWN}a{CTRLUP}{BACKSPACE}New text.
+            WinWaitActive, *%szDocument% - Notepad++,, 5 ; We were able to change text
+            if not ErrorLevel
+            {
+                SendInput, {CTRLDOWN}s{CTRLUP}
+                WinWaitActive, %szDocument% - Notepad++,, 5 ; We were able to save
+                if not ErrorLevel
+                {
+                    WinClose, %szDocument% - Notepad++,, 5 
+                    if not ErrorLevel
+                    {
+                        iLines := FileCountLines(szDocument)
+                        if iLines = 1
+                        {
+                            TestsOK("")
+                            FileDelete, %szDocument%
+                        }
+                        else
+                            TestsFailed("For some reason number of lines is wrong! Is '" iLines "' and should be 1.")
+                    }
+                    else
+                        TestsFailed("Failed to close '" szDocument " - Notepad++' window.")
+                }
+                else
+                    TestsFailed("Failed to save.")
+            }
+            else
+                TestsFailed("Failed to change text.")
+        }
+        else
+            TestsFailed("Window '" szDocument " - Notepad++' is not active.")
     }
 }
 else
-{
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to create '%szDocument%'. Active window caption: '%title%'`n
-        bContinue := false
-}
+    TestsFailed("Failed to create '" szDocument "'.")
