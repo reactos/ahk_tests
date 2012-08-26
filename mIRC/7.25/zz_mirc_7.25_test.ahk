@@ -43,8 +43,6 @@ if 1 != --list
 {
     if not bContinue
     {
-        SplitPath, SetupExe, fName ; Extract filename from given path
-        WindowCleanUp(fName)
         SplitPath, ModuleExe, fName
         WindowCleanUp(fName)  
     }

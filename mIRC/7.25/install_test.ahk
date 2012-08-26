@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-SetupExe = %A_WorkingDir%\Apps\mIRC_7.25_Setup.exe
+ModuleExe = %A_WorkingDir%\Apps\mIRC_7.25_Setup.exe
 bContinue := false
 TestName = 1.install
 
@@ -26,37 +26,74 @@ TestsOK := 0
 TestsTotal := 0
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
-IfExist, %SetupExe%
+IfExist, %ModuleExe%
 {
     ; Get rid of other versions
-    IfExist, %A_ProgramFiles%\mIRC\uninstall.exe
+    RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\mIRC, UninstallString
+    if not ErrorLevel
     {
         Process, Close, mirc.exe ; Teminate process
-        RunWait, %A_ProgramFiles%\mIRC\uninstall.exe /S ; Silently uninstall it
+        Sleep, 1500
+        RegRead, InstallLocation, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\mIRC, InstallLocation
+        RunWait, %UninstallerPath% /S ; Silently uninstall it
         Sleep, 2500
+        ; Delete everything just in case
         RegDelete, HKEY_CURRENT_USER, SOFTWARE\mIRC
         RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\mIRC
-        FileRemoveDir, %A_ProgramFiles%\mIRC, 1
-        FileRemoveDir, %A_AppData%\mIRC, 1
+        FileRemoveDir, %InstallLocation%, 1
         Sleep, 1000
-        IfExist, %A_ProgramFiles%\mIRC
+        IfExist, %InstallLocation%
         {
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to delete '%A_ProgramFiles%\mIRC'.`n
+            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to delete '%InstallLocation%'.`n
             bContinue := false
         }
+        else
+        {
+            bContinue := true
+        }
     }
-    Run %SetupExe%
-    bContinue := true
-
+    else
+    {
+        ; There was a problem (such as a nonexistent key or value). 
+        ; That probably means we have not installed this app before.
+        ; Check in default directory to be extra sure
+        IfExist, %A_ProgramFiles%\mIRC\Uninstall.exe
+        {
+            Process, Close, mirc.exe ; Teminate process
+            Sleep, 1500
+            RunWait, %A_ProgramFiles%\mIRC\Uninstall.exe /S ; Silently uninstall it
+            Sleep, 2500
+            FileRemoveDir, %A_ProgramFiles%\mIRC, 1
+            Sleep, 1000
+            IfExist, %A_ProgramFiles%\mIRC
+            {
+                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Previous version detected and failed to delete '%A_ProgramFiles%\mIRC'.`n
+                bContinue := false
+            }
+            else
+            {
+                bContinue := true
+            }
+        }
+        else
+        {
+            ; No previous versions detected.
+            bContinue := true
+        }
+    }
+    if bContinue
+    {
+        FileRemoveDir, %A_AppData%\mIRC, 1
+        Run %ModuleExe%
+    }
 }
 else
 {
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%SetupExe%' not found.`n
+    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%ModuleExe%' not found.`n
     bContinue := false
 }
 
-
-; Test if 'Welcome to the Mozilla Firefox' window appeared
+; Test if 'Welcome to the mIRC' window appeared
 TestsTotal++
 if bContinue
 {
@@ -64,19 +101,11 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'mIRC Setup' window with 'Welcome to the mIRC' appeared.`n
-        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
-        bContinue := true
+        SendInput, !n ; Hit 'Next' button
+        TestsOK("'mIRC Setup (Welcome to the mIRC)' window appeared, Alt+N was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'mIRC Setup' window with 'Welcome to the mIRC' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'mIRC Setup (Welcome to the mIRC)' window failed to appear.")
 }
 
 
@@ -88,19 +117,11 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'mIRC Setup' window with 'License Agreement' appeared.`n
-        SendInput, {ALTDOWN}a{ALTUP} ; Hit 'I Agree' button
-        bContinue := true
+        SendInput, !a ; Hit 'I Agree' button
+        TestsOK("'mIRC Setup (License Agreement)' window appeared, Alt+A was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'mIRC Setup' window with 'License Agreement' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'mIRC Setup (License Agreement)' window failed to appear.")
 }
 
 
@@ -112,19 +133,11 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'mIRC Setup' window with 'Choose Install Location' appeared.`n
-        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
-        bContinue := true
+        SendInput, !n ; Hit 'Next' button
+        TestsOK("'mIRC Setup (Choose Install Location)' window appeared, Alt+N was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'mIRC Setup' window with 'Choose Install Location' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'mIRC Setup (Choose Install Location)' window failed to appear.")
 }
 
 
@@ -136,19 +149,11 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'mIRC Setup' window with 'Choose Components' appeared.`n
-        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
-        bContinue := true
+        SendInput, !n ; Hit 'Next' button
+        TestsOK("'mIRC Setup(Choose Components)' window appeared, Alt+N was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'mIRC Setup' window with 'Choose Components' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'mIRC Setup(Choose Components)' window failed to appear")
 }
 
 
@@ -160,19 +165,11 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'mIRC Setup' window with 'Select Additional Tasks' appeared.`n
-        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
-        bContinue := true
+        SendInput, !n ; Hit 'Next' button
+        TestsOK("'mIRC Setup (Select Additional Tasks)' window appeared, Alt+N was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'mIRC Setup' window with 'Select Additional Tasks' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'mIRC Setup (Select Additional Tasks)' window failed to appear.")
 }
 
 
@@ -184,19 +181,11 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'mIRC Setup' window with 'Ready to Install' appeared.`n
         SendInput, {ALTDOWN}i{ALTUP} ; Hit 'Install' button
-        bContinue := true
+        TestsOK("'mIRC Setup (Ready to Install)' window appeared, Alt+I was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'mIRC Setup' window with 'Ready to Install' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'mIRC Setup (Ready to Install)' window failed to appear.")
 }
 
 
@@ -211,26 +200,12 @@ if bContinue
         OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installing' window appeared, waiting for it to close.`n
         WinWaitClose, mIRC Setup, Installing, 25
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'mIRC Setup' window with 'Installing' went away.`n
-            bContinue := true
-        }
+            TestsOK("'mIRC Setup (Installing)' window went away.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'mIRC Setup' window with 'Installing' failed to dissapear. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("'mIRC Setup (Installing)' window failed to close.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'mIRC Setup' window with 'Installing' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'mIRC Setup (Installing)' window failed to appear.")
 }
 
 ; Test if 'Completing' window appeared
@@ -241,38 +216,33 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'mIRC Setup' window with 'Completing' appeared.`n
-        SendInput, {ALTDOWN}f{ALTUP} ; Hit 'Finish' button
-        bContinue := true
+        OutputDebug, OK: %TestName%:%A_LineNumber%: In a sec will send '{ALT DOWN}f' (note: no '{ALT UP}' event).`n
+        SendInput, {ALT DOWN}f ; Hit 'Finish' button
+        WinWaitClose, mIRC Setup, Completing, 7
+        if not ErrorLevel
+            TestsOK("'mIRC Setup (Completing)' window appeared, '{ALT DOWN}f' was sent (note: no '{ALT UP}' event) and window was closed.")
+        else
+            TestsFailed("'mIRC Setup (Completing)' window failed to close.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'mIRC Setup' window with 'Completing' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'mIRC Setup (Completing)' window failed to appear.")
 }
 
 
-;Check if program exists in program files
+; Check if program exists
 TestsTotal++
 if bContinue
 {
-    Sleep, 250
-    AppExe = %A_ProgramFiles%\mIRC\mirc.exe
-    IfExist, %AppExe%
+    Sleep, 2000
+    RegRead, InstallLocation, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\mIRC, InstallLocation
+    if not ErrorLevel
     {
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: Should be installed, because '%AppExe%' was found.`n
-        bContinue := true
+        StringReplace, InstallLocation, InstallLocation, `",, All
+        IfExist, %InstallLocation%
+            TestsOK("The application has been installed, because '" InstallLocation "' was found.")
+        else
+            TestsFailed("Something went wrong, can't find '" InstallLocation "'.")
     }
     else
-    {
-        TestsFailed++
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%AppExe%'.`n
-        bContinue := false
-    }
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
 }
