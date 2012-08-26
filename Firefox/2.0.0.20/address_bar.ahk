@@ -1,5 +1,5 @@
 /*
- * Designed for Mozilla Firefox 2.0.0.20
+ * Designed for Mozilla Firefox 3.0.11
  * Copyright (C) 2012 Edijs Kolesnikovics
  *
  * This library is free software; you can redistribute it and/or
@@ -36,23 +36,14 @@ if bContinue
 
         WinWaitActive, DSx86 by Patrick Aalto - Mozilla Firefox,, 7
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'DSx86 by Patrick Aalto - Mozilla Firefox' window appeared, so typing URL works (Alt+D).`n
-        }
+            TestsOK("'DSx86 by Patrick Aalto - Mozilla Firefox' window appeared, so typing URL works (Alt+D).")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'DSx86 by Patrick Aalto - Mozilla Firefox' window failed to appear, so, typing URL failed. Active window caption: '%title%'.`n
-        }
+            TestsFailed("'DSx86 by Patrick Aalto - Mozilla Firefox' window failed to appear, so, typing URL failed (Alt+D).")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Firefox Start Page - Mozilla Firefox' is not active window. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'Mozilla Firefox Start Page - Mozilla Firefox' is not active window.")
 }
+else
+    TestsFailed("We failed somwehere in 'prepare.ahk'.")
 
 Process, Close, firefox.exe ; Teminate process
