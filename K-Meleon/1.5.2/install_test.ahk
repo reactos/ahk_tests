@@ -109,26 +109,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button2, K-Meleon 1.5.2 en-US Setup, K-Meleon 1.5.2 Install Wizard
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'K-Meleon 1.5.2 en-US Setup' window with 'K-Meleon 1.5.2 Install Wizard' appeared and 'Next' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'K-Meleon 1.5.2 en-US Setup (K-Meleon 1.5.2 Install Wizard)' window appeared and 'Next' was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'K-Meleon 1.5.2 Install Wizard' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to click 'Next' in 'K-Meleon 1.5.2 en-US Setup (K-Meleon 1.5.2 Install Wizard)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'K-Meleon 1.5.2 en-US Setup' window with 'K-Meleon 1.5.2 Install Wizard' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'K-Meleon 1.5.2 en-US Setup (K-Meleon 1.5.2 Install Wizard)' window failed to appear.")
 }
 
 
@@ -142,26 +128,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button2, K-Meleon 1.5.2 en-US Setup, License Agreement ; Hit 'I Agree' button
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'K-Meleon 1.5.2 en-US Setup' window with 'License Agreement' appeared and 'Next' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'K-Meleon 1.5.2 en-US Setup (License Agreement)' window appeared and 'I Agree' button was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'License Agreement' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to click 'Next' in 'K-Meleon 1.5.2 en-US Setup (License Agreement)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'K-Meleon 1.5.2 en-US Setup' window with 'License Agreement' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'K-Meleon 1.5.2 en-US Setup (License Agreement)' window failed to appear.")
 }
 
 
@@ -175,26 +147,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button2, K-Meleon 1.5.2 en-US Setup, Choose Components
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'K-Meleon 1.5.2 en-US Setup' window with 'Choose Components' appeared and 'Next' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'K-Meleon 1.5.2 en-US Setup (Choose Components)' window appeared and 'Next' was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'Choose Components' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to click 'Next' in 'K-Meleon 1.5.2 en-US Setup (Choose Components)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'K-Meleon 1.5.2 en-US Setup' window with 'Choose Components' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'K-Meleon 1.5.2 en-US Setup (Choose Components)' window failed to appear.")
 }
 
 
@@ -208,26 +166,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button2, K-Meleon 1.5.2 en-US Setup, Choose Install Location ; Hit 'Install' button
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'K-Meleon 1.5.2 en-US Setup' window with 'Choose Install Location' appeared and 'Next' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'K-Meleon 1.5.2 en-US Setup (Choose Install Location)' window appeared and 'Next' was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'Choose Install Location' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to click 'Next' in 'K-Meleon 1.5.2 en-US Setup (Choose Install Location)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'K-Meleon 1.5.2 en-US Setup' window with 'Choose Install Location' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'K-Meleon 1.5.2 en-US Setup (Choose Install Location)' window failed to appear.")
 }
 
 
@@ -248,42 +192,18 @@ if bContinue
             {
                 ControlClick, Button2, K-Meleon 1.5.2 en-US Setup, Installation Complete
                 if not ErrorLevel
-                {
-                    TestsOK++
-                    OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installing' went away, 'Installation Complete' appeared, and 'Next' was clicked.`n
-                    bContinue := true
-                }
+                    TestsOK("'Installing' went away, 'Installation Complete' appeared, and 'Next' was clicked.")
                 else
-                {
-                    TestsFailed++
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'Installation Complete' window. Active window caption: '%title%'.`n
-                    bContinue := false
-                }
+                    TestsFailed("Unable to hit 'Next' button in 'K-Meleon 1.5.2 en-US Setup (Installation Complete)' window.")
             }
             else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'K-Meleon 1.5.2 en-US Setup' window with 'Installation Complete' failed to appear. Active window caption: '%title%'.`n
-                bContinue := false
-            }
+                TestsFailed("'K-Meleon 1.5.2 en-US Setup (Installation Complete)' window failed to appear.")
         }
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'K-Meleon 1.5.2 en-US Setup' window with 'Installing' failed to dissapear. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("'K-Meleon 1.5.2 en-US Setup (Installing)' window failed to close.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'K-Meleon 1.5.2 en-US Setup' window with 'Installing' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'K-Meleon 1.5.2 en-US Setup (Installing)' window failed to appear.")
 }
 
 
@@ -300,38 +220,19 @@ if bContinue
         {
             ControlClick, Button2, K-Meleon 1.5.2 en-US Setup, Completing ; Hit 'Finish'
             if not ErrorLevel
-            {
-                TestsOK++
-                OutputDebug, OK: %TestName%:%A_LineNumber%: 'K-Meleon 1.5.2 en-US Setup' window with 'Completing' appeared and 'Finish' was clicked.`n
-                bContinue := true
-            }
+                TestsOK("'K-Meleon 1.5.2 en-US Setup (Completing)' window appeared, 'Run K-Meleon 1.5.2' unchecked and 'Finish' was clicked.")
             else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Finish' in 'Completing' window. Active window caption: '%title%'.`n
-                bContinue := false
-            }
+                TestsFailed("Unable to click 'Finish' in 'K-Meleon 1.5.2 en-US Setup (Completing)' window.")
         }
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: unable to uncheck 'Run K-Meleon 1.5.2' in 'Completing' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to uncheck 'Run K-Meleon 1.5.2' in 'K-Meleon 1.5.2 en-US Setup (Completing)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'K-Meleon 1.5.2 en-US Setup' window with 'Completing' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'K-Meleon 1.5.2 en-US Setup (Completing)' window failed to appear.")
 }
 
 
-;Check if program exists in program files
+; Check if program exists
 TestsTotal++
 if bContinue
 {
@@ -340,23 +241,10 @@ if bContinue
     if not ErrorLevel
     {
         IfExist, %UninstallerPath%
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: The application has been installed, because '%UninstallerPath%' was found.`n
-            bContinue := true
-        }
+            TestsOK("The application has been installed, because '" UninstallerPath "' was found.")
         else
-        {
-            TestsFailed++
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Something went wrong, can't find '%UninstallerPath%'.`n
-            bContinue := false
-        }
+            TestsFailed("Something went wrong, can't find '" UninstallerPath "'.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Either we can't read from registry or data doesn't exist. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
 }

@@ -66,37 +66,19 @@ IfExist, %ModuleExe%
                         Sleep, 1500
                     }
                     else
-                    {
                         OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'K-Meleon 1.5.2 (K-Meleon)' window failed to appear.`n
-                        bContinue := false
-                    }
                 }
                 else
-                {
                     OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to create and edit '%A_AppData%\K-Meleon\ReactOS.default\prefs.js'.`n
-                    bContinue := false
-                }
             }
             else
-            {
                 OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to create and edit '%A_AppData%\K-Meleon\profiles.ini'.`n
-                bContinue := false
-            }
         }
         else
-        {
             OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to create dir tree '%A_AppData%\K-Meleon\ReactOS.default'.`n
-            bContinue := false
-        }
     }
     else
-    {
         OutputDebug, %TestName%:%A_LineNumber%: Test failed: Seems like we failed to delete '%A_AppData%\K-Meleon'.`n
-        bContinue := false
-    }
 }
 else
-{
     OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%ModuleExe%'.`n
-    bContinue := false
-}

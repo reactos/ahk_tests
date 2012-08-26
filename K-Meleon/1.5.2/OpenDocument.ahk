@@ -17,117 +17,75 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-bContinue := false
-TestsTotal := 0
-TestsSkipped := 0
-TestsFailed := 0
-TestsOK := 0
-TestsExecuted := 0
 TestName = 2.OpenDocument
 szDocument =  %A_WorkingDir%\Media\index.html ; Case insensitive
 
 ; Test if can open html document using File -> Open and close application
 TestsTotal++
-WinWaitActive, K-Meleon 1.5.2 (K-Meleon),,7
-if not ErrorLevel
-{
-    SendInput, {ALTDOWN}f{ALTUP} ; WinMenuSelectItem doesn't work with K-Meleon
-    Sleep, 1500
-    SendInput, o
-    Sleep, 1500
-    WinWaitActive, Open, Look, 7
-    if not ErrorLevel
-    {
-        ControlSetText, Edit1, %szDocument%, Open, Look
-        if not ErrorLevel
-        {
-            Sleep, 1000
-            ControlClick, Button2, Open, Look
-            if not ErrorLevel
-            {
-                WinWaitClose, Open, Look, 7
-                if not ErrorLevel
-                {
-                    WinWaitActive, ReactOS HTML test (K-Meleon),,7
-                    if not ErrorLevel
-                    {
-                        Sleep, 1500
-                        SearchImg = %A_WorkingDir%\Media\BookPage29Img.jpg
-                        IfExist, %SearchImg%
-                        {
-                            ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, *14 %SearchImg%
-                            if ErrorLevel = 2
-                            {
-                                TestsFailed()
-                                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Could not conduct the ImageSearch ('%SearchImg%' exist).`n
-                            }
-                            else if ErrorLevel = 1
-                            {
-                                TestsFailed()
-                                OutputDebug, %TestName%:%A_LineNumber%: Test failed: The search image '%SearchImg%' could NOT be found on the screen.`n
-                            }
-                            else
-                            {
-                                WinClose, ReactOS HTML test (K-Meleon)
-                                WinWaitClose, ReactOS HTML test (K-Meleon),,7
-                                if not ErrorLevel
-                                {
-                                    TestsOK()
-                                    OutputDebug, OK: %TestName%:%A_LineNumber%: Successfully opened '%szDocument%' and closed K-Meleon application.`n
-                                }
-                                else
-                                {
-                                    TestsFailed()
-                                    WinGetTitle, title, A
-                                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'ReactOS HTML test (K-Meleon)' window failed to close. Active window caption: '%title%'`n
-                                }
-                            }
-                        }
-                        else
-                        {
-                            TestsFailed()
-                            WinGetTitle, title, A
-                            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%SearchImg%'. Active window caption: '%title%'`n
-                        }
-                    }
-                    else
-                    {
-                        TestsFailed()
-                        WinGetTitle, title, A
-                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'ReactOS HTML test (K-Meleon)' failed to appear. Active window caption: '%title%'`n
-                    }
-                }
-                else
-                {
-                    TestsFailed()
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Open (Look)' window failed to dissapear. Active window caption: '%title%'`n
-                }
-            }
-            else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Open' button in 'Open (Look)' window. Active window caption: '%title%'`n
-            }
-        }
-        else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to enter '%szDocument%' in 'Open (Look)' window. Active window caption: '%title%'`n
-        }
-    }
-    else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Open (Look)' failed to appear, bug 4779?. Active window caption: '%title%'`n
-    }
-}
+if not bContinue
+    TestsFailed("We failed somwehere in 'prepare.ahk'.")
 else
 {
-    TestsFailed()
-    WinGetTitle, title, A
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'K-Meleon 1.5.2 (K-Meleon)' failed to appear. Active window caption: '%title%'`n
+    WinWaitActive, K-Meleon 1.5.2 (K-Meleon),,7
+    if not ErrorLevel
+    {
+        SendInput, {ALTDOWN}f{ALTUP} ; WinMenuSelectItem doesn't work with K-Meleon
+        Sleep, 1500
+        SendInput, o
+        Sleep, 1500
+        WinWaitActive, Open, Look, 7
+        if not ErrorLevel
+        {
+            ControlSetText, Edit1, %szDocument%, Open, Look
+            if not ErrorLevel
+            {
+                Sleep, 1000
+                ControlClick, Button2, Open, Look
+                if not ErrorLevel
+                {
+                    WinWaitClose, Open, Look, 7
+                    if not ErrorLevel
+                    {
+                        WinWaitActive, ReactOS HTML test (K-Meleon),,7
+                        if not ErrorLevel
+                        {
+                            Sleep, 1500
+                            SearchImg = %A_WorkingDir%\Media\BookPage29Img.jpg
+                            IfExist, %SearchImg%
+                            {
+                                ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, *14 %SearchImg%
+                                if ErrorLevel = 2
+                                    TestsFailed("Could not conduct the ImageSearch ('" SearchImg "' exist).")
+                                else if ErrorLevel = 1
+                                    TestsFailed("The search image '" SearchImg "' could NOT be found on the screen.")
+                                else
+                                {
+                                    WinClose, ReactOS HTML test (K-Meleon)
+                                    WinWaitClose, ReactOS HTML test (K-Meleon),,7
+                                    if not ErrorLevel
+                                        TestsOK("Successfully opened '" szDocument "' and closed K-Meleon application.")
+                                    else
+                                        TestsFailed("'ReactOS HTML test (K-Meleon)' window failed to close.")
+                                }
+                            }
+                            else
+                                TestsFailed("Can NOT find '" SearchImg "'.")
+                        }
+                        else
+                            TestsFailed("Window 'ReactOS HTML test (K-Meleon)' failed to appear.")
+                    }
+                    else
+                        TestsFailed("'Open (Look)' window failed to dissapear.")
+                }
+                else
+                    TestsFailed("Unable to hit 'Open' button in 'Open (Look)' window.")
+            }
+            else
+                TestsFailed("Unable to enter '%szDocument%' in 'Open (Look)' window.")
+        }
+        else
+            TestsFailed("Window 'Open (Look)' failed to appear, bug 4779?")
+    }
+    else
+        TestsFailed("Window 'K-Meleon 1.5.2 (K-Meleon)' failed to appear.")
 }
