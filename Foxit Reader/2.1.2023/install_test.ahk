@@ -110,26 +110,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button1, Foxit Reader Install Wizard, Setup will install
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Foxit Reader Install Wizard' window with 'Setup will install' appeared and 'Next' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'Foxit Reader Install Wizard (Setup will install)' window appeared and 'Next' button was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'Setup will install' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'Next' in 'Foxit Reader Install Wizard (Setup will install)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Foxit Reader Install Wizard' window with 'Setup will install' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Foxit Reader Install Wizard (Setup will install)' window failed to appear.")
 }
 
 
@@ -143,26 +129,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button1, Foxit Reader Install Wizard, New features
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Foxit Reader Install Wizard' window with 'New features' appeared and 'Next' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'Foxit Reader Install Wizard (New features)' window appeared and 'Next' button was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'New features' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'Next' in 'Foxit Reader Install Wizard (New features)' window. ")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Foxit Reader Install Wizard' window with 'New features' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Foxit Reader Install Wizard (New features)' window failed to appear.")
 }
 
 
@@ -176,26 +148,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button1, Foxit Reader Install Wizard, Please read the license ; Hit 'I agree' button
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Foxit Reader Install Wizard' window with 'Please read the license' appeared and 'I agree' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'Foxit Reader Install Wizard (Please read the license)' window appeared and 'I agree' button was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'I agree' in 'Please read the license' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'I agree' button in 'Foxit Reader Install Wizard (Please read the license)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Foxit Reader Install Wizard' window with 'Please read the license' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Foxit Reader Install Wizard (Please read the license)' window failed to appear.")
 }
 
 
@@ -209,26 +167,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button1, Foxit Reader Install Wizard, installation type ; Hit 'Default' button
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Foxit Reader Install Wizard' window with 'installation type' appeared and 'Next' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'Foxit Reader Install Wizard (installation type)' window appeared and 'Next' button was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'installation type' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'Next' in 'Foxit Reader Install Wizard (installation type)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Foxit Reader Install Wizard' window with 'installation type' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Foxit Reader Install Wizard (installation type)' window failed to appear.")
 }
 
 
@@ -242,26 +186,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button1, Foxit Reader Install Wizard, Click Install ; Hit 'Install' button
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Foxit Reader Install Wizard' window with 'Click Install' appeared and 'Next' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'Foxit Reader Install Wizard (Click Install)' window appeared and 'Next' button was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'Click Install' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'Next' in 'Foxit Reader Install Wizard (Click Install)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Foxit Reader Install Wizard' window with 'Click Install' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Foxit Reader Install Wizard (Click Install)' window failed to appear.")
 }
 
 
@@ -281,47 +211,25 @@ if bContinue
             {
                 ControlClick, Button1, Foxit Reader Install Wizard, Setup has successfully installed ; Hit 'Finish'
                 if not ErrorLevel
-                {
-                    TestsOK++
-                    OutputDebug, OK: %TestName%:%A_LineNumber%: 'Foxit Reader Install Wizard' window with 'Setup has successfully installed' appeared and 'Finish' was clicked.`n
-                    bContinue := true
-                }
+                    TestsOK("'Foxit Reader Install Wizard (Setup has successfully installed)' window appeared and 'Finish' was clicked.")
                 else
-                {
-                    TestsFailed++
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Finish' in 'Setup has successfully installed' window. Active window caption: '%title%'.`n
-                    bContinue := false
-                }
+                    TestsFailed("Unable to click 'Finish' in 'Foxit Reader Install Wizard (Setup has successfully installed)' window.")
             }
             else
             {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to uncheck 'Run Foxit Reader' in 'Setup has successfully installed' window. Active window caption: '%title%'.`n
-                bContinue := false
-                Process, Close, Foxit Reader
+                TestsFailed("Unable to uncheck 'Run Foxit Reader' checkbox in 'Foxit Reader Install Wizard (Setup has successfully installed)' window.")
+                Process, Close, Foxit Reader.exe
             }
         }
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: unable to uncheck 'Make it your default PDF reader' in 'Setup has successfully installed' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to uncheck 'Make it your default PDF reader' checkbox in 'Foxit Reader Install Wizard (Setup has successfully installed)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Foxit Reader Install Wizard' window with 'Setup has successfully installed' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Foxit Reader Install Wizard (Setup has successfully installed)' window failed to appear.")
 }
 
 
-;Check if program exists in program files
+; Check if program exists
 TestsTotal++
 if bContinue
 {
@@ -330,23 +238,10 @@ if bContinue
     if not ErrorLevel
     {
         IfExist, %UninstallerPath%
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: The application has been installed, because '%UninstallerPath%' was found.`n
-            bContinue := true
-        }
+            TestsOK("The application has been installed, because '" UninstallerPath "' was found.")
         else
-        {
-            TestsFailed++
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Something went wrong, can't find '%UninstallerPath%'.`n
-            bContinue := false
-        }
+            TestsFailed("Something went wrong, can't find '" UninstallerPath "'.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Either we can't read from registry or data doesn't exist. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
 }

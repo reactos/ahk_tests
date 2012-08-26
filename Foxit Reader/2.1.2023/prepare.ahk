@@ -62,8 +62,8 @@ RunApplication(PathToFile)
             WinWaitActive, Foxit Reader 2.1,,7
             if not ErrorLevel
             {
+                bContinue := true
                 Sleep, 1000
-                ; TestsOK()
             }
             else
             {
@@ -79,7 +79,8 @@ RunApplication(PathToFile)
             WinWaitActive, %NameExt% - Foxit Reader 2.1 - [%NameExt%],,7
             if not ErrorLevel
             {
-                ; TestsOK()
+                bContinue := true
+                Sleep, 1000
             }
             else
             {
