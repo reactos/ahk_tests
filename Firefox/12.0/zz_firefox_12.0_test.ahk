@@ -61,15 +61,9 @@ if 1 != --list
 {
     if not bContinue
     {
-        SplitPath, SetupExe, fName ; Extract filename from given path
-        WindowCleanUp(fName)
         SplitPath, ModuleExe, fName
         WindowCleanUp(fName)  
     }
-
-    ; Delete saved settings
-    Sleep, 1500
-    FileRemoveDir, %A_AppData%\Mozilla, 1
 
     TestsSkipped := TestsTotal - TestsOK - TestsFailed
     TestsExecuted := TestsOK + TestsFailed

@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-SetupExe = %A_WorkingDir%\Apps\Mozilla Firefox 12.0 Setup.exe
+ModuleExe = %A_WorkingDir%\Apps\Mozilla Firefox 12.0 Setup.exe
 bContinue := false
 TestName = 1.install
 
@@ -26,36 +26,73 @@ TestsOK := 0
 TestsTotal := 0
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
-IfExist, %SetupExe%
+IfExist, %ModuleExe%
 {
-
     ; Get rid of other versions
-    IfExist, %A_ProgramFiles%\Mozilla Firefox\uninstall\helper.exe
-    {
-        Process, Close, firefox.exe ; Teminate process
-        Run, %A_ProgramFiles%\Mozilla Firefox\uninstall\helper.exe /S ; Silently uninstall it
-        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Mozilla
-        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\mozilla.org
-        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Mozilla Firefox
-        FileRemoveDir, %A_ProgramFiles%\Mozilla Firefox, 1
-        FileRemoveDir, %A_AppData%\Mozilla, 1
-        Sleep, 1000
-        IfExist, %A_ProgramFiles%\Mozilla Firefox
+    RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Mozilla Firefox 12.0 (x86 en-US), UninstallString
+    if not ErrorLevel
+    {   
+        IfExist, %UninstallerPath%
         {
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to delete '%A_ProgramFiles%\Mozilla Firefox'.`n
-            bContinue := false
+            Process, Close, firefox.exe ; Teminate process
+            Sleep, 1500
+            RunWait, %UninstallerPath% /S ; Silently uninstall it
+            Sleep, 2500
+            ; Delete everything just in case
+            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Mozilla
+            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\mozilla.org
+            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MozillaPlugins
+            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Mozilla Firefox 12.0 (x86 en-US)
+            SplitPath, UninstallerPath,, InstalledDir
+            FileRemoveDir, %InstalledDir%, 1
+            FileRemoveDir, %A_AppData%\Mozilla, 1
+            Sleep, 1000
+            IfExist, %InstalledDir%
+            {
+                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to delete '%InstalledDir%'.`n
+                bContinue := false
+            }
+            else
+            {
+                bContinue := true
+            }
         }
     }
-    Run %SetupExe%
-    bContinue := true
+    else
+    {
+        ; There was a problem (such as a nonexistent key or value). 
+        ; That probably means we have not installed this app before.
+        ; Check in default directory to be extra sure
+        IfExist, %A_ProgramFiles%\Mozilla Firefox\uninstall\helper.exe
+        {
+            Process, Close, firefox.exe ; Teminate process
+            Sleep, 1500
+            RunWait, %A_ProgramFiles%\Mozilla Firefox\uninstall.exe /S ; Silently uninstall it
+            Sleep, 2500
+            FileRemoveDir, %A_ProgramFiles%\Mozilla Firefox, 1
+            FileRemoveDir, %A_AppData%\Mozilla, 1
+            Sleep, 1000
+            IfExist, %A_ProgramFiles%\Mozilla Firefox
+            {
+                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Previous version detected and failed to delete '%A_ProgramFiles%\Mozilla Firefox'.`n
+                bContinue := false
+            }
+            else
+                bContinue := true
+        }
+        else
+            bContinue := true ; No previous versions detected.
+    }
 
+    FileRemoveDir, %A_ProgramFiles%\Mozilla Firefox, 1 ; v12.0 Requires an extra delete
+    if bContinue
+        Run %ModuleExe%
 }
 else
 {
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%SetupExe%' not found.`n
+    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%ModuleExe%' not found.`n
     bContinue := false
 }
-
 
 ; Test if can start setup
 TestsTotal++
