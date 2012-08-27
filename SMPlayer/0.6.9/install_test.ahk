@@ -37,7 +37,7 @@ IfExist, %ModuleExe%
         StringReplace, UninstallerPath, UninstallerPath, `",, All
         SplitPath, UninstallerPath,, InstallLocation
         RunWait, %UninstallerPath% /S ; Silently uninstall it
-        Sleep, 2500
+        Sleep, 3500
         ; Delete everything just in case
         RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\SMPlayer
         RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\SMPlayer
@@ -105,23 +105,12 @@ if bContinue
         Sleep, 1000
         ControlClick, Button1, Installer Language, Please select ; Hit 'OK' button
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installer Language (Please select)' window appeared and 'OK' button was clicked.`n
-        }
+            TestsOK("'Installer Language (Please select)' window appeared and 'OK' button was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'OK' button in 'Installer Language (Please select)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'OK' button in 'Installer Language (Please select)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Installer Language (Please select)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'Installer Language (Please select)' window failed to appear.")
 }
 
 
@@ -129,29 +118,18 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, SMPlayer 0.6.9 Setup, Welcome, 7
+    WinWaitActive, SMPlayer 0.6.9 Setup, Welcome, 10
     if not ErrorLevel
     {
         Sleep, 1000
         ControlClick, Button2, SMPlayer 0.6.9 Setup, Welcome ; Hit 'Next' button
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'SMPlayer 0.6.9 Setup (Welcome)' window appeared and 'Next' button was clicked.`n
-        }
+            TestsOK("'SMPlayer 0.6.9 Setup (Welcome)' window appeared and 'Next' button was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'SMPlayer 0.6.9 Setup (Welcome)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Next' button in 'SMPlayer 0.6.9 Setup (Welcome)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'SMPlayer 0.6.9 Setup (Welcome)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'SMPlayer 0.6.9 Setup (Welcome)' window failed to appear.")
 }
 
 
@@ -180,37 +158,18 @@ if bContinue
             {
                 ControlClick, Button2, SMPlayer 0.6.9 Setup, License Agreement ; Hit 'Next' button
                 if not ErrorLevel
-                {
-                    TestsOK()
-                    OutputDebug, OK: %TestName%:%A_LineNumber%: 'SMPlayer 0.6.9 Setup (License Agreement)' window appeared, 'I accept' radiobutton checked, 'Next' button was clicked.`n
-                }
+                    TestsOK("'SMPlayer 0.6.9 Setup (License Agreement)' window appeared, 'I accept' radiobutton checked, 'Next' button was clicked.")
                 else
-                {
-                    TestsFailed()
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit enabled 'Next' button in 'SMPlayer 0.6.9 Setup (License Agreement)' window ('I accept' radiobutton is checked). Active window caption: '%title%'.`n
-                }
+                    TestsFailed("Unable to hit enabled 'Next' button in 'SMPlayer 0.6.9 Setup (License Agreement)' window ('I accept' radiobutton is checked).")
             }
             else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Next' button did not get enabled in 'SMPlayer 0.6.9 Setup (License Agreement)' window after checking 'I accept' checkbox. Active window caption: '%title%'.`n
-            }
+                TestsFailed("'Next' button did not get enabled in 'SMPlayer 0.6.9 Setup (License Agreement)' window after checking 'I accept' checkbox.")
         }
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to check 'I accept the terms of the License Agreement' checkbox in 'SMPlayer 0.6.9 Setup (License Agreement)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to check 'I accept the terms of the License Agreement' checkbox in 'SMPlayer 0.6.9 Setup (License Agreement)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'SMPlayer 0.6.9 Setup (License Agreement)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'SMPlayer 0.6.9 Setup (License Agreement)' window failed to appear.")
 }
 
 
@@ -224,23 +183,12 @@ if bContinue
         Sleep, 1000
         ControlClick, Button2, SMPlayer 0.6.9 Setup, Choose Components ; Hit 'Next' button
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'SMPlayer 0.6.9 Setup (Choose Components)' window appeared and 'Next' button was clicked.`n
-        }
+            TestsOK("'SMPlayer 0.6.9 Setup (Choose Components)' window appeared and 'Next' button was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'SMPlayer 0.6.9 Setup (Choose Components)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Next' button in 'SMPlayer 0.6.9 Setup (Choose Components)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'SMPlayer 0.6.9 Setup (Choose Components)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'SMPlayer 0.6.9 Setup (Choose Components)' window failed to appear.")
 }
 
 
@@ -254,23 +202,12 @@ if bContinue
         Sleep, 1000
         ControlClick, Button2, SMPlayer 0.6.9 Setup, Choose Install Location ; Hit 'Install' button
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'SMPlayer 0.6.9 Setup (Choose Install Location)' window appeared and 'Install' button was clicked.`n
-        }
+            TestsOK("'SMPlayer 0.6.9 Setup (Choose Install Location)' window appeared and 'Install' button was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Install' button in 'SMPlayer 0.6.9 Setup (Choose Install Location)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Install' button in 'SMPlayer 0.6.9 Setup (Choose Install Location)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'SMPlayer 0.6.9 Setup (Choose Install Location)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'SMPlayer 0.6.9 Setup (Choose Install Location)' window failed to appear.")
 }
 
 
@@ -282,25 +219,15 @@ if bContinue
     if not ErrorLevel
     {
         OutputDebug, OK: %TestName%:%A_LineNumber%: 'SMPlayer 0.6.9 Setup (Installing)' window appeared, waiting for it to close.`n
-        WinWaitClose, SMPlayer 0.6.9 Setup, Installing, 20
+        WinWaitClose, SMPlayer 0.6.9 Setup, Installing, 25
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'SMPlayer 0.6.9 Setup (Installing)' window appeared, went away.`n
-        }
+            TestsOK("'SMPlayer 0.6.9 Setup (Installing)' window appeared, went away.")
         else
-        {
-            TestsFailed()
+            TestsFailed("'SMPlayer 0.6.9 Setup (Installing)' window failed to go away.")
             WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'SMPlayer 0.6.9 Setup (Installing)' window failed to go away. Active window caption: '%title%'.`n
-        }
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'SMPlayer 0.6.9 Setup (Installing)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'SMPlayer 0.6.9 Setup (Installing)' window failed to appear.")
 }
 
 
@@ -315,22 +242,17 @@ if bContinue
         ControlClick, Button2, SMPlayer 0.6.9 Setup, Completing ; Hit 'Finish' button
         if not ErrorLevel
         {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'SMPlayer 0.6.9 Setup (Completing)' window appeared and 'Finish' button was clicked.`n
+            WinWaitClose, SMPlayer 0.6.9 Setup, Completing, 5
+            if not ErrorLevel
+                TestsOK("'SMPlayer 0.6.9 Setup (Completing)' window appeared, 'Finish' button was clicked and window closed.")
+            else
+                TestsFailed("'SMPlayer 0.6.9 Setup (Completing)' window failed to close after hitting 'Finish' button.")
         }
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Finish' button in 'SMPlayer 0.6.9 Setup (Completing)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Finish' button in 'SMPlayer 0.6.9 Setup (Completing)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'SMPlayer 0.6.9 Setup (Completing)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'SMPlayer 0.6.9 Setup (Completing)' window failed to appear.")
 }
 
 
@@ -344,20 +266,10 @@ if bContinue
     {
         StringReplace, UninstallString, UninstallString, `",, All
         IfExist, %UninstallString%
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: The application has been installed, because '%UninstallString%' was found.`n
-        }
+            TestsOK("The application has been installed, because '" UninstallString "' was found.")
         else
-        {
-            TestsFailed()
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Something went wrong, can't find '%UninstallString%'.`n
-        }
+            TestsFailed("Something went wrong, can't find '" UninstallString "'.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Either we can't read from registry or data doesn't exist. Active window caption: '%title%'.`n
-    }
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
 }
