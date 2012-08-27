@@ -220,7 +220,10 @@ if bContinue
         SendInput, {ALT DOWN}f ; Hit 'Finish' button
         WinWaitClose, mIRC Setup, Completing, 7
         if not ErrorLevel
-            TestsOK("'mIRC Setup (Completing)' window appeared, '{ALT DOWN}f' was sent (note: no '{ALT UP}' event) and window was closed.")
+        {
+            TestsOK("'mIRC Setup (Completing)' window appeared, '{ALT DOWN}f' was sent (note: no '{ALT UP}' event) and window was closed (will send '{ALT UP}' in a sec).")
+            SendInput, {ALT UP} ; We have to send it anyway
+        }
         else
             TestsFailed("'mIRC Setup (Completing)' window failed to close.")
     }
