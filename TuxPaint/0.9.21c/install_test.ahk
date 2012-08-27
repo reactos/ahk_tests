@@ -64,19 +64,11 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Select Setup Language' window with 'Select the language' appeared.`n
         SendInput, {ENTER} ; Hit 'OK' button
-        bContinue := true
+        TestsOK("'Select Setup Language (Select the language')' window appeared and 'ENTER' was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Select Setup Language' window with 'Select the language' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Select Setup Language (Select the language')' window failed to appear.")
 }
 
 ; Test if 'Welcome to the Tux Paint' window appeared
@@ -87,19 +79,11 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Tux Paint' window with 'Welcome to the Tux Paint' appeared.`n
-        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
-        bContinue := true
+        SendInput, !n ; Hit 'Next' button
+        TestsOK("'Setup - Tux Paint (Welcome to the Tux Paint)' window appeared, Alt+N was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - Tux Paint' window with 'Welcome to the Tux Paint' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Setup - Tux Paint (Welcome to the Tux Paint)' window failed to appear.")
 }
 
 
@@ -111,22 +95,13 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Tux Paint' window with 'License Agreement' appeared.`n
-        SendInput, {ALTDOWN}a{ALTUP} ; Check 'I accept' radiobutton (Fails to check? Bug 7215)
+        SendInput, !a ; Check 'I accept' radiobutton (Fails to check? Bug 7215)
         Sleep, 1000 ; Wait until 'Next' button is enabled
-        ; FIXME: check if button is enabled before sending keystroke
-        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
-        bContinue := true
+        SendInput, !n ; Hit 'Next' button
+        TestsOK("'Setup - Tux Paint (License Agreement)' window appeared, Alt+A and Alt+N were sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - Tux Paint' window with 'License Agreement' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Setup - Tux Paint (License Agreement)' window failed to appear.")
 }
 
 
@@ -138,19 +113,11 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Tux Paint' window with 'Choose Installation Type' appeared.`n
-        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
-        bContinue := true
+        SendInput, !n ; Hit 'Next' button
+        TestsOK("'Setup - Tux Paint (Choose Installation Type)' window appeared, Alt+N was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - Tux Paint' window with 'Choose Installation Type' failed to appear (bug 7215?). Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Setup - Tux Paint (Choose Installation Type)' window failed to appear (bug 7215?).")
 }
 
 
@@ -162,19 +129,11 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Tux Paint' window with 'Select Destination Location' appeared.`n
-        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
-        bContinue := true
+        SendInput, !n ; Hit 'Next' button
+        TestsOK("'Setup - Tux Paint (Select Destination Location)' window appeared, Alt+N was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - Tux Paint' window with 'Select Destination Location' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Setup - Tux Paint (Select Destination Location)' window failed to appear.")
 }
 
 
@@ -186,19 +145,11 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Tux Paint' window with 'Select Start Menu Folder' appeared.`n
-        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
-        bContinue := true
+        SendInput, !n ; Hit 'Next' button
+        TestsOK("'Setup - Tux Paint (Select Start Menu Folder)' window appeared, Alt+N was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - Tux Paint' window with 'Select Start Menu Folder' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Setup - Tux Paint (Select Start Menu Folder)' window failed to appear.")
 }
 
 
@@ -210,19 +161,11 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Tux Paint' window with 'Select Additional Tasks' appeared.`n
-        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
-        bContinue := true
+        SendInput, !n ; Hit 'Next' button
+        TestsOK("'Setup - Tux Paint (Select Additional Tasks)' window appeared, Alt+N was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - Tux Paint' window with 'Select Additional Tasks' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Setup - Tux Paint (Select Additional Tasks)' window failed to appear.")
 }
 
 
@@ -234,19 +177,11 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Tux Paint' window with 'Ready to Install' appeared.`n
-        SendInput, {ALTDOWN}i{ALTUP} ; Hit 'Install' button
-        bContinue := true
+        SendInput, !i ; Hit 'Install' button
+        TestsOK("'Setup - Tux Paint (Ready to Install)' window appeared, Alt+I was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - Tux Paint' window with 'Ready to Install' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Setup - Tux Paint (Ready to Install)' window failed to appear.")
 }
 
 
@@ -258,29 +193,15 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installing' window appeared, waiting for it to close.`n
+        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Tux Paint (Installing)' window appeared, waiting for it to close.`n
         WinWaitClose, Setup - Tux Paint, Installing, 25
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Tux Paint' window with 'Installing' went away.`n
-            bContinue := true
-        }
+            TestsOK("'Setup - Tux Paint (Installing)' window went away.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - Tux Paint' window with 'Installing' failed to dissapear. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("'Setup - Tux Paint (Installing)' window failed to close.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - Tux Paint' window with 'Installing' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Setup - Tux Paint (Installing)' window failed to appear.")
 }
 
 ; Test if 'Completing' window appeared and all checkboxes were unchecked correctly
@@ -291,35 +212,22 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Tux Paint' window with 'Completing' appeared.`n
         SendInput, {SPACE}{DOWN}{SPACE} ; FIXME: Find better solution. AHK 'Control, Uncheck' won't work here!
         Sleep, 500
-        SendInput, {ALTDOWN}f{ALTUP} ; Hit 'Finish' button
+        SendInput, !f ; Hit 'Finish' button
         Sleep, 2000
         
         Process, Exist, tuxpaint-config.exe
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: Unchecking went OK.`n
-            bContinue := true
-        }
+            TestsOK("'Setup - Tux Paint (Completing)' window appeared, checkbox 'Launch Tux Paint Config' unchecked, 'Finish' button clicked.")
         else
         {
-            TestsFailed++
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Process 'tuxpaint-config.exe' detected, so failed to uncheck checkboxes in 'Completing'.`n
+            TestsFailed("Process 'tuxpaint-config.exe' detected, so failed to uncheck checkboxes in 'Setup - Tux Paint (Completing)' window.")
             Process, Close, tuxpaint-config.exe
-            bContinue := false
         }
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - Tux Paint' window with 'Completing' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Setup - Tux Paint (Completing)' window failed to appear.")
 }
 
 
@@ -330,15 +238,7 @@ if bContinue
     Sleep, 250
     AppExe = %A_ProgramFiles%\TuxPaint\tuxpaint.exe
     IfExist, %AppExe%
-    {
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: Should be installed, because '%AppExe%' was found.`n
-        bContinue := true
-    }
+        TestsOK("Should be installed, because '" AppExe "' was found.")
     else
-    {
-        TestsFailed++
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%AppExe%'.`n
-        bContinue := false
-    }
+        TestsFailed("Can NOT find '" AppExe "'.")
 }
