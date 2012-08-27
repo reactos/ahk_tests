@@ -23,7 +23,9 @@ szFileURL = http://iso.reactos.org/livecd/livecd-57139-dbg.7z
 
 ; Test if can download file
 TestsTotal++
-if bContinue
+if not bContinue
+    TestsFailed("We failed somwehere in 'prepare.ahk'.")
+else
 {
     IfWinActive, Welcome to SeaMonkey - SeaMonkey
     {
@@ -74,70 +76,31 @@ if bContinue
                                 
                                 if bDone
                                 {
-                                    TestsOK()
+                                    TestsOK("'" szFileURL "' downloaded, terminating application.")
                                     SetTitleMatchMode, 3 ; A window's title must exactly match WinTitle to be a match.
-                                    OutputDebug, OK: %TestName%:%A_LineNumber%: '%szFileURL%' downloaded, terminating application.`n
                                     Process, Close, seamonkey.exe
                                 }
                                 else
-                                {
-                                    TestsFailed()
-                                    WinGetTitle, title, A
-                                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Timed out. Active window caption: '%title%'.`n
-                                }
+                                    TestsFailed("Timed out.")
                             }
                             else
-                            {
-                                TestsFailed()
-                                WinGetTitle, title, A
-                                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'of %NameExt% Saved' failed to appear (SetTitleMatchMode=2). Active window caption: '%title%'.`n
-                            }
+                                TestsFailed("Window 'of " NameExt " Saved' failed to appear (SetTitleMatchMode=2).")
                         }
                         else
-                        {
-                            TestsFailed()
-                            WinGetTitle, title, A
-                            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Download Manager' failed to appear. Active window caption: '%title%'.`n
-                        }
+                            TestsFailed("Window 'Download Manager' failed to appear.")
                     }
                     else
-                    {
-                        TestsFailed()
-                        WinGetTitle, title, A
-                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Save' button in 'Enter name of file to save to...' window. Active window caption: '%title%'.`n
-                    }
+                        TestsFailed("Unable to hit 'Save' button in 'Enter name of file to save to...' window.")
                 }
                 else
-                {
-                    TestsFailed()
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to enter path in 'Enter name of file to save to...' window. Active window caption: '%title%'.`n
-                }
+                    TestsFailed("Unable to enter path in 'Enter name of file to save to...' window.")
             }
             else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Enter name of file to save to...' failed to appear. Active window caption: '%title%'.`n
-            }
+                TestsFailed("Window 'Enter name of file to save to...' failed to appear.")
         }
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Opening %NameExt%' failed to appear. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Window 'Opening " NameExt "' failed to appear.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Welcome to SeaMonkey - SeaMonkey' is not active window. Active window caption: '%title%'.`n
-    }
-}
-else
-{
-    TestsFailed()
-    WinGetTitle, title, A
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: We failed somwehere in 'prepare.ahk'. Active window caption: '%title%'.`n
+        TestsFailed("'Welcome to SeaMonkey - SeaMonkey' is not active window.")
 }
