@@ -30,9 +30,11 @@ IfExist, %SetupExe%
 {
 
     ; Get rid of other versions
-    IfExist, %A_ProgramFiles%\TeamViewer
+    IfExist, %A_ProgramFiles%\TeamViewer\Version7\uninstall.exe
     {
         Process, close, TeamViewer.exe
+        RunWait, %A_ProgramFiles%\TeamViewer\Version7\uninstall.exe /S
+        Sleep, 4500
         RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\TeamViewer
         RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\TeamViewer 7
         FileRemoveDir, %A_ProgramFiles%\TeamViewer, 1
@@ -81,26 +83,12 @@ if bContinue
         SendMessage, 0x201, 0, 0, Button2
         SendMessage, 0x202, 0, 0, Button2
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'TeamViewer 7 Setup' window with 'Welcome to TeamViewer' text appeared and 'Next' button was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'TeamViewer 7 Setup (Welcome to TeamViewer)' window appeared, 'Install' radiobutton and 'Show advanced settings' checkbox checked, 'Next' button was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to hit 'Next' button in 'TeamViewer 7 Setup' window with 'Welcome to TeamViewer' text in it. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'Next' button in 'TeamViewer 7 Setup (Welcome to TeamViewer)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'TeamViewer 7 Setup' window with 'Welcome to TeamViewer' text failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'TeamViewer 7 Setup (Welcome to TeamViewer)' window failed to appear.")
 }
 
 
@@ -108,7 +96,7 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, TeamViewer 7 Setup, Environment, 15
+    WinWaitActive, TeamViewer 7 Setup, Environment, 5
     if not ErrorLevel
     {
         ; Check 'company / commercial use' radiobutton
@@ -120,34 +108,15 @@ if bContinue
             SendMessage, 0x201, 0, 0, Button2
             SendMessage, 0x202, 0, 0, Button2
             if not ErrorLevel
-            {
-                TestsOK++
-                OutputDebug, OK: %TestName%:%A_LineNumber%: 'Next' button was clicked in 'Environment'.`n
-                bContinue := true
-            }
+                TestsOK("'company / commercial use' radiobutton checked, 'Next' button was clicked in 'TeamViewer 7 Setup (Environment)' window.")
             else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Failed to click 'Next' button in 'Environment'. Active window caption: '%title%'.`n
-                bContinue := false
-            }
+                TestsFailed("Unable to click 'Next' button in 'TeamViewer 7 Setup (Environment)' window.")
         }
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Failed to check 'personal / non-commercial use' radiobutton in 'Environment'. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Failed to check 'personal / non-commercial use' radiobutton in 'TeamViewer 7 Setup (Environment)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Environmnt' window failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'TeamViewer 7 Setup (Environment)' window failed to appear.")
 }
 
 
@@ -155,7 +124,7 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, TeamViewer 7 Setup, License Agreement, 15
+    WinWaitActive, TeamViewer 7 Setup, License Agreement, 5
     if not ErrorLevel
     {   
         ; Check 'I accept the terms...' checkbox
@@ -167,34 +136,15 @@ if bContinue
             SendMessage, 0x201, 0, 0, Button2
             SendMessage, 0x202, 0, 0, Button2
             if not ErrorLevel
-            {
-                TestsOK++
-                OutputDebug, OK: %TestName%:%A_LineNumber%: 'Next' button was clicked in 'License Agreement'.`n
-                bContinue := true
-            }
+                TestsOK("'I accept the terms...' checkbox checked, 'Next' button was clicked in 'TeamViewer 7 Setup (License Agreement)' window.")
             else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Failed to click 'Next' button in 'License Agreement'. Active window caption: '%title%'.`n
-                bContinue := false
-            }
+                TestsFailed("Unable to hit 'Next' button in 'TeamViewer 7 Setup (License Agreement)' window.")
         }
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Failed to check 'I accept the terms...' checkbox in 'License Agreement'. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Failed to check 'I accept the terms...' checkbox in 'License Agreement'.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'License Agreement' window failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'License Agreement' window failed to appear.")
 }
 
 
@@ -202,7 +152,7 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, TeamViewer 7 Setup, Choose installation type, 15
+    WinWaitActive, TeamViewer 7 Setup, Choose installation type, 5
     if not ErrorLevel
     {   
         ; Check 'No (default)' radiobutton
@@ -214,34 +164,15 @@ if bContinue
             SendMessage, 0x201, 0, 0, Button2
             SendMessage, 0x202, 0, 0, Button2
             if not ErrorLevel
-            {
-                TestsOK++
-                OutputDebug, OK: %TestName%:%A_LineNumber%: 'Next' button was clicked in 'Choose installation type'.`n
-                bContinue := true
-            }
+                TestsOK("'No (default)' radiobutton checked, 'Next' button was clicked in 'TeamViewer 7 Setup (Choose installation type)' window.")
             else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Failed to click 'Next' button in 'Choose installation type'. Active window caption: '%title%'.`n
-                bContinue := false
-            }
+                TestsFailed("Unable to hit 'Next' button in 'TeamViewer 7 Setup (Choose installation type)' window.")
         }
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Failed to check 'No (default)' radiobutton in 'Choose installation type'. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Failed to check 'No (default)' radiobutton in 'TeamViewer 7 Setup (Choose installation type)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Choose installation type' window failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'TeamViewer 7 Setup (Choose installation type)' window failed to appear.")
 }
 
 
@@ -249,7 +180,7 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, TeamViewer 7 Setup, Access Control, 15
+    WinWaitActive, TeamViewer 7 Setup, Access Control, 5
     if not ErrorLevel
     {   
         ; Check 'Full access (recommended)' radiobutton
@@ -261,34 +192,15 @@ if bContinue
             SendMessage, 0x201, 0, 0, Button2
             SendMessage, 0x202, 0, 0, Button2
             if not ErrorLevel
-            {
-                TestsOK++
-                OutputDebug, OK: %TestName%:%A_LineNumber%: 'Next' button was clicked in 'Access Control'.`n
-                bContinue := true
-            }
+                TestsOK("'Full access (recommended)' radiobutton checked, 'Next' button was clicked in 'TeamViewer 7 Setup (Access Control)' window.")
             else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Failed to click 'Next' button in 'Access Control'. Active window caption: '%title%'.`n
-                bContinue := false
-            }
+                TestsFailed("Unable to hit 'Next' button in 'TeamViewer 7 Setup (Access Control)' window.")
         }
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Failed to check 'Full access (recommended)' radiobutton in 'Access Control'. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Failed to check 'Full access (recommended)' radiobutton in 'TeamViewer 7 Setup (Access Control)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Access Control' window failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'TeamViewer 7 Setup (Access Control)' window failed to appear.")
 }
 
 
@@ -296,7 +208,7 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, TeamViewer 7 Setup, Install VPN adapter, 15
+    WinWaitActive, TeamViewer 7 Setup, Install VPN adapter, 5
     if not ErrorLevel
     {   
         ; Check 'Use TeamViewer VPN' checkbox
@@ -308,34 +220,15 @@ if bContinue
             SendMessage, 0x201, 0, 0, Button2
             SendMessage, 0x202, 0, 0, Button2
             if not ErrorLevel
-            {
-                TestsOK++
-                OutputDebug, OK: %TestName%:%A_LineNumber%: 'Next' button was clicked in 'Install VPN adapter'.`n
-                bContinue := true
-            }
+                TestsOK("'Use TeamViewer VPN' checkbox checked, 'Next' button was clicked in 'Install VPN adapter'.")
             else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Failed to click 'Next' button in 'Install VPN adapter'. Active window caption: '%title%'.`n
-                bContinue := false
-            }
+                TestsFailed("Unable to hit 'Next' button in 'TeamViewer 7 Setup (Install VPN adapter)' window.")
         }
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Failed to check 'Use TeamViewer VPN' checkbox in 'Install VPN adapter'. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Failed to check 'Use TeamViewer VPN' checkbox in 'TeamViewer 7 Setup (Install VPN adapter)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Install VPN adapter' window failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'TeamViewer 7 Setup (Install VPN adapter)' window window failed to appear.")
 }
 
 
@@ -343,33 +236,19 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, TeamViewer 7 Setup, Choose Install Location, 15
+    WinWaitActive, TeamViewer 7 Setup, Choose Install Location, 5
     if not ErrorLevel
     {   
         ; Hit 'Next' button //For some reason SendMessage doesn't work here on XP.
         PostMessage, 0x201, 0, 0, Button2
         PostMessage, 0x202, 0, 0, Button2 
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Next' button was clicked in 'Choose Install Location'.`n
-            bContinue := true
-        }
+            TestsOK("'Next' button was clicked in 'TeamViewer 7 Setup (Choose Install Location)' window.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Failed to click 'Next' button in 'Choose Install Location'. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'Next' button in 'TeamViewer 7 Setup (Choose Install Location)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Choose Install Location' window failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'TeamViewer 7 Setup (Choose Install Location)' window failed to appear.")
 }
 
 
@@ -377,34 +256,20 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, TeamViewer 7 Setup, Choose Start, 15
+    WinWaitActive, TeamViewer 7 Setup, Choose Start, 5
     if not ErrorLevel
     {   
-        Sleep, 1500
+        Sleep, 500
         ; Hit 'Finish' button
         SendMessage, 0x201, 0, 0, Button2
         SendMessage, 0x202, 0, 0, Button2
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Finish' button was clicked in 'Choose Start Menu Folder'.`n
-            bContinue := true
-        }
+            TestsOK("'Finish' button was clicked in 'TeamViewer 7 Setup (Choose Start Menu Folder)' window.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Failed to click 'Finish' button in 'Choose Start Menu Folder'. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'Finish' button in 'TeamViewer 7 Setup (Choose Start Menu Folder)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Choose Start Menu Folder' window failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'TeamViewer 7 Setup (Choose Start Menu Folder)' window failed to appear.")
 }
 
 
@@ -412,58 +277,37 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, TeamViewer 7 Setup, Installing, 15
+    WinWaitActive, TeamViewer 7 Setup, Installing, 5
     if not ErrorLevel
     {
         WinWaitNotActive, TeamViewer 7 Setup, Installing, 35 ; 35secs should be enough time to get thru install
         if not ErrorLevel
         {
-            WinWaitActive, TeamViewer, Ready to connect, 15 ; Sadly app is started every time after setup is done
-            if not ErrorLevel
+            Process, wait, TeamViewer.exe, 10
+            NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+            if NewPID <> 0
             {
-                Process, close, TeamViewer.exe
+                TestsOK("Process 'TeamViewer.exe' appeared, terminating it.")
+                Process, Close, TeamViewer.exe
             }
             else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Application window failed to appear. Active window caption: '%title%'.`n
-                bContinue := false
-            }
+                TestsFailed("Process 'TeamViewer.exe' failed to appear.")
         }
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: 'Installing' window failed to disappear. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("'TeamViewer 7 Setup (Installing)' window failed to close.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Installing' window failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'TeamViewer 7 Setup (Installing)' window failed to appear.")
 }
 
-;Check if program exists in program files
+; Check if program exists
 TestsTotal++
 if bContinue
 {
     Sleep, 250
     AppExe = %A_ProgramFiles%\TeamViewer\Version7\TeamViewer.exe
     IfExist, %AppExe%
-    {
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: Should be installed, because '%AppExe%' was found.`n
-        bContinue := true
-    }
+        TestsOK("Should be installed, because '" AppExe "' was found.")
     else
-    {
-        TestsFailed++
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%AppExe%'.`n
-        bContinue := false
-    }
+        TestsFailed("Can NOT find '" AppExe "'.")
 }
