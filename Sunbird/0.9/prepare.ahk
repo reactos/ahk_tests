@@ -26,74 +26,63 @@ TestsExecuted := 0
 TestName = prepare
 
 RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Mozilla Sunbird (0.9), UninstallString
-if not ErrorLevel
+if ErrorLevel
+{
+    ModuleExe = %A_ProgramFiles%\Mozilla Sunbird\sunbird.exe
+    OutputDebug, %TestName%:%A_LineNumber%: Can NOT read data from registry. Key might not exist. Using hardcoded path.`n
+}
+else
 {
     StringReplace, UninstallerPath, UninstallerPath, `",, All ; String contains quotes, replace em
     SplitPath, UninstallerPath,, InstalledDir
     ModuleExe = %InstalledDir%\..\sunbird.exe ; Go back one folder
 }
-else
-{
-    ModuleExe = %A_ProgramFiles%\Mozilla Sunbird\sunbird.exe
-    OutputDebug, %TestName%:%A_LineNumber%: Can NOT read data from registry. Key might not exist. Using hardcoded path.`n
-}
 
-IfExist, %ModuleExe%
+
+IfNotExist, %ModuleExe%
+    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%ModuleExe%'.`n
+else
 {
     Process, Close, sunbird.exe ; Teminate process
     Sleep, 2500 ; To make sure folders are not locked
     FileRemoveDir, %A_AppData%\Mozilla, 1 ; Delete all saved settings
     Sleep, 1500
-    IfNotExist, %A_AppData%\Mozilla
+    IfExist, %A_AppData%\Mozilla
+        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Seems like we failed to delete '%A_AppData%\Mozilla'.`n
+    else
     {
         FileCreateDir, %A_AppData%\Mozilla\Sunbird\Profiles\ReactOS.default
-        if not ErrorLevel
+        if ErrorLevel
+            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to create dir tree '%A_AppData%\Mozilla\Sunbird\ReactOS.default'.`n
+        else
         {
             FileAppend, [General]`nStartWithLastProfile=0`n`n[Profile0]`nName=default`nIsRelative=1`nPath=Profiles/ReactOS.default`n, %A_AppData%\Mozilla\Sunbird\profiles.ini
-            if not ErrorLevel
+            if ErrorLevel
+                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to create and edit '%A_AppData%\Mozilla\Sunbird\profiles.ini'.`n
+            else
             {
                 szNoUpdate := "user_pref(""app.update.enabled""`, false)`;`n" ; Disable automatic application update
                 szNoPluginUpdate := "user_pref(""extensions.update.enabled""`, false)`;" ; Disable automatic extansion update
                 szUpdateMode := "user_pref(""app.update.mode""`, 0)`;`n" ; Don't warn
                 
                 FileAppend, %szNoUpdate%%szNoPluginUpdate%%szUpdateMode%, %A_AppData%\Mozilla\Sunbird\Profiles\ReactOS.default\prefs.js
-                if not ErrorLevel
+                if ErrorLevel
+                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to create and edit '%A_AppData%\Mozilla\Sunbird\Profiles\ReactOS.default\prefs.js'.`n
+                else
                 {
                     Run, %ModuleExe% ; 'Max' does not work
                     FormatTime, TimeString,, LongDate
                     WinWaitActive, %TimeString% - Sunbird,, 12
-                    if not ErrorLevel
+                    if ErrorLevel
+                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%TimeString% - Sunbird' window failed to appear.`n
+                    else
                     {
                         bContinue := true ; We are up and running
                         WinMaximize, %TimeString% - Sunbird
                         Sleep, 1000
                     }
-                    else
-                    {
-                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%TimeString% - Sunbird' window failed to appear.`n
-                    }
-                }
-                else
-                {
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to create and edit '%A_AppData%\Mozilla\Sunbird\Profiles\ReactOS.default\prefs.js'.`n
                 }
             }
-            else
-            {
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to create and edit '%A_AppData%\Mozilla\Sunbird\profiles.ini'.`n
-            }
-        }
-        else
-        {
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to create dir tree '%A_AppData%\Mozilla\Sunbird\ReactOS.default'.`n
         }
     }
-    else
-    {
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Seems like we failed to delete '%A_AppData%\Mozilla'.`n
-    }
-}
-else
-{
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%ModuleExe%'.`n
 }

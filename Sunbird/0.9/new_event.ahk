@@ -21,21 +21,29 @@ TestName = 2.new_event
  
 ; Check if can create new event
 TestsTotal++
-if bContinue
+if not bContinue
+    TestsFailed("We failed somewhere in prepare.ahk.")
+else
 {
     FormatTime, TimeString,, LongDate
-    IfWinActive, %TimeString% - Sunbird
+    IfWinNotActive, %TimeString% - Sunbird
+        TestsFailed("'%TimeString% - Sunbird' is not active window.")
+    else
     {
         SendInput, {ALTDOWN}f{ALTUP} ; Open 'File' menu, WinMenuSelectItem does not work
         SendInput, n ; Select 'New Event' from 'File' menu
         WinWaitActive, New Event: New Event,,7
-        if not ErrorLevel
+        if ErrorLevel
+            TestsFailed("Window 'New Event: New Event' failed to appear.")
+        else
         {
             Sleep, 1500
             SendInput, {ALTDOWN}t{ALTUP} ; Focus 'Title' field, ControlClick does not work here
             SendInput, Edijus birthday ; Set event title
             WinWaitActive, New Event: Edijus birthday,,5
-            if not ErrorLevel
+            if ErrorLevel
+                TestsFailed("Window 'New Event: Edijus birthday' failed to appear (Unable to focus 'Title' field?).")
+            else
             {
                 SendInput, {ALTDOWN}l{ALTUP} ; Focus 'Location' field
                 SendInput, Lithuania
@@ -57,54 +65,20 @@ if bContinue
                 SendInput, {CTRLDOWN}s{CTRLUP} ; Save event
                 SendInput, {CTRLDOWN}w{CTRLUP} ; Close window
                 WinWaitClose, New Event: Edijus birthday,,5
-                if not ErrorLevel
-                {
-                    WinWaitActive, %TimeString% - Sunbird,,5
-                    if not ErrorLevel
-                    {
-                        ; Event is saved encrypted in storage.sdb which is always there
-                        TestsOK()
-                    }
-                    else
-                    {
-                        TestsFailed()
-                        WinGetTitle, title, A
-                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window '%TimeString% - Sunbird' is not active. Active window caption: '%title%'.`n
-                    }
-                }
+                if ErrorLevel
+                    TestsFailed("Window 'New Event: Edijus birthday' failed to close.")
                 else
                 {
-                    TestsFailed()
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'New Event: Edijus birthday' failed to close. Active window caption: '%title%'.`n
+                    WinWaitActive, %TimeString% - Sunbird,,5
+                    if ErrorLevel
+                        TestsFailed("Window '" TimeString " - Sunbird' is not active.")
+                    else
+                        TestsOK("FIXME: find a way to really make sure we saved the event.") ; Event is saved encrypted in storage.sdb which is always there
                 }
             }
-            else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'New Event: Edijus birthday' failed to appear (Unable to focus 'Title' field?). Active window caption: '%title%'.`n
-            }
-        }
-        else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'New Event: New Event' failed to appear. Active window caption: '%title%'.`n
         }
     }
-    else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%TimeString% - Sunbird' is not active window. Active window caption: '%title%'.`n
-    }
 }
-else
-{
-    TestsFailed()
-    WinGetTitle, title, A
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: We failed somewhere in prepare.ahk. Active window caption: '%title%'`n
-}
+
 
 Process, Close, sunbird.exe ; Teminate process

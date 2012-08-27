@@ -26,7 +26,12 @@ TestsOK := 0
 TestsTotal := 0
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
-IfExist, %ModuleExe%
+IfNotExist, %ModuleExe%
+{
+    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%ModuleExe%' not found.`n
+    bContinue := false
+}
+else
 {
     ; Get rid of other versions
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Mozilla Sunbird (0.9), UninstallString
@@ -37,7 +42,7 @@ IfExist, %ModuleExe%
             Process, Close, sunbird.exe ; Teminate process
             Sleep, 1500
             RunWait, %UninstallerPath% /S ; Silently uninstall it
-            Sleep, 2500
+            Sleep, 3500
             ; Delete everything just in case
             RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Mozilla\Mozilla Sunbird
             RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Mozilla Sunbird 9.0
@@ -92,11 +97,6 @@ IfExist, %ModuleExe%
         Run %ModuleExe%
     }
 }
-else
-{
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%ModuleExe%' not found.`n
-    bContinue := false
-}
 
 
 ; Test if can start setup
@@ -105,31 +105,16 @@ if bContinue
 {
     SetTitleMatchMode, 2
     WinWaitActive, Extracting, Cancel, 10 ; Wait 10 secs for window to appear
-    if not ErrorLevel ;Window is found and it is active
+    if ErrorLevel
+        TestsFailed("'Extracting' window failed to appear.")
+    else
     {
         OutputDebug, OK: %TestName%:%A_LineNumber%: 'Extracting' window appeared, waiting for it to close.`n
         WinWaitClose, Extracting, Cancel, 15
-        if not ErrorLevel
-        {
-            
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Extracting' window appeared and went away.`n
-            bContinue := true
-        }
+        if ErrorLevel 
+            TestsFailed("'Extracting' window failed to dissapear.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Extracting' window failed to dissapear. Active window caption: '%title%'.`n
-            bContinue := false
-        }
-    }
-    else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Extracting' window failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
+            TestsOK("'Extracting' window appeared and went away.")
     }
 }
 
@@ -139,31 +124,17 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Mozilla Sunbird Setup, This wizard, 15
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'Mozilla Sunbird Setup (This wizard)' window failed to appear.")
+    else
     {
         Sleep, 250
         ControlClick, Button2, Mozilla Sunbird Setup, This wizard
-        if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Mozilla Sunbird Setup' window with 'This wizard' appeared and 'Next' was clicked.`n
-            bContinue := true
-        }
+        if ErrorLevel
+            TestsFailed("Unable to click 'Next' in 'Mozilla Sunbird Setup (This wizard)' window.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'This wizard' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
-    }
-    else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Sunbird Setup' window with 'This wizard' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+            TestsOK("'Mozilla Sunbird Setup (This wizard)' window appeared and 'Next' was clicked.")
+    }  
 }
 
 
@@ -171,54 +142,30 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Mozilla Sunbird Setup, License Agreement, 15
-    if not ErrorLevel
+    WinWaitActive, Mozilla Sunbird Setup, License Agreement, 5
+    if ErrorLevel
+        TestsFailed("'Mozilla Sunbird Setup' window with 'Mozilla Sunbird Setup (License Agreement)' failed to appear.")
+    else
     {
         Sleep, 250
         ControlClick, Button4, Mozilla Sunbird Setup, License Agreement ; check 'I accept' radio button
-        if not ErrorLevel
+        if ErrorLevel
+            TestsFailed("Unable to check 'I agree' radio button in 'Mozilla Sunbird Setup (License Agreement)' window.")
+        else
         {
             Sleep, 1500 ; Give some time for 'Next' to get enabled
             ControlGet, OutputVar, Enabled,, Button2, Mozilla Sunbird Setup, License Agreement
-            if %OutputVar%
-            {
-                ControlClick, Button2, Mozilla Sunbird Setup, License Agreement
-                if not ErrorLevel
-                {
-                    TestsOK++
-                    OutputDebug, OK: %TestName%:%A_LineNumber%: 'Mozilla Sunbird Setup' window with 'License Agreement' appeared and 'Next' was clicked.`n
-                    bContinue := true
-                }
-                else
-                {
-                    TestsFailed++
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'License Agreement' window despite it is enabled. Active window caption: '%title%'.`n
-                    bContinue := false
-                }
-            }
+            if not %OutputVar%
+                TestsFailed("'I agree' radio button is checked in 'Mozilla Sunbird Setup (License Agreement)', but 'Next' button is disabled.")
             else
             {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'I agree' radio button is checked in 'License Agreement', but 'Next' button is disabled. Active window caption: '%title%'.`n
-                bContinue := false
+                ControlClick, Button2, Mozilla Sunbird Setup, License Agreement
+                if ErrorLevel
+                    TestsFailed("Unable to hit 'Next' button in 'Mozilla Sunbird Setup (License Agreement)' window despite it is enabled.")
+                else
+                    TestsOK("'Mozilla Sunbird Setup (License Agreement)' window appeared and 'Next' was clicked.")
             }
         }
-        else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to check 'I agree' radio button in 'License Agreement' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
-    }
-    else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Sunbird Setup' window with 'License Agreement' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
     }
 }
 
@@ -229,30 +176,16 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Mozilla Sunbird Setup, Setup Type, 7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'Mozilla Sunbird Setup (Setup Type)' window failed to appear.")
+    else
     {
         Sleep, 250
         ControlClick, Button2, Mozilla Sunbird Setup, Setup Type
-        if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Mozilla Sunbird Setup' window with 'Setup Type' appeared and 'Next' was clicked.`n
-            bContinue := true
-        }
+        if ErrorLevel
+            TestsFailed("Unable to click 'Next' in 'Mozilla Sunbird Setup (Setup Type)' window.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'Setup Type' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
-    }
-    else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Sunbird Setup' window with 'Setup Type' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
+            TestsOK("'Mozilla Sunbird Setup (Setup Type)' window appeared and 'Next' was clicked.")
     }
 }
 
@@ -262,31 +195,17 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Mozilla Sunbird Setup, Installing, 7
-    if not ErrorLevel
-    {
-        Sleep, 250
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installing' window appeared, waiting for it to close.`n
-        WinWaitClose, Mozilla Sunbird Setup, Installing, 35
-        if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installing' went away.`n
-            bContinue := true
-        }
-        else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Sunbird Setup' window with 'Installing' failed to dissapear. Active window caption: '%title%'.`n
-            bContinue := false
-        }
-    }
+    if ErrorLevel
+        TestsFailed("'Mozilla Sunbird Setup (Installing)' window failed to appear.")
     else
     {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Sunbird Setup' window with 'Installing' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
+        Sleep, 250
+        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Mozilla Sunbird Setup (Installing)' window appeared, waiting for it to close.`n
+        WinWaitClose, Mozilla Sunbird Setup, Installing, 35
+        if ErrorLevel
+            TestsFailed("'Mozilla Sunbird Setup (Installing)' window failed to dissapear.")
+        else
+            TestsOK("'Mozilla Sunbird Setup (Installing)' window went away.")
     }
 }
 
@@ -296,72 +215,49 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Mozilla Sunbird Setup, Completing, 7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'Mozilla Sunbird Setup (Completing)' window failed to appear.")
+    else
     {
         Sleep, 250
         ControlClick, Button4, Mozilla Sunbird Setup, Completing ; Uncheck 'Launch Mozilla Sunbird now'
-        if not ErrorLevel
+        if ErrorLevel
         {
-            ControlClick, Button2, Mozilla Sunbird Setup, Completing ; Hit 'Finish'
-            if not ErrorLevel
-            {
-                TestsOK++
-                OutputDebug, OK: %TestName%:%A_LineNumber%: 'Mozilla Sunbird Setup' window with 'Completing' appeared and 'Finish' was clicked.`n
-                bContinue := true
-            }
-            else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Finish' in 'Completing' window. Active window caption: '%title%'.`n
-                bContinue := false
-            }
+            TestsFailed("Unable to uncheck 'Launch Mozilla Sunbird now' in 'Completing' window.")
+            Process, Wait, thunderbird.exe, 5
+            Process, Close, thunderbird.exe
         }
         else
         {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: unable to uncheck 'Launch Mozilla Sunbird now' in 'Completing' window. Active window caption: '%title%'.`n
-            bContinue := false
-            Process, Close, thunderbird.exe ; Just in case
+            ControlClick, Button2, Mozilla Sunbird Setup, Completing ; Hit 'Finish'
+            if ErrorLevel
+                TestsFailed("Unable to click 'Finish' in 'Mozilla Sunbird Setup (Completing)' window.")
+            else
+            {
+                WinWaitClose, Mozilla Sunbird Setup, Completing, 5
+                if ErrorLevel
+                    TestsFailed("'Mozilla Sunbird Setup (Completing)' window failed to close despite 'Finish' button was clicked.")
+                else
+                    TestsOK("'Mozilla Sunbird Setup (Completing)' window appeared, 'Finish' button was clicked and window closed.")
+            }
         }
-    }
-    else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Sunbird Setup' window with 'Completing' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
     }
 }
 
 
-;Check if program exists in program files
+; Check if program exists
 TestsTotal++
 if bContinue
 {
     Sleep, 2000
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Mozilla Sunbird (0.9), UninstallString
-    if not ErrorLevel
-    {
-        IfExist, %UninstallerPath%
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: The application has been installed, because '%UninstallerPath%' was found.`n
-            bContinue := true
-        }
-        else
-        {
-            TestsFailed++
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Something went wrong, can't find '%UninstallerPath%'.`n
-            bContinue := false
-        }
-    }
+    if ErrorLevel
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
     else
     {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Either we can't read from registry or data doesn't exist. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        IfNotExist, %UninstallerPath%
+            TestsFailed("Something went wrong, can't find '" UninstallerPath "'.")
+        else
+            TestsOK("The application has been installed, because '" UninstallerPath "' was found.")
+    } 
 }
