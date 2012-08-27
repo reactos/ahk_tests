@@ -45,18 +45,12 @@ if bContinue
                 {
                     ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, *14 %SearchImg%
                     if ErrorLevel = 2
-                    {
-                        TestsFailed()
-                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Could not conduct the ImageSearch ('%SearchImg%' exist).`n
-                    }
+                        TestsFailed("Could not conduct the ImageSearch ('" SearchImg "' exist).")
                     else if ErrorLevel = 1
-                    {
-                        TestsFailed()
-                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: The search image '%SearchImg%' could NOT be found on the screen (resolution not 800x600?).`n
-                    }
+                        TestsFailed("The search image '" SearchImg "' could NOT be found on the screen (resolution not 800x600?).")
                     else
                     {
-                        SendInput, {ALT}f ; Close document. WinMenuSelectItem doesn't work here
+                        SendInput, {Alt}f ; Close document. WinMenuSelectItem doesn't work here
                         Sleep, 500
                         SendInput, c
                         WinWaitActive, Universal Viewer, File not loaded, 5
@@ -66,58 +60,28 @@ if bContinue
                             WinClose, Universal Viewer, File not loaded
                             WinWaitClose, Universal Viewer, File not loaded, 7
                             if not ErrorLevel
-                            {
-                                TestsOK()
-                                OutputDebug, OK: %TestName%:%A_LineNumber%: Found image on the screen, so, page 29 was displayed correctly. Document and application closed successfully.`n
-                            }
+                                TestsOK("Found image on the screen, so, page 29 was displayed correctly. Document and application closed successfully.")
                             else
-                            {
-                                TestsFailed()
-                                WinGetTitle, title, A
-                                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Universal Viewer (File not loaded)' failed to close. Active window caption: '%title%'`n
-                            }
+                                TestsFailed("Window 'Universal Viewer (File not loaded)' failed to close.")
                         }
                         else
-                        {
-                            TestsFailed()
-                            WinGetTitle, title, A
-                            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Universal Viewer (File not loaded)' failed to appear. Active window caption: '%title%'`n
-                        }
+                            TestsFailed("Window 'Universal Viewer (File not loaded)' failed to appear.")
                     }
                 }
                 else
-                {
-                    TestsFailed()
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%SearchImg%'.`n
-                }
+                    TestsFailed("Can NOT find '" SearchImg "'.")
             }
             else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Page' number in '%NameExt% - Universal Viewer (slister)' window. Active window caption: '%title%'`n
-            }
+                TestsFailed("Unable to click 'Page' number in '" NameExt " - Universal Viewer (slister)' window.")
         }
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to enter 'Page' number in '%NameExt% - Universal Viewer (slister)' window. Active window caption: '%title%'`n
-        }
+            TestsFailed("Unable to enter 'Page' number in '" NameExt " - Universal Viewer (slister)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window '%NameExt% - Universal Viewer (slister)' failed to appear. Active window caption: '%title%'`n
-    }
+        TestsFailed("Window '" NameExt " - Universal Viewer (slister)' failed to appear.")
 }
 else
-{
-    TestsFailed()
-    WinGetTitle, title, A
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: We failed somewhere in prepare.ahk. Active window caption: '%title%'`n
-}
+    TestsFailed("We failed somewhere in prepare.ahk.")
 
 if not bContinue
 {

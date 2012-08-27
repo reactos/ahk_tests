@@ -107,26 +107,12 @@ if bContinue
         Sleep, 250
         ControlClick, TNewButton1, Select Setup Language, Select the language
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Select Setup Language (Select the language)' window appeared and 'OK' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'Select Setup Language (Select the language)' window appeared and 'OK' was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'OK' in 'Select Setup Language (Select the language)' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'OK' in 'Select Setup Language (Select the language)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Select Setup Language (Select the language)' window failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Select Setup Language (Select the language)' window failed to appear.")
 }
 
 
@@ -140,23 +126,12 @@ if bContinue
         Sleep, 250
         ControlClick, TNewButton1, Setup - Universal Viewer Free, Welcome ; Hit 'Next' button
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Universal Viewer Free (Welcome)' window appeared and 'Next' was clicked.`n
-        }
+            TestsOK("'Setup - Universal Viewer Free (Welcome)' window appeared and 'Next' was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'Setup - Universal Viewer Free (Welcome)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Next' button in 'Setup - Universal Viewer Free (Welcome)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - Universal Viewer Free (Welcome)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'Setup - Universal Viewer Free (Welcome)' window failed to appear.")
 }
 
 
@@ -170,23 +145,12 @@ if bContinue
         Sleep, 250
         ControlClick, TNewButton3, Setup - Universal Viewer Free, Select Destination Location ; Hit 'Next' button
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Universal Viewer Free (Select Destination Location)' window appeared and 'Next' was clicked.`n
-        }
+            TestsOK("'Setup - Universal Viewer Free (Select Destination Location)' window appeared and 'Next' was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'Setup - Universal Viewer Free (Select Destination Location)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Next' button in 'Setup - Universal Viewer Free (Select Destination Location)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - Universal Viewer Free (Select Destination Location)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'Setup - Universal Viewer Free (Select Destination Location)' window failed to appear.")
 }
 
 
@@ -200,23 +164,12 @@ if bContinue
         Sleep, 250
         ControlClick, TNewButton3, Setup - Universal Viewer Free, Select Additional Tasks ; Hit 'Next' button
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Universal Viewer Free (Select Additional Tasks)' window appeared and 'Next' was clicked.`n
-        }
+            TestsOK("'Setup - Universal Viewer Free (Select Additional Tasks)' window appeared and 'Next' was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'Setup - Universal Viewer Free (Select Additional Tasks)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Next' button in 'Setup - Universal Viewer Free (Select Additional Tasks)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - Universal Viewer Free (Select Additional Tasks)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'Setup - Universal Viewer Free (Select Additional Tasks)' window failed to appear.")
 }
 
 
@@ -230,23 +183,12 @@ if bContinue
         Sleep, 250
         ControlClick, TNewButton3, Setup - Universal Viewer Free, Ready to Install ; Hit 'Install' button
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Universal Viewer Free (Ready to Install)' window appeared and 'Install' was clicked.`n
-        }
+            TestsOK("'Setup - Universal Viewer Free (Ready to Install)' window appeared and 'Install' was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Install' button in 'Setup - Universal Viewer Free (Ready to Install)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Install' button in 'Setup - Universal Viewer Free (Ready to Install)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - Universal Viewer Free (Ready to Install)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'Setup - Universal Viewer Free (Ready to Install)' window failed to appear.")
 }
 
 
@@ -260,23 +202,12 @@ if bContinue
         OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Universal Viewer Free (Installing)' window appeared, waiting for it to close.`n
         WinWaitClose, Setup - Universal Viewer Free, Installing, 20
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Universal Viewer Free (Installing)' window went away.`n
-        }
+            TestsOK("'Setup - Universal Viewer Free (Installing)' window went away.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - Universal Viewer Free (Installing)' window failed to close. Active window caption: '%title%'.`n
-        }
+            TestsFailed("'Setup - Universal Viewer Free (Installing)' window failed to close.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - Universal Viewer Free (Installing)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'Setup - Universal Viewer Free (Installing)' window failed to appear.")
 }
 
 
@@ -288,31 +219,30 @@ if bContinue
     if not ErrorLevel
     {
         Sleep, 250
-        SendInput, {SPACE}{DOWN}{SPACE} ; Uncheck 'Launch Universal Viewer' and 'View version history' //FIXME: is there a better way? Control, Uncheck won't work here
+        SendInput, {SPACE}{DOWN}{SPACE} ; Uncheck 'Launch Universal Viewer' and 'View version history'. Control, Uncheck won't work here
+        Sleep, 1000
         ControlClick, TNewButton3, Setup - Universal Viewer Free, Completing ; Hit 'Finish' button
         if not ErrorLevel
         {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Universal Viewer Free (Completing)' window appeared, 'Launch Universal Viewer', 'View version history' were unchecked and 'Finish' was clicked.`n
-            Process, Close, Viewer.exe ; Just in case
+            Process, wait, Viewer.exe, 5.5
+            NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+            if NewPID = 0
+                TestsOK("'Setup - Universal Viewer Free (Completing)' window appeared, 'Launch Universal Viewer', 'View version history' were unchecked and 'Finish' was clicked.")
+            else
+            {
+                TestsFailed("Unable to uncheck 'Launch Universal Viewer' in 'Setup - Universal Viewer Free (Completing)' window, because process 'Viewer.exe' was detected.")
+                Process, Close, Viewer.exe
+            }
         }
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Finish' button in 'Setup - Universal Viewer Free (Completing)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Finish' button in 'Setup - Universal Viewer Free (Completing)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Setup - Universal Viewer Free (Completing)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'Setup - Universal Viewer Free (Completing)' window failed to appear.")
 }
 
 
-;Check if program exists in program files
+; Check if program exists
 TestsTotal++
 if bContinue
 {
@@ -322,20 +252,10 @@ if bContinue
     {
         StringReplace, UninstallString, UninstallString, `",, All
         IfExist, %UninstallString%
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: The application has been installed, because '%UninstallString%' was found.`n
-        }
+            TestsOK("The application has been installed, because '" UninstallString "' was found.")
         else
-        {
-            TestsFailed()
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Something went wrong, can't find '%UninstallString%'.`n
-        }
+            TestsFailed("Something went wrong, can't find '" UninstallString "'.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Either we can't read from registry or data doesn't exist. Active window caption: '%title%'.`n
-    }
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
 }
