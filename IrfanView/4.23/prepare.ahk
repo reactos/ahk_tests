@@ -47,6 +47,7 @@ RunApplication(PathToFile)
 {
     global ModuleExe
     global TestName
+    global bContinue
 
     Sleep, 500
     FileRemoveDir, %A_AppData%\IrfanView, 1
