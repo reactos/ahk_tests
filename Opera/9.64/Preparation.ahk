@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-Module = Opera_9.64_%1%
+TestName = prepare
 ModuleExe = %A_ProgramFiles%\Opera\Opera.exe
 bContinue := false
 TestsTotal := 0
@@ -27,43 +27,19 @@ TestsOK := 0
 TestsExecuted := 0
 
 
-;Check if Opera.exe exists in program files
-TestsTotal++
+IfExist, %ModuleExe%
 {
-    Sleep, 2500
-    IfExist, %ModuleExe%
-    {
-        TestsOK++
-        OutputDebug, OK: %Module%:%A_LineNumber%: '%ModuleExe%' was found.`n
-        bContinue := true
-    }
-    else
-    {
-        TestsFailed++
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: Can NOT find '%ModuleExe%'.`n
-        bContinue := false
-    }
-}
-
-
-; Test if we can start the app and enter URL
-TestsTotal++
-if bContinue
-{
+    FileRemoveDir, %A_AppData%\Opera, 1
+    Sleep, 1000
     Run, %ModuleExe% ; Setup/install registers Opera as default browser
-    Sleep, 4500 ; Let it to load
     WinWaitActive, Welcome to Opera - Opera,, 20 ; Window caption might change?
     if not ErrorLevel
     {
-        TestsOK++
-        ; OutputDebug, OK: %Module%:%A_LineNumber%: Window 'Welcome to Opera - Opera' was found.`n
+        Sleep, 1000
         bContinue := true 
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: Window 'Welcome to Opera - Opera' was NOT found. Active window caption: '%title%'`n
-        bContinue := false
-    }
+        OutputDebug, FAILED: %TestName%:%A_LineNumber%: Window 'Welcome to Opera - Opera' was NOT found. Active window caption: '%title%'`n
 }
+else
+    OutputDebug, FAILED: %TestName%:%A_LineNumber%: Can NOT find '%ModuleExe%'.`n

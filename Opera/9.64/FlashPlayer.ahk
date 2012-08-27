@@ -20,11 +20,12 @@
 
 ; Test if can open flash
 TestsTotal++
-WinWaitActive, Welcome to Opera - Opera,, 15
-if not ErrorLevel
+if not bContinue
+    TestsFailed("We failed somewhere in prepare.ahk")
+else
 {
-    Flash10Exe = %A_WinDir%\system32\Macromed\Flash\FlashUtil10t_Plugin.exe
-    IfExist, %Flash10Exe%
+    WinWaitActive, Welcome to Opera - Opera,, 5
+    if not ErrorLevel
     {
         SendInput, {CTRLDOWN}t{CTRLUP} ; Open new tab
         WinWaitActive, Speed Dial - Opera,, 15
@@ -36,38 +37,15 @@ if not ErrorLevel
             Sleep, 10000 ; Let it to fully load. Maybe it will crash
             WinWaitActive, Beasty Bombs - Cats & Dogs Fights - Play - Opera,,20
             if not ErrorLevel
-            {
-                TestsOK++
-                OutputDebug, OK: %Module%:%A_LineNumber%: Window caption is 'Beasty Bombs - Cats & Dogs Fights - Play - Opera' that means no crash while opening Flash Game.`n
-                bContinue := true
-            }
+                TestsOK("Window caption is 'Beasty Bombs - Cats & Dogs Fights - Play - Opera' that means no crash while opening Flash Game.")
             else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, FAILED: %Module%:%A_LineNumber%: Window 'Yahoo! - Opera' failed to appear. Active window caption: '%title%'`n
-                bContinue := false
-            }
+                TestsFailed("Window 'Yahoo! - Opera' failed to appear.")
         }
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, FAILED: %Module%:%A_LineNumber%: Window 'Speed Dial - Opera' failed to appear. Active window caption: '%title%'`n
-            bContinue := false
-        }
+            TestsFailed("Window 'Speed Dial - Opera' failed to appear.")
     }
     else
-    {
-        TestsFailed++
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: Can NOT find '%Flash10Exe%'. Install it first!`n
-        bContinue := false
-    }
+        TestsFailed("Window 'Welcome to Opera - Opera' was NOT found.")
 }
-else
-{
-    TestsFailed++
-    WinGetTitle, title, A
-    OutputDebug, FAILED: %Module%:%A_LineNumber%: Window 'Welcome to Opera - Opera' was NOT found. Active window caption: '%title%'`n
-    bContinue := false
-}
+
+Process, Close, Opera.exe ; Terminate process

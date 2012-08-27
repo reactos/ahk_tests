@@ -17,32 +17,29 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-Module = Opera_9.64:%1%
+ModuleExe = %A_WorkingDir%\Apps\Opera Setup.exe
 bContinue := false
-
-if StrLen(A_WorkingDir) = 3 ;No need percent sign here
-    SetupExe = %A_WorkingDir%Opera Setup.exe ;We are working in root dir, no need to append slash
-else
-    SetupExe = %A_WorkingDir%\Opera Setup.exe
+TestName = 1.install
 
 TestsFailed := 0
 TestsOK := 0
 TestsTotal := 0
 
+Process, Close, Opera.exe
+FileRemoveDir, %A_ProgramFiles%\Opera 
+RunWait, MsiExec.exe /X{E1BBBAC5-2857-4155-82A6-54492CE88620} /qn
+Sleep, 3000
+RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\{E1BBBAC5-2857-4155-82A6-54492CE88620}
+
 ; Test if Setup file exists
 TestsTotal++
-IfExist, %SetupExe%
+IfExist, %ModuleExe%
 {
-    TestsOK++
-    Run %SetupExe%
-    bContinue := true
+    TestsOK("")
+    Run %ModuleExe%
 }
 else
-{
-    TestsFailed++
-    OutputDebug, FAILED: %Module%:%A_LineNumber%: '%SetupExe%' not found.`n
-    bContinue := false
-}
+    TestsFailed("'" ModuleExe "' not found.")
 
 ; Test if can start setup
 TestsTotal++
@@ -51,20 +48,12 @@ if bContinue
     WinWaitActive, Choose Setup Language, Select the language, 15 ; Wait 15 secs for window to appear
     if not ErrorLevel ;Window is found and it is active
     {
-        TestsOK++
-        OutputDebug, OK: %Module%:%A_LineNumber%: 'Choose Setup Language' window appeared.`n
-        Sleep, 2500
-
+        Sleep, 250
         SendInput, {ENTER} ;Hit 'OK' button in 'Choose Setup Language' window
-        bContinue := true
+        TestsOK("'Choose Setup Language (Select the language)' window appeared and 'ENTER' was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: 'Choose Setup Language' window failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Choose Setup Language (Select the language)' window failed to appear.")
 }
 
 ; Test if window with 'Start Setup' button can appear
@@ -74,24 +63,16 @@ if bContinue
     WinWaitActive, Opera 9.64 - InstallShield Wizard, Start, 25 ; Same exe: 'Start set-up' in ROS, 'Start Setup' in Windows
     if not ErrorLevel
     {
-        TestsOK++
-        OutputDebug, OK: %Module%:%A_LineNumber%: 'Opera 9.64 - InstallShield Wizard' window with 'Start Setup' button appeared.`n
-
         Sleep, 2500 ; window flashes, so let it to appear correctly
         SendInput, {ALTDOWN)
         Sleep, 500 ; Opera setup requires those sleeps
         SendInput, s
         Sleep, 500
         SendInput, {ALTUP} ;Hit 'Start Setup' button in 'Opera 9.64 - InstallShield Wizard' window
-        bContinue := true
+        TestsOK("'Opera 9.64 - InstallShield Wizard' window with 'Start Setup' button appeared, Alt+S was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: 'Opera 9.64 - InstallShield Wizard' window with 'Start Setup' button failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Opera 9.64 - InstallShield Wizard' window with 'Start Setup' button failed to appear.")
 }
 
 ; Test if 'Opera Browser Licence Agreement' window can appear
@@ -101,20 +82,12 @@ if bContinue
     WinWaitActive, Opera 9.64 - InstallShield Wizard, Installation of Opera requires, 20
     if not ErrorLevel
     {
-        TestsOK++
-        OutputDebug, OK: %Module%:%A_LineNumber%: 'Opera 9.64 - InstallShield Wizard' with 'Installation of Opera requires' appeared.`n
-
-        Sleep, 2500
+        Sleep, 250
         SendInput, {ALTDOWN}a{ALTUP} ;Hit 'I Accept' button in 'Opera Browser Licence Agreement' window
-        bContinue := true
+        TestsOK("'Opera 9.64 - InstallShield Wizard (Installation of Opera requires)' window appeared, Alt+A was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: 'Opera 9.64 - InstallShield Wizard' with 'Installation of Opera requires' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Opera 9.64 - InstallShield Wizard (Installation of Opera requires)' window failed to appear.")
 }
 
 ; Test if 'Welcome to the Opera installer' can appear
@@ -124,19 +97,11 @@ if bContinue
     WinWaitActive, Opera 9.64 - InstallShield Wizard, Welcome to the Opera, 15
     if not ErrorLevel
     {
-        TestsOK++
-        OutputDebug, OK: %Module%:%A_LineNumber%: 'Opera 9.64 - InstallShield Wizard' window with 'Welcome to the Opera' appeared.`n
-
         SendInput, {ALDOWN}n{ALTUP} ;Hit 'Next' button in 'Welcome to the Opera installer' window
-        bContinue := true
+        TestsOK("'Opera 9.64 - InstallShield Wizard (Welcome to the Opera)' window appeared, Alt+N was sent")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: 'Opera 9.64 - InstallShield Wizard' window with 'Welcome to the Opera' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Opera 9.64 - InstallShield Wizard (Welcome to the Opera)' window failed to appear.")
 }
 
 ; Test if 'Ready to install the program' can appear
@@ -146,20 +111,12 @@ if bContinue
     WinWaitActive, Opera 9.64 - InstallShield Wizard, Ready to install the program, 15
     if not ErrorLevel
     {
-        TestsOK++
-        OutputDebug, OK: %Module%:%A_LineNumber%: 'Opera 9.64 - InstallShield Wizard' window with 'Ready to install the program' appeared.`n
-
-        Sleep, 2500
+        Sleep, 250
         SendInput, {ALTDOWN}i{ALTUP} ;Hit 'Install' button in 'Ready to install the program' window
-        bContinue := true
+        TestsOK("'Opera 9.64 - InstallShield Wizard (Ready to install the program)' window appeared, Alt+I was sent.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: 'Opera 9.64 - InstallShield Wizard' window with 'Ready to install the program' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Opera 9.64 - InstallShield Wizard (Ready to install the program)' window failed to appear.")
 }
 
 ; Test if 'InstallShield Wizard Completed' can appear
@@ -169,40 +126,31 @@ if bContinue
     WinWaitActive, Opera 9.64 - InstallShield Wizard, InstallShield Wizard Completed, 30
     if not ErrorLevel
     {
-        TestsOK++
-        OutputDebug, OK: %Module%:%A_LineNumber%: 'Opera 9.64 - InstallShield Wizard' window with 'InstallShield Wizard Completed' appeared.`n
-
-        SendInput, {TAB} ;Focus 'Run Opera when I press Finish'
+        Sleep, 250
+        SendInput, {TAB} ; Focus 'Run Opera when I press Finish'
         Sleep, 500
         SendInput, {SPACE}
         Sleep, 500
         SendInput, {ALTDOWN}f{ALTUP} ;Hit 'Finish' button in 'InstallShield Wizard Completed' window
-        bContinue := true
+        WinWaitClose, Opera 9.64 - InstallShield Wizard, InstallShield Wizard Completed, 7
+        if ErrorLevel
+            TestsFailed("'Opera 9.64 - InstallShield Wizard (InstallShield Wizard Completed)' window failed to close after Alt+F was sent.")
+        else
+            TestsOK("'Opera 9.64 - InstallShield Wizard (InstallShield Wizard Completed)' window appeared, TAB, SPACE, Alt+F were sent, window was closed.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A ;A is for the active window
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: 'Opera 9.64 - InstallShield Wizard' window with 'InstallShield Wizard Completed' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Opera 9.64 - InstallShield Wizard (InstallShield Wizard Completed)' window failed to appear.")
 }
 
-;Check if Opera.exe exists in program files
+; Check if Opera.exe exists
 TestsTotal++
 if bContinue
 {
     Sleep, 2500
     IfExist, %A_ProgramFiles%\Opera\opera.exe
-    {
-        TestsOK++
-        OutputDebug, OK: %Module%:%A_LineNumber%: Should be installed, because '%A_ProgramFiles%\Opera\opera.exe' was found.`n
-        bContinue := true
-    }
+        TestsOK("Should be installed, because '" A_ProgramFiles "\Opera\opera.exe' was found.")
     else
-    {
-        TestsFailed++
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: Can NOT find '%A_ProgramFiles%\Opera\opera.exe'.`n
-        bContinue := false
-    }
+        TestsFailed("Can NOT find '" A_ProgramFiles "\Opera\opera.exe'.")
 }
+
+Process, Close, msiexec.exe ; Just in case we failed

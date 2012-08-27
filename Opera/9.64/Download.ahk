@@ -20,74 +20,55 @@
 
 ; Test if we can download some file
 TestsTotal++
-WinWaitActive, Welcome to Opera - Opera,, 15
-if not ErrorLevel
-{
-    IfExist, %A_MyDocuments%\livecd-56407-dbg.7z
-            FileDelete, %A_MyDocuments%\livecd-56407-dbg.7z
-        SendInput, {CTRLDOWN}l{CTRLUP}
-        Sleep, 700
-        SendInput, http://iso.reactos.org/livecd/livecd-56407-dbg.7z{ENTER} ;Download some file
-        Sleep, 5000 ; Let it to respond
-    WinWaitActive, Downloading file livecd-56407-dbg.7z,,25
-    if not ErrorLevel
-    {
-        SendInput, {ENTER} ; Default option is 'Save' and Alt+S doesn't work here. :/
-        SetTitleMatchMode, 1 ; ReactOS 'Save as', WinXP 'Save As', so match if wnd starts with 'Save'
-        WinWaitActive, Save,, 15 ; FIXME: add WinText, so we really know it is right dialog
-        if not ErrorLevel
-        {
-            Sleep, 2500
-            SendInput, {ALTDOWN}s{ALTUP} ; Hit 'Save'
-            Sleep, 2500
-            SendInput, {CTRLDOWN}{TAB}{CTRLUP} ; Navigate thru tabs to 'Transfers' tab
-            WinWaitActive, Transfers - Opera,,60 ; 1 minute
-            if not ErrorLevel
-            {
-                Sleep, 1500
-                FileGetSize, DFileSize, %A_MyDocuments%\livecd-56407-dbg.7z
-                ExpectedSize = 23030114
-                if (InStr(%DFileSize%, %ExpectedSize%))
-                {
-                    TestsOK++
-                    OutputDebug, OK: %Module%:%A_LineNumber%: File downloaded. Size the same as expected.`n
-                    bContinue := true
-                }
-                else
-                {
-                    TestsFailed++
-                    OutputDebug, FAILED: %Module%:%A_LineNumber%: Downloaded file size is NOT the same as expected [is %DFileSize% and should be %ExpectedSize%].`n
-                    bContinue := false
-                }
-            }
-            else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, FAILED: %Module%:%A_LineNumber%: Window 'Transfers - Opera' failed to appear. Active window caption: '%title%'`n
-                bContinue := false
-            }
-        }
-        else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, FAILED: %Module%:%A_LineNumber%: 'Save as' dialog failed to appear. Active window caption: '%title%'`n
-            bContinue := false
-        }
-    }
-    else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: Window 'Downloading file livecd-56407-dbg.7z' failed to appear. Active window caption: '%title%'`n
-        bContinue := false
-    }
-}
+if not bContinue
+    TestsFailed("We failed somewhere in prepare.ahk")
 else
 {
-    TestsFailed++
-    WinGetTitle, title, A
-    OutputDebug, FAILED: %Module%:%A_LineNumber%: Window 'Welcome to Opera - Opera' was NOT found. Active window caption: '%title%'`n
-    bContinue := false
+    WinWaitActive, Welcome to Opera - Opera,, 15
+    if not ErrorLevel
+    {
+        IfExist, %A_MyDocuments%\livecd-56407-dbg.7z
+                FileDelete, %A_MyDocuments%\livecd-56407-dbg.7z
+            SendInput, {CTRLDOWN}l{CTRLUP}
+            Sleep, 700
+            SendInput, http://iso.reactos.org/livecd/livecd-56407-dbg.7z{ENTER} ;Download some file
+            Sleep, 5000 ; Let it to respond
+        WinWaitActive, Downloading file livecd-56407-dbg.7z,,25
+        if not ErrorLevel
+        {
+            SendInput, {ENTER} ; Default option is 'Save' and Alt+S doesn't work here. :/
+            SetTitleMatchMode, 1 ; ReactOS 'Save as', WinXP 'Save As', so match if wnd starts with 'Save'
+            WinWaitActive, Save,, 15 ; FIXME: add WinText, so we really know it is right dialog
+            if not ErrorLevel
+            {
+                Sleep, 2500
+                SendInput, !n ; Focus 'File name' field
+                SendInput, %A_MyDocuments%\livecd-56407-dbg.7z
+                SendInput, {ALTDOWN}s{ALTUP} ; Hit 'Save'
+                Sleep, 2500
+                SendInput, {CTRLDOWN}{TAB}{CTRLUP} ; Navigate thru tabs to 'Transfers' tab
+                WinWaitActive, Transfers - Opera,,60 ; 1 minute
+                if not ErrorLevel
+                {
+                    Sleep, 1500
+                    FileGetSize, DFileSize, %A_MyDocuments%\livecd-56407-dbg.7z
+                    ExpectedSize = 23030114
+                    if (InStr(%DFileSize%, %ExpectedSize%))
+                        TestsOK("File downloaded. Size the same as expected.")
+                    else
+                        TestsFailed("Downloaded file size is NOT the same as expected [is " DFileSize " and should be " ExpectedSize "].")
+                }
+                else
+                    TestsFailed("Window 'Transfers - Opera' failed to appear.")
+            }
+            else
+                TestsFailed("'Save as' dialog failed to appear.")
+        }
+        else
+            TestsFailed("Window 'Downloading file livecd-56407-dbg.7z' failed to appear.")
+    }
+    else
+        TestsFailed("Window 'Welcome to Opera - Opera' was NOT found.")
 }
+
+Process, Close, Opera.exe ; Terminate process

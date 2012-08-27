@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#Include ..\helper_functions.ahk
+#Include ..\..\helper_functions.ahk
 
 
 if 1 = --list
@@ -25,59 +25,51 @@ if 1 = --list
 params =
 (
 
-    install
-    AddressBar
-    Download
-    FlashPlayer
-    CloseDownload
+    1.install
+    2.AddressBar
+    3.Download
+    4.FlashPlayer
+    5.CloseDownload
 
 )
 FileAppend, %params%, *
 }
-else if 1 = install
+else if 1 = 1.install
 {
     #include Install.ahk
 }
 else
 {
     #include Preparation.ahk
-    if bContinue
+
+    if 1 = 2.AddressBar
     {
-        if 1 = AddressBar
-        {
-            #include AddressBar.ahk
-        }
-        else if 1 = Download
-        {
-            #include Download.ahk
-        }
-        else if 1 = FlashPlayer
-        {
-            #include FlashPlayer.ahk
-        }
-        else if 1 = CloseDownload
-        {
-            #include CloseDownload.ahk
-        }
-        else OutputDebug, Bad parameters: '%1%'!`r`n
+        #include AddressBar.ahk
     }
+    else if 1 = 3.Download
+    {
+        #include Download.ahk
+    }
+    else if 1 = 4.FlashPlayer
+    {
+        #include FlashPlayer.ahk
+    }
+    else if 1 = 5.CloseDownload
+    {
+        #include CloseDownload.ahk
+    }
+        else OutputDebug, Bad parameters: '%1%'!`r`n
 }
 
 if 1 != --list
 {
     if not bContinue
     {
-        SplitPath, SetupExe, fName ; Extract filename from given path
-        WindowCleanUp(fName)
         SplitPath, ModuleExe, fName
         WindowCleanUp(fName)  
     }
 
-    ; Delete saved settings
-    Sleep, 1500
-    FileRemoveDir, %A_AppData%\Opera, 1
-
     TestsSkipped := TestsTotal - TestsOK - TestsFailed
     TestsExecuted := TestsOK + TestsFailed
-    OutputDebug, %Module%: %TestsExecuted% tests executed (0 marked as todo, %TestsFailed% failures), %TestsSkipped% skipped.`n
+    OutputDebug, %TestName%: %TestsExecuted% tests executed (0 marked as todo, %TestsFailed% failures), %TestsSkipped% skipped.`n
 }

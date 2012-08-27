@@ -20,35 +20,27 @@
 
 ; Test if we can enter URL
 TestsTotal++
-WinWaitActive, Welcome to Opera - Opera,, 15 ; Window caption might change?
-if not ErrorLevel
-{
-    Sleep, 1000
-    SendInput, {CTRLDOWN}l{CTRLUP} ; Toggle address bar
-    Sleep, 1000
-    SendInput, www{.}yahoo{.}com{ENTER}
-    Sleep, 5000 ; Let it to sleep, maybe it will crash ;)
-    
-    WinWaitActive, Yahoo! - Opera,,25
-    if not ErrorLevel
-    {
-        TestsOK++
-        OutputDebug, OK: %Module%:%A_LineNumber%: Window caption is 'Yahoo! - Opera' that means we opened URL.`n
-
-        bContinue := true 
-    }
-    else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: Window 'Yahoo! - Opera' was NOT found. Failed to open URL. Active window caption: '%title%'`n
-        bContinue := false
-    }
-}
+if not bContinue
+    TestsFailed("We failed somewhere in prepare.ahk")
 else
 {
-    TestsFailed++
-    WinGetTitle, title, A
-    OutputDebug, FAILED: %Module%:%A_LineNumber%: Window 'Welcome to Opera - Opera' was NOT found. Active window caption: '%title%'`n
-    bContinue := false
+    WinWaitActive, Welcome to Opera - Opera,, 4 ; Window caption might change?
+    if not ErrorLevel
+    {
+        Sleep, 1000
+        SendInput, {CTRLDOWN}l{CTRLUP} ; Toggle address bar
+        Sleep, 1000
+        SendInput, http{:}//dsx86{.}patrickaalto{.}com{ENTER}
+        Sleep, 5000 ; Let it to sleep, maybe it will crash ;)
+        
+        WinWaitActive, DSx86 by Patrick Aalto - Opera,,15
+        if not ErrorLevel
+            TestsOK("Window caption is 'DSx86 by Patrick Aalto - Opera' that means we opened URL by sending Ctrl+L.")
+        else
+            TestsFailed("Window 'DSx86 by Patrick Aalto - Opera' was NOT found. Failed to open URL. Ctrl+L doesnt work?")
+    }
+    else
+        TestsFailed("Window 'Welcome to Opera - Opera' was NOT found.")
 }
+
+Process, Close, Opera.exe ; Terminate process
