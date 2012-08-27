@@ -33,9 +33,7 @@ IfExist, %ModuleExe%
     {
         FileRemoveDir, C:\ReactOS\Samba-TNG, 1
         if not ErrorLevel
-        {
             bContinue := true
-        }
         else
         {
             OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT delete existing 'C:\ReactOS\Samba-TNG'.`n
@@ -43,14 +41,10 @@ IfExist, %ModuleExe%
         }
     }
     else
-    {
         bContinue := true
-    }
     
     if bContinue
-    {
         Run %ModuleExe%
-    }
 }
 else
 {
@@ -72,30 +66,15 @@ if bContinue
         {
             ControlClick, Button2, 7-Zip self-extracting archive, Extract ; Hit 'Extract' button
             if not ErrorLevel
-            {
-                TestsOK()
-                OutputDebug, OK: %TestName%:%A_LineNumber%: '7-Zip self-extracting archive' window appeared and 'Extract' was clicked.`n
-            }
+                TestsOK("'7-Zip self-extracting archive' window appeared and 'Extract' was clicked.")
             else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Extract' in '7-Zip self-extracting archive' window. Active window caption: '%title%'.`n
-            }
+                TestsFailed("Unable to click 'Extract' in '7-Zip self-extracting archive' window.")
         }
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to change 'Edit1' control text to 'C:\ReactOS'. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to change 'Edit1' control text to 'C:\ReactOS'.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: '7-Zip self-extracting archive' window with 'Extract' button failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'7-Zip self-extracting archive' window with 'Extract' button failed to appear.")
 }
 
 
@@ -109,41 +88,23 @@ if bContinue
         OutputDebug, OK: %TestName%:%A_LineNumber%: 'Extracting' window appeared, waiting for it to close.`n
         WinWaitClose, Extracting, Cancel, 15
         if not ErrorLevel
-        {
-            
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Extracting' window appeared and went away.`n
-        }
+            TestsOK("'Extracting' window appeared and went away.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Extracting' window failed to dissapear. Active window caption: '%title%'.`n
-        }
+            TestsFailed("'Extracting' window failed to close.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Extracting' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'Extracting' window failed to appear.")
 }
 
 
-;Check if program exist
+; Check if program exist
 TestsTotal++
 if bContinue
 {
     Sleep, 2000
     ProgramDir = C:\ReactOS\Samba-TNG
     IfExist, %ProgramDir%
-    {
-        TestsOK()
-        OutputDebug, OK: %TestName%:%A_LineNumber%: The application has been installed, because '%ProgramDir%' was found.`n
-    }
+        TestsOK("The application has been installed, because '" ProgramDir "' was found.")
     else
-    {
-        TestsFailed()
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Something went wrong, can't find '%ProgramDir%'.`n
-    }
+        TestsFailed("Something went wrong, can't find '%ProgramDir%'.")
 }
