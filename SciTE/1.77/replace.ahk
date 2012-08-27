@@ -71,104 +71,45 @@ if not ErrorLevel
                                                     WinClose, %NameExt% - SciTE
                                                     WinWaitClose, %NameExt% - SciTE,,5
                                                     if not ErrorLevel
-                                                    {
-                                                        TestsOK()
-                                                        OutputDebug, OK: %TestName%:%A_LineNumber%: Opened document, replaced some text, saved and closed ScITE successfully.`n
-                                                    }
+                                                        TestsOK("Opened document, replaced some text, saved and closed ScITE successfully.")
                                                     else
-                                                    {
-                                                        TestsFailed()
-                                                        WinGetTitle, title, A
-                                                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to close'%NameExt% - SciTE' window. Active window caption: '%title%'`n
-                                                    }
+                                                        TestsFailed("Unable to close '" NameExt " - SciTE' window.")
                                                 }
                                                 else
-                                                {
-                                                    TestsFailed()
-                                                    WinGetTitle, title, A
-                                                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Keystroke 'Ctrl+S' was sent, '%NameExt% - SciTE' is not active window. Active window caption: '%title%'`n
-                                                }
+                                                    TestsFailed("Keystroke 'Ctrl+S' was sent, '" NameExt " - SciTE' is not active window.")
                                             }
                                             else
-                                            {
-                                                TestsFailed()
-                                                WinGetTitle, title, A
-                                                OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%NameExt% * SciTE' is not active window. Active window caption: '%title%'`n
-                                            }
+                                                TestsFailed("'" NameExt " * SciTE' is not active window.")
                                         }
                                         else
-                                        {
-                                            TestsFailed()
-                                            WinGetTitle, title, A
-                                            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to close 'Replace (Find what)' window. Active window caption: '%title%'`n
-                                        }
+                                            TestsFailed("Unable to close 'Replace (Find what)' window.")
                                     }
                                     else
-                                    {
-                                        TestsFailed()
-                                        WinGetTitle, title, A
-                                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Bad number of 'Replacements': '%OutputVar%'. Active window caption: '%title%'`n
-                                    }
+                                        TestsFailed("Bad number of 'Replacements': '" OutputVar "'.")
                                 }
                                 else
-                                {
-                                    TestsFailed()
-                                    WinGetTitle, title, A
-                                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to get number of 'Replacements' in 'Replace (Find what)' window. Active window caption: '%title%'`n
-                                }
+                                    TestsFailed("Unable to get number of 'Replacements' in 'Replace (Find what)' window.")
                             }
                             else
-                            {
-                                TestsFailed()
-                                WinGetTitle, title, A
-                                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Replace All' button in 'Replace (Find what)' window. Active window caption: '%title%'`n
-                            }
+                                TestsFailed("Unable to hit 'Replace All' button in 'Replace (Find what)' window.")
                         }
                         else
-                        {
-                            TestsFailed()
-                            WinGetTitle, title, A
-                            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to set 'Replace with' to 'Edijs' in 'Replace (Find what)' window. Active window caption: '%title%'`n
-                        }
+                            TestsFailed("Unable to set 'Replace with' to 'Edijs' in 'Replace (Find what)' window.")
                     }
                     else
-                    {
-                        TestsFailed()
-                        WinGetTitle, title, A
-                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to set 'Find what' to 'Egijs' in 'Replace (Find what)' window. Active window caption: '%title%'`n
-                    }
+                        TestsFailed("Unable to set 'Find what' to 'Egijs' in 'Replace (Find what)' window.")
                 }
                 else
-                {
-                    TestsFailed()
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Replace (Find what)' failed to appear. Active window caption: '%title%'`n
-                }
+                    TestsFailed("Window 'Replace (Find what)' failed to appear.")
             }
             else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Search -> Replace' in '%NameExt% - SciTE' window. Active window caption: '%title%'`n
-            }
+                TestsFailed("Unable to hit 'Search -> Replace' in '" NameExt " - SciTE' window.")
         }
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window '%NameExt% - SciTE' failed to appear. Active window caption: '%title%'`n
-        }
+            TestsFailed("Window '" NameExt " - SciTE' failed to appear.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: We failed somewhere in prepare.ahk. Active window caption: '%title%'`n
-    }
+        TestsFailed("We failed somewhere in prepare.ahk.")
 }
 else
-{
-    TestsFailed()
-    WinGetTitle, title, A
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to create '%szDocument%'. Active window caption: '%title%'`n
-}
+    TestsFailed("Unable to create '" szDocument "'.")

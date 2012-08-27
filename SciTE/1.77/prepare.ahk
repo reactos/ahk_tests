@@ -76,13 +76,9 @@ RunApplication(PathToFile)
                 }
             }
             else
-            {
                 OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%PathToFile%'.`n
-            }
         }
     }
     else
-    {
         OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%ModuleExe%'.`n
-    }
 }
