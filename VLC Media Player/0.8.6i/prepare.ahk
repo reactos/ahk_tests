@@ -45,6 +45,7 @@ RunApplication(PathToFile)
 {
     global ModuleExe
     global TestName
+    global bContinue
 
     Sleep, 500
     FileRemoveDir, %A_AppData%\vlc, 1 ; Delete saved settings
@@ -57,6 +58,7 @@ RunApplication(PathToFile)
             WinWaitActive, VLC media player,,7
             if not ErrorLevel
             {
+                bContinue := true
                 Sleep, 1000
             }
             else
@@ -74,6 +76,7 @@ RunApplication(PathToFile)
                 WinWaitActive, VLC media player,,7 ; FIXME: is there a way to show filename in titlebar?
                 if not ErrorLevel
                 {
+                    bContinue := true
                     Sleep, 1000
                 }
                 else
@@ -83,13 +86,9 @@ RunApplication(PathToFile)
                 }
             }
             else
-            {
                 OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%PathToFile%'.`n
-            }
         }
     }
     else
-    {
         OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%ModuleExe%'.`n
-    }
 }

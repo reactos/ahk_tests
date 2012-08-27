@@ -106,26 +106,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button1, Installer Language, Please select
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installer Language (Please select)' window appeared and 'OK' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'Installer Language (Please select)' window appeared and 'OK' was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'OK' in 'Installer Language (Please select)' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to hit 'OK' in 'Installer Language (Please select)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Installer Language (Please select)' window failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'Installer Language (Please select)' window failed to appear.")
 }
 
 
@@ -139,23 +125,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button2, VideoLAN VLC media player 0.8.6i Setup, Welcome ; Hit 'Next' button
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'VideoLAN VLC media player 0.8.6i Setup (Welcome)' window appeared and 'Next' was clicked.`n
-        }
+            TestsOK("'VideoLAN VLC media player 0.8.6i Setup (Welcome)' window appeared and 'Next' was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'VideoLAN VLC media player 0.8.6i Setup (Welcome)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Next' button in 'VideoLAN VLC media player 0.8.6i Setup (Welcome)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'VideoLAN VLC media player 0.8.6i Setup (Welcome)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'VideoLAN VLC media player 0.8.6i Setup (Welcome)' window failed to appear.")
 }
 
 
@@ -169,23 +144,12 @@ if bContinue
         Sleep, 500
         ControlClick, Button2, VideoLAN VLC media player 0.8.6i Setup, License Agreement ; Hit 'I Agree' button
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'VideoLAN VLC media player 0.8.6i Setup (License Agreement)' window appeared and 'I Agree' was clicked.`n
-        }
+            TestsOK("'VideoLAN VLC media player 0.8.6i Setup (License Agreement)' window appeared and 'I Agree' button was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'I Agree' button in 'VideoLAN VLC media player 0.8.6i Setup (License Agreement)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'I Agree' button in 'VideoLAN VLC media player 0.8.6i Setup (License Agreement)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'VideoLAN VLC media player 0.8.6i Setup (License Agreement)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'VideoLAN VLC media player 0.8.6i Setup (License Agreement)' window failed to appear.")
 }
 
 
@@ -199,23 +163,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button2, VideoLAN VLC media player 0.8.6i Setup, Choose Components ; Hit 'Next' button
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'VideoLAN VLC media player 0.8.6i Setup (Choose Components)' window appeared and 'Next' was clicked.`n
-        }
+            TestsOK("'VideoLAN VLC media player 0.8.6i Setup (Choose Components)' window appeared and 'Next' was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'VideoLAN VLC media player 0.8.6i Setup (Choose Components)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Next' button in 'VideoLAN VLC media player 0.8.6i Setup (Choose Components)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'VideoLAN VLC media player 0.8.6i Setup (Choose Components)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'VideoLAN VLC media player 0.8.6i Setup (Choose Components)' window failed to appear.")
 }
 
 
@@ -229,23 +182,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button2, VideoLAN VLC media player 0.8.6i Setup, Choose Install Location ; Hit 'Install' button
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'VideoLAN VLC media player 0.8.6i Setup (Choose Install Location)' window appeared and 'Install' was clicked.`n
-        }
+            TestsOK("'VideoLAN VLC media player 0.8.6i Setup (Choose Install Location)' window appeared and 'Install' was clicked.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Install' button in 'VideoLAN VLC media player 0.8.6i Setup (Choose Install Location)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to hit 'Install' button in 'VideoLAN VLC media player 0.8.6i Setup (Choose Install Location)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'VideoLAN VLC media player 0.8.6i Setup (Choose Install Location)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'VideoLAN VLC media player 0.8.6i Setup (Choose Install Location)' window failed to appear.")
 }
 
 
@@ -259,23 +201,12 @@ if bContinue
         OutputDebug, OK: %TestName%:%A_LineNumber%: 'VideoLAN VLC media player 0.8.6i Setup (Installing)' window appeared, waiting for it to close.`n
         WinWaitClose, VideoLAN VLC media player 0.8.6i Setup, Installing, 60
         if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'VideoLAN VLC media player 0.8.6i Setup (Installing)' window went away.`n
-        }
+            TestsOK("'VideoLAN VLC media player 0.8.6i Setup (Installing)' window went away.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'VideoLAN VLC media player 0.8.6i Setup (Installing)' window failed to close. Active window caption: '%title%'.`n
-        }
+            TestsFailed("'VideoLAN VLC media player 0.8.6i Setup (Installing)' window failed to close.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'VideoLAN VLC media player 0.8.6i Setup (Installing)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'VideoLAN VLC media player 0.8.6i Setup (Installing)' window failed to appear.")
 }
 
 
@@ -293,34 +224,28 @@ if bContinue
             ControlClick, Button2, VideoLAN VLC media player 0.8.6i Setup, Completing ; Hit 'Finish' button
             if not ErrorLevel
             {
-                TestsOK()
-                OutputDebug, OK: %TestName%:%A_LineNumber%: 'VideoLAN VLC media player 0.8.6i Setup (Completing)' window appeared, 'Run VLC' were unchecked and 'Finish' was clicked.`n
-                Process, Close, vlc.exe ; Just in case
+                Process, wait, vlc.exe, 5.5
+                NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                if NewPID = 0
+                    TestsOK("'VideoLAN VLC media player 0.8.6i Setup (Completing)' window appeared, 'Run VLC' were unchecked for sure and 'Finish' was clicked.")
+                else
+                {
+                    TestsFailed("Checkbox 'Run VLC' reported as checked in 'VideoLAN VLC media player 0.8.6i Setup (Completing)' window but 'vlc.ex' process still appeared.")
+                    Process, Close, vlc.exe
+                }
             }
             else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Finish' button in 'VideoLAN VLC media player 0.8.6i Setup (Completing)' window. Active window caption: '%title%'.`n
-            }
+                TestsFailed("Unable to hit 'Finish' button in 'VideoLAN VLC media player 0.8.6i Setup (Completing)' window.")
         }
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to uncheck 'Run VLC' checkbox in 'VideoLAN VLC media player 0.8.6i Setup (Completing)' window. Active window caption: '%title%'.`n
-        }
+            TestsFailed("Unable to uncheck 'Run VLC' checkbox in 'VideoLAN VLC media player 0.8.6i Setup (Completing)' window.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'VideoLAN VLC media player 0.8.6i Setup (Completing)' window failed to appear. Active window caption: '%title%'.`n
-    }
+        TestsFailed("'VideoLAN VLC media player 0.8.6i Setup (Completing)' window failed to appear.")
 }
 
 
-;Check if program exists in program files
+; Check if program exists in program files
 TestsTotal++
 if bContinue
 {
@@ -330,20 +255,10 @@ if bContinue
     {
         StringReplace, UninstallString, UninstallString, `",, All
         IfExist, %UninstallString%
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: The application has been installed, because '%UninstallString%' was found.`n
-        }
+            TestsOK("The application has been installed, because '" UninstallString "' was found.")
         else
-        {
-            TestsFailed()
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Something went wrong, can't find '%UninstallString%'.`n
-        }
+            TestsFailed("Something went wrong, can't find '" UninstallString "'.")
     }
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Either we can't read from registry or data doesn't exist. Active window caption: '%title%'.`n
-    }
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
 }
