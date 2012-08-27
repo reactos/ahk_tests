@@ -115,26 +115,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button2, WinRAR 3.80, Install
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'WinRAR 3.80' window appeared and 'Install' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'WinRAR 3.80' window appeared and 'Install' was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Install'. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to click 'Install' button in 'WinRAR 3.80 (Install)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'WinRAR 3.80' window with 'Install' button failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'WinRAR 3.80' window with 'Install' button failed to appear.")
 }
 
 
@@ -148,26 +134,12 @@ if bContinue
         Sleep, 250
         ControlClick, Button27, WinRAR Setup, Shell integration
         if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Shell integration' window appeared and 'OK' was clicked.`n
-            bContinue := true
-        }
+            TestsOK("'WinRAR Setup (Shell integration)' window appeared and 'OK' was clicked.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'OK' in 'Shell integration' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to click 'OK' in 'WinRAR Setup (Shell integration)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'WinRAR Setup' window with 'Shell integration' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'WinRAR Setup (Shell integration)' window failed to appear.")
 }
 
 
@@ -182,34 +154,22 @@ if bContinue
         ControlClick, Button1, WinRAR Setup, WinRAR has been successfully
         if not ErrorLevel
         {
-            ; Close explorer window
+            ; WinRAR will open explorer window, close it
             WinWaitActive, ahk_class CabinetWClass,, 15
             {
                 WinClose
             }
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'WinRAR has been successfully' window appeared and 'Done' was clicked.`n
-            bContinue := true
+            TestsOK("'WinRAR Setup (WinRAR has been successfully)' window appeared and 'Done' was clicked.")
         }
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Done' in 'WinRAR has been successfully' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
+            TestsFailed("Unable to click 'Done' button in 'WinRAR Setup (WinRAR has been successfully)' window.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'WinRAR Setup' window with 'WinRAR has been successfully' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("'WinRAR Setup (WinRAR has been successfully)' window failed to appear.")
 }
 
 
-;Check if program exists in program files
+; Check if program exists
 TestsTotal++
 if bContinue
 {
@@ -218,23 +178,10 @@ if bContinue
     if not ErrorLevel
     {
         IfExist, %UninstallerPath%
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: The application has been installed, because '%UninstallerPath%' was found.`n
-            bContinue := true
-        }
+            TestsOK("The application has been installed, because '" UninstallerPath "' was found.")
         else
-        {
-            TestsFailed++
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Something went wrong, can't find '%UninstallerPath%'.`n
-            bContinue := false
-        }
+            TestsFailed("Something went wrong, can't find '" UninstallerPath "'.")
     }
     else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Either we can't read from registry or data doesn't exist. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
 }

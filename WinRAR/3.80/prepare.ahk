@@ -47,6 +47,7 @@ RunApplication(PathToFile)
 {
     global ModuleExe
     global TestName
+    global bContinue
 
     Sleep, 500
     RegDelete, HKEY_CURRENT_USER, SOFTWARE\WinRAR
@@ -61,6 +62,7 @@ RunApplication(PathToFile)
             WinWaitActive, WinRAR - WinRAR (evaluation copy),,7
             if not ErrorLevel
             {
+                bContinue := true
                 Sleep, 1000
             }
             else
@@ -79,6 +81,7 @@ RunApplication(PathToFile)
                 WinWaitActive, %NameExt% - WinRAR (evaluation copy),,7
                 if not ErrorLevel
                 {
+                    bContinue := true
                     Sleep, 1000
                 }
                 else
@@ -88,15 +91,11 @@ RunApplication(PathToFile)
                 }
             }
             else
-            {
                 OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%PathToFile%'.`n
-            }
         }
     }
     else
-    {
         OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%ModuleExe%'.`n
-    }
 }
 
 WinRARIntegration()
@@ -110,6 +109,7 @@ WinRARIntegration()
         ControlClick, Button27, Settings, Integration ; Hit 'OK' button
         if not ErrorLevel
         {
+            bContinue := true
         }
         else
         {
