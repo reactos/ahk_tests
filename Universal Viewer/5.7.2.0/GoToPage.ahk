@@ -50,7 +50,7 @@ if bContinue
                         TestsFailed("The search image '" SearchImg "' could NOT be found on the screen (resolution not 800x600?).")
                     else
                     {
-                        SendInput, {Alt}f ; Close document. WinMenuSelectItem doesn't work here
+                        SendInput, {Alt}f ; Close document. WinMenuSelectItem doesn't work here. Don't use '!f' either, because it fails on Windows
                         Sleep, 500
                         SendInput, c
                         WinWaitActive, Universal Viewer, File not loaded, 5
