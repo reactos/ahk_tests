@@ -25,43 +25,45 @@ szDocument =  C:\NotepadTestFile.ini ; Case sensitive!
 
 FileDelete, %szDocument%
 FileAppend, This text`nwill contain some`nlines. We will use`nit to test dialogs., %szDocument%
-if not ErrorLevel
+if ErrorLevel
+    TestsFailed("Failed to create '" szDocument "'.")
+else
 {
     RunNotepad(szDocument)
-    IfWinActive, %szDocument% - Notepad++
+    IfWinNotActive, %szDocument% - Notepad++
+        TestsFailed("Window '" szDocument " - Notepad++' is not active.")
+    else
     {
         SendInput, {CTRLDOWN}f{CTRLUP} ; Call dialog using Ctrl+F
         WinWaitActive, Find,, 5
-        if not ErrorLevel
+        if ErrorLevel
         {
-            TestFindDialog()
-            if bContinue
-                TestsOK("")
-        }
-        else
-        {
+            Sleep, 700
             WinGetTitle, title, A
             OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Find' failed to appear, so Ctrl+F doesn't work, bug #6734. Active window caption: '%title%'`n
             
             ; Check if can open 'Find' from main menu
             SendInput, {ALTDOWN}s ; Hit 'Search'
             SendInput, f ; Hit 'Find'
+            Sleep, 500
             WinWaitActive, Find,,5
-            if not ErrorLevel
+            if ErrorLevel
+                TestsFailed("Can't open 'Find' from main menu")
+            else
             {
                 TestFindDialog()
                 if bContinue
                     TestsOK("")
             }
-            else
-                TestsFailed("Can't open 'Find' from main menu")
+        }
+        else
+        {
+            TestFindDialog()
+            if bContinue
+                TestsOK("")
         }
     }
-    else
-        TestsFailed("Window '" szDocument " - Notepad++' is not active.")
 }
-else
-    TestsFailed("Failed to create '" szDocument "'.")
 
 TestFindDialog()
 {
@@ -70,16 +72,16 @@ TestFindDialog()
 
     IfWinActive, Find
     {
-        SendInput, {ALTDOWN}f{ALTUP} ; Go to 'Find what'
+        Sleep, 700
+        SendInput, !f ; Go to 'Find what'
         SendInput, some ; He have such word in that document
-        SendInput, {ALTDOWN}t{ALTUP} ; Hit 'Count'
+        SendInput, !t ; Hit 'Count'
+        Sleep, 700
         WinWaitActive, Count, 1 match, 5 ; We have only 1 match
-        if not ErrorLevel
-        {
-            bContinue := true
-        }
-        else
+        if ErrorLevel
             TestsFailed("Can't find a match.")
+        else
+            bContinue := true
     }
 }
 

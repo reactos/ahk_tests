@@ -31,43 +31,54 @@ RunNotepad(PathToFile)
     global ModuleExe
     global TestName
     global bContinue
+    global TestsTotal
+    
+    TestsTotal++
 
     Sleep, 500
-    IfExist, %ModuleExe%
-    {
-        if PathToFile =
-        {
-            Run, %ModuleExe%,, Max ; Start maximized
-            Sleep, 1000
-            WinWaitActive, new  1 - Notepad++,,7
-            if not ErrorLevel
-            {
-                Sleep, 1000
-                bContinue := true
-            }
-            else
-            {
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'new  1 - Notepad++' failed to appear. Active window caption: '%title%'`n
-            }
-        }
+    IfNotExist, %ModuleExe%
+        TestsFailed("Can NOT find '" ModuleExe "'.")
+    else
+    { 
+        Process, Close, notepad++.exe ; Teminate process
+        FileRemoveDir, %A_AppData%\Notepad++, 1
+        FileCreateDir, %A_AppData%\Notepad++
+        IfNotExist, %A_WorkingDir%\Media\Notepadpp_config.xml
+            TestsFailed("Can NOT find '" A_WorkingDir "\Media\Notepadpp_config.xml'.")
         else
         {
-            Run, %ModuleExe% %PathToFile%,, Max
-            Sleep, 1000
-            WinWaitActive, %PathToFile% - Notepad++,,7
-            if not ErrorLevel
-            {
-                Sleep, 1000
-                bContinue := true
-            }
+            FileCopy, %A_WorkingDir%\Media\Notepadpp_config.xml, %A_AppData%\Notepad++\config.xml
+            if ErrorLevel <> 0
+                TestsFailed("Unable to copy '" A_WorkingDir "\Media\Notepadpp_config.xml' to '" A_AppData "\Notepad++\config.xml'.")
             else
             {
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window '%PathToFile% - Notepad++' failed to appear. Active window caption: '%title%'`n
+                if PathToFile =
+                {
+                    Run, %ModuleExe%,, Max ; Start maximized
+                    Sleep, 1000
+                    WinWaitActive, new  1 - Notepad++,,10
+                    if ErrorLevel
+                        TestsFailed("Window 'new  1 - Notepad++' failed to appear.")
+                    else
+                    {
+                        Sleep, 1000
+                        TestsOK("")
+                    }
+                }
+                else
+                {
+                    Run, %ModuleExe% %PathToFile%,, Max
+                    Sleep, 1000
+                    WinWaitActive, %PathToFile% - Notepad++,,10
+                    if ErrorLevel
+                        TestsFailed("Window '" PathToFile " - Notepad++' failed to appear.")
+                    else
+                    {
+                        Sleep, 1000
+                        TestsOK("")
+                    }
+                }
             }
         }
     }
-    else
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%ModuleExe%'.`n
 }

@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-SetupExe = %A_WorkingDir%\Apps\Notepad++_6.1.2_Setup.exe
+ModuleExe = %A_WorkingDir%\Apps\Notepad++_6.1.2_Setup.exe
 bContinue := false
 TestName = 1.install
 
@@ -26,30 +26,85 @@ TestsOK := 0
 TestsTotal := 0
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
-IfExist, %SetupExe%
+TestsTotal++
+IfNotExist, %ModuleExe%
+    TestsFailed("'" ModuleExe "' not found.")
+else
 {
+    Process, Close, Notepad++.exe ; Teminate process
+    Sleep, 2000
+    Process, Exist, Notepad++.exe
+    if ErrorLevel <> 0
+        TestsFailed("Unable to terminate 'Notepad++.exe' process.") ; So, process still exists
+    else
+    {
+        Process, Close, explorer.exe ; Terminate explorer.exe before unregistering shell extension and uninstalling
+        Sleep, 3500
+        RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Notepad++, UninstallString
+        if not ErrorLevel
+        {
+            SplitPath, UninstallerPath,, InstalledDir
+            IfNotExist, %InstalledDir%
+                bContinue := true
+            else
+            {
+                Run, regsvr32 /s /u "%InstalledDir%\NppShell_04.dll"
+                IfExist, %UninstallerPath%
+                {
+                    RunWait, %UninstallerPath% /S ; Silently uninstall it
+                    Sleep, 2500
+                }
+                
+                ; Uninstaller was not found, but dir it should be in - exist, so, delete it
+                FileRemoveDir, %InstalledDir%, 1
+                if ErrorLevel
+                    TestsFailed("Unable to delete existing '" InstalledDir "' ('Notepad++.exe' process is reported as terminated).")
+                else
+                    bContinue := true
+            }
+        }
+        else
+        {
+            ; There was a problem (such as a nonexistent key or value). 
+            ; That probably means we have not installed this app before.
+            ; Check in default directory to be extra sure
+            IfNotExist, %A_ProgramFiles%\Notepad++
+                bContinue := true ; No previous versions detected in hardcoded path
+            else
+            {
+                Run, regsvr32 /s /u "%A_ProgramFiles%\NppShell_04.dll"
+                IfExist, %A_ProgramFiles%\Notepad++\uninstall.exe
+                {
+                    RunWait, %A_ProgramFiles%\Notepad++\uninstall.exe /S ; Silently uninstall it
+                    Sleep, 2500
+                }
 
-    ; Get rid of other versions
-    IfExist, %A_ProgramFiles%\Notepad++
+                FileRemoveDir, %A_ProgramFiles%\Notepad++, 1
+                if ErrorLevel
+                    TestsFailed("Unable to delete existing '" A_ProgramFiles "\Notepad++' ('notepad++.exe' process is reported as terminated).'")
+                else
+                    bContinue := true
+            }
+        }
+    }
+
+    if bContinue
     {
         RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Notepad++
         RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Notepad++
-        FileRemoveDir, %A_ProgramFiles%\Notepad++, 1
-        Sleep, 1000
-        IfExist, %A_ProgramFiles%\Notepad++
+        IfExist, %A_AppData%\Notepad++
         {
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to delete '%A_ProgramFiles%\Notepad++'.`n
-            bContinue := false
+            FileRemoveDir, %A_AppData%\Notepad++, 1
+            if ErrorLevel
+                TestsFailed("Unable to delete '" A_AppData "\Notepad++'.")
+        }
+
+        if bContinue
+        {
+            TestsOK("Either there was no previous versions or we succeeded removing it.")
+            Run %ModuleExe%
         }
     }
-    Run %SetupExe%
-    bContinue := true
-
-}
-else
-{
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%SetupExe%' not found.`n
-    bContinue := false
 }
 
 
@@ -57,15 +112,22 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Installer Language, Please select a language, 15 ; Wait 15 secs for window to appear
-    if not ErrorLevel ;Window is found and it is active
-    {
-        Sleep, 1000
-        SendInput, {ENTER} ; Hit 'OK' button
-        TestsOK("'Installer Language' window appeared and 'OK' button was clicked (Sent 'ENTER' to window).")
-    }
+    WinWait, Installer Language, Please select a language, 15
+    if ErrorLevel
+        TestsFailed("'Installer Language (Please select a language)' - there is no such window.")
     else
-        TestsFailed("'Installer Language (Please select a language)' window failed to appear.")
+    {
+        WinActivate, Installer Language, Please select a language ; Bring the window to front
+        WinWaitActive, Installer Language, Please select a language, 5 ; Wait 5 secs for window to appear
+        if ErrorLevel ; Window is found and it is active
+            TestsFailed("'Installer Language (Please select a language)' window exist, but it is not an active.")
+        else
+        {
+            Sleep, 1000
+            SendInput, {ENTER} ; Hit 'OK' button
+            TestsOK("'Installer Language' window appeared and 'OK' button was clicked (Sent 'ENTER' to window).")
+        }
+    }
 }
 
 
@@ -75,14 +137,14 @@ if bContinue
 {
     SetTitleMatchMode, 1
     WinWaitActive, Notepad, Welcome to the Notepad, 15
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'Notepad++ v6.1.2 Setup (Welcome to the Notepad++ v 6.1.2 Setup)' window failed to appear.")
+    else
     {
         Sleep, 700
         SendInput, !n ; Hit 'Next' button
         TestsOK("'Notepad++ v6.1.2 Setup (Welcome to the Notepad++ v 6.1.2 Setup)' window appeared, Alt+N sent.")
     }
-    else
-        TestsFailed("'Notepad++ v6.1.2 Setup (Welcome to the Notepad++ v 6.1.2 Setup)' window failed to appear.")
 }
 
 
@@ -90,16 +152,15 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    SetTitleMatchMode, 1
     WinWaitActive, Notepad, License Agreement, 5
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'Notepad++ v6.1.2 Setup (License Agreement)' window failed to appear.")
+    else
     {
         Sleep, 700
         SendInput, !a ; Hit 'I Agree' button
         TestsOK("'Notepad++ v6.1.2 Setup (License Agreement)' window appeared and Alt+A was sent.`")
     }
-    else
-        TestsFailed("'Notepad++ v6.1.2 Setup (License Agreement)' window failed to appear.")
 }
 
 
@@ -107,16 +168,15 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    SetTitleMatchMode, 1
     WinWaitActive, Notepad, Choose Install Location, 5
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'Notepad++ v6.1.2 Setup (Choose Install Location)' window failed to appear.")
+    else
     {
         Sleep, 700
         SendInput, !n ; Hit 'Next' button
         TestsOK("'Notepad++ v6.1.2 Setup (Choose Install Location)' window appeared and Alt+N was sent.")
     }
-    else
-        TestsFailed("'Notepad++ v6.1.2 Setup (Choose Install Location)' window failed to appear.")
 }
 
 
@@ -124,16 +184,15 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    SetTitleMatchMode, 1
     WinWaitActive, Notepad, Check the components, 5
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'Notepad++ v6.1.2 Setup (Check the components)' window failed to appear.")
+    else
     {
         Sleep, 700
         SendInput, !n ; Hit 'Next' button
         TestsOK("'Notepad++ v6.1.2 Setup (Check the components)' window appeared and Alt+N was sent.")
     }
-    else
-        TestsFailed("'Notepad++ v6.1.2 Setup (Check the components)' window failed to appear.")
 }
 
 
@@ -141,28 +200,28 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    SetTitleMatchMode, 1
     WinWaitActive, Notepad, Create Shortcut on Desktop, 5
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'Notepad++ v6.1.2 Setup (Create Shortcut on Desktop)' window failed to appear.")
+    else
     {
         Sleep, 700
         Control, Check, , Button5, Notepad ; Check 'Allow plugins'
-        if not ErrorLevel
+        if ErrorLevel
+            TestsFailed("Unable to check 'Allow plugins' checkbox in 'Notepad++ v6.1.2 Setup (Create Shortcut on Desktop)' window.")
+        else
         {
             Control, Check, , Button6, Notepad ; Check 'Create Shortcut'
-            if not ErrorLevel
+            if ErrorLevel
+                TestsFailed("Unable to check 'Create Shortcut' checkbox in 'Notepad++ v6.1.2 Setup (Create Shortcut on Desktop)' window.")
+            else
             {
+                Sleep, 700
                 SendInput, !i ; Hit 'Install' button
                 TestsOK("'Notepad++ v6.1.2 Setup (Create Shortcut on Desktop)' window appeared, 'Allow plugins', 'Create Shortcut' checkboxes were checked and Alt+I was sent.")
             }
-            else
-                TestsFailed("Unable to check 'Create Shortcut' checkbox in 'Notepad++ v6.1.2 Setup (Create Shortcut on Desktop)' window.")
         }
-        else
-            TestsFailed("Unable to check 'Allow plugins' checkbox in 'Notepad++ v6.1.2 Setup (Create Shortcut on Desktop)' window.")
     }
-    else
-        TestsFailed("'Notepad++ v6.1.2 Setup (Create Shortcut on Desktop)' window failed to appear.")
 }
 
 ; Test if can get thru 'Installing' window
@@ -170,19 +229,17 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Notepad, Installing, 7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'Notepad++ v6.1.2 Setup (Installing)' window failed to appear.")
+    else
     {
         OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installing' window appeared, waiting for it to close.`n
         WinWaitClose, Notepad, Installing, 25
-        if not ErrorLevel
-        {
-            TestsOK("'Notepad++ v6.1.2 Setup (Installing)' went away.")
-        }
-        else
+        if ErrorLevel
             TestsFailed("'Notepad++ v6.1.2 Setup (Installing)' window failed to dissapear.")
+        else
+            TestsOK("'Notepad++ v6.1.2 Setup (Installing)' went away.")
     }
-    else
-        TestsFailed("'Notepad++ v6.1.2 Setup (Installing)' window failed to appear.")
 }
 
 
@@ -190,28 +247,46 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    SetTitleMatchMode, 1
     WinWaitActive, Notepad, Completing, 5
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'Notepad++ v6.1.2 Setup (Completing)' window failed to appear.")
+    else
     {
         Sleep, 700
         SendInput, !r ; Uncheck 'Run Notepad'
         Sleep, 1000
         SendInput, !f ; Hit 'Finish' button
-        TestsOK("'Notepad++ v6.1.2 Setup (Completing)' window appeared, Alt+R and Alt+F were sent.")
+        WinWaitClose, Notepad, Completing, 10
+        if ErrorLevel
+            TestsFailed("'Notepad++ v6.1.2 Setup (Completing)' window failed to close despite Alt+F was sent.")
+        else
+        {
+            Process, Wait, notepad++.exe, 4
+            NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+            if NewPID <> 0
+            {
+                TestsFailed("Process 'notepad++.exe' appeared despite Alt+R was sent to setup window.")
+                Process, Close, notepad++.exe
+            }
+            else
+                TestsOK("'Notepad++ v6.1.2 Setup (Completing)' window appeared, Alt+R and Alt+F were sent and window closed.")
+        }
     }
-    else
-        TestsFailed("'Notepad++ v6.1.2 Setup (Completing)' window failed to appear.")
 }
 
 ; Check if program exists
 TestsTotal++
 if bContinue
 {
-    Sleep, 700
-    AppExe = %A_ProgramFiles%\Notepad++\notepad++.exe
-    IfExist, %AppExe%
-        TestsOK("Should be installed, because '" AppExe "' was found.")
+    Sleep, 2000
+    RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Notepad++, UninstallString
+    if ErrorLevel
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
     else
-        TestsFailed("Can NOT find '" AppExe "'.")
+    {
+        IfNotExist, %UninstallerPath%
+            TestsFailed("Something went wrong, can't find '" UninstallerPath "'.")
+        else
+            TestsOK("The application has been installed, because '" UninstallerPath "' was found.")
+    }
 }

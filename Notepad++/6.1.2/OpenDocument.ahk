@@ -23,48 +23,48 @@ TestName = 3.OpenDocument
 szDocument =  %A_Desktop%\Notepad++Test.txt ; Case sensitive!
 
 FileAppend, One line.`nLine two`nLine 3, %szDocument%
-if not ErrorLevel
+if ErrorLevel
+    TestsFailed("Failed to create '" szDocument "'.")
+else
 {
     RunNotepad(szDocument)
     if not bContinue
         TestsFailed("We failed somewhere in prepare.ahk.")
     else
     {
-        IfWinActive, %szDocument% - Notepad++
+        IfWinNotActive, %szDocument% - Notepad++
+            TestsFailed("Window '" szDocument " - Notepad++' is not active.")
+        else
         {
             Sleep, 700
             SendInput, {CTRLDOWN}a{CTRLUP}{BACKSPACE}New text.
             WinWaitActive, *%szDocument% - Notepad++,, 5 ; We were able to change text
-            if not ErrorLevel
+            if ErrorLevel
+                TestsFailed("Failed to change text.")
+            else
             {
                 SendInput, {CTRLDOWN}s{CTRLUP}
                 WinWaitActive, %szDocument% - Notepad++,, 5 ; We were able to save
-                if not ErrorLevel
+                if ErrorLevel
+                    TestsFailed("Failed to save.")
+                else
                 {
                     WinClose, %szDocument% - Notepad++,, 5 
-                    if not ErrorLevel
+                    if ErrorLevel
+                        TestsFailed("Failed to close '" szDocument " - Notepad++' window.")
+                    else
                     {
                         iLines := FileCountLines(szDocument)
-                        if iLines = 1
+                        if iLines <> 1
+                            TestsFailed("For some reason number of lines is wrong! Is '" iLines "' and should be '1'.")
+                        else
                         {
                             TestsOK("")
                             FileDelete, %szDocument%
                         }
-                        else
-                            TestsFailed("For some reason number of lines is wrong! Is '" iLines "' and should be 1.")
                     }
-                    else
-                        TestsFailed("Failed to close '" szDocument " - Notepad++' window.")
                 }
-                else
-                    TestsFailed("Failed to save.")
             }
-            else
-                TestsFailed("Failed to change text.")
         }
-        else
-            TestsFailed("Window '" szDocument " - Notepad++' is not active.")
     }
 }
-else
-    TestsFailed("Failed to create '" szDocument "'.")
