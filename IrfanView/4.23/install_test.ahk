@@ -25,73 +25,106 @@ TestsFailed := 0
 TestsOK := 0
 TestsTotal := 0
 
+
+
 ; Test if Setup file exists, if so, delete installed files, and run Setup
-IfExist, %ModuleExe%
+TestsTotal++
+IfNotExist, %ModuleExe%
+    TestsFailed("'" ModuleExe "' not found.")
+else
 {
-    ; Get rid of other versions
-    RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\IrfanView, UninstallString
-    if not ErrorLevel
+    Process, Close, i_view32.exe ; Teminate process
+    Sleep, 2000
+    Process, Exist, i_view32.exe
+    if ErrorLevel <> 0
+        TestsFailed("Unable to terminate 'i_view32.exe' process.") ; So, process still exists
+    else
     {
-        Process, Close, i_view32.exe ; Teminate process
-        FileRemoveDir, %A_AppData%\IrfanView, 1
-        Sleep, 1500
-        StringReplace, UninstallerPath, UninstallerPath, `",, All
-        SplitPath, UninstallerPath,, InstallLocation
-        RunWait, %UninstallerPath% /silent ; Silently uninstall it
-        Sleep, 2500
-        ; Delete everything just in case
-        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\IrfanView
-        FileRemoveDir, %InstallLocation%, 1
-        Sleep, 1000
-        IfExist, %InstallLocation%
+        RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\IrfanView, UninstallString
+        if not ErrorLevel
         {
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to delete '%InstallLocation%'.`n
-            bContinue := false
+            SplitPath, UninstallerPath,, InstalledDir
+            IfNotExist, %InstalledDir%
+                bContinue := true
+            else
+            {
+                IfExist, %UninstallerPath%
+                {
+                    RunWait, %UninstallerPath% /silent ; Silently uninstall it
+                    Sleep, 2500
+                }
+                
+                ; Uninstaller was not found, but dir it should be in - exist, so, delete it
+                FileRemoveDir, %InstalledDir%, 1
+                if ErrorLevel
+                    TestsFailed("Unable to delete existing '" InstalledDir "' ('i_view32.exe' process is reported as terminated).")
+                else
+                    bContinue := true
+            }
         }
         else
         {
-            bContinue := true
+            ; There was a problem (such as a nonexistent key or value). 
+            ; That probably means we have not installed this app before.
+            ; Check in default directory to be extra sure
+            IfNotExist, %A_ProgramFiles%\IrfanView
+                bContinue := true ; No previous versions detected in hardcoded path
+            else
+            {
+                IfExist, %A_ProgramFiles%\IrfanView\iv_uninstall.exe
+                {
+                    RunWait, %A_ProgramFiles%\IrfanView\iv_uninstall.exe /silent ; Silently uninstall it
+                    Sleep, 2500
+                }
+
+                FileRemoveDir, %A_ProgramFiles%\IrfanView, 1
+                if ErrorLevel
+                    TestsFailed("Unable to delete existing '" A_ProgramFiles "\IrfanView' ('IrfanView.exe' process is reported as terminated).'")
+                else
+                    bContinue := true
+            }
+        }
+    }
+
+    if bContinue
+    {
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\IrfanView
+        IfExist, %A_AppData%\IrfanView
+        {
+            FileRemoveDir, %A_AppData%\IrfanView, 1
+            if ErrorLevel
+                TestsFailed("Unable to delete '" A_AppData "\IrfanView'.")
+        }
+
+        if bContinue
+        {
+            TestsOK("Either there was no previous versions or we succeeded removing it.")
+            Run %ModuleExe%
+        }
+    }
+}
+
+
+; Check if required MFC42.DLL is installed (Win2k3 SP2 comes with it already)
+TestsTotal++
+if bContinue
+{
+    mfc42 = %A_WinDir%\System32\mfc42.dll
+    IfNotExist, %mfc42%
+    {
+        IfNotExist, %A_WorkingDir%\mfc42.dll
+            TestsFailed("Neither '" mfc42 "' nor '" A_WorkingDir "\mfc42.dll can be found'.")
+        else
+        {
+            FileCopy, %A_WorkingDir%\mfc42.dll, %mfc42%
+            if ErrorLevel
+                TestsFailed("Unable to copy '" %A_WorkingDir% "\mfc42.dll' to '" mfc42 "'.")
+            else
+                TestsOK("Had to copy '" %A_WorkingDir% "\mfc42.dll' to '" mfc42 "'.")
         }
     }
     else
-    {
-        ; There was a problem (such as a nonexistent key or value). 
-        ; That probably means we have not installed this app before.
-        ; Check in default directory to be extra sure
-        IfExist, %A_ProgramFiles%\IrfanView\iv_uninstall.exe
-        {
-            Process, Close, i_view32.exe ; Teminate process
-            FileRemoveDir, %A_AppData%\IrfanView, 1
-            Sleep, 1500
-            RunWait, %A_ProgramFiles%\IrfanView\iv_uninstall.exe /silent ; Silently uninstall it
-            Sleep, 2500
-            FileRemoveDir, %A_ProgramFiles%\IrfanView, 1
-            Sleep, 1000
-            IfExist, %A_ProgramFiles%\IrfanView
-            {
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Previous version detected and failed to delete '%A_ProgramFiles%\IrfanView'.`n
-                bContinue := false
-            }
-            else
-            {
-                bContinue := true
-            }
-        }
-        else
-        {
-            ; No previous versions detected.
-            bContinue := true
-        }
-    }
-    if bContinue
-    {
-        Run %ModuleExe%
-    }
-}
-else
-{
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%ModuleExe%' not found.`n
-    bContinue := false
+        TestsOK("'" mfc42 "' already exist.")
 }
 
 
@@ -100,27 +133,16 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, IrfanView Setup, Welcome, 7
-    if not ErrorLevel
-    {
-        Sleep, 250
-        ControlClick, Button11, IrfanView Setup, Welcome ; Hit 'Next' button
-        if not ErrorLevel
-        {
-            TestsOK("")
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'IrfanView Setup (Welcome)' window appeared and 'Next' button was clicked.`n
-        }
-        else
-        {
-            TestsFailed("")
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'IrfanView Setup (Welcome)' window. Active window caption: '%title%'.`n
-        }
-    }
+    if ErrorLevel
+        TestsFailed("'IrfanView Setup (Welcome)' window failed to appear.")
     else
     {
-        TestsFailed("")
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'IrfanView Setup (Welcome)' window failed to appear. Active window caption: '%title%'.`n
+        Sleep, 700
+        ControlClick, Button11, IrfanView Setup, Welcome ; Hit 'Next' button
+        if ErrorLevel
+            TestsFailed("Unable to hit 'Next' button in 'IrfanView Setup (Welcome)' window.")
+        else
+            TestsOK("'IrfanView Setup (Welcome)' window appeared and 'Next' button was clicked.")
     }
 }
 
@@ -130,17 +152,17 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, IrfanView Setup, What's new, 7
-    if not ErrorLevel
-    {
-        Sleep, 250
-        ControlClick, Button11, IrfanView Setup, What's new ; Hit 'Next' button
-        if not ErrorLevel
-            TestsOK("'IrfanView Setup (What's new)' window appeared and 'Next' button was clicked.")
-        else
-            TestsFailed("Unable to hit 'Next' button in 'IrfanView Setup (What's new)' window.")
-    }
-    else
+    if ErrorLevel
         TestsFailed("'IrfanView Setup (What's new)' window failed to appear.")
+    else
+    {
+        Sleep, 700
+        ControlClick, Button11, IrfanView Setup, What's new ; Hit 'Next' button
+        if ErrorLevel
+            TestsFailed("Unable to hit 'Next' button in 'IrfanView Setup (What's new)' window.")
+        else
+            TestsOK("'IrfanView Setup (What's new)' window appeared and 'Next' button was clicked.")
+    }
 }
 
 
@@ -149,24 +171,24 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, IrfanView Setup, Do you want to associate, 7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'IrfanView Setup (Do you want to associate)' window failed to appear.")
+    else
     {
-        Sleep, 250
+        Sleep, 700
         ControlClick, Button1, IrfanView Setup, Do you want to associate ; Hit 'Images only' button
-        if not ErrorLevel
+        if ErrorLevel
+            TestsFailed("Unable to hit 'Images only' button in 'IrfanView Setup (Do you want to associate)' window.")
+        else
         {
             Sleep, 500
             ControlClick, Button16, IrfanView Setup, Do you want to associate ; Hit 'Next' button
-            if not ErrorLevel
-                TestsOK("'IrfanView Setup (Do you want to associate)' window appeared, 'Images only' and 'Next' buttons were clicked.")
-            else
+            if ErrorLevel
                 TestsFailed("Unable to hit 'Next' button in 'IrfanView Setup (Do you want to associate)' window.")
+            else
+                TestsOK("'IrfanView Setup (Do you want to associate)' window appeared, 'Images only' and 'Next' buttons were clicked.")
         }
-        else
-            TestsFailed("Unable to hit 'Images only' button in 'IrfanView Setup (Do you want to associate)' window.")
     }
-    else
-        TestsFailed("'IrfanView Setup (Do you want to associate)' window failed to appear.")
 }
 
 
@@ -175,48 +197,48 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, IrfanView Setup, Google Desktop Search, 7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'IrfanView Setup (Google Desktop Search)' window failed to appear.")
+    else
     {
-        Sleep, 250
+        Sleep, 700
         ControlGetText, OutputVar, Button1, IrfanView Setup
         if OutputVar <> &Install Google Desktop Search ; We are in XP system
         {
             Control, Uncheck,, Button1, IrfanView Setup, Google Desktop Search ; Uncheck 'Google Toolbar for Internet Explorer'
-            if not ErrorLevel
+            if ErrorLevel
+                TestsFailed("Unable to uncheck 'Google Toolbar for Internet Explorer' in 'IrfanView Setup (Google Desktop Search)' window.")
+            else
             {
                 Control, Uncheck,, Button2, IrfanView Setup, Google Desktop Search ; Uncheck 'Google Desktop Search'
-                if not ErrorLevel
+                if ErrorLevel
+                    TestsFailed("Unable to uncheck 'Google Desktop Search' in 'IrfanView Setup (Google Desktop Search)' window.")
+                else
                 {
                     ControlClick, Button18, IrfanView Setup, Google Desktop Search ; Hit 'Next' button
-                    if not ErrorLevel
-                        TestsOK(" 'IrfanView Setup (Google Desktop Search)' window appeared, 'Google Toolbar', 'Google Desktop Search' checkboxes were unchecked, 'Next' was clicked (XP OS).")
-                    else
+                    if ErrorLevel
                         TestsFailed("Unable to hit 'Next' button in 'IrfanView Setup (Google Desktop Search)' window.")
+                    else
+                        TestsOK("'IrfanView Setup (Google Desktop Search)' window appeared, 'Google Toolbar', 'Google Desktop Search' checkboxes were unchecked, 'Next' was clicked (XP OS).")
                 }
-                else
-                    TestsFailed("Unable to uncheck 'Google Desktop Search' in 'IrfanView Setup (Google Desktop Search)' window.")
             }
-            else
-                TestsFailed("Unable to uncheck 'Google Toolbar for Internet Explorer' in 'IrfanView Setup (Google Desktop Search)' window.")
         }
         else
         {
             ; We are in win2k3 system
             Control, Check,, Button2, IrfanView Setup, Google Desktop Search ; Check 'Dont install Google Desktop Search'
-            if not ErrorLevel
+            if ErrorLevel
+                TestsFailed("Unable to check 'Dont install Google Desktop Search' in 'IrfanView Setup (Google Desktop Search)' window.")
+            else
             {
                 ControlClick, Button18, IrfanView Setup, Google Desktop Search ; Hit 'Next' button
-                if not ErrorLevel
-                    TestsOK("'IrfanView Setup (Google Desktop Search)' window appeared, 'Google Toolbar', 'Google Desktop Search' checkboxes were unchecked, 'Next' was clicked (win2k3 OS).")
-                else
+                if ErrorLevel
                     TestsFailed("Unable to hit 'Next' button in 'IrfanView Setup (Google Desktop Search)' window.")
+                else
+                    TestsOK("'IrfanView Setup (Google Desktop Search)' window appeared, 'Google Toolbar', 'Google Desktop Search' checkboxes were unchecked, 'Next' was clicked (win2k3 OS).")
             }
-            else
-                TestsFailed("Unable to check 'Dont install Google Desktop Search' in 'IrfanView Setup (Google Desktop Search)' window.")
         }
     }
-    else
-        TestsFailed("'IrfanView Setup (Google Desktop Search)' window failed to appear.")
 }
 
 
@@ -225,23 +247,23 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, IrfanView Setup, Ready to install, 7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'IrfanView Setup (Ready to install)' window failed to appear.")
+    else
     {
-        Sleep, 250
+        Sleep, 700
         Control, Check,, Button2, IrfanView Setup, Ready to install ; Check 'Users Application Data folder'
-        if not ErrorLevel
+        if ErrorLevel
+            TestsFailed("Unable to check 'Users Application Data folder' in 'IrfanView Setup (Ready to install)' window.")
+        else
         {
             ControlClick, Button23, IrfanView Setup, Ready to install ; Hit 'Next' button
-            if not ErrorLevel
-                TestsOK("'IrfanView Setup (Ready to install)' window appeared and 'Next' button was clicked.")
-            else
+            if ErrorLevel
                 TestsFailed("Unable to hit 'Next' button in 'IrfanView Setup (Ready to install)' window.")
+            else
+                TestsOK("'IrfanView Setup (Ready to install)' window appeared and 'Next' button was clicked.")
         }
-        else
-            TestsFailed("Unable to check 'Users Application Data folder' in 'IrfanView Setup (Ready to install)' window.")
     }
-    else
-        TestsFailed("'IrfanView Setup (Ready to install)' window failed to appear.")
 }
 
 
@@ -250,17 +272,17 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, IrfanView Setup, You want to change, 7
-    if not ErrorLevel
-    {
-        Sleep, 250
-        ControlClick, Button1, IrfanView Setup, You want to change ; Hit 'Yes' button
-        if not ErrorLevel
-            TestsOK("'IrfanView Setup (You want to change)' window appeared and 'Yes' was clicked.")
-        else
-            TestsFailed("Unable to hit 'Yes' button in 'IrfanView Setup (You want to change)' window.")
-    }
-    else
+    if ErrorLevel
         TestsFailed("'IrfanView Setup (You want to change)' window failed to appear.")
+    else
+    {
+        Sleep, 700
+        ControlClick, Button1, IrfanView Setup, You want to change ; Hit 'Yes' button
+        if ErrorLevel
+            TestsFailed("Unable to hit 'Yes' button in 'IrfanView Setup (You want to change)' window.")
+        else
+            TestsOK("'IrfanView Setup (You want to change)' window appeared and 'Yes' was clicked.")
+    }
 }
 
 
@@ -269,43 +291,53 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, IrfanView Setup, Installation successfull, 7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'IrfanView Setup (Installation successfull)' window failed to appear.")
+    else
     {
-        Sleep, 250
+        Sleep, 700
         Control, Uncheck,, Button2, IrfanView Setup, Installation successfull ; Uncheck 'Start IrfanView'
-        if not ErrorLevel
+        if ErrorLevel
+            TestsFailed("Unable to uncheck 'Start IrfanView' in 'IrfanView Setup (Installation successfull)' window.")
+        else
         {
             ControlClick, Button27, IrfanView Setup, Installation successfull ; Hit 'Done' button
-            if not ErrorLevel
-            {
-                TestsOK("'IrfanView Setup (Installation successfull)' window appeared, 'Start IrfanView' unchecked and 'Done' was clicked. FIXME: terminate browser process.")
-                Process, Close, i_view32.exe ; Just in case
-            }
-            else
+            if ErrorLevel
                 TestsFailed("Unable to hit 'Done' button in 'IrfanView Setup (Installation successfull)' window.")
+            else
+            {
+                WinWaitClose, IrfanView Setup, Installation successfull, 20
+                if ErrorLevel
+                    TestsFailed("'IrfanView Setup (Installation successfull)' window failed to close despite the 'Done' button being reported as clicked .")
+                else
+                {
+                    Process, Wait, i_view32.exe, 4
+                    NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                    if NewPID <> 0
+                        TestsFailed("'i_view32.exe' process appeared despite 'Start Irfanview' checkbox being unchecked.")
+                    else
+                        TestsOK("'IrfanView Setup (Installation successfull)' window appeared, 'Start IrfanView' unchecked and 'Done' was clicked. FIXME: terminate browser process.")
+                }
+            }
         }
-        else
-            TestsFailed("Unable to uncheck 'Start IrfanView' in 'IrfanView Setup (Installation successfull)' window.")
     }
-    else
-        TestsFailed("'IrfanView Setup (Installation successfull)' window failed to appear.")
 }
 
 
-;Check if program exists
+; Check if program exists
 TestsTotal++
 if bContinue
 {
     Sleep, 2000
     RegRead, UninstallString, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\IrfanView, UninstallString
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
+    else
     {
         StringReplace, UninstallString, UninstallString, `",, All
-        IfExist, %UninstallString%
-            TestsOK("The application has been installed, because '" UninstallString "' was found.")
-        else
+        IfNotExist, %UninstallString%
             TestsFailed("Something went wrong, can't find '" UninstallString "'.")
+        else
+            TestsOK("The application has been installed, because '" UninstallString "' was found.")
     }
-    else
-        TestsFailed("Either we can't read from registry or data doesn't exist.")
 }

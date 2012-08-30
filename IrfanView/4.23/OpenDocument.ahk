@@ -29,27 +29,41 @@ else
 {
     SplitPath, szDocument, NameExt
     WinWaitActive, IrfanView,,7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("Window 'IrfanView' failed to appear.")
+    else
     {
-        IfExist, %szDocument%
+        IfNotExist, %szDocument%
+            TestsFailed("File '" szDocument "' was NOT found.")
+        else
         {
             WinMenuSelectItem, IrfanView, , File, Open
-            if not ErrorLevel
+            if ErrorLevel
+                TestsFailed("Unable to hit 'File -> Open' in 'IrfanView' window.")
+            else
             {
                 WinWaitActive, Open, Look &in,7
-                if not ErrorLevel
+                if ErrorLevel
+                    TestsFailed("Window 'Open (Look in)' failed to appear.")
+                else
                 {
                     Sleep, 1500
                     ControlSetText, Edit1, %szDocument%, Open, Look &in
-                    if not ErrorLevel
+                    if ErrorLevel
+                        TestsFailed("Unable to change 'File name' control text to '" szDocument "' in 'Open (Look in)' window, bug 7089?")
+                    else
                     {
                         Sleep, 1500
                         ControlClick, Button2, Open, Look &in
-                        if not ErrorLevel
+                        if ErrorLevel
+                            TestsFailed("Unable to click 'Open' button in 'Open (Look in)' window.")
+                        else
                         {
                             Sleep, 1500
                             WinWaitActive, %NameExt% - IrfanView,,7
-                            if not ErrorLevel
+                            if ErrorLevel
+                                TestsFailed("Window '" NameExt " - IrfanView' failed to appear.")
+                            else
                             {
                                 ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, *14 %szDocument%
                                 if ErrorLevel = 2
@@ -60,30 +74,16 @@ else
                                 {
                                     WinClose, %NameExt% - IrfanView
                                     WinWaitClose, %NameExt% - IrfanView,,7
-                                    if not ErrorLevel
-                                        TestsOK("Opened '" szDocument "' using 'File -> Open' and closed application successfully.")
-                                    else
+                                    if ErrorLevel
                                         TestsFailed("Unable to close '" NameExt " - IrfanView' window.")
+                                    else
+                                        TestsOK("Opened '" szDocument "' using 'File -> Open' and closed application successfully.")
                                 }
                             }
-                            else
-                                TestsFailed("Window '" NameExt " - IrfanView' failed to appear.")
                         }
-                        else
-                            TestsFailed("Unable to click 'Open' button in 'Open (Look in)' window.")
                     }
-                    else
-                        TestsFailed("Unable to change 'File name' control text to '" szDocument "' in 'Open (Look in)' window, bug 7089?")
                 }
-                else
-                    TestsFailed("Window 'Open (Look in)' failed to appear.")
             }
-            else
-                TestsFailed("Unable to hit 'File -> Open' in 'IrfanView' window.")
         }
-        else
-            TestsFailed("File '" szDocument "' was NOT found.")
     }
-    else
-        TestsFailed("Window 'IrfanView' failed to appear.")
 }

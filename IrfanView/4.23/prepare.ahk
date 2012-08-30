@@ -29,16 +29,16 @@ Process, Close, i_view32.exe
 Sleep, 1500
 
 RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\IrfanView, UninstallString
-if not ErrorLevel
+if ErrorLevel
+{
+    ModuleExe = %A_ProgramFiles%\IrfanView\i_view32.exe
+    OutputDebug, %TestName%:%A_LineNumber%: Can NOT read data from registry. Key might not exist. Using hardcoded path.`n
+}
+else
 {
     StringReplace, UninstallerPath, UninstallerPath, `",, All ; String contains quotes, replace em
     SplitPath, UninstallerPath,, InstalledDir
     ModuleExe = %InstalledDir%\i_view32.exe
-}
-else
-{
-    ModuleExe = %A_ProgramFiles%\IrfanView\i_view32.exe
-    OutputDebug, %TestName%:%A_LineNumber%: Can NOT read data from registry. Key might not exist. Using hardcoded path.`n
 }
 
 
@@ -48,26 +48,27 @@ RunApplication(PathToFile)
     global ModuleExe
     global TestName
     global bContinue
+    global TestsTotal
 
+    TestsTotal++
     Sleep, 500
     FileRemoveDir, %A_AppData%\IrfanView, 1
     Sleep, 500
     
-    IfExist, %ModuleExe%
+    IfNotExist, %ModuleExe%
+        TestsFailed("Can NOT find '" ModuleExe "'.")
+    else
     {
         if PathToFile =
         {
             Run, %ModuleExe%,, Max ; Start maximized
             WinWaitActive, IrfanView,,7
-            if not ErrorLevel
-            {
-                bContinue := true
-                Sleep, 1000
-            }
+            if ErrorLevel
+                TestsFailed("Window 'IrfanView' failed to appear.")
             else
             {
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'IrfanView' failed to appear. Active window caption: '%title%'`n
+                TestsOK("")
+                Sleep, 1000
             }
         }
         else
@@ -76,20 +77,13 @@ RunApplication(PathToFile)
             Sleep, 1000
             SplitPath, PathToFile, NameExt
             WinWaitActive, %NameExt% - IrfanView,,7
-            if not ErrorLevel
-            {
-                bContinue := true
-                Sleep, 1000
-            }
+            if ErrorLevel
+                TestsFailed("Window '" NameExt " - IrfanView' failed to appear.")
             else
             {
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window '%NameExt% - IrfanView' failed to appear. Active window caption: '%title%'`n
+                TestsOK("")
+                Sleep, 1000
             }
         }
-    }
-    else
-    {
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%ModuleExe%'.`n
     }
 }
