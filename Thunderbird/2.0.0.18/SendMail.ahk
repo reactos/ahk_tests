@@ -21,15 +21,21 @@ TestName = 2.SendMail
 
 ; Test if can send e-mail
 TestsTotal++
-if bContinue
+if not bContinue
+    TestsFailed("We failed somwehere in 'prepare.ahk'.")
+else
 {
-    IfWinActive, Inbox for reactos.dev@gmail.com - Thunderbird
+    IfWinNotActive, Inbox for reactos.dev@gmail.com - Thunderbird
+        TestsFailed("'Inbox for reactos.dev@gmail.com - Thunderbird' is not active window.")
+    else
     {
         SendInput, {ALTDOWN}m{ALTUP} ; Drop down 'Message' from file menu
         Sleep, 1000
         SendInput, n ; Select 'New Message' menu item
         WinWaitActive, Compose: (no subject),,10
-        if not ErrorLevel
+        if ErrorLevel
+            TestsFailed("Window 'Compose: (no subject)' failed to appear.")
+        else
         {
             Sleep, 2200
             SendInput, reactos.dev@gmail.com ; Enter recipients e-mail
@@ -41,50 +47,23 @@ if bContinue
             SendInput, {TAB}Congratulations, Thunderbird is working. ; Message body
             SendInput, {CTRLDOWN}{ENTER}{CTRLUP} ; Ctrl+Return to send message now
             WinWaitActive, Mail Server Password Required,,10
-            if not ErrorLevel
+            if ErrorLevel
+                TestsFailed("Window 'Mail Server Password Required' failed to appear.")
+            else
             {
                 Sleep, 1500
                 SendInput, 3d1ju5test{ENTER} ; Enter password
                 WinWaitActive, Inbox for reactos.dev@gmail.com - Thunderbird,,10
-                if not ErrorLevel
-                {
-                    Sleep, 7000 ; Sleep to actually send the message
-                    OutputDebug, OK: %TestName%:%A_LineNumber%: Composed and sent new email successfully.`n
-                    TestsOK()
-                }
+                if ErrorLevel
+                    TestsFailed("Window 'Inbox for reactos.dev@gmail.com - Thunderbird' failed to appear after sending email.")
                 else
                 {
-                    TestsFailed()
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Inbox for reactos.dev@gmail.com - Thunderbird' failed to appear after sending email. Active window caption: '%title%'.`n
+                    Sleep, 7000 ; Sleep to actually send the message
+                    TestsOK("Composed and sent new email successfully.")
                 }
             }
-            else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Mail Server Password Required' failed to appear. Active window caption: '%title%'.`n
-            }
-        }
-        else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Compose: (no subject)' failed to appear. Active window caption: '%title%'.`n
         }
     }
-    else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Inbox for reactos.dev@gmail.com - Thunderbird' is not active window. Active window caption: '%title%'.`n
-    }
-}
-else
-{
-    TestsFailed()
-    WinGetTitle, title, A
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: We failed somwehere in 'prepare.ahk'. Active window caption: '%title%'.`n
 }
 
 Process, Close, thunderbird.exe

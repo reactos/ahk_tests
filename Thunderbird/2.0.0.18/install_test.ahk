@@ -18,84 +18,99 @@
  */
 
 ModuleExe = %A_WorkingDir%\Apps\Thunderbird 2.0.0.18 Setup.exe
-bContinue := false
 TestName = 1.install
-
-TestsFailed := 0
-TestsOK := 0
-TestsTotal := 0
+MainAppFile = thunderbird.exe ; Mostly this is going to be process we need to look for
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
-IfExist, %ModuleExe%
+TestsTotal++
+IfNotExist, %ModuleExe%
+    TestsFailed("'" ModuleExe "' not found.")
+else
 {
-    ; Get rid of other versions
-    RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Mozilla Thunderbird (2.0.0.18), UninstallString
-    if not ErrorLevel
-    {   
-        IfExist, %UninstallerPath%
-        {
-            Process, Close, thunderbird.exe ; Teminate process
-            Sleep, 1500
-            RunWait, %UninstallerPath% /S ; Silently uninstall it
-            Sleep, 2500
-            ; Delete everything just in case
-            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Mozilla
-            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\mozilla.org
-            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Mozilla Thunderbird (2.0.0.18)
-            SplitPath, UninstallerPath,, InstalledDir
-            FileRemoveDir, %InstalledDir%, 1
-            FileRemoveDir, %A_AppData%\Mozilla, 1
-            Sleep, 1000
-            IfExist, %InstalledDir%
-            {
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to delete '%InstalledDir%'.`n
-                bContinue := false
-            }
-            else
-            {
-                bContinue := true
-            }
-        }
-    }
+    Process, Close, %MainAppFile% ; Teminate process
+    Sleep, 2000
+    Process, Exist, %MainAppFile%
+    if ErrorLevel <> 0
+        TestsFailed("Unable to terminate '" MainAppFile "' process.") ; So, process still exists
     else
     {
-        ; There was a problem (such as a nonexistent key or value). 
-        ; That probably means we have not installed this app before.
-        ; Check in default directory to be extra sure
-        IfExist, %A_ProgramFiles%\Mozilla Thunderbird\uninstall\helper.exe
+        RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Mozilla Thunderbird (2.0.0.18), UninstallString
+        if ErrorLevel
         {
-            Process, Close, thunderbird.exe ; Teminate process
-            Sleep, 1500
-            RunWait, %A_ProgramFiles%\Mozilla Thunderbird\uninstall\helper.exe /S ; Silently uninstall it
-            Sleep, 2500
-            FileRemoveDir, %A_ProgramFiles%\Mozilla Thunderbird, 1
-            FileRemoveDir, %A_AppData%\Mozilla, 1
-            Sleep, 1000
-            IfExist, %A_ProgramFiles%\Mozilla Thunderbird
-            {
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Previous version detected and failed to delete '%A_ProgramFiles%\Mozilla Thunderbird'.`n
-                bContinue := false
-            }
+            ; There was a problem (such as a nonexistent key or value). 
+            ; That probably means we have not installed this app before.
+            ; Check in default directory to be extra sure
+            IfNotExist, %A_ProgramFiles%\Mozilla Thunderbird
+                bContinue := true ; No previous versions detected in hardcoded path
             else
             {
-                bContinue := true
+                bHardcoded := true ; To know if we got path from registry or not
+                IfExist, %A_ProgramFiles%\Mozilla Thunderbird\uninstall\helper.exe
+                {
+                    RunWait, %A_ProgramFiles%\Mozilla Thunderbird\uninstall\helper.exe /S ; Silently uninstall it
+                    Sleep, 7000
+                }
+
+                IfNotExist, %A_ProgramFiles%\Mozilla Thunderbird ; Uninstaller might delete the dir
+                    bContinue := true
+                {
+                    FileRemoveDir, %A_ProgramFiles%\Mozilla Thunderbird, 1
+                    if ErrorLevel
+                        TestsFailed("Unable to delete existing '" A_ProgramFiles "\Mozilla Thunderbird' ('" MainAppFile "' process is reported as terminated).'")
+                    else
+                        bContinue := true
+                }
             }
         }
         else
         {
-            ; No previous versions detected.
-            bContinue := true
+            SplitPath, UninstallerPath,, InstalledDir
+            SplitPath, InstalledDir,, InstalledDir ; Split once more, since installer was in subdir (Thunderbird specific)
+            IfNotExist, %InstalledDir%
+                bContinue := true
+            else
+            {
+                IfExist, %UninstallerPath%
+                {
+                    RunWait, %UninstallerPath% /S ; Silently uninstall it
+                    Sleep, 7000
+                }
+
+                IfNotExist, %InstalledDir%
+                    bContinue := true
+                else
+                {
+                    FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
+                    if ErrorLevel
+                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                    else
+                        bContinue := true
+                }
+            }
         }
     }
+
     if bContinue
     {
-        Run %ModuleExe%
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Mozilla
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\mozilla.org
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Mozilla Thunderbird (2.0.0.18)
+        IfExist, %A_AppData%\Mozilla
+        {
+            FileRemoveDir, %A_AppData%\Mozilla, 1
+            if ErrorLevel
+                TestsFailed("Unable to delete '" A_AppData "\Mozilla'.")
+        }
+
+        if bContinue
+        {
+            if bHardcoded
+                TestsOK("Either there was no previous versions or we succeeded removing it using hardcoded path.")
+            else
+                TestsOK("Either there was no previous versions or we succeeded removing it using data from registry.")
+            Run %ModuleExe%
+        }
     }
-}
-else
-{
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%ModuleExe%' not found.`n
-    bContinue := false
 }
 
 
@@ -103,33 +118,18 @@ else
 TestsTotal++
 if bContinue
 {
-    SetTitleMatchMode, 1
+    SetTitleMatchMode, 2 ; A window's title can contain WinTitle anywhere inside it to be a match.
     WinWaitActive, Extracting, Cancel, 10 ; Wait 10 secs for window to appear
-    if not ErrorLevel ;Window is found and it is active
+    if ErrorLevel ; Window is found and it is active
+        TestsFailed("'Extracting' window failed to appear.")
+    else
     {
         OutputDebug, OK: %TestName%:%A_LineNumber%: 'Extracting' window appeared, waiting for it to close.`n
         WinWaitClose, Extracting, Cancel, 15
-        if not ErrorLevel
-        {
-            
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Extracting' window appeared and went away.`n
-            bContinue := true
-        }
+        if ErrorLevel
+            TestsFailed("'Extracting' window failed to dissapear.")
         else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Extracting' window failed to dissapear. Active window caption: '%title%'.`n
-            bContinue := false
-        }
-    }
-    else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Extracting' window failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
+            TestsOK("'Extracting' window appeared and went away.")
     }
 }
 
@@ -138,88 +138,52 @@ if bContinue
 TestsTotal++
 if bContinue
 {
+    SetTitleMatchMode, 3 ; A window's title must exactly match WinTitle to be a match.
     WinWaitActive, Mozilla Thunderbird Setup, Welcome to the Mozilla Thunderbird, 15
-    if not ErrorLevel
-    {
-        Sleep, 250
-        ControlClick, Button2, Mozilla Thunderbird Setup, Welcome to the Mozilla Thunderbird
-        if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Mozilla Thunderbird Setup' window with 'Welcome to the Mozilla Thunderbird' appeared and 'Next' was clicked.`n
-            bContinue := true
-        }
-        else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'Welcome to the Mozilla Thunderbird' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
-    }
+    if ErrorLevel
+        TestsFailed("'Mozilla Thunderbird Setup (Welcome to the Mozilla Thunderbird)' window failed to appear.")
     else
     {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Thunderbird Setup' window with 'Welcome to the Mozilla Thunderbird' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
+        Sleep, 700
+        ControlClick, Button2, Mozilla Thunderbird Setup, Welcome to the Mozilla Thunderbird
+        if ErrorLevel
+            TestsFailed("Unable to click 'Next' in 'Mozilla Thunderbird Setup (Welcome to the Mozilla Thunderbird)' window.")
+        else
+            TestsOK("'Mozilla Thunderbird Setup (Welcome to the Mozilla Thunderbird)' window appeared and 'Next' was clicked.")
     }
 }
 
 
+ThunderbirdWnd := "Mozilla Thunderbird Setup " ; There is space at the end of the title
 ; Test if 'License Agreement' window appeared
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Mozilla Thunderbird Setup, License Agreement, 15
-    if not ErrorLevel
-    {
-        Sleep, 250
-        ControlClick, Button4, Mozilla Thunderbird Setup, License Agreement ; check 'I accept' radio button
-        if not ErrorLevel
-        {
-            Sleep, 1500 ; Give some time for 'Next' to get enabled
-            ControlGet, OutputVar, Enabled,, Button2, Mozilla Thunderbird Setup, License Agreement
-            if %OutputVar%
-            {
-                ControlClick, Button2, Mozilla Thunderbird Setup, License Agreement
-                if not ErrorLevel
-                {
-                    TestsOK++
-                    OutputDebug, OK: %TestName%:%A_LineNumber%: 'Mozilla Thunderbird Setup' window with 'License Agreement' appeared and 'Next' was clicked.`n
-                    bContinue := true
-                }
-                else
-                {
-                    TestsFailed++
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'License Agreement' window despite it is enabled. Active window caption: '%title%'.`n
-                    bContinue := false
-                }
-            }
-            else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'I agree' radio button is checked in 'License Agreement', but 'Next' button is disabled. Active window caption: '%title%'.`n
-                bContinue := false
-            }
-        }
-        else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to check 'I agree' radio button in 'License Agreement' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
-    }
+    WinWaitActive, %ThunderbirdWnd%, License Agreement, 7
+    if ErrorLevel
+        TestsFailed("'Mozilla Thunderbird Setup (License Agreement)' window failed to appear.")
     else
     {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Thunderbird Setup' window with 'License Agreement' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
-    }
+        Sleep, 700
+        ControlClick, Button4, %ThunderbirdWnd%, License Agreement ; check 'I accept' radio button
+        if ErrorLevel
+            TestsFailed("Unable to check 'I agree' radio button in 'Mozilla Thunderbird Setup (License Agreement)' window.")
+        else
+        {
+            Sleep, 1500 ; Give some time for 'Next' to get enabled
+            ControlGet, OutputVar, Enabled,, Button2, %ThunderbirdWnd%, License Agreement
+            if not %OutputVar%
+                TestsFailed("'I agree' radio button is checked in 'Mozilla Thunderbird Setup (License Agreement)', but 'Next' button is disabled.")
+            else
+            {
+                ControlClick, Button2, %ThunderbirdWnd%, License Agreement
+                if ErrorLevel
+                    TestsFailed("Unable to hit 'Next' button in 'Mozilla Thunderbird Setup (License Agreement)' window despite the button is enabled.")
+                else
+                    TestsOK("'Mozilla Thunderbird Setup (License Agreement)' window appeared and 'Next' was clicked.")
+            }
+        }
+    }   
 }
 
 
@@ -229,30 +193,16 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Mozilla Thunderbird Setup, Setup Type, 7
-    if not ErrorLevel
-    {
-        Sleep, 250
-        ControlClick, Button2, Mozilla Thunderbird Setup, Setup Type
-        if not ErrorLevel
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Mozilla Thunderbird Setup' window with 'Setup Type' appeared and 'Next' was clicked.`n
-            bContinue := true
-        }
-        else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'Setup Type' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
-    }
+    if ErrorLevel
+        TestsFailed("'Mozilla Thunderbird Setup (Setup Type)' window failed to appear.")
     else
     {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Thunderbird Setup' window with 'Setup Type' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
+        Sleep, 700
+        ControlClick, Button2, Mozilla Thunderbird Setup, Setup Type
+        if ErrorLevel
+            TestsFailed("Unable to click 'Next' in 'Mozilla Thunderbird Setup (Setup Type)' window.")
+        else
+            TestsOK("'Mozilla Thunderbird Setup (Setup Type)' window appeared and 'Next' was clicked.")
     }
 }
 
@@ -261,73 +211,61 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Mozilla Thunderbird Setup, Completing, 7
-    if not ErrorLevel
+    WinWaitActive, %ThunderbirdWnd%, Completing, 7
+    if ErrorLevel
+        TestsFailed("'Mozilla Thunderbird Setup (Completing)' window failed to appear.")
+    else
     {
-        Sleep, 250
-        ControlClick, Button4, Mozilla Thunderbird Setup, Completing ; Uncheck 'Launch Mozilla Thunderbird now'
-        if not ErrorLevel
+        Sleep, 700
+        ControlClick, Button4, %ThunderbirdWnd%, Completing ; Uncheck 'Launch Mozilla Thunderbird now'
+        if ErrorLevel
         {
-            ControlClick, Button2, Mozilla Thunderbird Setup, Completing ; Hit 'Finish'
-            if not ErrorLevel
-            {
-                TestsOK++
-                OutputDebug, OK: %TestName%:%A_LineNumber%: 'Mozilla Thunderbird Setup' window with 'Completing' appeared and 'Finish' was clicked.`n
-                bContinue := true
-            }
-            else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Finish' in 'Completing' window. Active window caption: '%title%'.`n
-                bContinue := false
-            }
+            TestsFailed("Unable to uncheck 'Launch Mozilla Thunderbird now' in 'Mozilla Thunderbird Setup (Completing)' window.")
+            Process, Close, %MainAppFile% ; Just in case
         }
         else
         {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: unable to uncheck 'Launch Mozilla Thunderbird now' in 'Completing' window. Active window caption: '%title%'.`n
-            bContinue := false
-            Process, Close, thunderbird.exe ; Just in case
+            ControlClick, Button2, %ThunderbirdWnd%, Completing ; Hit 'Finish'
+            if ErrorLevel
+                TestsFailed("Unable to click 'Finish' in 'Mozilla Thunderbird Setup (Completing)' window.")
+            else
+            {
+                WinWaitClose, %ThunderbirdWnd%, Completing, 10
+                if ErrorLevel
+                    TestsFailed("'Mozilla Thunderbird Setup (Completing)' failed to close despite 'Finish' was clicked.")
+                else
+                {
+                    Process, Wait, %MainAppFile%, 4
+                    NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                    if NewPID <> 0
+                    {
+                        TestsFailed("Process '" MainAppFile "' appeared despite 'Launch Mozilla Thunderbird now' being reported as unchecked.")
+                        Process, Close, %MainAppFile%
+                    }
+                    else
+                        TestsOK("'Mozilla Thunderbird Setup (Completing)' window appeared, 'Launch Mozilla Thunderbird now' unchecked, 'Finish' button was clicked and window closed.")
+                }
+            }
         }
-    }
-    else
-    {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Mozilla Thunderbird Setup' window with 'Completing' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
     }
 }
 
 
-;Check if program exists in program files
+; Check if program exists in program files
 TestsTotal++
 if bContinue
 {
     Sleep, 2000
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Mozilla Thunderbird (2.0.0.18), UninstallString
-    if not ErrorLevel
-    {
-        IfExist, %UninstallerPath%
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: The application has been installed, because '%UninstallerPath%' was found.`n
-            bContinue := true
-        }
-        else
-        {
-            TestsFailed++
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Something went wrong, can't find '%UninstallerPath%'.`n
-            bContinue := false
-        }
-    }
+    if ErrorLevel
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
     else
     {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Either we can't read from registry or data doesn't exist. Active window caption: '%title%'.`n
-        bContinue := false
+        SplitPath, UninstallerPath,, InstalledDir
+        SplitPath, InstalledDir,, InstalledDir ; Split once more, since installer was in subdir (Thunderbird specific)
+        IfNotExist, %InstalledDir%\%MainAppFile%
+            TestsFailed("Something went wrong, can't find '" InstalledDir "\" MainAppFile "'.")
+        else
+            TestsOK("The application has been installed, because '" InstalledDir "\" MainAppFile "' was found.")
     }
 }

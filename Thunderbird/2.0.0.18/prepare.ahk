@@ -17,106 +17,94 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-bContinue := false
-TestsTotal := 0
-TestsSkipped := 0
-TestsFailed := 0
-TestsOK := 0
-TestsExecuted := 0
 TestName = prepare
 
 RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Mozilla Thunderbird (2.0.0.18), UninstallString
-if not ErrorLevel
+if ErrorLevel
+{
+    ModuleExe = %A_ProgramFiles%\Mozilla Thunderbird\thunderbird.exe
+    OutputDebug, %TestName%:%A_LineNumber%: Can NOT read data from registry. Key might not exist. Using hardcoded path.`n
+}
+else
 {
     StringReplace, UninstallerPath, UninstallerPath, `",, All ; String contains quotes, replace em
     SplitPath, UninstallerPath,, InstalledDir
     ModuleExe = %InstalledDir%\..\thunderbird.exe ; Go back one folder
 }
-else
-{
-    ModuleExe = %A_ProgramFiles%\Mozilla Thunderbird\thunderbird.exe
-    OutputDebug, %TestName%:%A_LineNumber%: Can NOT read data from registry. Key might not exist. Using hardcoded path.`n
-}
 
 szDocument = %A_WorkingDir%\Media\Thunderbird 2.0.0.18 prefs.js ; Case insensitive
 
-IfExist, %ModuleExe%
+TestsTotal++
+IfNotExist, %ModuleExe%
+    TestsFailed("Can NOT find '" ModuleExe "'").
+else
 {
     Process, Close, thunderbird.exe ; Teminate process
     Sleep, 2500 ; To make sure folders are not locked
     FileRemoveDir, %A_AppData%\Thunderbird, 1 ; Delete all saved settings
     Sleep, 1500
-    IfNotExist, %A_AppData%\Thunderbird
+    IfExist, %A_AppData%\Thunderbird
+        TestsFailed("Seems like we failed to delete '" A_AppData "\Thunderbird'.")
+    else
     {
         FileCreateDir, %A_AppData%\Thunderbird\Profiles\ReactOS.default\Mail\Local Folders
-        if not ErrorLevel
+        if ErrorLevel
+            TestsFailed("Failed to create dir tree '" A_AppData "\Thunderbird\ReactOS.default\Mail\Local Folders'.")
+        else
         {
             FileAppend, [General]`nStartWithLastProfile=1`n`n[Profile0]`nName=default`nIsRelative=1`nPath=Profiles/ReactOS.default`n, %A_AppData%\Thunderbird\profiles.ini
-            if not ErrorLevel
+            if ErrorLevel
+                TestsFailed("Failed to create and edit '" A_AppData "\Thunderbird\profiles.ini'.")
+            else
             {
-                IfExist, %szDocument%
+                IfNotExist, %szDocument%
+                    TestsFailed("Can NOT find '" szDocument "'.")
+                else
                 {
                     FileCopy, %szDocument%, %A_AppData%\Thunderbird\Profiles\ReactOS.default\prefs.js
-                    if ErrorLevel = 0
+                    if ErrorLevel <> 0
+                        TestsFailed("Can NOT copy '" szDocument "' to '" A_AppData "\Thunderbird\Profiles\ReactOS.default\prefs.js'.")
+                    else
                     {
                         ; We need those two extension-less files
                         FileAppend,, %A_AppData%\Thunderbird\Profiles\ReactOS.default\Mail\Local Folders\Trash
-                        FileAppend,, %A_AppData%\Thunderbird\Profiles\ReactOS.default\Mail\Local Folders\Unsent Messages
-                        Run, %ModuleExe%,, Max ; Start maximized
-                        WinWaitActive, Enter your password:,,15
-                        if not ErrorLevel
-                        {
-                            SendInput, 3d1ju5test{ENTER} ; ControlClick won't work
-                            WinWaitActive, Inbox for reactos.dev@gmail.com - Thunderbird,,15
-                            if not ErrorLevel
-                            {
-                                OutputDebug, OK: %TestName%:%A_LineNumber%: We are logged in.`n
-                                Sleep, 3000 ; yeah, at least 3 secs
-                                bContinue := true
-                            }
-                            else
-                            {
-                                WinGetTitle, title, A
-                                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Inbox for reactos.dev@gmail.com - Thunderbird' failed to appear. Active window caption: '%title%'`n
-                            }
-                        }
+                        if ErrorLevel
+                            TestsFailed("Unable to create extension-less file '" A_AppData "\Thunderbird\Profiles\ReactOS.default\Mail\Local Folders\Trash'.")
                         else
                         {
-                            WinGetTitle, title, A
-                            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Enter your password:' failed to appear. Active window caption: '%title%'`n
+                            FileAppend,, %A_AppData%\Thunderbird\Profiles\ReactOS.default\Mail\Local Folders\Unsent Messages
+                            if ErrorLevel
+                                TestsFailed("Unable to create extension-less file '" A_AppData "\Thunderbird\Profiles\ReactOS.default\Mail\Local Folders\Unsent Messages'.")
+                            else
+                            {
+                                Run, %ModuleExe%,, Max ; Start maximized
+                                WinWaitActive, Enter your password:,,15
+                                if ErrorLevel
+                                {
+                                    Process, Exist, thunderbird.exe
+                                    NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                                    if NewPID = 0
+                                        TestsFailed("Window 'Enter your password:' failed to appear. No 'thunderbird.exe' process detected.")
+                                    else
+                                        TestsFailed("Window 'Enter your password:' failed to appear. 'thunderbird.exe' process detected.")
+                                }
+                                else
+                                {
+                                    SendInput, 3d1ju5test{ENTER} ; ControlClick won't work
+                                    WinWaitActive, Inbox for reactos.dev@gmail.com - Thunderbird,,15
+                                    if ErrorLevel
+                                        TestsFailed("Window 'Inbox for reactos.dev@gmail.com - Thunderbird' failed to appear.")
+                                    else
+                                    {
+                                        TestsOK("We are logged in.")
+                                        Sleep, 3000 ; yeah, at least 3 secs
+                                    }
+                                }
+                            }
                         }
                     }
-                    else
-                    {
-                        WinGetTitle, title, A
-                        OutputDebug, %TestName%:%A_LineNumber%: Can NOT copy '%szDocument%' to '%A_AppData%\Thunderbird\Profiles\ReactOS.default\prefs.js'. Active window caption: '%title%'`n
-                    }
-                }
-                else
-                {
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%szDocument%'. Active window caption: '%title%'`n
                 }
             }
-            else
-            {
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to create and edit '%A_AppData%\Thunderbird\profiles.ini'. Active window caption: '%title%'`n
-            }
-        }
-        else
-        {
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to create dir tree '%A_AppData%\Thunderbird\ReactOS.default\Mail\Local Folders'. Active window caption: '%title%'`n
         }
     }
-    else
-    {
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Seems like we failed to delete '%A_AppData%\Thunderbird'. Active window caption: '%title%'`n
-    }
-}
-else
-{
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%ModuleExe%'.`n
 }
