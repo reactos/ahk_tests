@@ -26,6 +26,75 @@ SendMode Input ; Recommended for new scripts due to its superior speed and relia
 SetWorkingDir %A_ScriptDir% ; Ensures a consistent starting directory.
 
 
+CheckParam() ; Usage: if CheckParam() {..} //No need of ELSE part
+{
+    global params
+    global 1
+
+    if 1 =
+    {
+        OutputDebug, You did not specify any parameter. Use '--list' to output the list of parameters to stdout.`r`n
+        return false
+    }
+    else if 1 = --list
+    {
+        FileAppend, %params%, *
+        return true
+    }
+    else
+    {
+        IfInString, params, %1%
+            return true ; OK, we have such parameter.
+        else
+        {
+            OutputDebug, Bad parameters: '%1%'! Use '--list' to output the list of parameters to stdout.`r`n
+            return false
+        }
+    }
+}
+
+
+ShowTestResults() ; Usage: ShowTestResults()
+{
+    global bContinue
+    global TestName
+    global TestsSkipped
+    global TestsTotal
+    global TestsOK
+    global TestsFailed
+    global TestsExecuted
+    global params
+    global 1
+
+    IfInString, params, %1% ; Check if right param was specified
+    {
+        if 1 != --list
+        {
+            if not bContinue
+            {
+                SplitPath, ModuleExe, fName ; Extract filename from given path
+                WindowCleanUp(fName)  
+            }
+
+            TestsSkipped := TestsTotal - TestsOK - TestsFailed
+            TestsExecuted := TestsOK + TestsFailed
+            if (TestsSkipped < 0 or TestsExecuted < 0)
+                OutputDebug, %TestName%: Check TestsTotal, TestsOK and TestsFailed, because results returns less than 0.`n
+            OutputDebug, %TestName%: %TestsExecuted% tests executed (0 marked as todo, %TestsFailed% failures), %TestsSkipped% skipped.`n
+        }
+    }
+}
+
+
+AssignZeroes() ; Usage: AssignZeroes()
+{
+    global bContinue := false
+    global TestsOK := 0
+    global TestsFailed := 0
+    global TestsTotal := 0
+}
+
+
 TestsOK(DebugText)
 {
     ; Usage: 
@@ -41,6 +110,7 @@ TestsOK(DebugText)
         OutputDebug, OK: %TestName%: %DebugText%`n
 }
 
+
 TestsFailed(DebugText)
 {
     global TestsFailed
@@ -53,6 +123,7 @@ TestsFailed(DebugText)
     if DebugText <>
         OutputDebug, %TestName%: Test failed: %DebugText% Active Wnd: '%WndTitle%'.`n ; Include some window text and active control caption?
 }
+
 
 LeftClickControl(ControlName)
 {
@@ -122,6 +193,7 @@ FileCountLines(PathToFile)
     return %NumberOfLines%
     ; Usage: i := FileCountLines(szDocument)
 }
+
 
 ; Terminates application windows and closes error boxes
 WindowCleanup(ProcessName)
