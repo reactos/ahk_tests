@@ -22,39 +22,55 @@
 TestsTotal++
 TestName = 2.AddArchive
 
+
 FileCreateDir, %A_ProgramFiles%\7-Zip\AHK_Test
-FileDelete, %A_ProgramFiles%\7-Zip\AHK_Test\SampleFile.7z
-FileAppend, One line.`nLine two`nLine 3, %A_ProgramFiles%\7-Zip\AHK_Test\SampleFile.txt
-RegWrite, REG_SZ, HKEY_CURRENT_USER, SOFTWARE\7-Zip\FM, PanelPath0, %A_ProgramFiles%\7-Zip\AHK_Test
-if not ErrorLevel
+if ErrorLevel
+    TestsFailed("Unable to create '" A_ProgramFiles "\7-Zip\AHK_Test'.")
+else
 {
-    Run, %ModuleExe%,, Max ; Start maximized (we dont want 'RunApplication("")' here, as we write settings ourself)
-    WinWaitActive, %A_ProgramFiles%\7-Zip\AHK_Test,, 7
-    if not ErrorLevel
-    {
-        SendInput {Down} ; We have only one file there, so hit down arrow to select that file
-        SendInput !F ; Alt+F (File)
-        SendInput {Right} ; 7-Zip -> Add to archive
-        SendInput {Enter}
-        WinWaitActive, Add to Archive,, 7
-        if not ErrorLevel
-        {
-            if LeftClickControl("Button8")
-            {
-                Sleep, 2500 ; Give it some time to archive
-                IfExist, %A_ProgramFiles%\7-Zip\AHK_Test\SampleFile.7z
-                    TestsOK("'" A_ProgramFiles "\7-Zip\AHK_Test\SampleFile.7z' exist.")
-                else
-                    TestsFailed("'" A_ProgramFiles "\7-Zip\AHK_Test\SampleFile.7z' doesn't exist.")
-            }
-            else
-                TestsFailed("'OK' button was not clicked in 'Add to Archive' window.")
-        }
-        else
-            TestsFailed("'Add to Archive' window failed to appear.")
-    }
+    FileDelete, %A_ProgramFiles%\7-Zip\AHK_Test\SampleFile.7z
+    FileAppend, One line.`nLine two`nLine 3, %A_ProgramFiles%\7-Zip\AHK_Test\SampleFile.txt
+    if ErrorLevel
+        TestsFailed("Unable to create and edit '" A_ProgramFiles "\7-Zip\AHK_Test\SampleFile.txt'.")
     else
-        TestsFailed("'" A_ProgramFiles "\7-Zip\' window failed to appear.")
+    {
+        RegWrite, REG_SZ, HKEY_CURRENT_USER, SOFTWARE\7-Zip\FM, PanelPath0, %A_ProgramFiles%\7-Zip\AHK_Test
+        if ErrorLevel
+            TestsFailed("Unable to write to the registry.")
+        else
+        {
+            Run, %ModuleExe%,, Max ; Start maximized (we dont want 'RunApplication("")' here, as we write settings ourself)
+            WinWaitActive, %A_ProgramFiles%\7-Zip\AHK_Test,, 7
+            if ErrorLevel
+                TestsFailed("'" A_ProgramFiles "\7-Zip\' window failed to appear.")
+            else
+            {
+                Sleep, 270
+                SendInput {Down} ; We have only one file there, so hit down arrow to select that file
+                SendInput !F ; Alt+F (File)
+                SendInput {Right} ; 7-Zip -> Add to archive
+                SendInput {Enter}
+                Sleep, 1200
+                WinWaitActive, Add to Archive,, 7
+                if ErrorLevel
+                    TestsFailed("'Add to Archive' window failed to appear.")
+                else
+                {
+                    ControlClick, Button8, Add to Archive
+                    if ErrorLevel
+                        TestsFailed("Unable to click 'OK' button in 'Add to Archive' window.")
+                    else
+                    {
+                        Sleep, 2500 ; Give it some time to archive
+                        IfNotExist, %A_ProgramFiles%\7-Zip\AHK_Test\SampleFile.7z
+                            TestsFailed("'" A_ProgramFiles "\7-Zip\AHK_Test\SampleFile.7z' doesn't exist.")
+                        else
+                            TestsOK("'" A_ProgramFiles "\7-Zip\AHK_Test\SampleFile.7z' exist.")  
+                    }
+                }
+            }
+        }
+    }
 }
 
 

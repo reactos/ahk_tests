@@ -18,87 +18,105 @@
  */
 
 ModuleExe = %A_WorkingDir%\Apps\7zip_9.20_Setup.exe
-bContinue := false
 TestName = 1.install
+MainAppFile = 7zFM.exe ; Mostly this is going to be process we need to look for
 
-TestsFailed := 0
-TestsOK := 0
-TestsTotal := 0
-
-; Test if Setup file exists, if so, delete already installed files if any, and run Setup
-IfExist, %ModuleExe%
-{
-    ; Get rid of other versions
-    RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\7-Zip, UninstallString
-    if not ErrorLevel
-    {
-        StringReplace, UninstallerPath, UninstallerPath, `",, All ; String contains quotes, replace em
-        IfExist, %UninstallerPath%
-        {
-            Process, Close, 7zFM.exe ; Teminate process
-            Sleep, 1500
-            RunWait, %UninstallerPath% /S ; Silently uninstall it
-            Sleep, 2500
-            ; Delete everything just in case
-            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\7-Zip
-            RegDelete, HKEY_CURRENT_USER, SOFTWARE\7-Zip
-            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\7-Zip
-            SplitPath, UninstallerPath,, InstalledDir
-            Run, regsvr32 /s /u "%A_ProgramFiles%\7-Zip\7-zip.dll"
-            Process, Close, explorer.exe ; Explorer restart is required
-            Sleep, 2500
-            FileRemoveDir, %InstalledDir%, 1
-            Sleep, 1000
-            IfExist, %InstalledDir%
-            {
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to delete '%InstalledDir%'.`n
-                bContinue := false
-            }
-            else
-            {
-                bContinue := true
-            }
-        }
-        else
-        {
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%UninstallerPath%' does not exist.`n
-            bContinue := false
-        }
-    }
-    else
-    {
-        ; There was a problem (such as a nonexistent key or value). 
-        ; That probably means we have not installed this app before.
-        ; Check in default directory to be extra sure
-        IfExist, %A_ProgramFiles%\7-Zip\Uninstall.exe
-        {
-            Process, Close, 7zFM.exe ; Teminate process
-            Sleep, 1500
-            RunWait, %A_ProgramFiles%\7-Zip\Uninstall.exe /S ; Silently uninstall it
-            Sleep, 2500
-            Run, regsvr32 /s /u "%A_ProgramFiles%\7-Zip\7-zip.dll"
-            Process, Close, explorer.exe
-            Sleep, 2500
-            FileRemoveDir, %A_ProgramFiles%\7-Zip, 1
-            Sleep, 1000
-            IfExist, %A_ProgramFiles%\7-Zip
-            {
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Previous version detected and failed to delete '%A_ProgramFiles%\7-Zip'.`n
-                bContinue := false
-            }
-            else
-                bContinue := true
-        }
-        else
-            bContinue := true ; No previous versions detected.
-    }
-    if bContinue
-        Run %ModuleExe%
-}
+; Test if Setup file exists, if so, delete installed files, and run Setup
+TestsTotal++
+IfNotExist, %ModuleExe%
+    TestsFailed("'" ModuleExe "' not found.")
 else
 {
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%ModuleExe%' not found.`n
-    bContinue := false
+    Process, Close, %MainAppFile% ; Teminate process
+    Sleep, 2000
+    Process, Exist, %MainAppFile%
+    if ErrorLevel <> 0
+        TestsFailed("Unable to terminate '" MainAppFile "' process.") ; So, process still exists
+    else
+    {
+        RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\7-Zip, UninstallString
+        if ErrorLevel
+        {
+            ; There was a problem (such as a nonexistent key or value). 
+            ; That probably means we have not installed this app before.
+            ; Check in default directory to be extra sure
+            IfNotExist, %A_ProgramFiles%\7-Zip
+                bContinue := true ; No previous versions detected in hardcoded path
+            else
+            {
+                bHardcoded := true ; To know if we got path from registry or not
+                IfExist, %A_ProgramFiles%\7-Zip\Uninstall.exe
+                {
+                    RunWait, %A_ProgramFiles%\7-Zip\Uninstall.exe /S ; Silently uninstall it
+                    Sleep, 7000
+                }
+
+                Run, regsvr32 /s /u "%A_ProgramFiles%\7-Zip\7-zip.dll"
+                Process, Close, explorer.exe
+                Sleep, 270
+                IfNotExist, %A_ProgramFiles%\7-Zip ; Uninstaller might delete the dir
+                    bContinue := true
+                {
+                    FileRemoveDir, %A_ProgramFiles%\7-Zip, 1
+                    if ErrorLevel
+                        TestsFailed("Unable to delete existing '" A_ProgramFiles "\7-Zip' ('" MainAppFile "' process is reported as terminated).'")
+                    else
+                        bContinue := true
+                }
+            }
+        }
+        else
+        {
+            StringReplace, UninstallerPath, UninstallerPath, `",, All ; String contains quotes, replace em
+            SplitPath, UninstallerPath,, InstalledDir
+            IfNotExist, %InstalledDir%
+                bContinue := true
+            else
+            {
+                IfExist, %UninstallerPath%
+                {
+                    RunWait, %UninstallerPath% /S ; Silently uninstall it
+                    Sleep, 7000
+                }
+
+                IfNotExist, %InstalledDir%
+                    bContinue := true
+                else
+                {
+                    Run, regsvr32 /s /u "%A_ProgramFiles%\7-Zip\7-zip.dll"
+                    Process, Close, explorer.exe
+                    Sleep, 270
+                    FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
+                    if ErrorLevel
+                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                    else
+                        bContinue := true
+                }
+            }
+        }
+    }
+
+    if bContinue
+    {
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\7-Zip
+        RegDelete, HKEY_CURRENT_USER, SOFTWARE\7-Zip
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\7-Zip
+        IfExist, %A_AppData%\7-Zip
+        {
+            FileRemoveDir, %A_AppData%\7-Zip, 1
+            if ErrorLevel
+                TestsFailed("Unable to delete '" A_AppData "\7-Zip'.")
+        }
+
+        if bContinue
+        {
+            if bHardcoded
+                TestsOK("Either there was no previous versions or we succeeded removing it using hardcoded path.")
+            else
+                TestsOK("Either there was no previous versions or we succeeded removing it using data from registry.")
+            Run %ModuleExe%
+        }
+    }
 }
 
 
@@ -122,9 +140,7 @@ if bContinue
             if ErrorLevel
                 TestsFailed("Unable to hit 'Install' button in '7-Zip 9.20 Setup (Choose Install Location)' window.")
             else
-            {
                 TestsOK("'7-Zip 9.20 Setup (Choose Install Location)' window appeared and 'Install' button was clicked.")
-            }
         }
     }
 }
@@ -144,9 +160,7 @@ if bContinue
         if ErrorLevel
             TestsFailed("'7-Zip 9.20 Setup (Installing)' window failed to close.")
         else
-        {
             TestsOK("'7-Zip 9.20 Setup (Installing)' window appeared and closed.")
-        }
     }
 }
 
@@ -169,6 +183,7 @@ if bContinue
                 TestsFailed("Unable to check 'I want to reboot manually' radiobutton in '7-Zip 9.20 Setup (Completing)' window.")
             else
             {
+                Sleep, 700
                 ControlClick, Button2, 7-Zip 9.20 Setup, Completing ; Hit 'Finish' button
                 if ErrorLevel
                     TestsFailed("Unable to hit 'Finish' button in '7-Zip 9.20 Setup (Completing)' window.")
@@ -200,20 +215,21 @@ if bContinue
 }
 
 
-; Check if program exists in program files
+; Check if program exists
 TestsTotal++
 if bContinue
 {
     Sleep, 2000
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\7-Zip, UninstallString
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
+    else
     {
         StringReplace, UninstallerPath, UninstallerPath, `",, All ; String contains quotes, replace em
-        IfExist, %UninstallerPath%
-            TestsOK("The application has been installed, because '" UninstallerPath "' was found.")
+        SplitPath, UninstallerPath,, InstalledDir
+        IfNotExist, %InstalledDir%\%MainAppFile%
+            TestsFailed("Something went wrong, can't find '" InstalledDir "\" MainAppFile "'.")
         else
-            TestsFailed("Something went wrong, can't find '" UninstallerPath "'.")
+            TestsOK("The application has been installed, because '" InstalledDir "\" MainAppFile "' was found.")
     }
-    else
-        TestsFailed("Either we can't read from registry or data doesn't exist.")
 }
