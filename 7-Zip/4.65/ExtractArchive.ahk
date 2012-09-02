@@ -20,67 +20,87 @@
 TestName = 2.ExtractArchive
 szDocument = %A_WorkingDir%\Media\7Zip_TestFile.7z
 
+; Test if can terminate process
+TestsTotal++
+Process, Close, 7zFM.exe
+Process, WaitClose, 7zFM.exe, 4
+if ErrorLevel
+    TestsFailed("Process '7zFM.exe' failed to close.")
+else
+    TestsOK("Process '7zFM.exe' does not exist.")
+
 ; Test if can extract file to the folder in desktop
 TestsTotal++
-IfExist, %szDocument%
+IfNotExist, %szDocument%
+    TestsFailed("Can NOT find '" szDocument "'.")
+else
 {
     FileRemoveDir, %A_Desktop%\7-Zip, 1
     FileCreateDir, %A_Desktop%\7-Zip
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("Failed to create '" A_Desktop "\7-Zip'.")
+    else
     {
         RunApplication(szDocument)
-        if bContinue
+        if not bContinue
+            TestsFailed("We failed somwehere in 'prepare.ahk'.")
+        else
         {
             WinWaitActive, %szDocument%\,,7
-            if not ErrorLevel
+            if ErrorLevel
+                TestsFailed("Window '" PathToFile "\' failed to appear.")
+            else
             {
                 SendInput, {F5} ; Shortcut to 'Extract'
                 WinWaitActive, Copy, Copy to, 7
-                if not ErrorLevel
+                if ErrorLevel
+                    TestsFailed("Window 'Copy (Copy to)' failed to appear. Shortcuts (F5) not working?")
+                else
                 {
                     ControlSetText, Edit1, %A_Desktop%\7-Zip, Copy, Copy to ; Path
-                    if not ErrorLevel
+                    if ErrorLevel
+                        TestsFailed("Unable to change 'Edit1' control text to '" A_Desktop "\7-Zip'.")
+                    else
                     {
                         ControlClick, Button2, Copy, Copy to ; Hit 'OK' button
-                        if not ErrorLevel
+                        if ErrorLevel
+                            TestsFailed("Unable to hit 'OK' button in 'Copy (Copy to)' window.")
+                        else
                         {
                             Sleep, 4000 ; Give it some time to extract
-                            IfExist, %A_Desktop%\7-Zip\TestFile.txt
+                            IfNotExist, %A_Desktop%\7-Zip\TestFile.txt
+                                TestsFailed("Can NOT find '" A_Desktop "\7-Zip\TestFile.txt'.")
+                            else
                             {
                                 FileReadLine, OutputVar, %A_Desktop%\7-Zip\TestFile.txt, 1
-                                if not ErrorLevel
+                                if ErrorLevel
+                                    TestsFailed("Can NOT read contents of existing file '" A_Desktop "\7-Zip\TestFile.txt'.")
+                                else
                                 {
                                     TestText = If you can read this, then test works.
-                                    if OutputVar = %TestText%
-                                        TestsOK("")
+                                    if OutputVar <> %TestText%
+                                        TestsFailed("Line 1 of '" A_Desktop "\7-Zip\TestFile.txt' is not the same as expected (expected '" TestText "', got '" OutputVar "').")
                                     else
-                                        TestsFailed("Line 1 of '" A_Desktop "\7-Zip\TestFile.txt' is not the same as expected (" OutputVar ").")
+                                    {
+                                        Process, Exist, 7zFM.exe
+                                        if ErrorLevel = 0
+                                            TestsFailed("Process '7zFM.exe' does not exist.")
+                                        else
+                                        {
+                                            Process, Close, 7zFM.exe
+                                            Process, WaitClose, 7zFM.exe, 4
+                                            if ErrorLevel
+                                                TestsFailed("Unable to terminate '7zFM.exe' process.")
+                                            else
+                                                TestsOK("Extracted text file from an archive, its contents were as expected, '7zFM.exe' process terminated. ")
+                                        }
+                                    }
                                 }
-                                else
-                                    TestsFailed("Can NOT read contents of '" A_Desktop "\7-Zip\TestFile.txt'.")
                             }
-                            else
-                                TestsFailed("Can NOT find '" A_Desktop "\7-Zip\TestFile.txt'.")
                         }
-                        else
-                            TestsFailed("Unable to hit 'OK' button in 'Copy (Copy to)' window.")
                     }
-                    else
-                        TestsFailed("Unable to change 'Edit1' control text to '" A_Desktop "\7-Zip'.")
                 }
-                else
-                    TestsFailed("Window 'Copy (Copy to)' failed to appear. Shortcuts (F5) not working?")
             }
-            else
-                TestsFailed("Window '" PathToFile "\' failed to appear.")
         }
-        else
-            TestsFailed("We failed somwehere in 'prepare.ahk'.")
     }
-    else
-        TestsFailed("Failed to create '" A_Desktop "\7-Zip'.")
 }
-else
-    TestsFailed("Can NOT find '" szDocument "'.")
-
-Process, Close, 7zFM.exe

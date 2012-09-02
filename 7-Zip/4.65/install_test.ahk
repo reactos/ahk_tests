@@ -19,141 +19,217 @@
 
 ModuleExe = %A_WorkingDir%\Apps\7-Zip 4.65 Setup.exe
 TestName = 1.install
-
-bContinue := false
-TestsFailed := 0
-TestsOK := 0
-TestsTotal := 0
+MainAppFile = 7zFM.exe ; Mostly this is going to be process we need to look for
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
-IfExist, %ModuleExe%
-{
-    ; Get rid of other versions
-    RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\7-Zip, UninstallString
-    if not ErrorLevel
-    {
-        StringReplace, UninstallerPath, UninstallerPath, `",, All ; String contains quotes, replace em
-        IfExist, %UninstallerPath%
-        {
-            Process, Close, 7zFM.exe ; Teminate process
-            Sleep, 1500
-            RunWait, %UninstallerPath% /S ; Silently uninstall it
-            Sleep, 2500
-            ; Delete everything just in case
-            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\7-Zip
-            RegDelete, HKEY_CURRENT_USER, SOFTWARE\7-Zip
-            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\7-Zip
-            SplitPath, UninstallerPath,, InstalledDir
-            Run, regsvr32 /s /u "%A_ProgramFiles%\7-Zip\7-zip.dll"
-            Process, Close, explorer.exe ; Explorer restart is required
-            Sleep, 2500
-            FileRemoveDir, %InstalledDir%, 1
-            Sleep, 1000
-            IfExist, %InstalledDir%
-            {
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to delete '%InstalledDir%'.`n
-                bContinue := false
-            }
-            else
-            {
-                bContinue := true
-            }
-        }
-        else
-        {
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%UninstallerPath%' does not exist.`n
-            bContinue := false
-        }
-    }
-    else
-    {
-        ; There was a problem (such as a nonexistent key or value). 
-        ; That probably means we have not installed this app before.
-        ; Check in default directory to be extra sure
-        IfExist, %A_ProgramFiles%\7-Zip\Uninstall.exe
-        {
-            Process, Close, 7zFM.exe ; Teminate process
-            Sleep, 1500
-            RunWait, %A_ProgramFiles%\7-Zip\Uninstall.exe /S ; Silently uninstall it
-            Sleep, 2500
-            Run, regsvr32 /s /u "%A_ProgramFiles%\7-Zip\7-zip.dll"
-            Process, Close, explorer.exe
-            Sleep, 2500
-            FileRemoveDir, %A_ProgramFiles%\7-Zip, 1
-            Sleep, 1000
-            IfExist, %A_ProgramFiles%\7-Zip
-            {
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Previous version detected and failed to delete '%A_ProgramFiles%\7-Zip'.`n
-                bContinue := false
-            }
-            else
-                bContinue := true
-        }
-        else
-            bContinue := true ; No previous versions detected.
-    }
-    if bContinue
-        Run %ModuleExe%
-}
+TestsTotal++
+IfNotExist, %ModuleExe%
+    TestsFailed("'" ModuleExe "' not found.")
 else
 {
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%ModuleExe%' not found.`n
-    bContinue := false
+    Process, Close, %MainAppFile% ; Teminate process
+    Sleep, 2000
+    Process, Exist, %MainAppFile%
+    if ErrorLevel <> 0
+        TestsFailed("Unable to terminate '" MainAppFile "' process.") ; So, process still exists
+    else
+    {
+        RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\7-Zip, UninstallString
+        if ErrorLevel
+        {
+            ; There was a problem (such as a nonexistent key or value). 
+            ; That probably means we have not installed this app before.
+            ; Check in default directory to be extra sure
+            IfNotExist, %A_ProgramFiles%\7-Zip
+                bContinue := true ; No previous versions detected in hardcoded path
+            else
+            {
+                bHardcoded := true ; To know if we got path from registry or not
+                IfExist, %A_ProgramFiles%\7-Zip\Uninstall.exe
+                {
+                    RunWait, %A_ProgramFiles%\7-Zip\Uninstall.exe /S ; Silently uninstall it
+                    Sleep, 7000
+                }
+
+                Run, regsvr32 /s /u "%A_ProgramFiles%\7-Zip\7-zip.dll"
+                Process, Close, explorer.exe
+                Sleep, 270
+                IfNotExist, %A_ProgramFiles%\7-Zip ; Uninstaller might delete the dir
+                    bContinue := true
+                {
+                    FileRemoveDir, %A_ProgramFiles%\7-Zip, 1
+                    if ErrorLevel
+                        TestsFailed("Unable to delete existing '" A_ProgramFiles "\7-Zip' ('" MainAppFile "' process is reported as terminated).'")
+                    else
+                        bContinue := true
+                }
+            }
+        }
+        else
+        {
+            StringReplace, UninstallerPath, UninstallerPath, `",, All ; String contains quotes, replace em
+            SplitPath, UninstallerPath,, InstalledDir
+            IfNotExist, %InstalledDir%
+                bContinue := true
+            else
+            {
+                IfExist, %UninstallerPath%
+                {
+                    RunWait, %UninstallerPath% /S ; Silently uninstall it
+                    Sleep, 7000
+                }
+
+                IfNotExist, %InstalledDir%
+                    bContinue := true
+                else
+                {
+                    Run, regsvr32 /s /u "%A_ProgramFiles%\7-Zip\7-zip.dll"
+                    Process, Close, explorer.exe
+                    Sleep, 270
+                    FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
+                    if ErrorLevel
+                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                    else
+                        bContinue := true
+                }
+            }
+        }
+    }
+
+    if bContinue
+    {
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\7-Zip
+        RegDelete, HKEY_CURRENT_USER, SOFTWARE\7-Zip
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\7-Zip
+        IfExist, %A_AppData%\7-Zip
+        {
+            FileRemoveDir, %A_AppData%\7-Zip, 1
+            if ErrorLevel
+                TestsFailed("Unable to delete '" A_AppData "\7-Zip'.")
+        }
+
+        if bContinue
+        {
+            if bHardcoded
+                TestsOK("Either there was no previous versions or we succeeded removing it using hardcoded path.")
+            else
+                TestsOK("Either there was no previous versions or we succeeded removing it using data from registry.")
+            Run %ModuleExe%
+        }
+    }
 }
 
 
-; Test if '7-Zip 4.65 Setup (Choose Install Location)' window appeared, is so, hit 'Install' button
+; Test if '7-Zip 4.65 Setup (Choose Install Location)' window appeared, if so, hit 'Install' button
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, 7-Zip 4.65 Setup, Choose Install Location, 7
-    if not ErrorLevel
-    {
-        Sleep, 250
-        ControlClick, Button2, 7-Zip 4.65 Setup, Choose Install Location ; Hit 'Install' button
-        if not ErrorLevel
-            TestsOK("'7-Zip 4.65 Setup (Choose Install Location)' window appeared and 'Next' button was clicked.")
-        else
-            TestsFailed("Unable to hit 'Install' button in '7-Zip 4.65 Setup (Choose Install Location)' window.")
-    }
+    WinWait, 7-Zip 4.65 Setup, Choose Install Location, 15
+    if ErrorLevel
+        TestsFailed("'7-Zip 4.65 Setup (Choose Install Location)' window does not exist.")
     else
-        TestsFailed("'7-Zip 4.65 Setup (Choose Install Location)' window failed to appear.")
+    {
+        ; We had to kill explorer, so, make sure 7-Zip window is active
+        WinActivate, 7-Zip 4.65 Setup, Choose Install Location
+        WinWaitActive, 7-Zip 4.65 Setup, Choose Install Location, 7
+        if ErrorLevel
+            TestsFailed("Unable to activate existing '7-Zip 4.65 Setup (Choose Install Location)' window.")
+        else
+        {
+            ControlClick, Button2, 7-Zip 4.65 Setup, Choose Install Location ; Hit 'Install' button
+            if ErrorLevel
+                TestsFailed("Unable to hit 'Install' button in '7-Zip 4.65 Setup (Choose Install Location)' window.")
+            else
+                TestsOK("'7-Zip 4.65 Setup (Choose Install Location)' window appeared and 'Install' button was clicked.")
+        }
+    }
 }
 
 
-; Test if '7-Zip 4.65 (7-Zip 4.65 has been installed)' window appeared, if so, hit 'Finish' button
+; Test if can get thru '7-Zip 4.65 Setup (Installing)' window
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, 7-Zip 4.65 Setup, 7-Zip 4.65 has been installed, 7
-    if not ErrorLevel
-    {
-        Sleep, 250
-        ControlClick, Button2, 7-Zip 4.65 Setup, 7-Zip 4.65 has been installed ; Hit 'Finish'
-        if not ErrorLevel
-            TestsOK("'7-Zip 4.65 Setup (7-Zip 4.65 has been installed)' window appeared and 'Finish' button was clicked.")
-        else
-            TestsFailed("Unable to hit 'Finish' button in '7-Zip 4.65 Setup (7-Zip 4.65 has been installed)' window.")
-    }
+    WinWaitActive, 7-Zip 4.65 Setup, Installing, 5
+    if ErrorLevel
+        TestsFailed("'7-Zip 4.65 Setup (Installing)' window failed to appear.")
     else
-        TestsFailed("'7-Zip 4.65 Setup (7-Zip 4.65 has been installed)' window failed to appear.")
+    {
+        OutputDebug, %TestName%:%A_LineNumber%: '7-Zip 4.65 Setup (Installing)' window appeared, waiting for it to close.`n
+        WinWaitClose, 7-Zip 4.65 Setup, Installing, 20
+        if ErrorLevel
+            TestsFailed("'7-Zip 4.65 Setup (Installing)' window failed to close.")
+        else
+            TestsOK("'7-Zip 4.65 Setup (Installing)' window appeared and closed.")
+    }
 }
 
 
-;Check if program exists in program files
+; Test if '7-Zip 4.65 Setup (Completing)' window appeared, if so
+; check 'I want to reboot manually' radio button (if exist) and hit 'Finish' button
+TestsTotal++
+if bContinue
+{
+    WinWaitActive, 7-Zip 4.65 Setup, Completing, 5
+    if ErrorLevel
+        TestsFailed("'7-Zip 4.65 Setup (Completing)' window failed to appear.")
+    else
+    {
+        ControlGet, bVisible, Visible,, 7-Zip 4.65 Setup, Completing
+        if bVisible = 1 ; Control is visible
+        {
+            Control, Check, , Button5, 7-Zip 4.65 Setup, Completing ; Check 'I want to reboot manually' radiobutton
+            if ErrorLevel
+                TestsFailed("Unable to check 'I want to reboot manually' radiobutton in '7-Zip 4.65 Setup (Completing)' window.")
+            else
+            {
+                Sleep, 700
+                ControlClick, Button2, 7-Zip 4.65 Setup, Completing ; Hit 'Finish' button
+                if ErrorLevel
+                    TestsFailed("Unable to hit 'Finish' button in '7-Zip 4.65 Setup (Completing)' window.")
+                else
+                {
+                    WinWaitClose, 7-Zip 4.65 Setup, Completing, 5
+                    if ErrorLevel
+                        TestsFailed("'7-Zip 4.65 Setup (Completing)' window failed to close after clicking on 'Finish' button.")
+                    else
+                        TestsOK("'I want to reboot manually' radiobutton was checked and 'Finish' button was clicked in '7-Zip 4.65 Setup (Completing)' window and it closed.")
+                }
+            }
+        }
+        else
+        {
+            ControlClick, Button2, 7-Zip 4.65 Setup, Completing ; Hit 'Finish' button
+            if ErrorLevel
+                TestsFailed("Unable to hit 'Finish' button in '7-Zip 4.65 Setup (Completing)' window.")
+            else
+            {
+                WinWaitClose, 7-Zip 4.65 Setup, Completing, 5
+                if ErrorLevel
+                    TestsFailed("'7-Zip 4.65 Setup (Completing)' window failed to close after clicking on 'Finish' button.")
+                else
+                    TestsOK("'Finish' button was clicked in '7-Zip 4.65 Setup (Completing)' window and it closed.")
+            }
+        }
+    }
+}
+
+
+; Check if program exists
 TestsTotal++
 if bContinue
 {
     Sleep, 2000
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\7-Zip, UninstallString
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
+    else
     {
         StringReplace, UninstallerPath, UninstallerPath, `",, All ; String contains quotes, replace em
-        IfExist, %UninstallerPath%
-            TestsOK("The application has been installed, because '" UninstallerPath "' was found.")
+        SplitPath, UninstallerPath,, InstalledDir
+        IfNotExist, %InstalledDir%\%MainAppFile%
+            TestsFailed("Something went wrong, can't find '" InstalledDir "\" MainAppFile "'.")
         else
-            TestsFailed("Something went wrong, can't find '" UninstallerPath "'.")
+            TestsOK("The application has been installed, because '" InstalledDir "\" MainAppFile "' was found.")
     }
-    else
-        TestsFailed("Either we can't read from registry or data doesn't exist.")
 }
