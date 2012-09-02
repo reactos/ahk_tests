@@ -18,7 +18,7 @@
  */
 
 #Include ..\..\helper_functions.ahk
-AssignZeroes()
+InitalizeCounters()
 
 params =
 (

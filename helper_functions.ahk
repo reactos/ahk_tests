@@ -86,7 +86,7 @@ ShowTestResults() ; Usage: ShowTestResults()
 }
 
 
-AssignZeroes() ; Usage: AssignZeroes()
+InitalizeCounters() ; Usage: InitalizeCounters()
 {
     global bContinue := false
     global TestsOK := 0
