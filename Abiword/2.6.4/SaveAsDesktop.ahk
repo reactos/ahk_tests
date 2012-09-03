@@ -22,92 +22,95 @@ TestName = 2.SaveAsDesktop
 ; Test if can properly save document to desktop
 TestsTotal++
 RunApplication("")
-if bContinue
+if not bContinue
+    TestsFailed("We failed somwehere in 'prepare.ahk'.")
+else
 {
     WinWaitActive, Untitled1 - AbiWord,,5
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("Window 'Untitled1 - AbiWord' failed to appear.")
+    else
     {
         SendInput, AbiWord %TestName% test by Edijus
         WinWaitActive, *Untitled1 - AbiWord,,5
-        if not ErrorLevel
+        if ErrorLevel
+            TestsFailed("Window '*Untitled1 - AbiWord' failed to appear.")
+        else
         {
-            WinClose, *Untitled1 - AbiWord
+            SendInput, !{F4}
             WinWaitActive, AbiWord, Save changes, 5
-            if not ErrorLevel
+            if ErrorLevel
+                TestsFailed("Window 'AbiWord (Save changes)' failed to appear.")
+            else
             {
                 ControlGetText, OutputVar, Static2, AbiWord ; Get control text
-                if not ErrorLevel
+                if ErrorLevel
+                    TestsFailed("Unable to get Static2 control text of 'AbiWord (Save changes)' window.")
+                else
                 {
                     ControlText = Save changes to document Untitled1 before closing? ; 
-                    if OutputVar = %ControlText% ; Check if text matches
+                    if OutputVar != %ControlText% ; Check if text matches
+                        TestsFailed("Control text is not the same as expected in 'AbiWord (Save changes)' window (is '" OutputVar "', should be '" ControlText "', bug 6035?).")
+                    else
                     {
                         ControlClick, Button1, AbiWord, Save changes ; Click 'Yes' button
-                        if not ErrorLevel
+                        if ErrorLevel
+                            TestsFailed("Unable to hit 'Yes' button in 'AbiWord (Save changes)' window.")
+                        else
                         {
                             WinWaitActive, Save File As,, 7
-                            if not ErrorLevel
+                            if ErrorLevel
+                                TestsFailed("Window 'Save File As' failed to appear.")
+                            else
                             {
                                 FileDelete, %A_Desktop%\AbiWordTest.txt
                                 Sleep, 1500
                                 ControlSetText, Edit1, %A_Desktop%\AbiWordTest.txt, Save File As
-                                if not ErrorLevel
+                                if ErrorLevel
+                                    TestsFailed("Unable to change Edit1 control text to '" A_Desktop "\AbiWordTest.txt' in 'Save File As' window.")
+                                else
                                 {
                                     ControlClick, Button2, Save File As ; Click 'Save' button
-                                    if not ErrorLevel
+                                    if ErrorLevel
+                                        TestsFailed("Unable to hit 'Save' button in 'Save File As' window.")
+                                    else
                                     {
                                         WinWaitClose, *Untitled1 - AbiWord,,5
-                                        if not ErrorLevel
+                                        if ErrorLevel
+                                            TestsFailed("'*Untitled1 - AbiWord' window failed to close.")
+                                        else
                                         {
-                                            IfExist, %A_Desktop%\AbiWordTest.txt
+                                            IfNotExist, %A_Desktop%\AbiWordTest.txt
+                                                TestsFailed("'" A_Desktop "\AbiWordTest.txt' does NOT exist, but it should.")
+                                            else
                                             {
                                                 FileReadLine, OutputVar, %A_Desktop%\AbiWordTest.txt, 1 ; Read first line
-                                                if not ErrorLevel
+                                                if ErrorLevel
+                                                    TestsFailed("Unable to read '" A_Desktop "\AbiWordTest.txt'.")
+                                                else
                                                 {
                                                     TestText = <?xml version="1.0" encoding="UTF-8"?> ; This is what you get
-                                                    if OutputVar = %TestText% ; Check if text matches
-                                                    {
-                                                        TestsOK("")
-                                                    }
-                                                    else
+                                                    if OutputVar != %TestText% ; Check if text matches
                                                         TestsFailed("Text is not the same (is '" OutputVar "', should be '" TestText "').")
+                                                    else
+                                                    {
+                                                        Process, Close, AbiWord.exe
+                                                        Process, WaitClose, AbiWord.exe, 4
+                                                        if ErrorLevel
+                                                            TestsFailed("Unable to close 'AbiWord.exe' process.")
+                                                        else
+                                                            TestsOK("")
+                                                    }
                                                 }
-                                                else
-                                                    TestsFailed("Unable to read '" A_Desktop "\AbiWordTest.txt'.")
                                             }
-                                            else
-                                                TestsFailed("'" A_Desktop "\AbiWordTest.txt' does NOT exist, but it should.")
                                         }
-                                        else
-                                            TestsFailed("'*Untitled1 - AbiWord' window failed to close.")
                                     }
-                                    else
-                                        TestsFailed("Unable to hit 'Save' button in 'Save File As' window.")
                                 }
-                                else
-                                    TestsFailed("Unable to change Edit1 control text to '" A_Desktop "\AbiWordTest.txt' in 'Save File As' window.")
                             }
-                            else
-                                TestsFailed("Window 'Save File As' failed to appear.")
                         }
-                        else
-                            TestsFailed("Unable to hit 'Yes' button in 'AbiWord (Save changes)' window.")
                     }
-                    else
-                        TestsFailed("Control text is not the same as expected in 'AbiWord (Save changes)' window (is '" OutputVar "', should be '" ControlText "', bug 6035?).")
                 }
-                else
-                    TestsFailed("Unable to get Static2 control text of 'AbiWord (Save changes)' window.")
             }
-            else
-                TestsFailed("Window 'AbiWord (Save changes)' failed to appear.")
         }
-        else
-            TestsFailed("Window '*Untitled1 - AbiWord' failed to appear.")
     }
-    else
-        TestsFailed("Window 'Untitled1 - AbiWord' failed to appear.")
 }
-else
-    TestsFailed("We failed somwehere in 'prepare.ahk'.")
-
-Process, Close, AbiWord.exe

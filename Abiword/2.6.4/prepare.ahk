@@ -17,27 +17,20 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-bContinue := false
-TestsTotal := 0
-TestsSkipped := 0
-TestsFailed := 0
-TestsOK := 0
-TestsExecuted := 0
 TestName = prepare
 
 Process, Close, AbiWord.exe
 
 RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\AbiWord2, UninstallString
-if not ErrorLevel
-{
-    StringReplace, UninstallerPath, UninstallerPath, `",, All ; String contains quotes, replace em
-    SplitPath, UninstallerPath,, InstalledDir
-    ModuleExe = %InstalledDir%\AbiWord\bin\AbiWord.exe
-}
-else
+if ErrorLevel
 {
     ModuleExe = %A_ProgramFiles%\AbiSuite2\AbiWord\bin\AbiWord.exe
     OutputDebug, %TestName%:%A_LineNumber%: Can NOT read data from registry. Key might not exist. Using hardcoded path.`n
+}
+else
+{
+    SplitPath, UninstallerPath,, InstalledDir
+    ModuleExe = %InstalledDir%\AbiWord\bin\AbiWord.exe
 }
 
 
@@ -47,45 +40,47 @@ RunApplication(PathToFile)
     global ModuleExe
     global TestName
     global bContinue
+    global TestsTotal
 
-    Sleep, 500
-    RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\AbiSuite
-    IfExist, %ModuleExe%
-    {
-        if PathToFile =
-        {
-            Run, %ModuleExe%,, Max ; Start maximized
-            Sleep, 1000
-            WinWaitActive, Untitled1 - AbiWord,,7
-            if not ErrorLevel
-            {
-                bContinue := true
-            }
-            else
-            {
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Untitled1 - AbiWord' failed to appear. Active window caption: '%title%'`n
-            }
-        }
-        else
-        {
-            Run, %ModuleExe% "%PathToFile%",, Max
-            Sleep, 1000
-            SplitPath, PathToFile, NameExt
-            WinWaitActive, %NameExt% - AbiWord,,7
-            if not ErrorLevel
-            {
-                bContinue := true
-            }
-            else
-            {
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window '%NameExt% - AbiWord' failed to appear. Active window caption: '%title%'`n
-            }
-        }
-    }
+    TestsTotal++
+    Process, Close, AbiWord.exe
+    Process, WaitClose, AbiWord.exe, 4
+    if ErrorLevel
+        TestsFailed("Unable to close 'AbiWord.exe' process.")
     else
     {
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%ModuleExe%'.`n
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\AbiSuite
+        Sleep, 500
+        IfNotExist, %ModuleExe%
+            TestsFailed("Can NOT find '" ModuleExe "'.")
+        else
+        {
+            if PathToFile =
+            {
+                Run, %ModuleExe%,, Max ; Start maximized
+                Sleep, 1000
+                WinWaitActive, Untitled1 - AbiWord,,7
+                if ErrorLevel
+                    TestsFailed("Window 'Untitled1 - AbiWord' failed to appear.")
+                else
+                    TestsOK("")
+            }
+            else
+            {
+                IfNotExist, %PathToFile%
+                    TestsFailed("Can NOT find '" PathToFile "'.")
+                else
+                {
+                    Run, %ModuleExe% "%PathToFile%",, Max
+                    Sleep, 1000
+                    SplitPath, PathToFile, NameExt
+                    WinWaitActive, %NameExt% - AbiWord,,7
+                    if ErrorLevel
+                        TestsFailed("Window '%NameExt% - AbiWord' failed to appear.")
+                    else
+                        TestsOK("")
+                }
+            }
+        }
     }
 }
