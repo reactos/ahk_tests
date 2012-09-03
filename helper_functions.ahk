@@ -64,6 +64,7 @@ ShowTestResults() ; Usage: ShowTestResults()
     global TestsFailed
     global TestsExecuted
     global params
+    global ModuleExe
     global 1
 
     IfInString, params, %1% ; Check if right param was specified
@@ -198,14 +199,32 @@ FileCountLines(PathToFile)
 ; Terminates application windows and closes error boxes
 WindowCleanup(ProcessName)
 {
-    Process, wait, %ProcessName%, 1
-    NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
-    if NewPID != 0
+    Process, Exist, %ProcessName%
+    if ErrorLevel != 0
     {
         Process, close, %ProcessName%
-        SplitPath, ProcessName, name, dir, ext, name_no_ext, drive
-        Process, close, %name_no_ext%.tmp ; Will kill some setups
+        Process, WaitClose, %ProcessName%, 5
+        if ErrorLevel
+            OutputDebug, Helper Functions: Unable to terminate '%ProcessName%' process.`n
+    }
+    
+    SplitPath, ProcessName,,, name_no_ext 
+    Process, Exist, %name_no_ext%.tmp ; Will kill some setups
+    if ErrorLevel != 0
+    {
+        Process, close, %name_no_ext%.tmp
+        Process, WaitClose, %name_no_ext%.tmp, 5
+        if ErrorLevel
+            OutputDebug, Helper Functions: Unable to terminate '%name_no_ext%.tmp' process.`n
+    }
+
+    Process, Exist, Setup.exe
+    if ErrorLevel != 0
+    {
         Process, close, Setup.exe
+        Process, WaitClose, Setup.exe, 5
+        if ErrorLevel
+            OutputDebug, Helper Functions: Unable to terminate 'Setup.exe' process.`n
     }
     
     Sleep, 2500
@@ -229,6 +248,7 @@ WindowCleanup(ProcessName)
             {
                 Sleep, 1200
                 SendInput, {ENTER} ; Hit 'OK' button
+                OutputDebug, Helper Functions: Sent ENTER to '%ErrorWinTitle%' window to hit 'OK' button.`n
             }
         }
     }
