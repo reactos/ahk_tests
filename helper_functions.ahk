@@ -227,6 +227,15 @@ WindowCleanup(ProcessName)
             OutputDebug, Helper Functions: Unable to terminate 'Setup.exe' process.`n
     }
     
+    Process, Exist, msiexec.exe
+    if ErrorLevel != 0
+    {
+        Process, close, msiexec.exe
+        Process, WaitClose, msiexec.exe, 5
+        if ErrorLevel
+            OutputDebug, Helper Functions: Unable to terminate 'msiexec.exe' process.`n
+    }
+    
     Sleep, 2500
     IfWinActive, Mozilla Crash Reporter
     {
