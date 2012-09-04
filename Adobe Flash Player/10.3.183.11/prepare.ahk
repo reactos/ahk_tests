@@ -17,34 +17,29 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-bContinue := false
-TestsTotal := 0
-TestsSkipped := 0
-TestsFailed := 0
-TestsOK := 0
-TestsExecuted := 0
 TestName = prepare
-
-Process, Close, Standalone Flash Player 10.3.183.11.exe
-
 ModuleExe = %A_WorkingDir%\Apps\Standalone Flash Player 10.3.183.11.exe
+MainAppFile = Standalone Flash Player 10.3.183.11.exe
 
-IfExist, %ModuleExe%
-{
-    Run, %ModuleExe% ; Do not run it maximized!
-    WinWaitActive, Adobe Flash Player 10,,7
-    if not ErrorLevel
-    {
-        Sleep, 1000 ; We are good to go
-        bContinue := true
-    }
-    else
-    {
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Adobe Flash Player 10' window failed to appear. Active window caption: '%title%'.`n
-    }
-}
+TestsTotal++
+IfNotExist, %ModuleExe%
+    TestsFailed("Can NOT find ' "ModuleExe "'.")
 else
 {
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%ModuleExe%'.`n
+    Process, Close, %MainAppFile%
+    Process, WaitClose, %MainAppFile%, 4
+    if ErrorLevel
+        TestsFailed("Unable to terminate '" MainAppFile "' process.")
+    else
+    {
+        Run, %ModuleExe% ; Do not run it maximized!
+        WinWaitActive, Adobe Flash Player 10,,7
+        if ErrorLevel
+            TestsFailed("'Adobe Flash Player 10' window failed to appear.")
+        else
+        {
+            Sleep, 1000 ; We are good to go
+            TestsOK("")
+        }
+    }
 }

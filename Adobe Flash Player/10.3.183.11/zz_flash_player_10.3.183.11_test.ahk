@@ -18,10 +18,8 @@
  */
 
 #Include ..\..\helper_functions.ahk
+InitalizeCounters()
 
-
-if 1 = --list
-{
 params =
 (
 
@@ -30,39 +28,27 @@ params =
     3.SA_LoadOnlineFlash
 
 )
-FileAppend, %params%, *
-}
-else if 1 = 1.install
+
+if CheckParam()
 {
-    #include install_test.ahk
-}
-else
-{
-    #include prepare.ahk
-    
-    if 1 = 2.SA_LoadLocalFlash ; StandAlone Flash Player: play locally located SWF
+    ; Those brackets are required!
+    if 1 = 1.install
     {
-        #include SA_LoadLocalFlash.ahk
+        #include install_test.ahk
     }
-    else if 1 = 3.SA_LoadOnlineFlash ; StandAlone Flash Player: play online located SWF
+    else 
     {
-        #include SA_LoadOnlineFlash.ahk
+        #include prepare.ahk
+
+        if 1 = 2.SA_LoadLocalFlash
+        {
+            #include SA_LoadLocalFlash.ahk ; StandAlone Flash Player: play locally located SWF
+        }
+        else if 1 = 3.SA_LoadOnlineFlash ; StandAlone Flash Player: play online located SWF
+        {
+            #include SA_LoadOnlineFlash.ahk
+        }
     }
-    else
-    OutputDebug, Bad parameters: '%1%'!`r`n
 }
 
-if 1 != --list
-{
-    if not bContinue
-    {
-        SplitPath, ModuleExe, fName ; Extract filename from given path
-        WindowCleanUp(fName)  
-    }
-
-    TestsSkipped := TestsTotal - TestsOK - TestsFailed
-    TestsExecuted := TestsOK + TestsFailed
-    if (TestsSkipped < 0 or TestsExecuted < 0)
-        OutputDebug, %TestName%: Check TestsTotal, TestsOK and TestsFailed, because results returns less than 0.`n
-    OutputDebug, %TestName%: %TestsExecuted% tests executed (0 marked as todo, %TestsFailed% failures), %TestsSkipped% skipped.`n
-}
+ShowTestResults()

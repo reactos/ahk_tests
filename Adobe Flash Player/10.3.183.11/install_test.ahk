@@ -19,101 +19,127 @@
 
 ModuleExe = %A_WorkingDir%\Apps\Flash Player 10.3.183.11 Setup.exe
 TestName = 1.install
-
-bContinue := false
-TestsFailed := 0
-TestsOK := 0
-TestsTotal := 0
+MainAppFile = FlashUtil10y_ActiveX.exe ; Mostly this is going to be process we need to look for
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
-IfExist, %ModuleExe%
-{
-    InstallLocation = %A_WinDir%\System32\Macromed\Flash
-    ; Get rid of other versions
-    RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Adobe Flash Player ActiveX, UninstallString
-    if not ErrorLevel
-    {
-        Run, %UninstallerPath%
-        WinWaitActive, Uninstall Adobe Flash Player,,7
-        if not ErrorLevel
-        {
-            ControlClick, Button3, Uninstall Adobe Flash Player ; Uninstall
-            Sleep, 5000
-            ControlClick, Button3, Uninstall Adobe Flash Player ; Done
-        }
-        else
-        {
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to run '%UninstallerPath%' (window 'Uninstall Adobe Flash Player' failed to appear).`n
-            bContinue := false
-        }
-        Sleep, 2500
-        ; Delete everything just in case
-        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Adobe Flash Player ActiveX
-        FileRemoveDir, %InstallLocation%, 1
-        Sleep, 1000
-        IfExist, %InstallLocation%
-        {
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to delete '%InstallLocation%'.`n
-            bContinue := false
-        }
-        else
-        {
-            bContinue := true
-        }
-    }
-    else
-    {
-        ; There was a problem (such as a nonexistent key or value). 
-        ; That probably means we have not installed this app before.
-        ; Check in default directory to be extra sure
-        IfExist, %InstallLocation%
-        {
-            IfExist, %InstallLocation%\FlashUtil10y_ActiveX.exe
-            {
-                Run, %InstallLocation%\FlashUtil10y_ActiveX.exe -maintain activex
-                WinWaitActive, Uninstall Adobe Flash Player,,7
-                if not ErrorLevel
-                {
-                    ControlClick, Button3, Uninstall Adobe Flash Player ; Uninstall
-                    Sleep, 5000
-                    ControlClick, Button3, Uninstall Adobe Flash Player ; Done
-                }
-                else
-                {
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to run '%InstallLocation%\FlashUtil10y_ActiveX.exe' (window 'Uninstall Adobe Flash Player' failed to appear).`n
-                    bContinue := false
-                }
-            }
-            Sleep, 2500
-            FileRemoveDir, %InstallLocation%, 1
-            Sleep, 1000
-            IfExist, %InstallLocation%
-            {
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Previous version detected and failed to delete '%InstallLocation%'.`n
-                bContinue := false
-            }
-            else
-            {
-                bContinue := true
-            }
-        }
-        else
-        {
-            ; No previous versions detected.
-            bContinue := true
-        }
-    }
-    if bContinue
-    {
-        Process, Close, FlashUtil10y_ActiveX.exe ; Just in case
-        Sleep, 1500
-        Run %ModuleExe%
-    }
-}
+TestsTotal++
+IfNotExist, %ModuleExe%
+    TestsFailed("'" ModuleExe "' not found.")
 else
 {
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%ModuleExe%' not found.`n
-    bContinue := false
+    InstallLocation = %A_WinDir%\System32\Macromed\Flash
+    Process, Close, %MainAppFile% ; Teminate process
+    Sleep, 2000
+    Process, Exist, %MainAppFile%
+    if ErrorLevel <> 0
+        TestsFailed("Unable to terminate '" MainAppFile "' process.") ; So, process still exists
+    else
+    {
+        RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Adobe Flash Player ActiveX, UninstallString
+        if ErrorLevel
+        {
+            ; There was a problem (such as a nonexistent key or value). 
+            ; That probably means we have not installed this app before.
+            ; Check in default directory to be extra sure
+            IfNotExist, %InstallLocation%
+                bContinue := true ; No previous versions detected in hardcoded path
+            else
+            {
+                bHardcoded := true ; To know if we got path from registry or not
+                IfExist, %InstallLocation%\%MainAppFile%
+                {
+                    Run, %InstallLocation%\%MainAppFile% -maintain activex
+                    WinWaitActive, Uninstall Adobe Flash Player,,7
+                    if ErrorLevel
+                        TestsFailed("'Uninstall Adobe Flash Player' failed to appear.")
+                    else
+                    {
+                        ControlClick, Button3, Uninstall Adobe Flash Player ; Uninstall
+                        Sleep, 5000
+                        ControlClick, Button3, Uninstall Adobe Flash Player ; Done
+                        WinWaitClose, Uninstall Adobe Flash Player,,7
+                        if ErrorLevel
+                            TestsFailed("'Uninstall Adobe Flash Player' window failed to close.")
+                        else
+                        {
+                            Process, Close, %MainAppFile% ; Teminate process
+                            Process, WaitClose, %MainAppFile%, 4
+                            if ErrorLevel
+                                TestsFailed("Unable to terminate '" MainAppFile "' process.") ; So, process still exists
+                        }
+                    }
+                }
+
+                IfNotExist, %InstallLocation% ; Uninstaller might delete the dir
+                    bContinue := true
+                {
+                    FileRemoveDir, %InstallLocation%, 1
+                    if ErrorLevel
+                        TestsFailed("Unable to delete existing '" %InstallLocation% "' ('" MainAppFile "' process is reported as terminated).'")
+                    else
+                        bContinue := true
+                }
+            }
+        }
+        else
+        {
+            SplitPath, UninstallerPath,, InstalledDir ; It will get rid of command line options and filename
+            IfNotExist, %InstalledDir%
+                bContinue := true
+            else
+            {
+                UninstallerPath = %InstalledDir%\%MainAppFile%
+                IfExist, %UninstallerPath%
+                {
+                    Run, %InstalledDir%\%MainAppFile% -maintain activex
+                    WinWaitActive, Uninstall Adobe Flash Player,,7
+                    if ErrorLevel
+                        TestsFailed("'Uninstall Adobe Flash Player' failed to appear.")
+                    else
+                    {
+                        ControlClick, Button3, Uninstall Adobe Flash Player ; Uninstall
+                        Sleep, 5000
+                        ControlClick, Button3, Uninstall Adobe Flash Player ; Done
+                        WinWaitClose, Uninstall Adobe Flash Player,,7
+                        if ErrorLevel
+                            TestsFailed("'Uninstall Adobe Flash Player' window failed to close.")
+                        else
+                        {
+                            Process, Close, %MainAppFile% ; Teminate process
+                            Process, WaitClose, %MainAppFile%, 4
+                            if ErrorLevel
+                                TestsFailed("Unable to terminate '" MainAppFile "' process.") ; So, process still exists
+                        }
+                    }
+                }
+
+                IfNotExist, %InstalledDir%
+                    bContinue := true
+                else
+                {
+                    FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
+                    if ErrorLevel
+                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                    else
+                        bContinue := true
+                }
+            }
+        }
+    }
+
+    if bContinue
+    {
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Adobe Flash Player ActiveX
+
+        if bContinue
+        {
+            if bHardcoded
+                TestsOK("Either there was no previous versions or we succeeded removing it using hardcoded path.")
+            else
+                TestsOK("Either there was no previous versions or we succeeded removing it using data from registry.")
+            Run %ModuleExe%
+        }
+    }
 }
 
 
@@ -122,24 +148,24 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Adobe® Flash® Player 10.3 Installer,, 7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'Adobe® Flash® Player 10.3 Installer' window with 'Install' button failed to appear.")
+    else
     {
         Sleep, 250
         Control, Check,,Button6, Adobe® Flash® Player 10.3 Installer ; Check 'I have read and agree' checkbox
-        if not ErrorLevel
+        if ErrorLevel
+            TestsFailed("Unable to check 'I have read and agree' checkbox in 'Adobe® Flash® Player 10.3 Installer' window.")
+        else
         {
             Sleep, 1500 ; Wait until 'Install' button is enabled
             ControlClick, Button3, Adobe® Flash® Player 10.3 Installer ; Hit 'Install' button
-            if not ErrorLevel
-                TestsOK("'Adobe® Flash® Player 10.3 Installer' window appeared and 'Install' button was clicked.")
-            else
+            if ErrorLevel
                 TestsFailed("Unable to hit 'Install' button in 'Adobe® Flash® Player 10.3 Installer' window.")
+            else
+                TestsOK("'Adobe® Flash® Player 10.3 Installer' window appeared and 'Install' button was clicked.")
         }
-        else
-            TestsFailed("Unable to check 'I have read and agree' checkbox in 'Adobe® Flash® Player 10.3 Installer' window.")
     }
-    else
-        TestsFailed("'Adobe® Flash® Player 10.3 Installer' window with 'Install' button failed to appear.")
 }
 
 
@@ -147,7 +173,9 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    IfWinActive, Adobe® Flash® Player 10.3 Installer
+    IfWinNotActive, Adobe® Flash® Player 10.3 Installer
+        TestsFailed("'Adobe® Flash® Player 10.3 Installer' is not active window.")
+    else
     {
         while not %OutputVar% ; Sleep while 'Done' button is disabled
         {
@@ -155,23 +183,32 @@ if bContinue
             Sleep, 1000
         }
         ControlClick, Button3, Adobe® Flash® Player 10.3 Installer ; Hit 'Done' button
-        if not ErrorLevel
-            TestsOK("'Adobe® Flash® Player 10.3 Installer' window appeared and 'Done' button was clicked.")
-        else
+        if ErrorLevel
             TestsFailed("Unable to hit 'Done' button in 'Adobe® Flash® Player 10.3 Installer' window.")
+        else
+        WinWaitClose, Adobe® Flash® Player 10.3 Installer,,7
+        if ErrorLevel
+            TestsFailed("'Adobe® Flash® Player 10.3 Installer' window failed to close despite 'Done' button being clicked.")
+        else
+            TestsOK("'Adobe® Flash® Player 10.3 Installer' window appeared, 'Done' button clicked and window closed.")
     }
-    else
-        TestsFailed("'Adobe® Flash® Player 10.3 Installer' is not active window.")
 }
 
 
-; Check if program file exist
+; Check if program exists
 TestsTotal++
 if bContinue
 {
     Sleep, 2000
-    IfExist, %InstallLocation%
-        TestsOK("The application has been installed, because '" InstallLocation "' was found.")
+    RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Adobe Flash Player ActiveX, UninstallString
+    if ErrorLevel
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
     else
-        TestsFailed("Something went wrong, can't find '" InstallLocation "'.")
+    {
+        SplitPath, UninstallerPath,, InstalledDir
+        IfNotExist, %InstalledDir%\%MainAppFile%
+            TestsFailed("Something went wrong, can't find '" InstalledDir "\" MainAppFile "'.")
+        else
+            TestsOK("The application has been installed, because '" InstalledDir "\" MainAppFile "' was found.")
+    }
 }

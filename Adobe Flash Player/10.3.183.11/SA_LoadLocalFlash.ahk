@@ -22,33 +22,54 @@ szDocument =  %A_WorkingDir%\Media\Shockwave_Flash_Object.swf ; Case insensitive
 
 ; Test if can play locally located SWF
 TestsTotal++
-if bContinue
+if not bContinue
+    TestsFailed("We failed somwehere in 'prepare.ahk'.")
+else
 {
-    IfWinActive, Adobe Flash Player 10
+    IfWinNotActive, Adobe Flash Player 10
+        TestsFailed("'Adobe Flash Player 10' window is not active window.")
+    else
     {
-        IfExist, %szDocument%
+        IfNotExist, %szDocument%
+            TestsFailed("Can NOT find '" szDocument "'.")
+        else
         {
             WinMenuSelectItem, Adobe Flash Player 10, , File, Open ; File -> Open
-            if not ErrorLevel
+            if ErrorLevel
+                TestsFailed("Unable to click 'File -> Open' in 'Adobe Flash Player 10' window.")
+            else
             {
                 WinWaitActive, Open, Enter the, 7
-                if not ErrorLevel
+                if ErrorLevel
+                    TestsFailed("'Open (Enter the)' window is not active window.")
+                else
                 {
                     ControlSetText, Edit1, %szDocument%, Open, Enter the ; Enter path in 'Open' dialog
-                    if not ErrorLevel
+                    if ErrorLevel
+                        TestsFailed("Unable to enter path '" szDocument "' in 'Open (Enter the)' window.")
+                    else
                     {
+                        Sleep, 700
                         ControlClick, Button1, Open, Enter the
-                        if not ErrorLevel
+                        if ErrorLevel
+                            TestsFailed("Unable to hit 'OK' button in 'Open (Enter the)' window.")
+                        else
                         {
                             Sleep, 2000 ; Give it some time to fail
-                            IfWinActive, Adobe Flash Player 10
+                            IfWinNotActive, Adobe Flash Player 10
+                                TestsFailed("Loaded '" szDocument "'. 'Adobe Flash Player 10' is not active anymore.")
+                            else
                             {
                                 WinMenuSelectItem, Adobe Flash Player 10, , Control, Play ; Control -> Play
-                                if not ErrorLevel
+                                if ErrorLevel
+                                    TestsFailed("Unable to click 'Control -> Play' in 'Adobe Flash Player 10' window.")
+                                else
                                 {
                                     SearchImg = %A_WorkingDir%\Media\SA_LoadLocalFlashIMG.jpg
                         
-                                    IfExist, %SearchImg%
+                                    IfNotExist, %SearchImg%
+                                        TestsFailed("Can NOT find '" SearchImg "'.")
+                                    else
                                     {
                                         bFound := false
                                         while TimeOut < 400
@@ -72,39 +93,24 @@ if bContinue
                                             Sleep, 10
                                         }
                                         
-                                        if bFound
-                                            TestsOK("Found '" SearchImg "' on the screen, so, we can play '" szDocument "'.")
-                                        else
+                                        if not bFound
                                             TestsFailed("The search image '" SearchImg "' could NOT be found on the screen.")
+                                        else
+                                        {
+                                            Process, Close, %MainAppFile%
+                                            Process, WaitClose, %MainAppFile%, 4
+                                            if ErrorLevel
+                                                TestsFailed("Unable to terminate '" MainAppFile "' process.")
+                                            else
+                                                TestsOK("Found '" SearchImg "' on the screen, so, we can play '" szDocument "'.")
+                                        }
                                     }
-                                    else
-                                        TestsFailed("Can NOT find '" SearchImg "'.")
                                 }
-                                else
-                                    TestsFailed("Unable to click 'Control -> Play' in 'Adobe Flash Player 10' window.")
                             }
-                            else
-                                TestsFailed("Loaded '" szDocument "'. 'Adobe Flash Player 10' is not active anymore.")
                         }
-                        else
-                            TestsFailed("Unable to hit 'OK' button in 'Open (Enter the)' window.")
                     }
-                    else
-                        TestsFailed("Unable to enter path '" szDocument "' in 'Open (Enter the)' window.")
                 }
-                else
-                    TestsFailed("'Open (Enter the)' window is not active window.")
             }
-            else
-                TestsFailed("Unable to click 'File -> Open' in 'Adobe Flash Player 10' window.")
         }
-        else
-            TestsFailed("Can NOT find '" szDocument "'.")
     }
-    else
-        TestsFailed("'Adobe Flash Player 10' window is not active window.")
 }
-else
-    TestsFailed("We failed somwehere in 'prepare.ahk'.")
-
-Process, Close, Standalone Flash Player 10.3.183.11.exe

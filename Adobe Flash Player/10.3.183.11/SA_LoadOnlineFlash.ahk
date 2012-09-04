@@ -22,31 +22,48 @@ szDocument =  http://beastybombs.com/game/beastybombs_1_0_beta_1.swf ; Case inse
 
 ; Test if can play online located SWF
 TestsTotal++
-if bContinue
+if not bContinue
+    TestsFailed("We failed somwehere in 'prepare.ahk'.")
+else
 {
-    IfWinActive, Adobe Flash Player 10
+    IfWinNotActive, Adobe Flash Player 10
+        TestsFailed("'Adobe Flash Player 10' window is not active window.")
+    else
     {
         ; FIXME: check if online file %szDocument% exist
         WinMenuSelectItem, Adobe Flash Player 10, , File, Open ; File -> Open
-        if not ErrorLevel
+        if ErrorLevel
+            TestsFailed("Unable to click 'File -> Open' in 'Adobe Flash Player 10' window.")
+        else
         {
             WinWaitActive, Open, Enter the, 7
-            if not ErrorLevel
+            if ErrorLevel
+                TestsFailed("'Open (Enter the)' window is not active window.")
+            else
             {
                 ControlSetText, Edit1, %szDocument%, Open, Enter the ; Enter path in 'Open' dialog
-                if not ErrorLevel
+                if ErrorLevel
+                    TestsFailed("Unable to enter path '%szDocument%' in 'Open (Enter the)' window.")
+                else
                 {
+                    Sleep, 700
                     OutputDebug, %TestName%:%A_LineNumber%: If BSOD, then bug 6023.`n
                     ControlClick, Button1, Open, Enter the
-                    if not ErrorLevel
+                    if ErrorLevel
+                        TestsFailed("Unable to hit 'OK' button in 'Open (Enter the)' window.")
+                    else
                     {
                         WinMove, Adobe Flash Player 10,, 10, 10 ; Change window coordinates
                         Sleep, 25000 ; Depends on connection speed
-                        IfWinActive, Adobe Flash Player 10
+                        IfWinNotActive, Adobe Flash Player 10
+                            TestsFailed("Loaded '" szDocument "'. 'Adobe Flash Player 10' is not active anymore.")
+                        else
                         {
                             SearchImg = %A_WorkingDir%\Media\SA_LoadOnlineFlashIMG.jpg
                 
-                            IfExist, %SearchImg%
+                            IfNotExist, %SearchImg%
+                                TestsFailed("Can NOT find '" SearchImg "'.")
+                            else
                             {
                                 bFound := false
                                 while TimeOut < 400
@@ -70,36 +87,25 @@ if bContinue
                                     Sleep, 10
                                 }
                                 
-                                if bFound
-                                    TestsOK("Found '" SearchImg "' on the screen, so, we can play '" szDocument "'.")
-                                else
+                                if not bFound
                                     TestsFailed("The search image '" SearchImg "' could NOT be found on the screen. Color quality not 32bit?")
+                                else
+                                {
+                                    Process, Close, %MainAppFile%
+                                    Process, WaitClose, %MainAppFile%, 4
+                                    if ErrorLevel
+                                        TestsFailed("Unable to terminate '" MainAppFile "' process.")
+                                    else
+                                        TestsOK("Found '" SearchImg "' on the screen, so, we can play '" szDocument "'.")
+                                }
                             }
-                            else
-                                TestsFailed("Can NOT find '" SearchImg "'.")
                         }
-                        else
-                            TestsFailed("Loaded '" szDocument "'. 'Adobe Flash Player 10' is not active anymore.")
                     }
-                    else
-                        TestsFailed("Unable to hit 'OK' button in 'Open (Enter the)' window.")
                 }
-                else
-                    TestsFailed("Unable to enter path '%szDocument%' in 'Open (Enter the)' window.")
             }
-            else
-                TestsFailed("'Open (Enter the)' window is not active window.")
         }
-        else
-            TestsFailed("Unable to click 'File -> Open' in 'Adobe Flash Player 10' window.")
     }
-    else
-        TestsFailed("'Adobe Flash Player 10' window is not active window.")
 }
-else
-    TestsFailed("We failed somwehere in 'prepare.ahk'.")
-
-Process, Close, Standalone Flash Player 10.3.183.11.exe
 
 ; UrlDownloadToFile requires Internet Explorer 3 or greater, so, bad solution for ReactOS
 ; Thanks to Lethe Denova for the COM code
