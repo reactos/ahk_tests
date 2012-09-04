@@ -233,7 +233,12 @@ WindowCleanup(ProcessName)
         Process, close, msiexec.exe
         Process, WaitClose, msiexec.exe, 5
         if ErrorLevel
-            OutputDebug, Helper Functions: Unable to terminate 'msiexec.exe' process.`n
+        {
+            Run taskkill.exe /F /IM msiexec.exe,, Hide
+            Process, WaitClose, msiexec.exe, 5
+            if ErrorLevel
+                OutputDebug, Helper Functions: Unable to terminate 'msiexec.exe' process.`n
+        }
     }
     
     Sleep, 2500
