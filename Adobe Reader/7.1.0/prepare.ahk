@@ -72,12 +72,12 @@ RunApplication(PathToFile)
                     WinWaitActive, Adobe Reader,,15
                     if ErrorLevel
                     {
-                        Process, Exist, AcroRd32.exe.exe
+                        Process, Exist, AcroRd32.exe
                         NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                         if NewPID = 0
-                            TestsFailed("Window 'Adobe Reader' failed to appear. No 'AcroRd32.exe.exe' process detected.")
+                            TestsFailed("Window 'Adobe Reader' failed to appear. No 'AcroRd32.exe' process detected.")
                         else
-                            TestsFailed("Window 'Adobe Reader' failed to appear. 'AcroRd32.exe.exe' process detected.")
+                            TestsFailed("Window 'Adobe Reader' failed to appear. 'AcroRd32.exe' process detected.")
                     }
                     else
                         TestsOK("")
