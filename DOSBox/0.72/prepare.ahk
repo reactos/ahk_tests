@@ -17,17 +17,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-bContinue := false
-TestsTotal := 0
-TestsSkipped := 0
-TestsFailed := 0
-TestsOK := 0
-TestsExecuted := 0
 TestName = prepare
-
 ModuleExe = %A_ProgramFiles%\DOSBox\dosbox.exe
-Process, Close, dosbox.exe
-Sleep, 1000
+
 
 ; Test if can start application
 RunApplication()
@@ -35,27 +27,38 @@ RunApplication()
     global ModuleExe
     global TestName
     global bContinue
+    global TestsTotal
 
-    IfExist, %ModuleExe%
-    {
-        Run, %ModuleExe%
-        Sleep, 1000
-        SetTitleMatchMode, 1 ; A window's title must start with the specified WinTitle to be a match.
-        WinWaitActive, DOSBox 0.72,, 10
-        if not ErrorLevel
-        {
-            bContinue := true
-            SetTitleMatchMode, 3 ; A window's title must exactly match WinTitle to be a match
-            Sleep, 1000
-        }
-        else
-        {
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'DOSBox 0.72' failed to appear (SetTitleMatchMode=1). Active window caption: '%title%'`n
-        }
-    }
+    TestsTotal++
+    Process, Close, dosbox.exe
+    Process, WaitClose, dosbox.exe, 4
+    if ErrorLevel
+        TestsFailed("Process 'dosbox.exe' failed to close.")
     else
     {
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%ModuleExe%'.`n
+        IfNotExist, %ModuleExe%
+            TestsFailed("Can NOT find '" ModuleExe "'.")
+        else
+        {
+            Run, %ModuleExe%
+            Sleep, 1000
+            SetTitleMatchMode, 1 ; A window's title must start with the specified WinTitle to be a match.
+            WinWaitActive, DOSBox 0.72,, 10
+            if ErrorLevel
+            {
+                Process, Exist, dosbox.exe
+                NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                if NewPID = 0
+                    TestsFailed("Window 'DOSBox 0.72' failed to appear (SetTitleMatchMode=1). No 'dosbox.exe' process detected.")
+                else
+                    TestsFailed("Window 'DOSBox 0.72' failed to appear (SetTitleMatchMode=1). 'dosbox.exe' process detected.")
+            }
+            else
+            {
+                TestsOK("")
+                SetTitleMatchMode, 3 ; A window's title must exactly match WinTitle to be a match
+                Sleep, 1000
+            }
+        }
     }
 }

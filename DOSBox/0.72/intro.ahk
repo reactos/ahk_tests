@@ -22,17 +22,23 @@ TestName = 2.intro
 ; Test if can type 'intro' and 'exit' in DOSBox window
 TestsTotal++
 RunApplication()
-if bContinue
+if not bContinue
+    TestsFailed("We failed somewhere in prepare.ahk.")
+else
 {
     SetTitleMatchMode, 1 ; A window's title must start with the specified WinTitle to be a match
-    IfWinActive, DOSBox 0.72
+    IfWinNotActive, DOSBox 0.72
+        TestsFailed("Window 'DOSBox 0.72' is not active (SetTitleMatchMode=1).")
+    else
     {
         SendInput, intro
         Sleep, 2000
         SendInput, {ENTER}
         SetTitleMatchMode, 2 ; A window's title can contain WinTitle anywhere inside it to be a match
         WinWaitActive, Program:    INTRO,,5
-        if not ErrorLevel
+        if ErrorLevel
+            TestsFailed("Window 'Program:    INTRO' is not active (SetTitleMatchMode=2).")
+        else
         {
             SendInput, {ENTER}{ENTER}{ENTER} ; Read the intro
             Sleep, 1000
@@ -40,19 +46,17 @@ if bContinue
             Sleep, 2000
             SendInput, {ENTER}
             WinWaitClose, Program:    INTRO,,5
-            if not ErrorLevel
+            if ErrorLevel
+                TestsFailed("Window 'Program:    INTRO' failed to close (SetTitleMatchMode=2).")
+            else
             {
-                TestsOK("Typed 'intro' and 'exit' successfully.")
+                Process, WaitClose, dosbox.exe, 4
+                if ErrorLevel ; The PID still exists.
+                    TestsFailed("Process 'dosbox.exe' failed to close despite window was closed.")
+                else
+                    TestsOK("Typed 'intro' and 'exit' successfully, window and 'dosbox.exe' process went away.")
                 SetTitleMatchMode, 3 ; A window's title must exactly match WinTitle to be a match
             }
-            else
-                TestsFailed("Window 'Program:    INTRO' failed to close (SetTitleMatchMode=2).")
         }
-        else
-            TestsFailed("Window 'Program:    INTRO' is not active (SetTitleMatchMode=2).")
     }
-    else
-        TestsFailed("Window 'DOSBox 0.72' is not active (SetTitleMatchMode=1).")
 }
-else
-    TestsFailed("We failed somewhere in prepare.ahk.")

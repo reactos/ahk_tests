@@ -26,39 +26,43 @@ TestsOK := 0
 TestsTotal := 0
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
-IfExist, %ModuleExe%
-{
-    Process, Close, dosbox.exe
-    ; At least for 0.72 installer doesn't write any uninstall information to registry
-    InstallLocation = %A_ProgramFiles%\DOSBox ; Not default!
-    ; Get rid of other versions
-    IfExist, %InstallLocation%
-    {
-        IfExist, %InstallLocation%\uninstall.exe
-        {
-            RunWait, %InstallLocation%\uninstall.exe /S ; Silently uninstall it
-        }
-        Sleep, 2500
-        FileRemoveDir, %InstallLocation%, 1
-        Sleep, 1000
-        IfExist, %InstallLocation%
-        {
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Previous version detected and failed to delete '%InstallLocation%'.`n
-            bContinue := false
-        }
-        else
-            bContinue := true
-    }
-    else
-        bContinue := true ; No previous versions detected.
-
-    if bContinue
-        Run %ModuleExe%
-}
+TestsTotal++
+IfNotExist, %ModuleExe%
+    TestsFailed("Can NOT find '" ModuleExe "'")
 else
 {
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%ModuleExe%' not found.`n
-    bContinue := false
+    Process, Close, dosbox.exe
+    Process, WaitClose, dosbox.exe, 4
+    if ErrorLevel
+        TestsFailed("Process 'dosbox.exe' failed to close.")
+    else
+    {
+        ; At least for 0.72 installer doesn't write any uninstall information to registry
+        InstallLocation = %A_ProgramFiles%\DOSBox ; Not default!
+        IfNotExist, %InstallLocation%
+            bContinue := true ; No previous versions detected.
+        else
+        {
+            IfExist, %InstallLocation%\uninstall.exe
+                RunWait, %InstallLocation%\uninstall.exe /S ; Silently uninstall it
+
+            Sleep, 2500
+            IfExist, %InstallLocation%
+                FileRemoveDir, %InstallLocation%, 1
+
+            Sleep, 1000
+            IfExist, %InstallLocation%
+                TestsFailed("Previous version detected and failed to delete '" InstallLocation "'. 'dosbox.exe' process not detected.")
+            else
+                bContinue := true
+        }
+    }
+
+    if bContinue
+    {
+        TestsOK("Either there was no previous versions or we succeeded removing it using hardcoded path.")
+        Run %ModuleExe%
+    }
 }
 
 
@@ -67,16 +71,16 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, DOSBox 0.72 Installer Setup: License Agreement, DOSBox v0.72 License, 7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'DOSBox 0.72 Installer Setup: License Agreement' window with 'Next' button failed to appear.")
+    else
     {
         ControlClick, Button2, DOSBox 0.72 Installer Setup: License Agreement, DOSBox v0.72 License ; Hit 'Next' button
-        if not ErrorLevel
-            TestsOK("'DOSBox 0.72 Installer Setup: License Agreement' window appeared and 'Next' button was clicked.")
-        else
+        if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'License Agreement' window.")
+        else
+            TestsOK("'DOSBox 0.72 Installer Setup: License Agreement' window appeared and 'Next' button was clicked.")
     }
-    else
-        TestsFailed("'DOSBox 0.72 Installer Setup: License Agreement' window with 'Next' button failed to appear.")
 }
 
 
@@ -85,16 +89,16 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, DOSBox 0.72 Installer Setup: Installation Options, Select components, 7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'DOSBox 0.72 Installer Setup: Installation Options' window with 'Next' button failed to appear.")
+    else
     {
         ControlClick, Button2, DOSBox 0.72 Installer Setup: Installation Options, Select components ; Hit 'Next' button
-        if not ErrorLevel
-            TestsOK("'DOSBox 0.72 Installer Setup: Installation Options' appeared and 'Next' button was clicked.")
-        else
+        if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'DOSBox 0.72 Installer Setup: Installation Options' window.")
+        else
+            TestsOK("'DOSBox 0.72 Installer Setup: Installation Options' appeared and 'Next' button was clicked.")
     }
-    else
-        TestsFailed("'DOSBox 0.72 Installer Setup: Installation Options' window with 'Next' button failed to appear.")
 }
 
 
@@ -103,22 +107,22 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, DOSBox 0.72 Installer Setup: Installation Folder, This will install, 7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'DOSBox 0.72 Installer Setup: Installation Folder' window with 'Install' button failed to appear.")
+    else
     {
         ControlSetText, Edit1, %A_ProgramFiles%\DOSBox, DOSBox 0.72 Installer Setup: Installation Folder, This will install ; Change installation directory
-        if not ErrorLevel
+        if ErrorLevel
+            TestsFailed("Unable to set installation folder to '" A_ProgramFiles "\DOSBox' in 'Installation Folder' window.")
+        else
         {
             ControlClick, Button2, DOSBox 0.72 Installer Setup: Installation Folder, This will install ; Hit 'Install' button
-            if not ErrorLevel
-                TestsOK("'DOSBox 0.72 Installer Setup: Installation Folder' appeared and 'Install' button was clicked.")
-            else
+            if ErrorLevel
                 TestsFailed("Unable to hit 'Install' button in 'DOSBox 0.72 Installer Setup: Installation Folder' window.")
+            else
+                TestsOK("'DOSBox 0.72 Installer Setup: Installation Folder' appeared and 'Install' button was clicked.")
         }
-        else
-            TestsFailed("Unable to set installation folder to '" A_ProgramFiles "\DOSBox' in 'Installation Folder' window.")
     }
-    else
-        TestsFailed("'DOSBox 0.72 Installer Setup: Installation Folder' window with 'Install' button failed to appear.")
 }
 
 
@@ -127,26 +131,32 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, DOSBox 0.72 Installer Setup: Completed, Completed, 7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'DOSBox 0.72 Installer Setup: Completed' window with 'Close' button failed to appear.")
+    else
     {
         ControlClick, Button2, DOSBox 0.72 Installer Setup: Completed, Completed ; Hit 'Close' button
-        if not ErrorLevel
-            TestsOK("'DOSBox 0.72 Installer Setup: Completed' appeared and 'Close' button was clicked.")
-        else
+        if ErrorLevel
             TestsFailed("Unable to hit 'Close' button in 'DOSBox 0.72 Installer Setup: Completed' window.")
+        else
+        {
+            WinWaitClose, DOSBox 0.72 Installer Setup: Completed, Completed, 5
+            if ErrorLevel
+                TestsFailed("'DOSBox 0.72 Installer Setup: Completed' failed to close despite 'Close' button being clicked.")
+            else
+                TestsOK("'DOSBox 0.72 Installer Setup: Completed' appeared, 'Close' button clicked and window closed.")
+        }
     }
-    else
-        TestsFailed("'DOSBox 0.72 Installer Setup: Completed' window with 'Close' button failed to appear.")
 }
 
 
-; Check if program exists in program files
+; Check if program exists
 TestsTotal++
 if bContinue
 {
     Sleep, 2000
-    IfExist, %InstallLocation%
-        TestsOK("The application has been installed, because '" InstallLocation "' was found.")
+    IfNotExist, %InstallLocation%\dosbox.exe
+        TestsFailed("Something went wrong, can't find '" InstallLocation "\dosbox.exe'.")
     else
-        TestsFailed("Something went wrong, can't find '" InstallLocation "'.")
+        TestsOK("The application has been installed, because '" InstallLocation "\dosbox.exe' was found.")
 }
