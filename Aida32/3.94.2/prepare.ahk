@@ -17,17 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-bContinue := false
-TestsTotal := 0
-TestsSkipped := 0
-TestsFailed := 0
-TestsOK := 0
-TestsExecuted := 0
 TestName = prepare
-
-Process, Close, aida32.bin
-Process, Close, aida32.exe
-Sleep, 1500
 ModuleExe = %A_ProgramFiles%\Aida32\aida32.exe
 
 
@@ -37,26 +27,44 @@ RunApplication()
     global ModuleExe
     global TestName
     global bContinue
+    global TestsTotal
     
-    IfExist, %ModuleExe%
-    {
-        Run, %ModuleExe% ; 'Max' doesn't work with aida32
-        Sleep, 1000
-        WinWaitActive, AIDA32 - Enterprise System Information,,15
-        if not ErrorLevel
-        {
-            Sleep, 1500
-            WinMaximize, AIDA32 - Enterprise System Information ; Maximize the window
-            bContinue := true
-        }
-        else
-        {
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'AIDA32 - Enterprise System Information' failed to appear. Active window caption: '%title%'`n
-        }
-    }
+    TestsTotal++
+    Process, Close, aida32.exe
+    Process, WaitClose, aida32.exe, 4
+    if ErrorLevel
+        TestsFailed("Process 'aida32.exe' failed to close.")
     else
     {
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%ModuleExe%'.`n
+        Process, Close, aida32.bin
+        Process, WaitClose, aida32.bin, 4
+        if ErrorLevel
+            TestsFailed("Process 'aida32.bin' failed to close.")
+        else
+        {
+            IfNotExist, %ModuleExe%
+                TestsFailed("Can NOT find '" ModuleExe "'.")
+            else
+            {
+                Run, %ModuleExe% ; 'Max' doesn't work with aida32
+                Sleep, 1000
+                WinWaitActive, AIDA32 - Enterprise System Information,,15
+                if ErrorLevel
+                {
+                    Process, Exist, aida32.bin
+                    NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                    if NewPID = 0
+                        TestsFailed("Window 'AIDA32 - Enterprise System Information' failed to appear. No 'aida32.bin' process detected.")
+                    else
+                        TestsFailed("Window 'AIDA32 - Enterprise System Information' failed to appear. 'aida32.bin' process detected.")
+                }
+                else
+                {
+                    Sleep, 1500
+                    WinMaximize, AIDA32 - Enterprise System Information ; Maximize the window
+                    TestsOK("")
+                }
+            }
+        }
     }
 }

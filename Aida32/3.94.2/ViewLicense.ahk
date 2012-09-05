@@ -22,21 +22,29 @@ TestName = 2.ViewLicense
 ; Test if can view license "License -> License" and close application properly
 TestsTotal++
 RunApplication()
-if bContinue
+if not bContinue
+    TestsFailed("We failed somwehere in 'prepare.ahk'.")
+else
 {
     WinWaitActive, AIDA32 - Enterprise System Information,,5
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("Window 'AIDA32 - Enterprise System Information' failed to appear.")
+    else
     {
         ; Go to License -> License. WinMenuSelectItem doesn't work here.
-        SendInput, {ALTDOWN}l{ALTUP}
+        SendInput, !l ; {ALTDOWN}l{ALTUP}
         Sleep, 1000
         SendInput, l
         WinWaitActive, License Agreement - AIDA32, Registration Request, 10
-        if not ErrorLevel
+        if ErrorLevel
+            TestsFailed("Window 'License Agreement - AIDA32 (Registration Request)' failed to appear.")
+        else
         {
             Sleep, 1000
             ControlClick, TListBox1, License Agreement - AIDA32
-            if not ErrorLevel
+            if ErrorLevel
+                TestsFailed("Unable to click on first license field in 'License Agreement - AIDA32 (Registration Request)' window.")
+            else
             {
                 ; Lets pretend we are reading the license
                 iScroll := 0
@@ -49,42 +57,37 @@ if bContinue
                 
                 OutputDebug, %TestName%:%A_LineNumber%: In 1sec will close 'License Agreement - AIDA32' window, if BSOD then bug #6355?.`n
                 ControlClick, TButton2, License Agreement - AIDA32 ; Click 'Close' button
-                if not ErrorLevel
+                if ErrorLevel
+                    TestsFailed("Unable to hit 'Close' button in 'License Agreement - AIDA32 (Registration Request)' window.")
+                else
                 {
                     WinWaitClose, License Agreement - AIDA32, Registration Request, 15
-                    if not ErrorLevel
+                    if ErrorLevel
+                        TestsFailed("'License Agreement - AIDA32 (Registration Request)' window failed to close.")
+                    else
                     {
                         WinClose, AIDA32 - Enterprise System Information ; Send 0x112 = WM_SYSCOMMAND, 0xF060 = SC_CLOSE
                         WinWaitClose, AIDA32 - Enterprise System Information,, 10
                         if not ErrorLevel
                         {
                             Sleep, 2000
-                            IfWinNotExist, aida32.bin - Application Error
-                                TestsOK("License was read, application exited correctly.")
-                            else
+                            IfWinExist, aida32.bin - Application Error
                                 TestsFailed("'aida32.bin - Application Error (The exception)' window appeared, bug 7090?")
+                            else
+                                TestsOK("License was read, application closed correctly.")
                         }
                         else
                         {
-                            TestsFailed("'AIDA32 - Enterprise System Information' window failed to close. Terminating the app.")
-                            Process, Close, aida32.bin
-                            Process, Close, aida32.exe
+                            Process, Exist, aida32.bin
+                            NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                            if NewPID = 0
+                                TestsFailed("'AIDA32 - Enterprise System Information' window failed to close. 'aida32.bin' process terminated.")
+                            else
+                                TestsFailed("Window 'AIDA32 - Enterprise System Information' failed to close. Unable to terminate 'aida32.bin' process.")
                         }
                     }
-                    else
-                        TestsFailed("'License Agreement - AIDA32 (Registration Request)' window failed to close.")
                 }
-                else
-                    TestsFailed("Unable to hit 'Close' button in 'License Agreement - AIDA32 (Registration Request)' window.")
             }
-            else
-                TestsFailed("Unable to click on first license field in 'License Agreement - AIDA32 (Registration Request)' window.")
         }
-        else
-            TestsFailed("Window 'License Agreement - AIDA32 (Registration Request)' failed to appear.")
     }
-    else
-        TestsFailed("Window 'AIDA32 - Enterprise System Information' failed to appear.")
 }
-else
-    TestsFailed("We failed somwehere in 'prepare.ahk'.")
