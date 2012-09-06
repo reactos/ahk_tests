@@ -22,23 +22,28 @@ TestName = 2.open_folder
 ; Test if can open 'Plugins' folder
 TestsTotal++
 RunApplication()
-if bContinue
+if not bContinue
+    TestsFailed("We failed somewhere in prepare.ahk.")
+else
 {
-    IfWinActive, {%A_ProgramFiles%\Far} - Far
+    IfWinNotActive, {%A_ProgramFiles%\Far} - Far
+        TestsFailed("Window '{" A_ProgramFiles "\Far} - Far' is not active.")
+    else
     {
         SendInput, {DOWN}{DOWN}{DOWN} ; Focus 'Plugins'
         Sleep, 1000
         SendInput, {ENTER} ; Open 'Plugins' folder
         WinWaitActive, {%A_ProgramFiles%\Far\Plugins} - Far,,5
-        if not ErrorLevel
-            TestsOK("")
-        else
+        if ErrorLevel
             TestsFailed("Window '{" A_ProgramFiles "\Far\Plugins} - Far' is not active.")
+        else
+        {
+            Process, Close, Far.exe
+            Process, WaitClose, Far.exe, 4
+            if ErrorLevel
+                TestsFailed("Process 'Far.exe' failed to close.")
+            else
+                TestsOK("")
+        }
     }
-    else
-        TestsFailed("Window '{" A_ProgramFiles "\Far} - Far' is not active.")
 }
-else
-    TestsFailed("We failed somewhere in prepare.ahk.")
-
-Process, Close, Far.exe
