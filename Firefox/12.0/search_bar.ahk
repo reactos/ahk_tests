@@ -21,9 +21,13 @@ TestName = 4.search_bar
  
 ; Check if we can change search engine to Yahoo! and type inside search field
 TestsTotal++
-if bContinue
+if not bContinue
+    TestsFailed("We failed somwehere in 'prepare.ahk'.")
+else
 {
-    IfWinActive, Mozilla Firefox Start Page - Mozilla Firefox
+    IfWinNotActive, Mozilla Firefox Start Page - Mozilla Firefox
+        TestsFailed("'Mozilla Firefox Start Page - Mozilla Firefox' is not active window.")
+    else
     {
         SearchArrowImg = %A_WorkingDir%\Media\searcharrow.png
 
@@ -42,16 +46,17 @@ if bContinue
             SendInput, {CTRLDOWN}k{CTRLUP}edijus{ENTER} ; Go to search bar
             Sleep, 7500 ; Let it to load, maybe something will fail
             WinWaitActive, edijus - Yahoo! Search Results - Mozilla Firefox,,25
-            if not ErrorLevel
-                TestsOK("'edijus - Yahoo! Search Results - Mozilla Firefox' window appeared, so search bar works.")
-            else
+            if ErrorLevel
                 TestsFailed("'edijus - Yahoo! Search Results - Mozilla Firefox' window failed to appear, so, search bar do not work. Bugs 5574, 5930, 6990?")
+            else
+            {
+                Process, Close, %ProcessExe%
+                Process, WaitClose, %ProcessExe%, 5
+                if ErrorLevel ; The PID still exists.
+                    TestsFailed("Unable to terminate '" ProcessExe "' process.")
+                else
+                    TestsOK("'edijus - Yahoo! Search Results - Mozilla Firefox' window appeared, so search bar works, '" ProcessExe "' process closed.")
+            }
         }
     }
-    else
-        TestsFailed("'Mozilla Firefox Start Page - Mozilla Firefox' is not active window.")
 }
-else
-    TestsFailed("We failed somwehere in 'prepare.ahk'.")
-
-Process, Close, firefox.exe ; Teminate process

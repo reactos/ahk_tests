@@ -18,99 +18,122 @@
  */
 
 ModuleExe = %A_WorkingDir%\Apps\Mozilla Firefox 12.0 Setup.exe
-bContinue := false
 TestName = 1.install
-
-TestsFailed := 0
-TestsOK := 0
-TestsTotal := 0
+MainAppFile = firefox.exe ; Mostly this is going to be process we need to look for
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
-IfExist, %ModuleExe%
+TestsTotal++
+IfNotExist, %ModuleExe%
+    TestsFailed("'" ModuleExe "' not found.")
+else
 {
-    ; Get rid of other versions
-    RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Mozilla Firefox 12.0 (x86 en-US), UninstallString
-    if not ErrorLevel
-    {   
-        IfExist, %UninstallerPath%
+    Process, Close, %MainAppFile% ; Teminate process
+    Sleep, 2000
+    Process, Exist, %MainAppFile%
+    if ErrorLevel <> 0
+        TestsFailed("Unable to terminate '" MainAppFile "' process.") ; So, process still exists
+    else
+    {
+        RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Mozilla Firefox 12.0 (x86 en-US), UninstallString
+        if ErrorLevel
         {
-            Process, Close, firefox.exe ; Teminate process
-            Sleep, 1500
-            RunWait, %UninstallerPath% /S ; Silently uninstall it
-            Sleep, 2500
-            ; Delete everything just in case
-            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Mozilla
+            ; There was a problem (such as a nonexistent key or value). 
+            ; That probably means we have not installed this app before.
+            ; Check in default directory to be extra sure
+            IfNotExist, %A_ProgramFiles%\Mozilla Firefox
+                bContinue := true ; No previous versions detected in hardcoded path
+            else
+            {
+                bHardcoded := true ; To know if we got path from registry or not
+                IfExist, %A_ProgramFiles%\Mozilla Firefox\uninstall\helper.exe
+                {
+                    RunWait, %A_ProgramFiles%\Mozilla Firefox\uninstall\helper.exe /S ; Silently uninstall it
+                    Sleep, 7000
+                }
+
+                IfNotExist, %A_ProgramFiles%\Mozilla Firefox ; Uninstaller might delete the dir
+                    bContinue := true
+                {
+                    FileRemoveDir, %A_ProgramFiles%\Mozilla Firefox, 1
+                    if ErrorLevel
+                        TestsFailed("Unable to delete existing '" A_ProgramFiles "\Mozilla Firefox' ('" MainAppFile "' process is reported as terminated).'")
+                    else
+                        bContinue := true
+                }
+            }
+        }
+        else
+        {
+            SplitPath, UninstallerPath,, InstalledDir
+            SplitPath, InstalledDir,, InstalledDir ; Split once more, since installer was in subdir (v12.0 specific)
+            IfNotExist, %InstalledDir%
+                bContinue := true
+            else
+            {
+                IfExist, %UninstallerPath%
+                {
+                    RunWait, %UninstallerPath% /S ; Silently uninstall it
+                    Sleep, 7000
+                }
+
+                IfNotExist, %InstalledDir%
+                    bContinue := true
+                else
+                {
+                    FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
+                    if ErrorLevel
+                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                    else
+                        bContinue := true
+                }
+            }
+        }
+    }
+
+    if bContinue
+    {
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Mozilla
             RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\mozilla.org
             RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MozillaPlugins
             RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Mozilla Firefox 12.0 (x86 en-US)
-            SplitPath, UninstallerPath,, InstalledDir
-            FileRemoveDir, %InstalledDir%, 1
-            FileRemoveDir, %A_AppData%\Mozilla, 1
-            Sleep, 1000
-            IfExist, %InstalledDir%
-            {
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to delete '%InstalledDir%'.`n
-                bContinue := false
-            }
-            else
-            {
-                bContinue := true
-            }
-        }
-    }
-    else
-    {
-        ; There was a problem (such as a nonexistent key or value). 
-        ; That probably means we have not installed this app before.
-        ; Check in default directory to be extra sure
-        IfExist, %A_ProgramFiles%\Mozilla Firefox\uninstall\helper.exe
+        IfExist, %A_AppData%\Mozilla
         {
-            Process, Close, firefox.exe ; Teminate process
-            Sleep, 1500
-            RunWait, %A_ProgramFiles%\Mozilla Firefox\uninstall.exe /S ; Silently uninstall it
-            Sleep, 2500
-            FileRemoveDir, %A_ProgramFiles%\Mozilla Firefox, 1
             FileRemoveDir, %A_AppData%\Mozilla, 1
-            Sleep, 1000
-            IfExist, %A_ProgramFiles%\Mozilla Firefox
-            {
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Previous version detected and failed to delete '%A_ProgramFiles%\Mozilla Firefox'.`n
-                bContinue := false
-            }
-            else
-                bContinue := true
+            if ErrorLevel
+                TestsFailed("Unable to delete '" A_AppData "\Mozilla'.")
         }
-        else
-            bContinue := true ; No previous versions detected.
-    }
 
-    FileRemoveDir, %A_ProgramFiles%\Mozilla Firefox, 1 ; v12.0 Requires an extra delete
-    if bContinue
-        Run %ModuleExe%
+        if bContinue
+        {
+            if bHardcoded
+                TestsOK("Either there was no previous versions or we succeeded removing it using hardcoded path.")
+            else
+                TestsOK("Either there was no previous versions or we succeeded removing it using data from registry.")
+            Run %ModuleExe%
+        }
+    }
 }
-else
-{
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%ModuleExe%' not found.`n
-    bContinue := false
-}
+
 
 ; Test if can start setup
 TestsTotal++
 if bContinue
 {
-    SetTitleMatchMode, 1
+    SetTitleMatchMode, 2 ; A window's title can contain WinTitle anywhere inside it to be a match.
     WinWaitActive, Extracting, Cancel, 7 ; Wait 7 secs for window to appear
-    if not ErrorLevel ;Window is found and it is active
+    if ErrorLevel
+        TestsFailed("'Extracting' window failed to appear.")
+    else
     {
         OutputDebug, OK: %TestName%:%A_LineNumber%: 'Extracting' window appeared, waiting for it to close.`n
         WinWaitClose, Extracting, Cancel, 15
-        if not ErrorLevel
-            TestsOK("'Extracting' window appeared and went away.")
-        else
+        if ErrorLevel
             TestsFailed("'Extracting' window failed to dissapear.")
+        else
+            TestsOK("'Extracting' window appeared and went away.")
     }
-    else
-        TestsFailed("'Extracting' window failed to appear.")
+
+    SetTitleMatchMode, 3 ; A window's title must exactly match WinTitle to be a match. (Default)
 }
 
 
@@ -119,14 +142,14 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Mozilla Firefox Setup, Welcome to the Mozilla Firefox, 15
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'Mozilla Firefox Setup (Welcome to the Mozilla Firefox)' window failed to appear.")
+    else
     {
-        Sleep, 250
+        Sleep, 700
         SendInput, !n ; Hit 'Next' button
         TestsOK("'Mozilla Firefox Setup (Welcome to the Mozilla Firefox)' window appeared and Alt+N was sent.")
     }
-    else
-        TestsFailed("'Mozilla Firefox Setup (Welcome to the Mozilla Firefox)' window failed to appear.")
 }
 
 
@@ -135,14 +158,14 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Mozilla Firefox Setup, Setup Type, 7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'Mozilla Firefox Setup (Setup Type)' window failed to appear.")
+    else
     {
-        Sleep, 250
+        Sleep, 700
         SendInput, !n ; Hit 'Next' button
         TestsOK("'Mozilla Firefox Setup (Setup Type)' window appeared and Alt+N was sent.")
     }
-    else
-        TestsFailed("'Mozilla Firefox Setup (Setup Type)' window failed to appear.")
 }
 
 
@@ -151,14 +174,14 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Mozilla Firefox Setup, Summary, 7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'Mozilla Firefox Setup (Summary)' window failed to appear.")
+    else
     {
-        Sleep, 250
+        Sleep, 700
         SendInput, {ALTDOWN}i{ALTUP} ; Hit 'Install' button
         TestsOK("'Mozilla Firefox Setup (Summary)' window appeared and Alt+I was sent.")
     }
-    else
-        TestsFailed("'Mozilla Firefox Setup (Summary)' window failed to appear.")
 }
 
 
@@ -166,19 +189,20 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Mozilla Firefox Setup, Installing, 7
-    if not ErrorLevel
-    {
-        Sleep, 250
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Mozilla Firefox Setup (Installing)' window appeared, waiting for it to close.`n
-        WinWaitClose, Mozilla Firefox Setup, Installing, 25
-        if not ErrorLevel
-            TestsOK("'Mozilla Firefox Setup (Installing)' window went away.")
-        else
-            TestsFailed("'Mozilla Firefox Setup (Installing)' window failed to dissapear.")
-    }
+    WindowSpace := "Mozilla Firefox Setup " ; Note space at the end of window title
+    WinWaitActive, %WindowSpace%, Installing, 7
+    if ErrorLevel
+        TestsFailed("'Mozilla Firefox Setup (Installing)' window failed to appear (there is space at the end of window title).")
     else
-        TestsFailed("'Mozilla Firefox Setup (Installing)' window failed to appear.")
+    {
+        Sleep, 700
+        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Mozilla Firefox Setup (Installing)' window appeared, waiting for it to close.`n
+        WinWaitClose, %WindowSpace%, Installing, 25
+        if ErrorLevel
+            TestsFailed("'Mozilla Firefox Setup (Installing)' window failed to dissapear.")
+        else
+            TestsOK("'Mozilla Firefox Setup (Installing)' window went away.")
+    }
 }
 
 
@@ -186,28 +210,49 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Mozilla Firefox Setup, Completing, 7
-    if not ErrorLevel
-    {
-        Sleep, 250
-        SendInput, !l ; Uncheck 'Lounch Firefox now'
-        SendInput, !f ; Hit 'Finish' button
-        TestsOK("'Mozilla Firefox Setup (Completing)' window appeared, Alt+L and Alt+F was sent.")
-    }
-    else
+    WinWaitActive, %WindowSpace%, Completing, 7
+    if ErrorLevel
         TestsFailed("'Mozilla Firefox Setup (Completing)' window failed to appear.")
+    else
+    {
+        Sleep, 500
+        SendInput, !l ; Uncheck 'Lounch Firefox now'
+        Sleep, 700
+        SendInput, !f ; Hit 'Finish' button
+        WinWaitClose, %WindowSpace%, Completing, 5
+        if ErrorLevel
+            TestsFailed("'Mozilla Firefox Setup (Completing)' window failed to close despite Alt+F was sent.")
+        else
+        {
+            Process, Wait, %MainAppFile%, 4
+            NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+            if NewPID <> 0
+            {
+                TestsFailed("Process '" MainAppFile "' appeared despite Alt+L was sent.")
+                Process, Close, %MainAppFile%
+            }
+            else
+                TestsOK("'Mozilla Firefox Setup (Completing)' window appeared, Alt+L, Alt+F sent, window closed.")
+        }
+    }
 }
 
-Process, Close, firefox.exe ; Just in case
 
-;Check if program exists
+; Check if program exists
 TestsTotal++
 if bContinue
 {
-    Sleep, 250
-    AppExe = %A_ProgramFiles%\Mozilla Firefox\firefox.exe
-    IfExist, %AppExe%
-        TestsOK("Should be installed, because '" AppExe "' was found.")
+    Sleep, 2000
+    RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Mozilla Firefox 12.0 (x86 en-US), UninstallString
+    if ErrorLevel
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
     else
-        TestsFailed("Can NOT find '" AppExe "'.")
+    {
+        SplitPath, UninstallerPath,, InstalledDir
+        SplitPath, InstalledDir,, InstalledDir ; Split once more, since installer was in subdir (v12.0 specific)
+        IfNotExist, %InstalledDir%\%MainAppFile%
+            TestsFailed("Something went wrong, can't find '" InstalledDir "\" MainAppFile "'.")
+        else
+            TestsOK("The application has been installed, because '" InstalledDir "\" MainAppFile "' was found.")
+    }
 }
