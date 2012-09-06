@@ -17,28 +17,17 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-bContinue := false
-TestsTotal := 0
-TestsSkipped := 0
-TestsFailed := 0
-TestsOK := 0
-TestsExecuted := 0
-TestName = prepare
-
-Process, Close, Filzip.exe
-Sleep, 1500
-
 RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Filzip 3.0.6.93_is1, UninstallString
-if not ErrorLevel
-{
-    StringReplace, UninstallerPath, UninstallerPath, `",, All ; String contains quotes, replace em
-    SplitPath, UninstallerPath,, InstalledDir
-    ModuleExe = %InstalledDir%\Filzip.exe
-}
-else
+if ErrorLevel
 {
     ModuleExe = %A_ProgramFiles%\Filzip\Filzip.exe
     OutputDebug, %TestName%:%A_LineNumber%: Can NOT read data from registry. Key might not exist. Using hardcoded path.`n
+}
+else
+{
+    StringReplace, UninstallerPath, UninstallerPath, `",, All ; The Filzip uninstaller path is quoted, remove quotes
+    SplitPath, UninstallerPath,, InstalledDir
+    ModuleExe = %InstalledDir%\Filzip.exe
 }
 
 
@@ -48,76 +37,93 @@ RunApplication(PathToFile)
     global ModuleExe
     global TestName
     global bContinue
+    global TestsTotal
+    global ProcessExe
 
-    Sleep, 500
-    RegDelete, HKEY_CURRENT_USER, SOFTWARE\Filzip
-    Sleep, 500
-    ; Disable auto update. We do not wan't any unexpected popups coming out.
-    RegWrite, REG_DWORD, HKEY_CURRENT_USER, Software\Filzip\Config\AutoUpd, AutoUpd, 0
-    RegWrite, REG_DWORD, HKEY_CURRENT_USER, Software\Filzip\Config\Settings, RegDialog, 0 ; Disable registration dialog
-    
-    IfExist, %ModuleExe%
-    {
-        if PathToFile =
-        {
-            Run, %ModuleExe%,, Max ; Start maximized
-            AssociateWithFilzip()
-            WinWaitActive, Filzip,,7
-            if not ErrorLevel
-            {
-                Sleep, 1000
-                bContinue := true
-            }
-            else
-            {
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Filzip' failed to appear. Active window caption: '%title%'`n
-            }
-        }
-        else
-        {
-            Run, %ModuleExe% "%PathToFile%",, Max
-            Sleep, 1000
-            AssociateWithFilzip()
-            SplitPath, PathToFile, NameExt
-            WinWaitActive, Filzip - %NameExt%,,7
-            if not ErrorLevel
-            {
-                bContinue := true
-                Sleep, 1000
-            }
-            else
-            {
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Filzip - %NameExt%' failed to appear. Active window caption: '%title%'`n
-            }
-        }
-    }
+    TestsTotal++
+    SplitPath, ModuleExe, ProcessExe
+    Process, Close, %ProcessExe%
+    Process, WaitClose, %ProcessExe%, 4
+    if ErrorLevel
+        TestsFailed("Process '" ProcessExe "' failed to close.")
     else
     {
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%ModuleExe%'.`n
+        RegDelete, HKEY_CURRENT_USER, SOFTWARE\Filzip
+        Sleep, 500
+        ; Disable auto update. We do not wan't any unexpected popups coming out.
+        RegWrite, REG_DWORD, HKEY_CURRENT_USER, Software\Filzip\Config\AutoUpd, AutoUpd, 0
+        RegWrite, REG_DWORD, HKEY_CURRENT_USER, Software\Filzip\Config\Settings, RegDialog, 0 ; Disable registration dialog
+        
+        IfNotExist, %ModuleExe%
+            TestsFailed("Can NOT find '" ModuleExe "'.")
+        else
+        {
+            if PathToFile =
+            {
+                Run, %ModuleExe%,, Max ; Start maximized
+                AssociateWithFilzip()
+                WinWaitActive, Filzip,,7
+                if ErrorLevel
+                {
+                    Process, Exist, %ProcessExe%
+                    NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                    if NewPID = 0
+                        TestsFailed("Window 'Filzip' failed to appear. No '" ProcessExe "' process detected.")
+                    else
+                        TestsFailed("Window 'Filzip' failed to appear. '" ProcessExe "' process detected.")
+                }
+                else
+                    TestsOK("")
+            }
+            else
+            {
+                IfNotExist, %PathToFile%
+                    TestsFailed("Can NOT find '" PathToFile "'.")
+                else
+                {
+                    Run, %ModuleExe% "%PathToFile%",, Max
+                    Sleep, 1000
+                    AssociateWithFilzip()
+                    SplitPath, PathToFile, NameExt
+                    WinWaitActive, Filzip - %NameExt%,,7
+                    if ErrorLevel
+                    {
+                        Process, Exist, %ProcessExe%
+                        NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                        if NewPID = 0
+                            TestsFailed("Window 'Filzip - " NameExt "' failed to appear. No '" ProcessExe "' process detected.")
+                        else
+                            TestsFailed("Window 'Filzip - " NameExt "' failed to appear. '" ProcessExe "' process detected.")
+                    }
+                    else
+                        TestsOK("")
+                }
+            }
+        }
     }
 }
 
 AssociateWithFilzip()
 {
+    global TestName
+    global TestsTotal
+    
+    TestsTotal++
     WinWaitActive, Associate with Filzip, Never ask again,7
-    if not ErrorLevel
-    {
-        ControlClick, TButton2, Associate with Filzip ; Hit 'Associate' button
-        if not ErrorLevel
-        {
-            OutputDebug, OK: %TestName%:%A_LineNumber%: Archive files were associated with Filzip.`n
-        }
-        else
-        {
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Associate' button in 'Associate with Filzip (Never ask again)' window. Active window caption: '%title%'`n
-        }
-    }
+    if ErrorLevel
+        TestsFailed("Window 'Associate with Filzip (Never ask again)' failed to appear.")
     else
     {
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Associate with Filzip (Never ask again)' failed to appear. Active window caption: '%title%'`n
+        ControlClick, TButton2, Associate with Filzip ; Hit 'Associate' button
+        if ErrorLevel
+            TestsFailed("Unable to hit 'Associate' button in 'Associate with Filzip (Never ask again)' window.")
+        else
+        {
+            WinWaitClose, Associate with Filzip, Never ask again, 5
+            if ErrorLevel
+                TestsFailed("'Associate with Filzip (Never ask again)' window failed to close despite 'Associate' button being clicked.")
+            else
+                TestsOK("")
+        }
     }
 }

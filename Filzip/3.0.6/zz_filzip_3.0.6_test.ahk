@@ -18,10 +18,8 @@
  */
 
 #Include ..\..\helper_functions.ahk
+InitalizeCounters()
 
-
-if 1 = --list
-{
 params =
 (
 
@@ -29,37 +27,22 @@ params =
     2.ExtractArchive
 
 )
-FileAppend, %params%, *
-}
-else if 1 = 1.install
+
+if CheckParam()
 {
-    #include install_test.ahk
-}
-else
-{
-    #include prepare.ahk
-    
-    if 1 = 2.ExtractArchive
+    if 1 = 1.install
     {
-        #include ExtractArchive.ahk
+        #include install_test.ahk
     }
-    else
-    OutputDebug, Bad parameters: '%1%'!`r`n
+    else 
+    {
+        #include prepare.ahk
+
+        if 1 = 2.ExtractArchive
+        {
+            #include ExtractArchive.ahk
+        }
+    }
 }
 
-if 1 != --list
-{
-    if not bContinue
-    {
-        SplitPath, ModuleExe, fName ; Extract filename from given path
-        WindowCleanUp(fName)  
-    }
-
-    Process, Close, Filzip.exe
-    
-    TestsSkipped := TestsTotal - TestsOK - TestsFailed
-    TestsExecuted := TestsOK + TestsFailed
-    if (TestsSkipped < 0 or TestsExecuted < 0)
-        OutputDebug, %TestName%: Check TestsTotal, TestsOK and TestsFailed, because results returns less than 0.`n
-    OutputDebug, %TestName%: %TestsExecuted% tests executed (0 marked as todo, %TestsFailed% failures), %TestsSkipped% skipped.`n
-}
+ShowTestResults()
