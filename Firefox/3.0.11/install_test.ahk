@@ -241,7 +241,7 @@ if bContinue
             {
                 WinWaitClose, %WindowSpace%, Completing, 5
                 if ErrorLevel
-                    TestsFailed("'Mozilla Firefox Setup (Completing)' window failed to close despite Alt+F was sent.")
+                    TestsFailed("'Mozilla Firefox Setup (Completing)' window failed to close despite 'Finish' button being clicked.")
                 else
                 {
                     Process, Wait, %MainAppFile%, 4
