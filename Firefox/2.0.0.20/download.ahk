@@ -1,5 +1,5 @@
 /*
- * Designed for Mozilla Firefox 3.0.11
+ * Designed for Mozilla Firefox 2.0.0.20
  * Copyright (C) 2012 Edijs Kolesnikovics
  *
  * This library is free software; you can redistribute it and/or
@@ -21,19 +21,27 @@ TestName = 3.download
  
 ; Check if can download some file
 TestsTotal++
-if bContinue
+if not bContinue
+    TestsFailed("We failed somwehere in 'prepare.ahk'.")
+else
 {
-    IfWinActive, Mozilla Firefox Start Page - Mozilla Firefox
+    IfWinNotActive, Mozilla Firefox Start Page - Mozilla Firefox
+        TestsFailed("'Mozilla Firefox Start Page - Mozilla Firefox' is not active window.")
+    else
     {
         Sleep, 2500
         FileDelete, %A_Desktop%\livecd-56407-dbg.7z ; Make sure it doesn't exist before continuing
         Sleep, 2500
-        IfNotExist, %A_Desktop%\livecd-56407-dbg.7z
+        IfExist, %A_Desktop%\livecd-56407-dbg.7z
+            TestsFailed("Failed to delete '" A_Desktop "\livecd-56407-dbg.7z'.")
+        else
         {
             SendInput, {CTRLDOWN}l{CTRLUP}http://iso.reactos.org/livecd/livecd-56407-dbg.7z{ENTER} ;Download some file
             
             WinWaitActive, Opening livecd-56407-dbg.7z,,25
-            if not ErrorLevel
+            if ErrorLevel
+                TestsFailed("'Opening livecd-56407-dbg.7z' window failed to appear, so, downloading failed.")
+            else
             {
                 ; 'ControlClick' won't work here
                 SendInput, {ALTDOWN}s{ALTUP} ; Check 'Save file' radio button
@@ -41,29 +49,26 @@ if bContinue
                 SendInput, {ENTER} ; Save file by hitting 'OK'. The button is focused by default
                 Sleep, 3500
                 SetTitleMatchMode, 3
-                WinWaitActive, Downloads,,60 ; Should be enought time to download the file?
-                if not ErrorLevel
+                WinWaitActive, Downloads,,65 ; Should be enought time to download the file?
+                if ErrorLevel
+                    TestsFailed("'Downloads' window failed to appear, so, downloading failed. Wasn't enough time?")
+                else
                 {
                     FileGetSize, DFileSize, %A_Desktop%\livecd-56407-dbg.7z ; Desktop is our download dir. See prepare.ahk
                     ExpectedSize = 23030114
-                    if (InStr(%DFileSize%, %ExpectedSize%))
-                        TestsOK("File downloaded. Size the same as expected.")
-                    else
+                    if not (InStr(%DFileSize%, %ExpectedSize%))
                         TestsFailed("Downloaded file size is NOT the same as expected [is " DFileSize " and should be " ExpectedSize "].")
+                    else
+                    {
+                        Process, Close, %ProcessExe%
+                        Process, WaitClose, %ProcessExe%, 5
+                        if ErrorLevel ; The PID still exists.
+                            TestsFailed("Unable to terminate '" ProcessExe "' process.")
+                        else
+                            TestsOK("File downloaded. Size the same as expected, '" ProcessExe "' process closed.")
+                    }
                 }
-                else
-                    TestsFailed("'Downloads' window failed to appear, so, downloading failed. Wasn't enough time?")
             }
-            else
-                TestsFailed("'Opening livecd-56407-dbg.7z' window failed to appear, so, downloading failed.")
-        }
-        else
-            TestsFailed("Failed to delete '" A_Desktop "\livecd-56407-dbg.7z'.")
+        } 
     }
-    else
-        TestsFailed("'Mozilla Firefox Start Page - Mozilla Firefox' is not active window.")
 }
-else
-    TestsFailed("We failed somwehere in 'prepare.ahk'.")
-
-Process, Close, firefox.exe ; Teminate process

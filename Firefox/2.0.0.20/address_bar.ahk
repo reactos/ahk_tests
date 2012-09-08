@@ -1,5 +1,5 @@
 /*
- * Designed for Mozilla Firefox 3.0.11
+ * Designed for Mozilla Firefox 2.0.0.20
  * Copyright (C) 2012 Edijs Kolesnikovics
  *
  * This library is free software; you can redistribute it and/or
@@ -21,9 +21,13 @@ TestName = 2.address_bar
  
 ; Check if can open some website by typing text in address bar
 TestsTotal++
-if bContinue
+if not bContinue
+    TestsFailed("We failed somwehere in 'prepare.ahk'.")
+else
 {
-    IfWinActive, Mozilla Firefox Start Page - Mozilla Firefox
+    IfWinNotActive, Mozilla Firefox Start Page - Mozilla Firefox
+        TestsFailed("'Mozilla Firefox Start Page - Mozilla Firefox' is not active window.")
+    else
     {
         Sleep, 1000
         SendInput, {ALTDOWN}d{ALTUP} ; Go to address bar
@@ -35,15 +39,16 @@ if bContinue
         Sleep, 7500 ; Let it to load the page, maybe we will crash
 
         WinWaitActive, DSx86 by Patrick Aalto - Mozilla Firefox,, 7
-        if not ErrorLevel
-            TestsOK("'DSx86 by Patrick Aalto - Mozilla Firefox' window appeared, so typing URL works (Alt+D).")
-        else
+        if ErrorLevel
             TestsFailed("'DSx86 by Patrick Aalto - Mozilla Firefox' window failed to appear, so, typing URL failed (Alt+D).")
+        else
+        {
+            Process, Close, %ProcessExe%
+            Process, WaitClose, %ProcessExe%, 5
+            if ErrorLevel ; The PID still exists.
+                TestsFailed("Unable to terminate '" ProcessExe "' process.")
+            else
+                TestsOK("'DSx86 by Patrick Aalto - Mozilla Firefox' window appeared, so typing URL works (Alt+D), '" ProcessExe "' process closed.")
+        }
     }
-    else
-        TestsFailed("'Mozilla Firefox Start Page - Mozilla Firefox' is not active window.")
 }
-else
-    TestsFailed("We failed somwehere in 'prepare.ahk'.")
-
-Process, Close, firefox.exe ; Teminate process
