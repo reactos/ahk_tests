@@ -17,42 +17,82 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-SetupExe = %A_WorkingDir%\Apps\MPC-HC.1.6.3.5626.x86_Setup.exe
-bContinue := false
+ModuleExe = %A_WorkingDir%\Apps\MPC-HC.1.6.3.5626.x86_Setup.exe
 TestName = 1.install
-
-TestsFailed := 0
-TestsOK := 0
-TestsTotal := 0
+MainAppFile = mpc-hc.exe ; Mostly this is going to be process we need to look for
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
-IfExist, %SetupExe%
-{
-    ; Get rid of other versions
-    IfExist, %A_ProgramFiles%\MPC-HC\mpc-hc.exe
-    {
-        Process, Close, mpc-hc.exe ; Teminate process
-        Sleep, 1000
-        RunWait, %A_ProgramFiles%\MPC-HC\mpc-hc.exe /unregall ; Unregister all file associations
-        Sleep, 2500
-        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\{2624B969-7135-4EB1-B0F6-2D8C397B45F7}_is1
-        FileRemoveDir, %A_ProgramFiles%\MPC-HC, 1
-        FileRemoveDir, %A_AppData%\Media Player Classic, 1
-        Sleep, 1000
-        IfExist, %A_ProgramFiles%\MPC-HC
-        {
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to delete '%A_ProgramFiles%\MPC-HC'.`n
-            bContinue := false
-        }
-    }
-    Run %SetupExe%
-    bContinue := true
-
-}
+TestsTotal++
+IfNotExist, %ModuleExe%
+    TestsFailed("'" ModuleExe "' not found.")
 else
 {
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%SetupExe%' not found.`n
-    bContinue := false
+    Process, Close, %MainAppFile% ; Teminate process
+    Process, WaitClose, %MainAppFile%, 4
+    if ErrorLevel ; The PID still exists.
+        TestsFailed("Unable to terminate '" MainAppFile "' process.") ; So, process still exists
+    else
+    {
+        RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{2624B969-7135-4EB1-B0F6-2D8C397B45F7}_is1, UninstallString
+        if ErrorLevel
+        {
+            ; There was a problem (such as a nonexistent key or value). 
+            ; That probably means we have not installed this app before.
+            ; Check in default directory to be extra sure
+            IfNotExist, %A_ProgramFiles%\MPC-HC
+                bContinue := true ; No previous versions detected in hardcoded path
+            else
+            {
+                bHardcoded := true ; To know if we got path from registry or not
+                IfExist, %A_ProgramFiles%\MPC-HC\mpc-hc.exe
+                    RunWait, %A_ProgramFiles%\MPC-HC\mpc-hc.exe /unregall ; Unregister all file associations
+
+                FileRemoveDir, %A_ProgramFiles%\MPC-HC, 1 ; Silent switch '/SILENT' is broken, so, delete the folder
+                if ErrorLevel
+                    TestsFailed("Unable to delete existing '" A_ProgramFiles "\MPC-HC' ('" MainAppFile "' process is reported as terminated).'")
+                else
+                    bContinue := true
+            }
+        }
+        else
+        {
+            StringReplace, UninstallerPath, UninstallerPath, `",, All ; The MPC-HC uninstaller path is quoted, remove quotes
+            SplitPath, UninstallerPath,, InstalledDir
+            IfNotExist, %InstalledDir%
+                bContinue := true
+            else
+            {
+                IfExist, %InstalledDir%\MPC-HC\mpc-hc.exe
+                    RunWait, %InstalledDir%\MPC-HC\mpc-hc.exe /unregall ; Unregister all file associations
+                
+                FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
+                if ErrorLevel
+                    TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                else
+                    bContinue := true
+            }
+        }
+    }
+
+    if bContinue
+    {
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\{2624B969-7135-4EB1-B0F6-2D8C397B45F7}_is1
+        IfExist, %A_AppData%\MPC-HC
+        {
+            FileRemoveDir, %A_AppData%\MPC-HC, 1
+            if ErrorLevel
+                TestsFailed("Unable to delete '" A_AppData "\MPC-HC'.")
+        }
+
+        if bContinue
+        {
+            if bHardcoded
+                TestsOK("Either there was no previous versions or we succeeded removing it using hardcoded path.")
+            else
+                TestsOK("Either there was no previous versions or we succeeded removing it using data from registry.")
+            Run %ModuleExe%
+        }
+    }
 }
 
 
@@ -61,14 +101,18 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Select Setup Language, Select the language, 15
-    if not ErrorLevel
-    {
-        Sleep, 250
-        SendInput, {ENTER} ; Hit 'OK' button
-        TestsOK("'Select Setup Language (Select the language)' window appeared, 'ENTER' was sent.")
-    }
-    else
+    if ErrorLevel
         TestsFailed("'Select Setup Language (Select the language)' window failed to appear.")
+    else
+    {
+        Sleep, 700
+        SendInput, {ENTER} ; Hit 'OK' button
+        WinWaitClose, Select Setup Language, Select the language, 7
+        if ErrorLevel
+            TestsFailed("'Select Setup Language (Select the language)' window failed to close despite 'ENTER' was sent.")
+        else
+            TestsOK("'Select Setup Language (Select the language)' window appeared, 'ENTER' sent and window closed.")
+    }
 }
 
 
@@ -77,30 +121,32 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Setup - MPC-HC, This will install, 8
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'Setup - MPC-HC (This will install)' window failed to appear.")
+    else
     {
-        Sleep, 250
+        Sleep, 700
         SendInput, !n ; Hit 'Next' button
         TestsOK("'Setup - MPC-HC (This will install)' window appeared, Alt+N was sent.")
     }
-    else
-        TestsFailed("'Setup - MPC-HC (This will install)' window failed to appear.")
 }
+
 
 ; Test if 'License Agreement' window appeared
 TestsTotal++
 if bContinue
 {
     WinWaitActive, Setup - MPC-HC, License Agreement, 7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'Setup - MPC-HC (License Agreement)' window failed to appear.")
+    else
     {
-        Sleep, 250
+        Sleep, 700
         SendInput, !a ; Check 'I accept' radiobutton
+        Sleep, 1000 ; Sleep until 'Next' button is enabled
         SendInput, !n ; Hit 'Next' button
         TestsOK("'Setup - MPC-HC (License Agreement)' window appeared, Alt+A and Alt+N was sent.")
     }
-    else
-        TestsFailed("'Setup - MPC-HC (License Agreement)' window failed to appear.")
 }
 
 
@@ -109,14 +155,14 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Setup - MPC-HC, Select Destination Location, 7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'Setup - MPC-HC (Select Destination Location)' window failed to appear.")
+    else
     {
-        Sleep, 250
+        Sleep, 700
         SendInput, !n ; Hit 'Next' button
         TestsOK("'Setup - MPC-HC (Select Destination Location)' window appeared, Alt+N was sent.")
     }
-    else
-        TestsFailed("'Setup - MPC-HC (Select Destination Location)' window failed to appear.")
 }
 
 
@@ -125,14 +171,14 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Setup - MPC-HC, Select Components, 7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'Setup - MPC-HC (Select Components)' window failed to appear.")
+    else
     {
-        Sleep, 250
+        Sleep, 700
         SendInput, !n ; Hit 'Next' button
         TestsOK("'Setup - MPC-HC (Select Components)' window appeared, Alt+N was sent.")
     }
-    else
-        TestsFailed("'Setup - MPC-HC (Select Components)' window failed to appear.")
 }
 
 
@@ -141,14 +187,14 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Setup - MPC-HC, Select Start Menu Folder, 7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'Setup - MPC-HC (Select Start Menu Folder)' window failed to appear.")
+    else
     {
-        Sleep, 250
+        Sleep, 700
         SendInput, !n ; Hit 'Next' button
         TestsOK("'Setup - MPC-HC (Select Start Menu Folder)' window appeared, Alt+N was sent.")
     }
-    else
-        TestsFailed("'Setup - MPC-HC (Select Start Menu Folder)' window failed to appear.")
 }
 
 
@@ -157,15 +203,16 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Setup - MPC-HC, Select Additional Tasks, 7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'Setup - MPC-HC (Select Additional Tasks)' window failed to appear.")
+    else
     {
-        Sleep, 250
+        Sleep, 700
         SendInput, !q ; Check 'Create a Quick Launch icon' checkbox //We want to test more things
+        Sleep, 500
         SendInput, !n ; Hit 'Next' button
         TestsOK("'Setup - MPC-HC (Select Additional Tasks)' window appeared, Alt+Q and Alt+N was sent.")
     }
-    else
-        TestsFailed("'Setup - MPC-HC (Select Additional Tasks)' window failed to appear.")
 }
 
 
@@ -174,14 +221,14 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Setup - MPC-HC, Ready to Install, 7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'Setup - MPC-HC (Ready to Install)' window failed to appear.")
+    else
     {
-        Sleep, 250
+        Sleep, 700
         SendInput, !i ; Hit 'Install' button
         TestsOK("'Setup - MPC-HC (Ready to Install)' window appeared and Alt+I was sent.")
     }
-    else
-        TestsFailed("'Setup - MPC-HC (Ready to Install)' window failed to appear.")
 }
 
 
@@ -190,18 +237,18 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Setup - MPC-HC, Installing, 7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'Setup - MPC-HC (Installing)' window failed to appear.")
+    else
     {
-        Sleep, 250
+        Sleep, 700
         OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installing' window appeared, waiting for it to close.`n
         WinWaitClose, Setup - MPC-HC, Installing, 25
-        if not ErrorLevel
-            TestsOK("'Setup - MPC-HC (Installing)' window went away.")
-        else
+        if ErrorLevel
             TestsFailed("'Setup - MPC-HC (Installing)' window failed to dissapear.")
+        else
+            TestsOK("'Setup - MPC-HC (Installing)' window went away.")
     }
-    else
-        TestsFailed("'Setup - MPC-HC (Installing)' window failed to appear.")
 }
 
 ; Test if 'Completing' window appeared
@@ -209,25 +256,36 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Setup - MPC-HC, Completing, 7
-    if not ErrorLevel
-    {
-        Sleep, 250
-        SendInput, !f ; Hit 'Finish' button
-        TestsOK("'Setup - MPC-HC (Completing)' window appeared, Alt+F was sent.")
-    }
-    else
+    if ErrorLevel
         TestsFailed("'Setup - MPC-HC (Completing)' window failed to appear.")
+    else
+    {
+        Sleep, 700
+        SendInput, !f ; Hit 'Finish' button
+        WinWaitClose, Setup - MPC-HC, Completing, 5
+        if ErrorLevel
+            TestsFailed("'Setup - MPC-HC (Completing)' window failed to close despite Alt+F was sent.")
+        else
+            TestsOK("'Setup - MPC-HC (Completing)' window appeared, Alt+F was sent.")
+    }
 }
-
 
 ; Check if program exists
 TestsTotal++
 if bContinue
 {
-    Sleep, 1500
-    AppExe = %A_ProgramFiles%\MPC-HC\mpc-hc.exe
-    IfExist, %AppExe%
-        TestsOK("Should be installed, because '" AppExe "' was found.")
+    Sleep, 2000
+    RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{2624B969-7135-4EB1-B0F6-2D8C397B45F7}_is1, UninstallString
+    if ErrorLevel
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
     else
-        TestsFailed("Can NOT find '" AppExe "'.")
+    {
+        StringReplace, UninstallerPath, UninstallerPath, `",, All ; The MPC-HC uninstaller path is quoted, remove quotes
+        SplitPath, UninstallerPath,, InstalledDir
+        IfNotExist, %InstalledDir%\%MainAppFile%
+            TestsFailed("Something went wrong, can't find '" InstalledDir "\" MainAppFile "'.")
+        else
+            TestsOK("The application has been installed, because '" InstalledDir "\" MainAppFile "' was found.")
+    }
 }
+
