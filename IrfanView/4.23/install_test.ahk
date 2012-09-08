@@ -18,14 +18,8 @@
  */
 
 ModuleExe = %A_WorkingDir%\Apps\IrfanView 4.23 Setup.exe
-bContinue := false
 TestName = 1.install
-
-TestsFailed := 0
-TestsOK := 0
-TestsTotal := 0
-
-
+MainAppFile = i_view32.exe ; Mostly this is going to be process we need to look for
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
 TestsTotal++
@@ -33,15 +27,41 @@ IfNotExist, %ModuleExe%
     TestsFailed("'" ModuleExe "' not found.")
 else
 {
-    Process, Close, i_view32.exe ; Teminate process
-    Sleep, 2000
-    Process, Exist, i_view32.exe
-    if ErrorLevel <> 0
-        TestsFailed("Unable to terminate 'i_view32.exe' process.") ; So, process still exists
+    Process, Close, %MainAppFile% ; Teminate process
+    Process, WaitClose, %MainAppFile%, 4
+    if ErrorLevel ; The PID still exists.
+        TestsFailed("Unable to terminate '" MainAppFile "' process.") ; So, process still exists
     else
     {
         RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\IrfanView, UninstallString
-        if not ErrorLevel
+        if ErrorLevel
+        {
+            ; There was a problem (such as a nonexistent key or value). 
+            ; That probably means we have not installed this app before.
+            ; Check in default directory to be extra sure
+            IfNotExist, %A_ProgramFiles%\IrfanView
+                bContinue := true ; No previous versions detected in hardcoded path
+            else
+            {
+                bHardcoded := true ; To know if we got path from registry or not
+                IfExist, %A_ProgramFiles%\IrfanView\iv_uninstall.exe
+                {
+                    RunWait, %A_ProgramFiles%\IrfanView\iv_uninstall.exe /silent ; Silently uninstall it
+                    Sleep, 7000
+                }
+
+                IfNotExist, %A_ProgramFiles%\IrfanView ; Uninstaller might delete the dir
+                    bContinue := true
+                {
+                    FileRemoveDir, %A_ProgramFiles%\IrfanView, 1
+                    if ErrorLevel
+                        TestsFailed("Unable to delete existing '" A_ProgramFiles "\IrfanView' ('" MainAppFile "' process is reported as terminated).'")
+                    else
+                        bContinue := true
+                }
+            }
+        }
+        else
         {
             SplitPath, UninstallerPath,, InstalledDir
             IfNotExist, %InstalledDir%
@@ -51,37 +71,19 @@ else
                 IfExist, %UninstallerPath%
                 {
                     RunWait, %UninstallerPath% /silent ; Silently uninstall it
-                    Sleep, 2500
-                }
-                
-                ; Uninstaller was not found, but dir it should be in - exist, so, delete it
-                FileRemoveDir, %InstalledDir%, 1
-                if ErrorLevel
-                    TestsFailed("Unable to delete existing '" InstalledDir "' ('i_view32.exe' process is reported as terminated).")
-                else
-                    bContinue := true
-            }
-        }
-        else
-        {
-            ; There was a problem (such as a nonexistent key or value). 
-            ; That probably means we have not installed this app before.
-            ; Check in default directory to be extra sure
-            IfNotExist, %A_ProgramFiles%\IrfanView
-                bContinue := true ; No previous versions detected in hardcoded path
-            else
-            {
-                IfExist, %A_ProgramFiles%\IrfanView\iv_uninstall.exe
-                {
-                    RunWait, %A_ProgramFiles%\IrfanView\iv_uninstall.exe /silent ; Silently uninstall it
-                    Sleep, 2500
+                    Sleep, 7000
                 }
 
-                FileRemoveDir, %A_ProgramFiles%\IrfanView, 1
-                if ErrorLevel
-                    TestsFailed("Unable to delete existing '" A_ProgramFiles "\IrfanView' ('IrfanView.exe' process is reported as terminated).'")
-                else
+                IfNotExist, %InstalledDir%
                     bContinue := true
+                else
+                {
+                    FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
+                    if ErrorLevel
+                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                    else
+                        bContinue := true
+                }
             }
         }
     }
@@ -98,7 +100,10 @@ else
 
         if bContinue
         {
-            TestsOK("Either there was no previous versions or we succeeded removing it.")
+            if bHardcoded
+                TestsOK("Either there was no previous versions or we succeeded removing it using hardcoded path.")
+            else
+                TestsOK("Either there was no previous versions or we succeeded removing it using data from registry.")
             Run %ModuleExe%
         }
     }
@@ -215,6 +220,7 @@ if bContinue
                     TestsFailed("Unable to uncheck 'Google Desktop Search' in 'IrfanView Setup (Google Desktop Search)' window.")
                 else
                 {
+                    Sleep, 700
                     ControlClick, Button18, IrfanView Setup, Google Desktop Search ; Hit 'Next' button
                     if ErrorLevel
                         TestsFailed("Unable to hit 'Next' button in 'IrfanView Setup (Google Desktop Search)' window.")
@@ -231,6 +237,7 @@ if bContinue
                 TestsFailed("Unable to check 'Dont install Google Desktop Search' in 'IrfanView Setup (Google Desktop Search)' window.")
             else
             {
+                Sleep, 700
                 ControlClick, Button18, IrfanView Setup, Google Desktop Search ; Hit 'Next' button
                 if ErrorLevel
                     TestsFailed("Unable to hit 'Next' button in 'IrfanView Setup (Google Desktop Search)' window.")
@@ -257,6 +264,7 @@ if bContinue
             TestsFailed("Unable to check 'Users Application Data folder' in 'IrfanView Setup (Ready to install)' window.")
         else
         {
+            Sleep, 700
             ControlClick, Button23, IrfanView Setup, Ready to install ; Hit 'Next' button
             if ErrorLevel
                 TestsFailed("Unable to hit 'Next' button in 'IrfanView Setup (Ready to install)' window.")
@@ -301,6 +309,7 @@ if bContinue
             TestsFailed("Unable to uncheck 'Start IrfanView' in 'IrfanView Setup (Installation successfull)' window.")
         else
         {
+            Sleep, 700
             ControlClick, Button27, IrfanView Setup, Installation successfull ; Hit 'Done' button
             if ErrorLevel
                 TestsFailed("Unable to hit 'Done' button in 'IrfanView Setup (Installation successfull)' window.")
@@ -311,6 +320,10 @@ if bContinue
                     TestsFailed("'IrfanView Setup (Installation successfull)' window failed to close despite the 'Done' button being reported as clicked .")
                 else
                 {
+                    Process, Close, firefox.exe ; Terminate those until code to terminate default browser is written
+                    Process, Close, iexplore.exe
+                    Process, Close, Opera.exe
+                        
                     Process, Wait, i_view32.exe, 4
                     NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                     if NewPID <> 0
@@ -329,15 +342,15 @@ TestsTotal++
 if bContinue
 {
     Sleep, 2000
-    RegRead, UninstallString, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\IrfanView, UninstallString
+    RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\IrfanView, UninstallString
     if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")
     else
     {
-        StringReplace, UninstallString, UninstallString, `",, All
-        IfNotExist, %UninstallString%
-            TestsFailed("Something went wrong, can't find '" UninstallString "'.")
+        SplitPath, UninstallerPath,, InstalledDir
+        IfNotExist, %InstalledDir%\%MainAppFile%
+            TestsFailed("Something went wrong, can't find '" InstalledDir "\" MainAppFile "'.")
         else
-            TestsOK("The application has been installed, because '" UninstallString "' was found.")
+            TestsOK("The application has been installed, because '" InstalledDir "\" MainAppFile "' was found.")
     }
 }
