@@ -17,12 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-bContinue := false
-TestsTotal := 0
-TestsSkipped := 0
-TestsFailed := 0
-TestsOK := 0
-TestsExecuted := 0
 TestName = 2.GoToPage
 szDocument =  %A_WorkingDir%\Media\Book.pdf ; Case sensitive!
 
@@ -35,25 +29,37 @@ else
 {
     SplitPath, szDocument, NameExt
     WinWaitActive, %NameExt% - Foxit Reader 2.1 - [%NameExt%],,7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("Window '" NameExt " - Foxit Reader 2.1 - [" NameExt "]' failed to appear.")
+    else
     {
         SendInput, *^{1} ; Scortcut for RMB option 'Actual Size'
         WinMenuSelectItem, %NameExt% - Foxit Reader 2.1 - [%NameExt%], , Document, Go to Page ; File menu: Document -> Go to Page
-        if not ErrorLevel
+        if ErrorLevel
+            TestsFailed("Unable to hit 'Document -> Go to Page'.")
+        else
         {
             WinWaitActive, Go to  Page,, 5 ; Note two spaces between 'to' and 'Page'
-            if not ErrorLevel
+            if ErrorLevel
+                TestsFailed("Window 'Go to  Page' failed to appear [Note two spaces between 'to' and 'Page'].")
+            else
             {
                 ControlSetText, Edit1, 29, Go to  Page ; enter '29' as page number
-                if not ErrorLevel
+                if ErrorLevel
+                    TestsFailed("Unable to enter page number '29' in 'Go to  Page' window.")
+                else
                 {
                     ControlClick, Button1, Go to  Page
-                    if not ErrorLevel
+                    if ErrorLevel
+                        TestsFailed("Unable to hit 'OK' button in 'Go to  Page' window.")
+                    else
                     {
                         Sleep, 2000 ; Load page properly before searching for image on the screen
                         SearchImg = %A_WorkingDir%\Media\BookPage29Img.jpg
                         
-                        IfExist, %SearchImg%
+                        IfNotExist, %SearchImg%
+                            TestsFailed("Can NOT find '" SearchImg "'.")
+                        else
                         {
                             ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, *14 %SearchImg% ; 14 is best what Windows can do
                             if ErrorLevel = 2
@@ -67,34 +73,22 @@ else
                                 SendInput, {CTRLDOWN}w{CTRLUP} ; Shortcut to close document
                                 Sleep, 2000 ; Let some error to come up
                                 WinWaitActive, Foxit Reader 2.1,,5
-                                if not ErrorLevel
+                                if ErrorLevel
+                                    TestsFailed("Window 'Foxit Reader 2.1' failed to appear after closing document.")
+                                else
                                 {
                                     WinClose, Foxit Reader 2.1
-                                    Sleep, 1500 ; Let WinClose to do it's job
-                                    IfWinNotExist, Foxit Reader 2.1
-                                        TestsOK("Successfully opened PDF document, loaded page 29, closed document, closed Foxit Reader application.")
+                                    WinWaitClose, Foxit Reader 2.1,,4
+                                    if ErrorLevel
+                                        TestsFailed("Window 'Foxit Reader 2.1' failed to close.")
                                     else
-                                        TestsFailed("Window 'Foxit Reader 2.1' failed to close.") ; This will terminate 'Foxit Reader.exe'
+                                        TestsOK("Successfully opened PDF document, loaded page 29, closed document, closed Foxit Reader application.")
                                 }
-                                else
-                                    TestsFailed("Window 'Foxit Reader 2.1' failed to appear after closing document.")
                             }
                         }
-                        else
-                            TestsFailed("Can NOT find '" SearchImg "'.")
                     }
-                    else
-                        TestsFailed("Unable to hit 'OK' button in 'Go to  Page' window.")
                 }
-                else
-                    TestsFailed("Unable to enter page number '29' in 'Go to  Page' window.")
             }
-            else
-                TestsFailed("Window 'Go to  Page' failed to appear [Note two spaces between 'to' and 'Page'].")
         }
-        else
-            TestsFailed("Unable to hit 'Document -> Go to Page'.")
     }
-    else
-        TestsFailed("Window '" NameExt " - Foxit Reader 2.1 - [" NameExt "]' failed to appear.")
 }

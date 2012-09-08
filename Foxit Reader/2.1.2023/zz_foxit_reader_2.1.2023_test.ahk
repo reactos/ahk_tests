@@ -18,10 +18,8 @@
  */
 
 #Include ..\..\helper_functions.ahk
+InitalizeCounters()
 
-
-if 1 = --list
-{
 params =
 (
 
@@ -29,37 +27,22 @@ params =
     2.GoToPage
 
 )
-FileAppend, %params%, *
-}
-else if 1 = 1.install
+
+if CheckParam()
 {
-    #include install_test.ahk
-}
-else
-{
-    #include prepare.ahk
-    
-    if 1 = 2.GoToPage
+    if 1 = 1.install
     {
-        #include GoToPage.ahk ; Open PDF document, go to page 29, close document, exit Foxit Reader.
+        #include install_test.ahk
     }
-    else
-    OutputDebug, Bad parameters: '%1%'!`r`n
+    else 
+    {
+        #include prepare.ahk
+
+        if 1 = 2.GoToPage
+        {
+            #include GoToPage.ahk
+        }
+    }
 }
 
-if 1 != --list
-{
-    if not bContinue
-    {
-        SplitPath, ModuleExe, fName ; Extract filename from given path
-        WindowCleanUp(fName)  
-    }
-
-    Process, Close, Foxit Reader.exe
-    
-    TestsSkipped := TestsTotal - TestsOK - TestsFailed
-    TestsExecuted := TestsOK + TestsFailed
-    if (TestsSkipped < 0 or TestsExecuted < 0)
-        OutputDebug, %TestName%: Check TestsTotal, TestsOK and TestsFailed, because results returns less than 0.`n
-    OutputDebug, %TestName%: %TestsExecuted% tests executed (0 marked as todo, %TestsFailed% failures), %TestsSkipped% skipped.`n
-}
+ShowTestResults()

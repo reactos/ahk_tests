@@ -18,86 +18,82 @@
  */
 
 ModuleExe = %A_WorkingDir%\Apps\Foxit Reader 2.1.2023 Setup.exe
-bContinue := false
 TestName = 1.install
-
-TestsFailed := 0
-TestsOK := 0
-TestsTotal := 0
+MainAppFile = Foxit Reader.exe ; Mostly this is going to be process we need to look for
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
-IfExist, %ModuleExe%
-{
-    ; Get rid of other versions
-    RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Foxit Reader, UninstallString
-    if not ErrorLevel
-    {   
-        IfExist, %UninstallerPath%
-        {
-            Process, Close, Foxit Reader.exe ; Teminate process
-            ; No silent switch for uninstaller
-            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Foxit Software
-            RegDelete, HKEY_CURRENT_USER, SOFTWARE\Foxit Software
-            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Foxit Reader
-            SplitPath, UninstallerPath,, InstalledDir
-            FileRemoveDir, %InstalledDir%, 1
-            Sleep, 1000
-            IfExist, %InstalledDir%
-            {
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to delete '%InstalledDir%'.`n
-                bContinue := false
-            }
-            else
-            {
-                bContinue := true
-            }
-        }
-    }
-    else
-    {
-        ; There was a problem (such as a nonexistent key or value). 
-        ; That probably means we have not installed this app before.
-        ; Check in default directory to be extra sure
-        IfExist, %A_ProgramFiles%\Foxit Software\Foxit Reader
-        {
-            Process, Close, Foxit Reader.exe ; Teminate process
-            Sleep, 1500
-            FileRemoveDir, %A_ProgramFiles%\Foxit Software\Foxit Reader, 1
-            Sleep, 1000
-            IfExist, %A_ProgramFiles%\Foxit Software\Foxit Reader
-            {
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Previous version detected and failed to delete '%A_ProgramFiles%\Foxit Software\Foxit Reader'.`n
-                bContinue := false
-            }
-            else
-            {
-                bContinue := true
-            }
-        }
-        else
-        {
-            ; No previous versions detected.
-            bContinue := true
-        }
-    }
-    if bContinue
-    {
-        IfExist, %A_WinDir%\System32\mfc42.dll
-        {
-            Run %ModuleExe%
-        }
-        else
-        {
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%A_WinDir%\System32\mfc42.dll' is required, but it was not found (VC++6).`n
-            bContinue := false
-        }
-    }
-}
+TestsTotal++
+IfNotExist, %ModuleExe%
+    TestsFailed("'" ModuleExe "' not found.")
 else
 {
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%ModuleExe%' not found.`n
-    bContinue := false
+    Process, Close, %MainAppFile% ; Teminate process
+    Process, WaitClose, %MainAppFile%, 4
+    if ErrorLevel ; The PID still exists.
+        TestsFailed("Unable to terminate '" MainAppFile "' process.") ; So, process still exists
+    else
+    {
+        RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Foxit Reader, UninstallString
+        if ErrorLevel
+        {
+            ; There was a problem (such as a nonexistent key or value). 
+            ; That probably means we have not installed this app before.
+            ; Check in default directory to be extra sure
+            IfNotExist, %A_ProgramFiles%\Foxit Software\Foxit Reader
+                bContinue := true ; No previous versions detected in hardcoded path
+            else
+            {
+                bHardcoded := true ; To know if we got path from registry or not
+
+                IfNotExist, %A_ProgramFiles%\Foxit Software\Foxit Reader ; No silent switch, so, delete
+                    bContinue := true
+                {
+                    FileRemoveDir, %A_ProgramFiles%\Foxit Software\Foxit Reader, 1
+                    if ErrorLevel
+                        TestsFailed("Unable to delete existing '" A_ProgramFiles "\Foxit Software\Foxit Reader' ('" MainAppFile "' process is reported as terminated).'")
+                    else
+                        bContinue := true
+                }
+            }
+        }
+        else
+        {
+            SplitPath, UninstallerPath,, InstalledDir
+            IfNotExist, %InstalledDir%
+                bContinue := true
+            else
+            {
+                IfNotExist, %InstalledDir%
+                    bContinue := true
+                else
+                {
+                    FileRemoveDir, %InstalledDir%, 1 ; No silent switch, so, delete
+                    if ErrorLevel
+                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                    else
+                        bContinue := true
+                }
+            }
+        }
+    }
+
+    IfNotExist, %A_WinDir%\System32\mfc42.dll
+            TestsFailed("'" A_WinDir "\System32\mfc42.dll' is required, but it was not found (VC++6).")
+    else
+    if bContinue
+    {
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Foxit Software
+        RegDelete, HKEY_CURRENT_USER, SOFTWARE\Foxit Software
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Foxit Reader
+
+        if bHardcoded
+            TestsOK("Either there was no previous versions or we succeeded removing it using hardcoded path.")
+        else
+            TestsOK("Either there was no previous versions or we succeeded removing it using data from registry.")
+        Run %ModuleExe%
+    }
 }
+
 
 
 ; Test if 'Setup will install' window appeared
@@ -105,17 +101,17 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Foxit Reader Install Wizard, Setup will install, 15
-    if not ErrorLevel
-    {
-        Sleep, 250
-        ControlClick, Button1, Foxit Reader Install Wizard, Setup will install
-        if not ErrorLevel
-            TestsOK("'Foxit Reader Install Wizard (Setup will install)' window appeared and 'Next' button was clicked.")
-        else
-            TestsFailed("Unable to hit 'Next' in 'Foxit Reader Install Wizard (Setup will install)' window.")
-    }
-    else
+    if ErrorLevel
         TestsFailed("'Foxit Reader Install Wizard (Setup will install)' window failed to appear.")
+    else
+    {
+        Sleep, 700
+        ControlClick, Button1, Foxit Reader Install Wizard, Setup will install
+        if ErrorLevel
+            TestsFailed("Unable to hit 'Next' in 'Foxit Reader Install Wizard (Setup will install)' window.")
+        else
+            TestsOK("'Foxit Reader Install Wizard (Setup will install)' window appeared and 'Next' button was clicked.")
+    }
 }
 
 
@@ -124,17 +120,17 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Foxit Reader Install Wizard, New features, 15
-    if not ErrorLevel
-    {
-        Sleep, 250
-        ControlClick, Button1, Foxit Reader Install Wizard, New features
-        if not ErrorLevel
-            TestsOK("'Foxit Reader Install Wizard (New features)' window appeared and 'Next' button was clicked.")
-        else
-            TestsFailed("Unable to hit 'Next' in 'Foxit Reader Install Wizard (New features)' window. ")
-    }
-    else
+    if ErrorLevel
         TestsFailed("'Foxit Reader Install Wizard (New features)' window failed to appear.")
+    else
+    {
+        Sleep, 700
+        ControlClick, Button1, Foxit Reader Install Wizard, New features
+        if ErrorLevel
+            TestsFailed("Unable to hit 'Next' in 'Foxit Reader Install Wizard (New features)' window. ")
+        else
+            TestsOK("'Foxit Reader Install Wizard (New features)' window appeared and 'Next' button was clicked.")
+    }
 }
 
 
@@ -143,17 +139,17 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Foxit Reader Install Wizard, Please read the license, 7
-    if not ErrorLevel
-    {
-        Sleep, 250
-        ControlClick, Button1, Foxit Reader Install Wizard, Please read the license ; Hit 'I agree' button
-        if not ErrorLevel
-            TestsOK("'Foxit Reader Install Wizard (Please read the license)' window appeared and 'I agree' button was clicked.")
-        else
-            TestsFailed("Unable to hit 'I agree' button in 'Foxit Reader Install Wizard (Please read the license)' window.")
-    }
-    else
+    if ErrorLevel
         TestsFailed("'Foxit Reader Install Wizard (Please read the license)' window failed to appear.")
+    else
+    {
+        Sleep, 700
+        ControlClick, Button1, Foxit Reader Install Wizard, Please read the license ; Hit 'I agree' button
+        if ErrorLevel
+            TestsFailed("Unable to hit 'I agree' button in 'Foxit Reader Install Wizard (Please read the license)' window.")
+        else
+            TestsOK("'Foxit Reader Install Wizard (Please read the license)' window appeared and 'I agree' button was clicked.")
+    }
 }
 
 
@@ -162,17 +158,17 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Foxit Reader Install Wizard, installation type, 7
-    if not ErrorLevel
-    {
-        Sleep, 250
-        ControlClick, Button1, Foxit Reader Install Wizard, installation type ; Hit 'Default' button
-        if not ErrorLevel
-            TestsOK("'Foxit Reader Install Wizard (installation type)' window appeared and 'Next' button was clicked.")
-        else
-            TestsFailed("Unable to hit 'Next' in 'Foxit Reader Install Wizard (installation type)' window.")
-    }
-    else
+    if ErrorLevel
         TestsFailed("'Foxit Reader Install Wizard (installation type)' window failed to appear.")
+    else
+    {
+        Sleep, 700
+        ControlClick, Button1, Foxit Reader Install Wizard, installation type ; Hit 'Default' button
+        if ErrorLevel
+            TestsFailed("Unable to hit 'Next' in 'Foxit Reader Install Wizard (installation type)' window.")
+        else
+            TestsOK("'Foxit Reader Install Wizard (installation type)' window appeared and 'Next' button was clicked.")
+    }
 }
 
 
@@ -181,17 +177,17 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Foxit Reader Install Wizard, Click Install, 7
-    if not ErrorLevel
-    {
-        Sleep, 250
-        ControlClick, Button1, Foxit Reader Install Wizard, Click Install ; Hit 'Install' button
-        if not ErrorLevel
-            TestsOK("'Foxit Reader Install Wizard (Click Install)' window appeared and 'Next' button was clicked.")
-        else
-            TestsFailed("Unable to hit 'Next' in 'Foxit Reader Install Wizard (Click Install)' window.")
-    }
-    else
+    if ErrorLevel
         TestsFailed("'Foxit Reader Install Wizard (Click Install)' window failed to appear.")
+    else
+    {
+        Sleep, 700
+        ControlClick, Button1, Foxit Reader Install Wizard, Click Install ; Hit 'Install' button
+        if ErrorLevel
+            TestsFailed("Unable to hit 'Next' in 'Foxit Reader Install Wizard (Click Install)' window.")
+        else
+            TestsOK("'Foxit Reader Install Wizard (Click Install)' window appeared and 'Next' button was clicked.")
+    }   
 }
 
 
@@ -200,48 +196,63 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Foxit Reader Install Wizard, Setup has successfully installed, 35
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'Foxit Reader Install Wizard (Setup has successfully installed)' window failed to appear.")
+    else
     {
-        Sleep, 250
+        Sleep, 700
         ControlClick, Button3, Foxit Reader Install Wizard, Setup has successfully installed ; Uncheck 'Make it your default PDF reader'
-        if not ErrorLevel
+        if ErrorLevel
+            TestsFailed("Unable to uncheck 'Make it your default PDF reader' checkbox in 'Foxit Reader Install Wizard (Setup has successfully installed)' window.")
+        else
         {
             ControlClick, Button2, Foxit Reader Install Wizard, Setup has successfully installed ; Uncheck 'Run Foxit Reader'
-            if not ErrorLevel
-            {
-                ControlClick, Button1, Foxit Reader Install Wizard, Setup has successfully installed ; Hit 'Finish'
-                if not ErrorLevel
-                    TestsOK("'Foxit Reader Install Wizard (Setup has successfully installed)' window appeared and 'Finish' was clicked.")
-                else
-                    TestsFailed("Unable to click 'Finish' in 'Foxit Reader Install Wizard (Setup has successfully installed)' window.")
-            }
+            if ErrorLevel
+                TestsFailed("Unable to uncheck 'Run Foxit Reader' checkbox in 'Foxit Reader Install Wizard (Setup has successfully installed)' window.")
             else
             {
-                TestsFailed("Unable to uncheck 'Run Foxit Reader' checkbox in 'Foxit Reader Install Wizard (Setup has successfully installed)' window.")
-                Process, Close, Foxit Reader.exe
+                Sleep, 500
+                ControlClick, Button1, Foxit Reader Install Wizard, Setup has successfully installed ; Hit 'Finish'
+                if ErrorLevel
+                    TestsFailed("Unable to click 'Finish' in 'Foxit Reader Install Wizard (Setup has successfully installed)' window.")
+                else
+                {
+                    WinWaitClose, Foxit Reader Install Wizard, Setup has successfully installed, 10
+                    if ErrorLevel
+                        TestsFailed("'Foxit Reader Install Wizard (Setup has successfully installed)' failed to close despite 'Finish' was clicked.")
+                    else
+                    {
+                        Process, Wait, %MainAppFile%, 4
+                        NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                        if NewPID <> 0
+                        {
+                            TestsFailed("Process '" MainAppFile "' appeared despite 'Run Foxit Reader' being reported as unchecked.")
+                            Process, Close, %MainAppFile%
+                        }
+                        else
+                            TestsOK("'Foxit Reader Install Wizard (Setup has successfully installed)' window appeared, 'Finish' clicked, window closed.")
+                    }
+                }
             }
         }
-        else
-            TestsFailed("Unable to uncheck 'Make it your default PDF reader' checkbox in 'Foxit Reader Install Wizard (Setup has successfully installed)' window.")
     }
-    else
-        TestsFailed("'Foxit Reader Install Wizard (Setup has successfully installed)' window failed to appear.")
 }
 
 
-; Check if program exists
+; Check if program exists in program files
 TestsTotal++
 if bContinue
 {
     Sleep, 2000
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Foxit Reader, UninstallString
-    if not ErrorLevel
-    {
-        IfExist, %UninstallerPath%
-            TestsOK("The application has been installed, because '" UninstallerPath "' was found.")
-        else
-            TestsFailed("Something went wrong, can't find '" UninstallerPath "'.")
-    }
-    else
+    if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")
+    else
+    {
+        SplitPath, UninstallerPath,, InstalledDir
+        IfNotExist, %InstalledDir%\%MainAppFile%
+            TestsFailed("Something went wrong, can't find '" InstalledDir "\" MainAppFile "'.")
+        else
+            TestsOK("The application has been installed, because '" InstalledDir "\" MainAppFile "' was found.")
+    }
 }
