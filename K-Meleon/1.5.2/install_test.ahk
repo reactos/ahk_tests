@@ -18,84 +18,97 @@
  */
 
 ModuleExe = %A_WorkingDir%\Apps\K-Meleon 1.5.2 Setup.exe
-bContinue := false
 TestName = 1.install
-
-TestsFailed := 0
-TestsOK := 0
-TestsTotal := 0
+MainAppFile = k-meleon.exe ; Mostly this is going to be process we need to look for
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
-IfExist, %ModuleExe%
-{
-    ; Get rid of other versions
-    RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\K-Meleon, UninstallString
-    if not ErrorLevel
-    {   
-        IfExist, %UninstallerPath%
-        {
-            Process, Close, k-meleon.exe ; Teminate process
-            Sleep, 1500
-            FileRemoveDir, %A_AppData%\K-Meleon, 1 ; Delete this before uninstalling
-            RunWait, %UninstallerPath% /S ; Silently uninstall it
-            Sleep, 2500
-            ; Delete everything just in case
-            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\K-Meleon
-            RegDelete, HKEY_CURRENT_USER, SOFTWARE\K-Meleon
-            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\K-Meleon
-            SplitPath, UninstallerPath,, InstalledDir
-            FileRemoveDir, %InstalledDir%, 1
-            Sleep, 1000
-            IfExist, %InstalledDir%
-            {
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to delete '%InstalledDir%'.`n
-                bContinue := false
-            }
-            else
-            {
-                bContinue := true
-            }
-        }
-    }
-    else
-    {
-        ; There was a problem (such as a nonexistent key or value). 
-        ; That probably means we have not installed this app before.
-        ; Check in default directory to be extra sure
-        IfExist, %A_ProgramFiles%\K-Meleon\uninstall.exe
-        {
-            Process, Close, k-meleon.exe ; Teminate process
-            Sleep, 1500
-            RunWait, %A_ProgramFiles%\K-Meleon\uninstall.exe /S ; Silently uninstall it
-            Sleep, 2500
-            FileRemoveDir, %A_ProgramFiles%\K-Meleon, 1
-            FileRemoveDir, %A_AppData%\K-Meleon, 1
-            Sleep, 1000
-            IfExist, %A_ProgramFiles%\K-Meleon
-            {
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Previous version detected and failed to delete '%A_ProgramFiles%\K-Meleon'.`n
-                bContinue := false
-            }
-            else
-            {
-                bContinue := true
-            }
-        }
-        else
-        {
-            ; No previous versions detected.
-            bContinue := true
-        }
-    }
-    if bContinue
-    {
-        Run %ModuleExe%
-    }
-}
+TestsTotal++
+IfNotExist, %ModuleExe%
+    TestsFailed("'" ModuleExe "' not found.")
 else
 {
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%ModuleExe%' not found.`n
-    bContinue := false
+    Process, Close, %MainAppFile% ; Teminate process
+    Process, WaitClose, %MainAppFile%, 4
+    if ErrorLevel ; The PID still exists.
+        TestsFailed("Unable to terminate '" MainAppFile "' process.") ; So, process still exists
+    else
+    {
+        IfExist, %A_AppData%\K-Meleon ; Get rid of settings before running uninstaller
+            FileRemoveDir, %A_AppData%\K-Meleon, 1
+
+        IfExist, %A_AppData%\K-Meleon
+            TestsFailed("Unable to delete '" A_AppData "\K-Meleon'.")
+        else
+        {
+            RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\K-Meleon, UninstallString
+            if ErrorLevel
+            {
+                ; There was a problem (such as a nonexistent key or value). 
+                ; That probably means we have not installed this app before.
+                ; Check in default directory to be extra sure
+                IfNotExist, %A_ProgramFiles%\K-Meleon
+                    bContinue := true ; No previous versions detected in hardcoded path
+                else
+                {
+                    bHardcoded := true ; To know if we got path from registry or not
+                    IfExist, %A_ProgramFiles%\K-Meleon\uninstall.exe
+                    {
+                        RunWait, %A_ProgramFiles%\K-Meleon\uninstall.exe /S ; Silently uninstall it
+                        Sleep, 7000
+                    }
+
+                    IfNotExist, %A_ProgramFiles%\K-Meleon ; Uninstaller might delete the dir
+                        bContinue := true
+                    {
+                        FileRemoveDir, %A_ProgramFiles%\K-Meleon, 1
+                        if ErrorLevel
+                            TestsFailed("Unable to delete existing '" A_ProgramFiles "\K-Meleon' ('" MainAppFile "' process is reported as terminated).'")
+                        else
+                            bContinue := true
+                    }
+                }
+            }
+            else
+            {
+                SplitPath, UninstallerPath,, InstalledDir
+                IfNotExist, %InstalledDir%
+                    bContinue := true
+                else
+                {
+                    IfExist, %UninstallerPath%
+                    {
+                        RunWait, %UninstallerPath% /S ; Silently uninstall it
+                        Sleep, 7000
+                    }
+
+                    IfNotExist, %InstalledDir%
+                        bContinue := true
+                    else
+                    {
+                        FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
+                        if ErrorLevel
+                            TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                        else
+                            bContinue := true
+                    }
+                }
+            }
+        }
+    }
+
+    if bContinue
+    {
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\K-Meleon
+
+        if bContinue
+        {
+            if bHardcoded
+                TestsOK("Either there was no previous versions or we succeeded removing it using hardcoded path.")
+            else
+                TestsOK("Either there was no previous versions or we succeeded removing it using data from registry.")
+            Run %ModuleExe%
+        }
+    }
 }
 
 
@@ -104,17 +117,17 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, K-Meleon 1.5.2 en-US Setup, K-Meleon 1.5.2 Install Wizard, 15
-    if not ErrorLevel
-    {
-        Sleep, 250
-        ControlClick, Button2, K-Meleon 1.5.2 en-US Setup, K-Meleon 1.5.2 Install Wizard
-        if not ErrorLevel
-            TestsOK("'K-Meleon 1.5.2 en-US Setup (K-Meleon 1.5.2 Install Wizard)' window appeared and 'Next' was clicked.")
-        else
-            TestsFailed("Unable to click 'Next' in 'K-Meleon 1.5.2 en-US Setup (K-Meleon 1.5.2 Install Wizard)' window.")
-    }
-    else
+    if ErrorLevel
         TestsFailed("'K-Meleon 1.5.2 en-US Setup (K-Meleon 1.5.2 Install Wizard)' window failed to appear.")
+    else
+    {
+        Sleep, 700
+        ControlClick, Button2, K-Meleon 1.5.2 en-US Setup, K-Meleon 1.5.2 Install Wizard
+        if ErrorLevel
+            TestsFailed("Unable to click 'Next' in 'K-Meleon 1.5.2 en-US Setup (K-Meleon 1.5.2 Install Wizard)' window.")
+        else
+            TestsOK("'K-Meleon 1.5.2 en-US Setup (K-Meleon 1.5.2 Install Wizard)' window appeared and 'Next' was clicked.")
+    }
 }
 
 
@@ -123,17 +136,17 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, K-Meleon 1.5.2 en-US Setup, License Agreement, 7
-    if not ErrorLevel
-    {
-        Sleep, 250
-        ControlClick, Button2, K-Meleon 1.5.2 en-US Setup, License Agreement ; Hit 'I Agree' button
-        if not ErrorLevel
-            TestsOK("'K-Meleon 1.5.2 en-US Setup (License Agreement)' window appeared and 'I Agree' button was clicked.")
-        else
-            TestsFailed("Unable to click 'Next' in 'K-Meleon 1.5.2 en-US Setup (License Agreement)' window.")
-    }
-    else
+    if ErrorLevel
         TestsFailed("'K-Meleon 1.5.2 en-US Setup (License Agreement)' window failed to appear.")
+    else
+    {
+        Sleep, 700
+        ControlClick, Button2, K-Meleon 1.5.2 en-US Setup, License Agreement ; Hit 'I Agree' button
+        if ErrorLevel
+            TestsFailed("Unable to click 'Next' in 'K-Meleon 1.5.2 en-US Setup (License Agreement)' window.")
+        else
+            TestsOK("'K-Meleon 1.5.2 en-US Setup (License Agreement)' window appeared and 'I Agree' button was clicked.")
+    }
 }
 
 
@@ -142,17 +155,17 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, K-Meleon 1.5.2 en-US Setup, Choose Components, 7
-    if not ErrorLevel
-    {
-        Sleep, 250
-        ControlClick, Button2, K-Meleon 1.5.2 en-US Setup, Choose Components
-        if not ErrorLevel
-            TestsOK("'K-Meleon 1.5.2 en-US Setup (Choose Components)' window appeared and 'Next' was clicked.")
-        else
-            TestsFailed("Unable to click 'Next' in 'K-Meleon 1.5.2 en-US Setup (Choose Components)' window.")
-    }
-    else
+    if ErrorLevel
         TestsFailed("'K-Meleon 1.5.2 en-US Setup (Choose Components)' window failed to appear.")
+    else
+    {
+        Sleep, 700
+        ControlClick, Button2, K-Meleon 1.5.2 en-US Setup, Choose Components
+        if ErrorLevel
+            TestsFailed("Unable to click 'Next' in 'K-Meleon 1.5.2 en-US Setup (Choose Components)' window.")
+        else
+            TestsOK("'K-Meleon 1.5.2 en-US Setup (Choose Components)' window appeared and 'Next' was clicked.")
+    }
 }
 
 
@@ -161,17 +174,17 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, K-Meleon 1.5.2 en-US Setup, Choose Install Location, 7
-    if not ErrorLevel
-    {
-        Sleep, 250
-        ControlClick, Button2, K-Meleon 1.5.2 en-US Setup, Choose Install Location ; Hit 'Install' button
-        if not ErrorLevel
-            TestsOK("'K-Meleon 1.5.2 en-US Setup (Choose Install Location)' window appeared and 'Next' was clicked.")
-        else
-            TestsFailed("Unable to click 'Next' in 'K-Meleon 1.5.2 en-US Setup (Choose Install Location)' window.")
-    }
-    else
+    if ErrorLevel
         TestsFailed("'K-Meleon 1.5.2 en-US Setup (Choose Install Location)' window failed to appear.")
+    else
+    {
+        Sleep, 700
+        ControlClick, Button2, K-Meleon 1.5.2 en-US Setup, Choose Install Location ; Hit 'Install' button
+        if ErrorLevel
+            TestsFailed("Unable to click 'Next' in 'K-Meleon 1.5.2 en-US Setup (Choose Install Location)' window.")
+        else
+            TestsOK("'K-Meleon 1.5.2 en-US Setup (Choose Install Location)' window appeared and 'Next' was clicked.")
+    }
 }
 
 
@@ -180,30 +193,30 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, K-Meleon 1.5.2 en-US Setup, Installing, 7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'K-Meleon 1.5.2 en-US Setup (Installing)' window failed to appear.")
+    else
     {
-        Sleep, 250
+        Sleep, 700
         OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installing' window appeared, waiting for it to close.`n
         WinWaitClose, K-Meleon 1.5.2 en-US Setup, Installing, 35
-        if not ErrorLevel
+        if ErrorLevel
+            TestsFailed("'K-Meleon 1.5.2 en-US Setup (Installing)' window failed to close.")
+        else
         {
             WinWaitActive, K-Meleon 1.5.2 en-US Setup, Installation Complete, 7
-            if not ErrorLevel
+            if ErrorLevel
+                TestsFailed("'K-Meleon 1.5.2 en-US Setup (Installation Complete)' window failed to appear.")
+            else
             {
                 ControlClick, Button2, K-Meleon 1.5.2 en-US Setup, Installation Complete
-                if not ErrorLevel
-                    TestsOK("'Installing' went away, 'Installation Complete' appeared, and 'Next' was clicked.")
-                else
+                if ErrorLevel
                     TestsFailed("Unable to hit 'Next' button in 'K-Meleon 1.5.2 en-US Setup (Installation Complete)' window.")
+                else
+                    TestsOK("'Installing' went away, 'Installation Complete' appeared, and 'Next' was clicked.")
             }
-            else
-                TestsFailed("'K-Meleon 1.5.2 en-US Setup (Installation Complete)' window failed to appear.")
         }
-        else
-            TestsFailed("'K-Meleon 1.5.2 en-US Setup (Installing)' window failed to close.")
     }
-    else
-        TestsFailed("'K-Meleon 1.5.2 en-US Setup (Installing)' window failed to appear.")
 }
 
 
@@ -212,23 +225,37 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, K-Meleon 1.5.2 en-US Setup, Completing, 7
-    if not ErrorLevel
-    {
-        Sleep, 250
-        ControlClick, Button4, K-Meleon 1.5.2 en-US Setup, Completing ; Uncheck 'Run K-Meleon 1.5.2'
-        if not ErrorLevel
-        {
-            ControlClick, Button2, K-Meleon 1.5.2 en-US Setup, Completing ; Hit 'Finish'
-            if not ErrorLevel
-                TestsOK("'K-Meleon 1.5.2 en-US Setup (Completing)' window appeared, 'Run K-Meleon 1.5.2' unchecked and 'Finish' was clicked.")
-            else
-                TestsFailed("Unable to click 'Finish' in 'K-Meleon 1.5.2 en-US Setup (Completing)' window.")
-        }
-        else
-            TestsFailed("Unable to uncheck 'Run K-Meleon 1.5.2' in 'K-Meleon 1.5.2 en-US Setup (Completing)' window.")
-    }
-    else
+    if ErrorLevel
         TestsFailed("'K-Meleon 1.5.2 en-US Setup (Completing)' window failed to appear.")
+    else
+    {
+        Sleep, 700
+        ControlClick, Button4, K-Meleon 1.5.2 en-US Setup, Completing ; Uncheck 'Run K-Meleon 1.5.2'
+        if ErrorLevel
+            TestsFailed("Unable to uncheck 'Run K-Meleon 1.5.2' in 'K-Meleon 1.5.2 en-US Setup (Completing)' window.")
+        else
+        {
+            Sleep, 700
+            ControlClick, Button2, K-Meleon 1.5.2 en-US Setup, Completing ; Hit 'Finish'
+            if ErrorLevel
+                TestsFailed("Unable to click 'Finish' in 'K-Meleon 1.5.2 en-US Setup (Completing)' window.")
+            else
+            {
+                WinWaitClose, K-Meleon 1.5.2 en-US Setup, Completing, 5
+                if ErrorLevel
+                    TestsFailed("'K-Meleon 1.5.2 en-US Setup (Completing)' window failed to close despite the 'Finish' button being reported as clicked .")
+                else
+                {
+                    Process, Wait, %MainAppFile%, 4
+                    NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                    if NewPID <> 0
+                        TestsFailed("'" MainAppFile "' process appeared despite 'Start Irfanview' checkbox being unchecked.")
+                    else
+                        TestsOK("'K-Meleon 1.5.2 en-US Setup (Completing)' window appeared, 'Run K-Meleon 1.5.2' unchecked, 'Finish' clicked, window closed.")
+                }
+            }
+        }
+    }   
 }
 
 
@@ -238,13 +265,14 @@ if bContinue
 {
     Sleep, 2000
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\K-Meleon, UninstallString
-    if not ErrorLevel
-    {
-        IfExist, %UninstallerPath%
-            TestsOK("The application has been installed, because '" UninstallerPath "' was found.")
-        else
-            TestsFailed("Something went wrong, can't find '" UninstallerPath "'.")
-    }
-    else
+    if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")
+    else
+    {
+        SplitPath, UninstallerPath,, InstalledDir
+        IfNotExist, %InstalledDir%\%MainAppFile%
+            TestsFailed("Something went wrong, can't find '" InstalledDir "\" MainAppFile "'.")
+        else
+            TestsOK("The application has been installed, because '" InstalledDir "\" MainAppFile "' was found.")
+    }
 }

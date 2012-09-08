@@ -22,36 +22,51 @@ szDocument =  %A_WorkingDir%\Media\index.html ; Case insensitive
 
 ; Test if can open html document using File -> Open and close application
 TestsTotal++
+RunApplication("","")
 if not bContinue
     TestsFailed("We failed somwehere in 'prepare.ahk'.")
 else
 {
     WinWaitActive, K-Meleon 1.5.2 (K-Meleon),,7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("Window 'K-Meleon 1.5.2 (K-Meleon)' failed to appear.")
+    else
     {
         SendInput, {ALTDOWN}f{ALTUP} ; WinMenuSelectItem doesn't work with K-Meleon
         Sleep, 1500
         SendInput, o
         Sleep, 1500
         WinWaitActive, Open, Look, 7
-        if not ErrorLevel
+        if ErrorLevel
+            TestsFailed("Window 'Open (Look)' failed to appear, bug 4779?")
+        else
         {
             ControlSetText, Edit1, %szDocument%, Open, Look
-            if not ErrorLevel
+            if ErrorLevel
+                TestsFailed("Unable to enter '%szDocument%' in 'Open (Look)' window.")
+            else
             {
                 Sleep, 1000
                 ControlClick, Button2, Open, Look
-                if not ErrorLevel
+                if ErrorLevel
+                    TestsFailed("Unable to hit 'Open' button in 'Open (Look)' window.")
+                else
                 {
                     WinWaitClose, Open, Look, 7
-                    if not ErrorLevel
+                    if ErrorLevel
+                        TestsFailed("'Open (Look)' window failed to dissapear.")
+                    else
                     {
                         WinWaitActive, ReactOS HTML test (K-Meleon),,7
-                        if not ErrorLevel
+                        if ErrorLevel
+                            TestsFailed("Window 'ReactOS HTML test (K-Meleon)' failed to appear.")
+                        else
                         {
                             Sleep, 1500
                             SearchImg = %A_WorkingDir%\Media\BookPage29Img.jpg
-                            IfExist, %SearchImg%
+                            IfNotExist, %SearchImg%
+                                TestsFailed("Can NOT find '" SearchImg "'.")
+                            else
                             {
                                 ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, *14 %SearchImg%
                                 if ErrorLevel = 2
@@ -62,30 +77,16 @@ else
                                 {
                                     WinClose, ReactOS HTML test (K-Meleon)
                                     WinWaitClose, ReactOS HTML test (K-Meleon),,7
-                                    if not ErrorLevel
-                                        TestsOK("Successfully opened '" szDocument "' and closed K-Meleon application.")
-                                    else
+                                    if ErrorLevel
                                         TestsFailed("'ReactOS HTML test (K-Meleon)' window failed to close.")
+                                    else
+                                        TestsOK("Successfully opened '" szDocument "' and closed K-Meleon application.")
                                 }
                             }
-                            else
-                                TestsFailed("Can NOT find '" SearchImg "'.")
                         }
-                        else
-                            TestsFailed("Window 'ReactOS HTML test (K-Meleon)' failed to appear.")
                     }
-                    else
-                        TestsFailed("'Open (Look)' window failed to dissapear.")
                 }
-                else
-                    TestsFailed("Unable to hit 'Open' button in 'Open (Look)' window.")
             }
-            else
-                TestsFailed("Unable to enter '%szDocument%' in 'Open (Look)' window.")
         }
-        else
-            TestsFailed("Window 'Open (Look)' failed to appear, bug 4779?")
     }
-    else
-        TestsFailed("Window 'K-Meleon 1.5.2 (K-Meleon)' failed to appear.")
 }
