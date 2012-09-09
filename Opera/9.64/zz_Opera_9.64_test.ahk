@@ -18,10 +18,8 @@
  */
 
 #Include ..\..\helper_functions.ahk
+InitalizeCounters()
 
-
-if 1 = --list
-{
 params =
 (
 
@@ -32,44 +30,35 @@ params =
     5.CloseDownload
 
 )
-FileAppend, %params%, *
-}
-else if 1 = 1.install
-{
-    #include Install.ahk
-}
-else
-{
-    #include Preparation.ahk
 
-    if 1 = 2.AddressBar
-    {
-        #include AddressBar.ahk
-    }
-    else if 1 = 3.Download
-    {
-        #include Download.ahk
-    }
-    else if 1 = 4.FlashPlayer
-    {
-        #include FlashPlayer.ahk
-    }
-    else if 1 = 5.CloseDownload
-    {
-        #include CloseDownload.ahk
-    }
-        else OutputDebug, Bad parameters: '%1%'!`r`n
-}
-
-if 1 != --list
+if CheckParam()
 {
-    if not bContinue
+    ; Those brackets are required!
+    if 1 = 1.install
     {
-        SplitPath, ModuleExe, fName
-        WindowCleanUp(fName)  
+        #include install_test.ahk
     }
+    else 
+    {
+        #include prepare.ahk
 
-    TestsSkipped := TestsTotal - TestsOK - TestsFailed
-    TestsExecuted := TestsOK + TestsFailed
-    OutputDebug, %TestName%: %TestsExecuted% tests executed (0 marked as todo, %TestsFailed% failures), %TestsSkipped% skipped.`n
+        if 1 = 2.AddressBar
+        {
+            #include AddressBar.ahk
+        }
+        else if 1 = 3.Download
+        {
+            #include Download.ahk
+        }
+        else if 1 = 4.FlashPlayer
+        {
+            #include FlashPlayer.ahk
+        }
+        else if 1 = 5.CloseDownload
+        {
+            #include CloseDownload.ahk
+        }
+    }
 }
+
+ShowTestResults()

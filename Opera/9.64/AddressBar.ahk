@@ -17,6 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+TestName = 2.AddressBar
 
 ; Test if we can enter URL
 TestsTotal++
@@ -25,7 +26,9 @@ if not bContinue
 else
 {
     WinWaitActive, Welcome to Opera - Opera,, 4 ; Window caption might change?
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("Window 'Welcome to Opera - Opera' was NOT found.")
+    else
     {
         Sleep, 1000
         SendInput, {CTRLDOWN}l{CTRLUP} ; Toggle address bar
@@ -34,13 +37,16 @@ else
         Sleep, 5000 ; Let it to sleep, maybe it will crash ;)
         
         WinWaitActive, DSx86 by Patrick Aalto - Opera,,15
-        if not ErrorLevel
-            TestsOK("Window caption is 'DSx86 by Patrick Aalto - Opera' that means we opened URL by sending Ctrl+L.")
-        else
+        if ErrorLevel
             TestsFailed("Window 'DSx86 by Patrick Aalto - Opera' was NOT found. Failed to open URL. Ctrl+L doesnt work?")
+        else
+        {
+            Process, Close, %ProcessExe%
+            Process, WaitClose, %ProcessExe%, 4
+            if ErrorLevel
+                TestsFailed("Unable to terminate '" ProcessExe "' process.")
+            else
+                TestsOK("Window caption is 'DSx86 by Patrick Aalto - Opera' that means we opened URL by sending Ctrl+L.")
+        }
     }
-    else
-        TestsFailed("Window 'Welcome to Opera - Opera' was NOT found.")
 }
-
-Process, Close, Opera.exe ; Terminate process
