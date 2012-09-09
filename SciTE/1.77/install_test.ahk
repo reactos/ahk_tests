@@ -18,41 +18,37 @@
  */
 
 ModuleExe = %A_WorkingDir%\Apps\SciTE 1.77 Setup.exe
-bContinue := false
 TestName = 1.install
-
-TestsFailed := 0
-TestsOK := 0
-TestsTotal := 0
+MainAppFile = sciTE.exe
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
-IfExist, %ModuleExe%
-{
-    Process, Close, SciTE.exe
-    ; Get rid of other versions
-    IfExist, %A_ProgramFiles%\SciTE
-    {
-        FileRemoveDir, %A_ProgramFiles%\SciTE, 1
-        if not ErrorLevel
-            bContinue := true
-        else
-        {
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT delete existing '%A_ProgramFiles%\SciTE'.`n
-            bContinue := false
-        }
-    }
-    else
-        bContinue := true
-    
-    if bContinue
-        Run %ModuleExe%
-}
+TestsTotal++
+IfNotExist, %ModuleExe%
+    TestsFailed("Can NOT find '" ModuleExe "'")
 else
 {
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%ModuleExe%' not found.`n
-    bContinue := false
+    Process, Close, %MainAppFile%
+    Process, WaitClose, %MainAppFile%, 4
+    if ErrorLevel
+        TestsFailed("Process '" MainAppFile "' failed to close.")
+    else
+    {
+        InstallLocation = %A_ProgramFiles%\SciTE
+        IfNotExist, %InstallLocation%
+            bContinue := true ; No previous versions detected.
+        else
+        {
+            FileRemoveDir, %InstallLocation%, 1
+            if ErrorLevel
+                TestsFailed("Previous version detected and failed to delete '" InstallLocation "'. '" MainAppFile "' process not detected.")
+            else
+            {
+                TestsOK("Either there was no previous versions or we succeeded removing it using hardcoded path.")
+                Run %ModuleExe%
+            }
+        }
+    }
 }
-
 
 
 ; Test if '7-Zip self-extracting archive' window with 'Extract' button appeared
@@ -60,42 +56,55 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, 7-Zip self-extracting archive, Extract, 15
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'7-Zip self-extracting archive' window with 'Extract' button failed to appear.")
+    else
     {
         Sleep, 250
-        ControlSetText, Edit1, %A_ProgramFiles%\SciTE, 7-Zip self-extracting archive, Extract ; Path
-        if not ErrorLevel
-        {
-            ControlClick, Button2, 7-Zip self-extracting archive, Extract ; Hit 'Extract' button
-            if not ErrorLevel
-                TestsOK("'7-Zip self-extracting archive' window appeared and 'Extract' was clicked.")
-            else
-                TestsFailed("Unable to click 'Extract' in '7-Zip self-extracting archive' window.")
-        }
+        ControlSetText, Edit1, %InstallLocation%, 7-Zip self-extracting archive, Extract ; Path
+        if ErrorLevel
+            TestsFailed("Unable to change 'Edit1' control text to '" InstallLocation "'.")
         else
-            TestsFailed("Unable to change 'Edit1' control text to '" A_ProgramFiles "\SciTE'.")
+        {
+            Sleep, 700
+            ControlClick, Button2, 7-Zip self-extracting archive, Extract ; Hit 'Extract' button
+            if ErrorLevel
+                TestsFailed("Unable to click 'Extract' in '7-Zip self-extracting archive' window.")
+            else
+            {
+                WinWaitClose, 7-Zip self-extracting archive, Extract, 4
+                if ErrorLevel
+                    TestsFailed("'7-Zip self-extracting archive' window failed to close despite 'Extract' button being clicked.")
+                else
+                    TestsOK("'7-Zip self-extracting archive' window appeared, 'Extract' button clicked, window closed.")
+            }
+        }
     }
-    else
-        TestsFailed("'7-Zip self-extracting archive' window with 'Extract' button failed to appear.")
 }
 
 
 TestsTotal++
 if bContinue
 {
-    SetTitleMatchMode, 1
-    WinWaitActive, Extracting, Cancel, 10 ; Wait 10 secs for window to appear
-    if not ErrorLevel ;Window is found and it is active
+    SetTitleMatchMode, 2 ; A window's title can contain WinTitle anywhere inside it to be a match.
+    WinWaitActive, Extracting, Cancel, 7
+    if ErrorLevel
+    {
+        ; Sometimes files are extracted so fast that AHK doesn't detect the window
+        IfNotExist, %InstallLocation%\%MainAppFile%
+            TestsFailed("'Extracting' window failed to appear (SetTitleMatchMode=2) and '" InstallLocation "\" MainAppFile "' doesnt exist.")
+        else
+            TestsOK("AHK unabled to detect 'Extracting' window, but '" InstallLocation "\" MainAppFile "' exist.")
+    }
+    else
     {
         OutputDebug, OK: %TestName%:%A_LineNumber%: 'Extracting' window appeared, waiting for it to close.`n
         WinWaitClose, Extracting, Cancel, 15
-        if not ErrorLevel
-            TestsOK("'Extracting' window appeared and went away.")
-        else
+        if ErrorLevel
             TestsFailed("'Extracting' window failed to close.")
+        else
+            TestsOK("'Extracting' window went away.")
     }
-    else
-        TestsFailed("'Extracting' window failed to appear.")
 }
 
 
@@ -104,9 +113,8 @@ TestsTotal++
 if bContinue
 {
     Sleep, 2000
-    ProgramDir = %A_ProgramFiles%\SciTE
-    IfExist, %ProgramDir%
-        TestsOK("The application has been installed, because '" ProgramDir "' was found.")
+    IfExist, %InstallLocation%\%MainAppFile%
+        TestsOK("The application has been installed, because '" InstallLocation "\" MainAppFile "' was found.")
     else
-        TestsFailed("Something went wrong, can't find '%ProgramDir%'.")
+        TestsFailed("Something went wrong, can't find '" InstallLocation "\" MainAppFile "'.")
 }

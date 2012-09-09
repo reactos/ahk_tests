@@ -24,92 +24,92 @@ szDocument =  %A_WinDir%\TextFile.dat ; Case sensitive!
 TestsTotal++
 FileDelete, %szDocument%
 FileAppend, My name is Egijs Kolesnikovics, %szDocument%
-if not ErrorLevel
+if ErrorLevel
+    TestsFailed("Unable to create '" szDocument "'.")
+else
 {
     RunApplication(szDocument)
     SplitPath, szDocument, NameExt
-    if bContinue
+    if not bContinue
+        TestsFailed("We failed somewhere in prepare.ahk.")
+    else
     {
-        IfWinActive, %NameExt% - SciTE
+        IfWinNotActive, %NameExt% - SciTE
+            TestsFailed("Window '" NameExt " - SciTE' failed to appear.")
+        else
         {
             WinMenuSelectItem, %NameExt% - SciTE, , Search, Replace
-            if not ErrorLevel
+            if ErrorLevel
+                TestsFailed("Unable to hit 'Search -> Replace' in '" NameExt " - SciTE' window.")
+            else
             {
                 WinWaitActive, Replace, Fi&nd what, 5
-                if not ErrorLevel
+                if ErrorLevel
+                    TestsFailed("Window 'Replace (Find what)' failed to appear.")
+                else
                 {
                     Sleep, 1000
                     ControlSetText, Edit1, Egijs, Replace, Fi&nd what
-                    if not ErrorLevel
+                    if ErrorLevel
+                        TestsFailed("Unable to set 'Find what' to 'Egijs' in 'Replace (Find what)' window.")
+                    else
                     {
                         Sleep, 1000
                         ControlSetText, Edit2, Edijs, Replace, Fi&nd what
-                        if not ErrorLevel
+                        if ErrorLevel
+                            TestsFailed("Unable to set 'Replace with' to 'Edijs' in 'Replace (Find what)' window.")
+                        else
                         {
                             Sleep, 500
                             ControlClick, Button8, Replace, Fi&nd what
-                            if not ErrorLevel
+                            if ErrorLevel
+                                TestsFailed("Unable to hit 'Replace All' button in 'Replace (Find what)' window.")
+                            else
                             {
                                 Sleep, 1000
                                 ControlGetText, OutputVar, Static4, Replace, Fi&nd what
-                                if not ErrorLevel
+                                if ErrorLevel
+                                    TestsFailed("Unable to get number of 'Replacements' in 'Replace (Find what)' window.")
+                                else
                                 {
-                                    if OutputVar = 1
+                                    if OutputVar <> 1
+                                        TestsFailed("Bad number of 'Replacements': '" OutputVar "'.")
+                                    else
                                     {
                                         WinClose, Replace, Fi&nd what
                                         WinWaitClose, Replace, Fi&nd what, 5
-                                        if not ErrorLevel
+                                        if ErrorLevel
+                                            TestsFailed("Unable to close 'Replace (Find what)' window.")
+                                        else
                                         {
                                             Sleep, 1000
                                             WinWaitActive, %NameExt% * SciTE,,5
-                                            if not ErrorLevel
+                                            if ErrorLevel
+                                                TestsFailed("'" NameExt " * SciTE' is not active window.")
+                                            else
                                             {
                                                 SendInput, {CTRLDOWN}s{CTRLUP} ; Save document
                                                 WinWaitActive, %NameExt% - SciTE,,5
-                                                if not ErrorLevel
+                                                if ErrorLevel
+                                                    TestsFailed("Keystroke 'Ctrl+S' was sent, '" NameExt " - SciTE' is not active window.")
+                                                else
                                                 {
                                                     WinClose, %NameExt% - SciTE
                                                     WinWaitClose, %NameExt% - SciTE,,5
-                                                    if not ErrorLevel
-                                                        TestsOK("Opened document, replaced some text, saved and closed ScITE successfully.")
-                                                    else
+                                                    if ErrorLevel
                                                         TestsFailed("Unable to close '" NameExt " - SciTE' window.")
+                                                    else
+                                                        TestsOK("Opened document, replaced some text, saved and closed ScITE successfully.")
                                                 }
-                                                else
-                                                    TestsFailed("Keystroke 'Ctrl+S' was sent, '" NameExt " - SciTE' is not active window.")
                                             }
-                                            else
-                                                TestsFailed("'" NameExt " * SciTE' is not active window.")
                                         }
-                                        else
-                                            TestsFailed("Unable to close 'Replace (Find what)' window.")
                                     }
-                                    else
-                                        TestsFailed("Bad number of 'Replacements': '" OutputVar "'.")
                                 }
-                                else
-                                    TestsFailed("Unable to get number of 'Replacements' in 'Replace (Find what)' window.")
                             }
-                            else
-                                TestsFailed("Unable to hit 'Replace All' button in 'Replace (Find what)' window.")
                         }
-                        else
-                            TestsFailed("Unable to set 'Replace with' to 'Edijs' in 'Replace (Find what)' window.")
                     }
-                    else
-                        TestsFailed("Unable to set 'Find what' to 'Egijs' in 'Replace (Find what)' window.")
                 }
-                else
-                    TestsFailed("Window 'Replace (Find what)' failed to appear.")
             }
-            else
-                TestsFailed("Unable to hit 'Search -> Replace' in '" NameExt " - SciTE' window.")
         }
-        else
-            TestsFailed("Window '" NameExt " - SciTE' failed to appear.")
     }
-    else
-        TestsFailed("We failed somewhere in prepare.ahk.")
 }
-else
-    TestsFailed("Unable to create '" szDocument "'.")
