@@ -17,43 +17,51 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-bContinue := false
-TestsTotal := 0
-TestsSkipped := 0
-TestsFailed := 0
-TestsOK := 0
-TestsExecuted := 0
+
 TestName = prepare
 ModuleExe = %A_ProgramFiles%\mozilla.org\SeaMonkey\seamonkey.exe ; Registry contains different location
 
-IfExist, %ModuleExe%
+
+; Terminate application
+TestsTotal++
+SplitPath, ModuleExe, ProcessExe
+Process, Close, %ProcessExe%
+Process, WaitClose, %ProcessExe%, 4
+if ErrorLevel
+    TestsFailed("Unable to terminate '" ProcessExe "' process.")
+else
+    TestsOK("")
+
+
+TestsTotal++
+if bContinue
 {
-    Process, Close, seamonkey.exe ; Teminate process
-    Sleep, 1500 ; To make sure folders are not locked
-    FileRemoveDir, %A_AppData%\Mozilla, 1 ; Delete all saved settings. P.S. there is no way to create settings for it, because it uses protection
-    Sleep, 1500
-    IfNotExist, %A_AppData%\Mozilla
-    {
-        Run, %ModuleExe%,, Max ; Start maximized
-        WinWaitActive, Welcome to SeaMonkey - SeaMonkey,,15
-        if not ErrorLevel
-        {
-            bContinue := true
-            Sleep, 3500 ; Longer sleep is required
-        }
-        else
-        {
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Welcome to SeaMonkey - SeaMonkey' failed to appear. Active window caption: '%title%'`n
-        }
-    }
+    IfNotExist, %ModuleExe%
+        TestsFailed("Can NOT find '" ModuleExe "'.")
     else
     {
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Seems like we failed to delete '%A_AppData%\Mozilla'. Active window caption: '%title%'`n
+        RegisterAsDefault := "C:\PROGRA~1\MOZILLA.ORG\SEAMON~1\SEAMON~1.EXE -osint -url ""%1"""
+        RegWrite, REG_SZ, HKEY_LOCAL_MACHINE, SOFTWARE\Classes\http\shell\open\command,, %RegisterAsDefault% ; Register as default web browser
+        if ErrorLevel
+            TestsFailed("Unable to set def browser")
+        else
+        {
+            FileRemoveDir, %A_AppData%\Mozilla, 1 ; Delete all saved settings. P.S. there is no way to create settings for it, because it uses protection
+            Sleep, 1500
+            IfExist, %A_AppData%\Mozilla
+                TestsFailed("Seems like we failed to delete '" A_AppData "\Mozilla'.")
+            else
+            {
+                Run, %ModuleExe%,, Max ; Start maximized
+                WinWaitActive, Welcome to SeaMonkey - SeaMonkey,,15
+                if ErrorLevel
+                    TestsFailed("Window 'Welcome to SeaMonkey - SeaMonkey' failed to appear.")
+                else
+                {
+                    TestsOK("")
+                    Sleep, 3500 ; Longer sleep is required
+                }
+            }
+        }
     }
-}
-else
-{
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%ModuleExe%'.`n
 }

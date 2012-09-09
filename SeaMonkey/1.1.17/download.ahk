@@ -18,8 +18,8 @@
  */
 
 TestName = 2.download
-
 szFileURL = http://iso.reactos.org/livecd/livecd-57139-dbg.7z
+
 
 ; Test if can download file
 TestsTotal++
@@ -27,7 +27,9 @@ if not bContinue
     TestsFailed("We failed somwehere in 'prepare.ahk'.")
 else
 {
-    IfWinActive, Welcome to SeaMonkey - SeaMonkey
+    IfWinNotActive, Welcome to SeaMonkey - SeaMonkey
+        TestsFailed("'Welcome to SeaMonkey - SeaMonkey' is not active window.")
+    else
     {
         SendInput, {ALTDOWN}d{ALTUP} ; Go to address bar
         Sleep, 500
@@ -35,29 +37,41 @@ else
         SplitPath, szFileURL, NameExt
         FileDelete, %A_Desktop%\%NameExt%
         WinWaitActive, Opening %NameExt%,, 10
-        if not ErrorLevel
+        if ErrorLevel
+            TestsFailed("Window 'Opening " NameExt "' failed to appear.")
+        else
         {
             SendInput, {ALTDOWN}s{ALTUP} ; Check 'Save it to disk' radio button
             Sleep, 3000 ; wait until 'OK' gets enabled
             SendInput, {ENTER} ; Hit 'OK' button
             WinWaitActive, Enter name of file to save to...,,5
-            if not ErrorLevel
+            if ErrorLevel
+                TestsFailed("Window 'Enter name of file to save to...' failed to appear.")
+            else
             {
                 ControlSetText, Edit1, %A_Desktop%\%NameExt%, Enter name of file to save to... ; Enter file path and name
-                if not ErrorLevel
+                if ErrorLevel
+                    TestsFailed("Unable to enter path in 'Enter name of file to save to...' window.")
+                else
                 {
                     Sleep, 1000
                     ControlClick, Button2, Enter name of file to save to... ; Hit 'Save' button
-                    if not ErrorLevel
+                    if ErrorLevel
+                        TestsFailed("Unable to hit 'Save' button in 'Enter name of file to save to...' window.")
+                    else
                     {
                         WinWaitActive, Download Manager,,5
-                        if not ErrorLevel
+                        if ErrorLevel
+                            TestsFailed("Window 'Download Manager' failed to appear.")
+                        else
                         {
                             Sleep, 1000
                             SendInput, {ALTDOWN}i{ALTUP} ; Hit 'Properties' in 'Download Manager'
                             SetTitleMatchMode, 2 ; A window's title can contain WinTitle anywhere inside it to be a match.
                             WinWaitActive, of %NameExt% Saved,,5
-                            if not ErrorLevel
+                            if ErrorLevel
+                                TestsFailed("Window 'of " NameExt " Saved' failed to appear (SetTitleMatchMode=2).")
+                            else
                             {
                                 Sleep, 1000
                                 TimeOut := 0
@@ -74,33 +88,23 @@ else
                                     }
                                 }
                                 
-                                if bDone
-                                {
-                                    TestsOK("'" szFileURL "' downloaded, terminating application.")
-                                    SetTitleMatchMode, 3 ; A window's title must exactly match WinTitle to be a match.
-                                    Process, Close, seamonkey.exe
-                                }
-                                else
+                                if not bDone
                                     TestsFailed("Timed out.")
+                                else
+                                {
+                                    Sleep, 700
+                                    Process, Close, %ProcessExe%
+                                    Process, WaitClose, %ProcessExe%, 4
+                                    if ErrorLevel
+                                        TestsFailed("Unable to terminate '" ProcessExe "' process.")
+                                    else
+                                        TestsOK("'" szFileURL "' downloaded, '" ProcessExe "' terminated.")
+                                }
                             }
-                            else
-                                TestsFailed("Window 'of " NameExt " Saved' failed to appear (SetTitleMatchMode=2).")
                         }
-                        else
-                            TestsFailed("Window 'Download Manager' failed to appear.")
                     }
-                    else
-                        TestsFailed("Unable to hit 'Save' button in 'Enter name of file to save to...' window.")
                 }
-                else
-                    TestsFailed("Unable to enter path in 'Enter name of file to save to...' window.")
             }
-            else
-                TestsFailed("Window 'Enter name of file to save to...' failed to appear.")
         }
-        else
-            TestsFailed("Window 'Opening " NameExt "' failed to appear.")
     }
-    else
-        TestsFailed("'Welcome to SeaMonkey - SeaMonkey' is not active window.")
 }
