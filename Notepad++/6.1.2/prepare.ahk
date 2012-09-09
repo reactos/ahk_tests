@@ -17,13 +17,30 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-ModuleExe = %A_ProgramFiles%\Notepad++\notepad++.exe
-bContinue := false
-TestsTotal := 0
-TestsSkipped := 0
-TestsFailed := 0
-TestsOK := 0
-TestsExecuted := 0
+TestName = prepare
+
+RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Notepad++, UninstallString
+if ErrorLevel
+{
+    ModuleExe = %A_ProgramFiles%\Notepad++\notepad++.exe
+    OutputDebug, %TestName%:%A_LineNumber%: Can NOT read data from registry. Key might not exist. Using hardcoded path.`n
+}
+else
+{
+    SplitPath, UninstallerPath,, InstalledDir
+    ModuleExe = %InstalledDir%\notepad++.exe
+}
+
+
+; Terminate application
+TestsTotal++
+SplitPath, ModuleExe, ProcessExe
+Process, Close, %ProcessExe%
+Process, WaitClose, %ProcessExe%, 4
+if ErrorLevel
+    TestsFailed("Process '" ProcessExe "' failed to close.")
+else
+    TestsOK("")
 
 
 RunNotepad(PathToFile)
@@ -34,13 +51,10 @@ RunNotepad(PathToFile)
     global TestsTotal
     
     TestsTotal++
-
-    Sleep, 500
     IfNotExist, %ModuleExe%
         TestsFailed("Can NOT find '" ModuleExe "'.")
     else
-    { 
-        Process, Close, notepad++.exe ; Teminate process
+    {
         FileRemoveDir, %A_AppData%\Notepad++, 1
         FileCreateDir, %A_AppData%\Notepad++
         IfNotExist, %A_WorkingDir%\Media\Notepadpp_config.xml
@@ -58,7 +72,14 @@ RunNotepad(PathToFile)
                     Sleep, 1000
                     WinWaitActive, new  1 - Notepad++,,10
                     if ErrorLevel
-                        TestsFailed("Window 'new  1 - Notepad++' failed to appear.")
+                    {
+                        Process, Exist, %ProcessExe%
+                        NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                        if NewPID = 0
+                            TestsFailed("Window 'new  1 - Notepad++' failed to appear. No '" ProcessExe "' process detected.")
+                        else
+                            TestsFailed("Window 'new  1 - Notepad++' failed to appear. '" ProcessExe "' process detected.")
+                    }
                     else
                     {
                         Sleep, 1000
@@ -67,15 +88,27 @@ RunNotepad(PathToFile)
                 }
                 else
                 {
-                    Run, %ModuleExe% %PathToFile%,, Max
-                    Sleep, 1000
-                    WinWaitActive, %PathToFile% - Notepad++,,10
-                    if ErrorLevel
-                        TestsFailed("Window '" PathToFile " - Notepad++' failed to appear.")
+                    IfNotExist, %PathToFile%
+                        TestsFailed("Can NOT find '" PathToFile "'.")
                     else
                     {
+                        Run, %ModuleExe% %PathToFile%,, Max
                         Sleep, 1000
-                        TestsOK("")
+                        WinWaitActive, %PathToFile% - Notepad++,,10
+                        if ErrorLevel
+                        {
+                            Process, Exist, %ProcessExe%
+                            NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                            if NewPID = 0
+                                TestsFailed("Window '" PathToFile " - Notepad++' failed to appear. No '" ProcessExe "' process detected.")
+                            else
+                                TestsFailed("Window '" PathToFile " - Notepad++' failed to appear. '" ProcessExe "' process detected.")
+                        }
+                        else
+                        {
+                            Sleep, 1000
+                            TestsOK("")
+                        }
                     }
                 }
             }

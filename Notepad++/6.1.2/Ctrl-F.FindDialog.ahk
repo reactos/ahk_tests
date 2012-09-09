@@ -37,33 +37,42 @@ else
         SendInput, {CTRLDOWN}f{CTRLUP} ; Call dialog using Ctrl+F
         WinWaitActive, Find,, 5
         if ErrorLevel
-        {
-            Sleep, 700
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Find' failed to appear, so Ctrl+F doesn't work, bug #6734. Active window caption: '%title%'`n
-            
-            ; Check if can open 'Find' from main menu
-            SendInput, {ALTDOWN}s ; Hit 'Search'
-            SendInput, f ; Hit 'Find'
-            Sleep, 500
-            WinWaitActive, Find,,5
-            if ErrorLevel
-                TestsFailed("Can't open 'Find' from main menu")
-            else
-            {
-                TestFindDialog()
-                if bContinue
-                    TestsOK("")
-            }
-        }
+            TestsFailed("Window 'Find' failed to appear, so Ctrl+F doesn't work, bug #6734.")
         else
         {
             TestFindDialog()
             if bContinue
-                TestsOK("")
+                TestsOK("Ctrl+F works, found a match.")
+        }
+
+        Sleep, 700
+        ; The window we need is still active, so, check if we can open 'Find' thru main menu
+        TestsTotal++
+        SendInput, {ALTDOWN}s ; Hit 'Search'
+        SendInput, f ; Hit 'Find'
+        Sleep, 500
+        WinWaitActive, Find,,5
+        if ErrorLevel
+            TestsFailed("Can't open 'Find' from main menu")
+        else
+        {
+            TestFindDialog()
+            if bContinue
+                TestsOK("Alt+S -> F works, found a match.")
         }
     }
 }
+
+
+; Terminate application
+TestsTotal++
+Process, Close, %ProcessExe%
+Process, WaitClose, %ProcessExe%, 4
+if ErrorLevel
+    TestsFailed("Process '" ProcessExe "' failed to close.")
+else
+    TestsOK("")
+
 
 TestFindDialog()
 {
@@ -81,8 +90,27 @@ TestFindDialog()
         if ErrorLevel
             TestsFailed("Can't find a match.")
         else
-            bContinue := true
+        {
+            SendInput, {ENTER} ; Close 'Count' dialog
+            WinClose, Count, 1 match
+            WinWaitClose, Count, 1 match, 5
+            if ErrorLevel
+                TestsFailed("Unable to close 'Count (1 match)' window.")
+            else
+            {
+                WinWaitActive, Find,, 4
+                if ErrorLevel
+                    TestsFailed("'Find' window is not an active window.")
+                else
+                {
+                    WinClose, Find
+                    WinWaitClose, Find,,4
+                    if ErrorLevel
+                        TestsFailed("Unable to close 'Find' window.")
+                    else
+                        bContinue := true
+                }
+            }
+        }
     }
 }
-
-Process, close, notepad++.exe ; We don't care now if application can close correctly, so, terminate

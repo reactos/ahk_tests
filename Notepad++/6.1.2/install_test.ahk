@@ -18,12 +18,8 @@
  */
 
 ModuleExe = %A_WorkingDir%\Apps\Notepad++_6.1.2_Setup.exe
-bContinue := false
 TestName = 1.install
-
-TestsFailed := 0
-TestsOK := 0
-TestsTotal := 0
+MainAppFile = notepad++.exe ; Mostly this is going to be process we need to look for
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
 TestsTotal++
@@ -31,59 +27,72 @@ IfNotExist, %ModuleExe%
     TestsFailed("'" ModuleExe "' not found.")
 else
 {
-    Process, Close, Notepad++.exe ; Teminate process
-    Sleep, 2000
-    Process, Exist, Notepad++.exe
-    if ErrorLevel <> 0
-        TestsFailed("Unable to terminate 'Notepad++.exe' process.") ; So, process still exists
+    Process, Close, %MainAppFile% ; Teminate process
+    Process, WaitClose, %MainAppFile%, 4
+    if ErrorLevel ; The PID still exists.
+        TestsFailed("Unable to terminate '" MainAppFile "' process.") ; So, process still exists
     else
     {
         Process, Close, explorer.exe ; Terminate explorer.exe before unregistering shell extension and uninstalling
-        Sleep, 3500
-        RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Notepad++, UninstallString
-        if not ErrorLevel
-        {
-            SplitPath, UninstallerPath,, InstalledDir
-            IfNotExist, %InstalledDir%
-                bContinue := true
-            else
-            {
-                Run, regsvr32 /s /u "%InstalledDir%\NppShell_04.dll"
-                IfExist, %UninstallerPath%
-                {
-                    RunWait, %UninstallerPath% /S ; Silently uninstall it
-                    Sleep, 2500
-                }
-                
-                ; Uninstaller was not found, but dir it should be in - exist, so, delete it
-                FileRemoveDir, %InstalledDir%, 1
-                if ErrorLevel
-                    TestsFailed("Unable to delete existing '" InstalledDir "' ('Notepad++.exe' process is reported as terminated).")
-                else
-                    bContinue := true
-            }
-        }
+        Process, WaitClose, explorer.exe, 5
+        if ErrorLevel
+            TestsFailed("Unable to terminate 'explorer.exe' process.")
         else
         {
-            ; There was a problem (such as a nonexistent key or value). 
-            ; That probably means we have not installed this app before.
-            ; Check in default directory to be extra sure
-            IfNotExist, %A_ProgramFiles%\Notepad++
-                bContinue := true ; No previous versions detected in hardcoded path
+            RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Notepad++, UninstallString
+            if ErrorLevel
+            {
+                ; There was a problem (such as a nonexistent key or value). 
+                ; That probably means we have not installed this app before.
+                ; Check in default directory to be extra sure
+                IfNotExist, %A_ProgramFiles%\Notepad++
+                    bContinue := true ; No previous versions detected in hardcoded path
+                else
+                {
+                    bHardcoded := true ; To know if we got path from registry or not
+                    Run, regsvr32 /s /u "%A_ProgramFiles%\NppShell_04.dll"
+                    IfExist, %A_ProgramFiles%\Notepad++\uninstall.exe
+                    {
+                        RunWait, %A_ProgramFiles%\Notepad++\uninstall.exe /S ; Silently uninstall it
+                        Sleep, 7000
+                    }
+
+                    IfNotExist, %A_ProgramFiles%\Notepad++ ; Uninstaller might delete the dir
+                        bContinue := true
+                    {
+                        FileRemoveDir, %A_ProgramFiles%\Notepad++, 1
+                        if ErrorLevel
+                            TestsFailed("Unable to delete existing '" A_ProgramFiles "\Notepad++' ('" MainAppFile "' process is reported as terminated).'")
+                        else
+                            bContinue := true
+                    }
+                }
+            }
             else
             {
-                Run, regsvr32 /s /u "%A_ProgramFiles%\NppShell_04.dll"
-                IfExist, %A_ProgramFiles%\Notepad++\uninstall.exe
-                {
-                    RunWait, %A_ProgramFiles%\Notepad++\uninstall.exe /S ; Silently uninstall it
-                    Sleep, 2500
-                }
-
-                FileRemoveDir, %A_ProgramFiles%\Notepad++, 1
-                if ErrorLevel
-                    TestsFailed("Unable to delete existing '" A_ProgramFiles "\Notepad++' ('notepad++.exe' process is reported as terminated).'")
-                else
+                SplitPath, UninstallerPath,, InstalledDir
+                IfNotExist, %InstalledDir%
                     bContinue := true
+                else
+                {
+                    Run, regsvr32 /s /u "%InstalledDir%\NppShell_04.dll"
+                    IfExist, %UninstallerPath%
+                    {
+                        RunWait, %UninstallerPath% /S ; Silently uninstall it
+                        Sleep, 7000
+                    }
+
+                    IfNotExist, %InstalledDir%
+                        bContinue := true
+                    else
+                    {
+                        FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
+                        if ErrorLevel
+                            TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                        else
+                            bContinue := true
+                    }
+                }
             }
         }
     }
@@ -101,7 +110,11 @@ else
 
         if bContinue
         {
-            TestsOK("Either there was no previous versions or we succeeded removing it.")
+            if bHardcoded
+                TestsOK("Either there was no previous versions or we succeeded removing it using hardcoded path.")
+            else
+                TestsOK("Either there was no previous versions or we succeeded removing it using data from registry.")
+            Sleep, 7000 ; Let shell to load desktop
             Run %ModuleExe%
         }
     }
@@ -135,7 +148,7 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    SetTitleMatchMode, 1
+    SetTitleMatchMode, 1 ; A window's title must start with the specified WinTitle to be a match.
     WinWaitActive, Notepad, Welcome to the Notepad, 15
     if ErrorLevel
         TestsFailed("'Notepad++ v6.1.2 Setup (Welcome to the Notepad++ v 6.1.2 Setup)' window failed to appear.")
@@ -284,9 +297,10 @@ if bContinue
         TestsFailed("Either we can't read from registry or data doesn't exist.")
     else
     {
-        IfNotExist, %UninstallerPath%
-            TestsFailed("Something went wrong, can't find '" UninstallerPath "'.")
+        SplitPath, UninstallerPath,, InstalledDir
+        IfNotExist, %InstalledDir%\%MainAppFile%
+            TestsFailed("Something went wrong, can't find '" InstalledDir "\" MainAppFile "'.")
         else
-            TestsOK("The application has been installed, because '" UninstallerPath "' was found.")
+            TestsOK("The application has been installed, because '" InstalledDir "\" MainAppFile "' was found.")
     }
 }

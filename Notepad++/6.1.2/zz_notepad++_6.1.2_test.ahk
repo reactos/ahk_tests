@@ -18,10 +18,8 @@
  */
 
 #Include ..\..\helper_functions.ahk
+InitalizeCounters()
 
-
-if 1 = --list
-{
 params =
 (
 
@@ -31,42 +29,31 @@ params =
     4.Ctrl-F.FindDialog
 
 )
-FileAppend, %params%, *
-}
-else if 1 = 1.install
-{
-    #include install_test.ahk
-}
-else
-{
-    #include prepare.ahk
 
-    if 1 = 2.SaveAsDesktop
-    {
-        #include SaveAsDesktop.ahk
-    }
-    else if 1 = 3.OpenDocument
-    {
-        #include OpenDocument.ahk
-    }
-    else if 1 = 4.Ctrl-F.FindDialog
-    {
-        #include Ctrl-F.FindDialog.ahk
-    }
-    else OutputDebug, Bad parameters: '%1%'!`r`n
-}
-
-if 1 != --list
+if CheckParam()
 {
-    if not bContinue
+    ; Those brackets are required!
+    if 1 = 1.install
     {
-        SplitPath, ModuleExe, fName
-        WindowCleanUp(fName)  
+        #include install_test.ahk
     }
+    else 
+    {
+        #include prepare.ahk
 
-    TestsSkipped := TestsTotal - TestsOK - TestsFailed
-    TestsExecuted := TestsOK + TestsFailed
-    if (TestsSkipped < 0 or TestsExecuted < 0)
-        OutputDebug, %TestName%: Check TestsTotal, TestsOK and TestsFailed, because results returns less than 0.`n`n
-    OutputDebug, %TestName%: %TestsExecuted% tests executed (0 marked as todo, %TestsFailed% failures), %TestsSkipped% skipped.`n
+        if 1 = 2.SaveAsDesktop
+        {
+            #include SaveAsDesktop.ahk
+        }
+        else if 1 = 3.OpenDocument
+        {
+            #include OpenDocument.ahk
+        }
+        else if 1 = 4.Ctrl-F.FindDialog
+        {
+            #include Ctrl-F.FindDialog.ahk
+        }
+    }
 }
+
+ShowTestResults()
