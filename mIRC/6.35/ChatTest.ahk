@@ -26,7 +26,9 @@ if not bContinue
 else
 {
     WinWaitActive, mIRC,,7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("Window 'mIRC' failed to appear.")
+    else
     {
         TimeOut := 0
         ControlGet, OutputVar, Visible,, Static2, mIRC ; Wait until chat window appears
@@ -39,7 +41,6 @@ else
             if TimeOut > 35
             {
                 TestsFailed("Timed out.")
-                Process, Close, mirc.exe
                 Sleep, 1500
                 Break ; exit loop
             }
@@ -49,32 +50,32 @@ else
         {
             Sleep, 1500
             ControlSetText, RichEdit20A1, I confirm that mIRC 6.35 is working on ReactOS, mIRC
-            if not ErrorLevel
+            if ErrorLevel
+                TestsFailed("Unable to set chat text in 'mIRC' window.")
+            else
             {
                 SendInput, {ENTER} ; Send text to IRC channel
+                Sleep, 500
                 WinClose, mIRC
                 WinWaitActive, Confirm Exit, Are you sure,7
-                if not ErrorLevel
+                if ErrorLevel
+                    TestsFailed("Window 'Confirm Exit (Are you sure)' failed to appear.")
+                else
                 {
+                    Sleep, 500
                     ControlClick, Button1, Confirm Exit, Are you sure ; Hit 'Yes' button
-                    if not ErrorLevel
+                    if ErrorLevel
+                        TestsFailed("Unable to hit 'Yes' button in 'Confirm Exit (Are you sure)' window.")
+                    else
                     {
                         WinWaitClose, mIRC,,7
-                        if not ErrorLevel
-                            TestsOK("Connected to IRC server, entered some text in channel and closed application successfully.")
-                        else
+                        if ErrorLevel
                             TestsFailed("'mIRC' window failed to disappear after exit was confirmed.")
+                        else
+                            TestsOK("Connected to IRC server, entered some text in channel and closed application successfully.")
                     }
-                    else
-                        TestsFailed("Unable to hit 'Yes' button in 'Confirm Exit (Are you sure)' window.")
                 }
-                else
-                    TestsFailed("Window 'Confirm Exit (Are you sure)' failed to appear.")
             }
-            else
-                TestsFailed("Unable to set chat text in 'mIRC' window.")
         }
     }
-    else
-        TestsFailed("Window 'mIRC' failed to appear.")
 }
