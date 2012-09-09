@@ -324,10 +324,10 @@ if bContinue
                     Process, Close, iexplore.exe
                     Process, Close, Opera.exe
                         
-                    Process, Wait, i_view32.exe, 4
+                    Process, Wait, %MainAppFile%, 4
                     NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                     if NewPID <> 0
-                        TestsFailed("'i_view32.exe' process appeared despite 'Start Irfanview' checkbox being unchecked.")
+                        TestsFailed("'" MainAppFile "' process appeared despite 'Start Irfanview' checkbox being unchecked.")
                     else
                         TestsOK("'IrfanView Setup (Installation successfull)' window appeared, 'Start IrfanView' unchecked and 'Done' was clicked. FIXME: terminate browser process.")
                 }

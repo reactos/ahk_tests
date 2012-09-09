@@ -38,7 +38,7 @@ SplitPath, ModuleExe, ProcessExe
 Process, Close, %ProcessExe%
 Process, WaitClose, %ProcessExe%, 4
 if ErrorLevel
-    TestsFailed("Process '" ProcessExe "' failed to close.")
+    TestsFailed("Unable to terminate '" ProcessExe "' process.")
 else
     TestsOK("")
 
