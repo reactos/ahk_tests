@@ -41,6 +41,7 @@ RunApplication(PathToFile)
     global ModuleExe
     global TestName
     global TestsTotal
+    global ProcessExe
 
     TestsTotal++
     IfNotExist, %ModuleExe%

@@ -49,6 +49,7 @@ RunNotepad(PathToFile)
     global TestName
     global bContinue
     global TestsTotal
+    global ProcessExe
     
     TestsTotal++
     IfNotExist, %ModuleExe%
