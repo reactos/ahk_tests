@@ -18,38 +18,31 @@
  */
 
 ModuleExe = %A_WorkingDir%\Apps\Samba-TNG_0.5-RC1_Setup.exe
-bContinue := false
 TestName = 1.install
 
-TestsFailed := 0
-TestsOK := 0
-TestsTotal := 0
-
 ; Test if Setup file exists, if so, delete installed files, and run Setup
-IfExist, %ModuleExe%
+TestsTotal++
+IfNotExist, %ModuleExe%
+    TestsFailed("Can NOT find '" ModuleExe "'")
+else
 {
     ; Get rid of other versions
     IfExist, C:\ReactOS\Samba-TNG
     {
         FileRemoveDir, C:\ReactOS\Samba-TNG, 1
-        if not ErrorLevel
-            bContinue := true
+        if ErrorLevel
+            TestsFailed("Can NOT delete existing 'C:\ReactOS\Samba-TNG'.")
         else
-        {
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT delete existing 'C:\ReactOS\Samba-TNG'.`n
-            bContinue := false
-        }
+            bContinue := true
     }
     else
         bContinue := true
     
     if bContinue
+    {
+        TestsOK("Either there was no previous versions or we succeeded removing it using hardcoded path.")
         Run %ModuleExe%
-}
-else
-{
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%ModuleExe%' not found.`n
-    bContinue := false
+    }
 }
 
 
@@ -58,42 +51,49 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, 7-Zip self-extracting archive, Extract, 15
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'7-Zip self-extracting archive' window with 'Extract' button failed to appear.")
+    else
     {
         Sleep, 250
-        ControlSetText, Edit1, C:\ReactOS, 7-Zip self-extracting archive, Extract ; Path
-        if not ErrorLevel
-        {
-            ControlClick, Button2, 7-Zip self-extracting archive, Extract ; Hit 'Extract' button
-            if not ErrorLevel
-                TestsOK("'7-Zip self-extracting archive' window appeared and 'Extract' was clicked.")
-            else
-                TestsFailed("Unable to click 'Extract' in '7-Zip self-extracting archive' window.")
-        }
+        ControlSetText, Edit1, C:\ReactOS\Samba-TNG, 7-Zip self-extracting archive, Extract ; Path
+        if ErrorLevel
+            TestsFailed("Unable to change 'Edit1' control text to 'C:\ReactOS\Samba-TNG'.")
         else
-            TestsFailed("Unable to change 'Edit1' control text to 'C:\ReactOS'.")
+        {
+            Sleep, 700
+            ControlClick, Button2, 7-Zip self-extracting archive, Extract ; Hit 'Extract' button
+            if ErrorLevel
+                TestsFailed("Unable to click 'Extract' in '7-Zip self-extracting archive' window.")
+            else
+            {
+                WinWaitClose, 7-Zip self-extracting archive, Extract, 4
+                if ErrorLevel
+                    TestsFailed("'7-Zip self-extracting archive' window failed to close despite 'Extract' button being clicked.")
+                else
+                    TestsOK("'7-Zip self-extracting archive' window appeared, 'Extract' button clicked, window closed.")
+            }
+        }
     }
-    else
-        TestsFailed("'7-Zip self-extracting archive' window with 'Extract' button failed to appear.")
 }
 
 
 TestsTotal++
 if bContinue
 {
-    SetTitleMatchMode, 1
+    SetTitleMatchMode, 2 ; A window's title can contain WinTitle anywhere inside it to be a match.
     WinWaitActive, Extracting, Cancel, 10 ; Wait 10 secs for window to appear
-    if not ErrorLevel ;Window is found and it is active
+    if ErrorLevel
+        TestsFailed("'Extracting' window failed to appear.")
+    else
     {
         OutputDebug, OK: %TestName%:%A_LineNumber%: 'Extracting' window appeared, waiting for it to close.`n
         WinWaitClose, Extracting, Cancel, 15
-        if not ErrorLevel
-            TestsOK("'Extracting' window appeared and went away.")
-        else
+        if ErrorLevel
             TestsFailed("'Extracting' window failed to close.")
+        else
+            TestsOK("'Extracting' window went away.")
     }
-    else
-        TestsFailed("'Extracting' window failed to appear.")
 }
 
 
@@ -102,9 +102,8 @@ TestsTotal++
 if bContinue
 {
     Sleep, 2000
-    ProgramDir = C:\ReactOS\Samba-TNG
-    IfExist, %ProgramDir%
-        TestsOK("The application has been installed, because '" ProgramDir "' was found.")
+    IfExist, C:\ReactOS\Samba-TNG
+        TestsOK("The application has been installed, because 'C:\ReactOS\Samba-TNG' was found.")
     else
-        TestsFailed("Something went wrong, can't find '%ProgramDir%'.")
+        TestsFailed("Something went wrong, can't find 'C:\ReactOS\Samba-TNG'.")
 }
