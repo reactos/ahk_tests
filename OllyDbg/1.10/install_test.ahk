@@ -18,45 +18,35 @@
  */
 
 ModuleExe = %A_WorkingDir%\Apps\OllyDbg 1.10 Setup.exe
-bContinue := false
 TestName = 1.install
 
-TestsFailed := 0
-TestsOK := 0
-TestsTotal := 0
-
 ; Test if Setup file exists, if so, delete installed files, and run Setup
-IfExist, %ModuleExe%
-{
-    Process, Close, OLLYDBG.exe
-    ; Get rid of other versions
-    IfExist, %A_ProgramFiles%\OllyDbg
-    {
-        FileRemoveDir, %A_ProgramFiles%\OllyDbg, 1
-        if not ErrorLevel
-        {
-            bContinue := true
-        }
-        else
-        {
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT delete existing '%A_ProgramFiles%\OllyDbg'.`n
-            bContinue := false
-        }
-    }
-    else
-    {
-        bContinue := true
-    }
-    
-    if bContinue
-    {
-        Run %ModuleExe%
-    }
-}
+TestsTotal++
+IfNotExist, %ModuleExe%
+    TestsFailed("Can NOT find '" ModuleExe "'")
 else
 {
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%ModuleExe%' not found.`n
-    bContinue := false
+    Process, Close, OLLYDBG.exe
+    Process, WaitClose, OLLYDBG.exe, 4
+    if ErrorLevel
+        TestsFailed("Process 'OLLYDBG.exe' failed to close.")
+    else
+    {
+        InstallLocation = %A_ProgramFiles%\OllyDbg
+        IfNotExist, %InstallLocation%
+            bContinue := true ; No previous versions detected.
+        else
+        {
+            FileRemoveDir, %InstallLocation%, 1
+            if ErrorLevel
+                TestsFailed("Previous version detected and failed to delete '" InstallLocation "'. 'OLLYDBG.exe' process not detected.")
+            else
+            {
+                TestsOK("Either there was no previous versions or we succeeded removing it using hardcoded path.")
+                Run %ModuleExe%
+            }
+        }
+    }
 }
 
 
@@ -65,42 +55,49 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, 7-Zip self-extracting archive, Extract, 15
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'7-Zip self-extracting archive' window with 'Extract' button failed to appear.")
+    else
     {
         Sleep, 250
         ControlSetText, Edit1, %A_ProgramFiles%\OllyDbg, 7-Zip self-extracting archive, Extract ; Path
-        if not ErrorLevel
-        {
-            ControlClick, Button2, 7-Zip self-extracting archive, Extract ; Hit 'Extract' button
-            if not ErrorLevel
-                TestsOK("'7-Zip self-extracting archive' window appeared and 'Extract' was clicked.")
-            else
-                TestsFailed("Unable to click 'Extract' in '7-Zip self-extracting archive' window.")
-        }
-        else
+        if ErrorLevel
             TestsFailed("Unable to change 'Edit1' control text to '" A_ProgramFiles "\OllyDbg'.")
+        else
+        {
+            Sleep, 700
+            ControlClick, Button2, 7-Zip self-extracting archive, Extract ; Hit 'Extract' button
+            if ErrorLevel
+                TestsFailed("Unable to click 'Extract' in '7-Zip self-extracting archive' window.")
+            else
+            {
+                WinWaitClose, 7-Zip self-extracting archive, Extract, 4
+                if ErrorLevel
+                    TestsFailed("'7-Zip self-extracting archive' window failed to close despite 'Extract' button being clicked.")
+                else
+                    TestsOK("'7-Zip self-extracting archive' window appeared, 'Extract' button clicked, window closed.")
+            }
+        }
     }
-    else
-        TestsFailed("'7-Zip self-extracting archive' window with 'Extract' button failed to appear.")
 }
 
 
 TestsTotal++
 if bContinue
 {
-    SetTitleMatchMode, 1
+    SetTitleMatchMode, 2 ; A window's title can contain WinTitle anywhere inside it to be a match.
     WinWaitActive, Extracting, Cancel, 10 ; Wait 10 secs for window to appear
-    if not ErrorLevel ; Window is found and it is active
+    if ErrorLevel
+        TestsFailed("'Extracting' window failed to appear.")
+    else
     {
         OutputDebug, OK: %TestName%:%A_LineNumber%: 'Extracting' window appeared, waiting for it to close.`n
         WinWaitClose, Extracting, Cancel, 15
-        if not ErrorLevel
-            TestsOK("'Extracting' window appeared and went away.")
+        if ErrorLevel
+            TestsFailed("'Extracting' window failed to close.")
         else
-            TestsFailed("'Extracting' window failed to dissapear.")
+            TestsOK("'Extracting' window went away.")
     }
-    else
-        TestsFailed("'Extracting' window failed to appear.")
 }
 
 
@@ -109,9 +106,8 @@ TestsTotal++
 if bContinue
 {
     Sleep, 2000
-    ProgramExe = %A_ProgramFiles%\OllyDbg\OLLYDBG.EXE
-    IfExist, %ProgramExe%
-        TestsOK("The application has been installed, because '" ProgramExe "' was found.")
+    IfExist, %InstallLocation%\OLLYDBG.exe
+        TestsOK("The application has been installed, because '" InstallLocation "\OLLYDBG.exe' was found.")
     else
-        TestsFailed("Something went wrong, can't find '" ProgramExe "'.")
+        TestsFailed("Something went wrong, can't find '" InstallLocation "\OLLYDBG.exe'.")
 }

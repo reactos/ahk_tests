@@ -17,17 +17,39 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-bContinue := false
-TestsTotal := 0
-TestsSkipped := 0
-TestsFailed := 0
-TestsOK := 0
-TestsExecuted := 0
 TestName = prepare
-
 ModuleExe = %A_ProgramFiles%\OllyDbg\OLLYDBG.EXE
-Process, Close, OLLYDBG.EXE
-Sleep, 1000
+
+
+; Terminate application
+TestsTotal++
+SplitPath, ModuleExe, ProcessExe
+Process, Close, %ProcessExe%
+Process, WaitClose, %ProcessExe%, 4
+if ErrorLevel
+    TestsFailed("Process '" ProcessExe "' failed to close.")
+else
+    TestsOK("")
+
+
+; Delete previously saved settings
+TestsTotal++
+if bContinue
+{
+    SplitPath, ModuleExe,, OllyDbgDir
+    IfExist, %OllyDbgDir%\ollydbg.ini
+    {
+        FileDelete, %OllyDbgDir%\ollydbg.ini
+        if ErrorLevel
+            TestsFailed("Unable to delete '" OllyDbgDir "\ollydbg.ini'.")
+        else
+            TestsOK("")
+    }
+    FileDelete, %OllyDbgDir%\*.udd
+    FileDelete, %OllyDbgDir%\*.bak
+    Sleep, 500
+}
+
 
 ; Test if can start application
 RunApplication(PathToFile)
@@ -35,74 +57,65 @@ RunApplication(PathToFile)
     global ModuleExe
     global TestName
     global bContinue
+    global TestsTotal
+    global OllyDbgDir
+    global ProcessExe
 
-    IfExist, %ModuleExe%
+    TestsTotal++
+    IfNotExist, %ModuleExe%
+        TestsFailed("Can NOT find '" ModuleExe "'.")
+    else
     {
-        ; Delete previously saved settings
-        SplitPath, ModuleExe,, OllyDbgDir
-        FileDelete, %OllyDbgDir%\ollydbg.ini
-        FileDelete, %OllyDbgDir%\*.udd
-        FileDelete, %OllyDbgDir%\*.bak
-        Sleep, 1000
-        
-        IfNotExist, %OllyDbgDir%\ollydbg.ini
+        FileAppend, [Settings]`nCheck DLL versions=0`n, %OllyDbgDir%\ollydbg.ini
+        if ErrorLevel
+            TestsFailed("Unable to create '" OllyDbgDir "\ollydbg.ini'.")
+        else
         {
-            FileAppend, [Settings]`nCheck DLL versions=0`n, %OllyDbgDir%\ollydbg.ini
-            if not ErrorLevel
+            Sleep, 1000
+            if PathToFile =
             {
-                if PathToFile =
+                Run, %ModuleExe%,, Max
+                WinWaitActive, OllyDbg,, 10
+                if ErrorLevel
                 {
-                    Run, %ModuleExe%,, Max
-                    Sleep, 1000
-                    WinWaitActive, OllyDbg,, 10
-                    if not ErrorLevel
-                    {
-                        bContinue := true
-                        Sleep, 1000
-                    }
+                    Process, Exist, %ProcessExe%
+                    NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                    if NewPID = 0
+                        TestsFailed("Window 'OllyDbg' failed to appear. No '" ProcessExe "' process detected.")
                     else
-                    {
-                        WinGetTitle, title, A
-                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'OllyDbg' failed to appear. Active window caption: '%title%'`n
-                    }
+                        TestsFailed("Window 'OllyDbg' failed to appear. '" ProcessExe "' process detected.")
                 }
                 else
                 {
-                    IfExist, %PathToFile%
-                    {
-                        Run, %ModuleExe% "%PathToFile%",, Max
-                        Sleep, 1000
-                        SplitPath, PathToFile, NameExt
-                        WinWaitActive, OllyDbg - %NameExt%,,10
-                        if not ErrorLevel
-                        {
-                            bContinue := true
-                            Sleep, 1000
-                        }
-                        else
-                        {
-                            WinGetTitle, title, A
-                            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'OllyDbg - %NameExt%' failed to appear. Active window caption: '%title%'`n
-                        }
-                    }
-                    else
-                    {
-                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%PathToFile%'.`n
-                    }
+                    TestsOK("")
+                    Sleep, 1000
                 }
             }
             else
             {
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to create '%OllyDbgDir%\ollydbg.ini'.`n
+                IfNotExist, %PathToFile%
+                    TestsFailed("Can NOT find '" PathToFile "'.")
+                else
+                {
+                    Run, %ModuleExe% "%PathToFile%",, Max
+                    SplitPath, PathToFile, NameExt
+                    WinWaitActive, OllyDbg - %NameExt%,,10
+                    if ErrorLevel
+                    {
+                        Process, Exist, %ProcessExe%
+                        NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                        if NewPID = 0
+                            TestsFailed("Window 'OllyDbg - " NameExt "' failed to appear. No '" ProcessExe "' process detected.")
+                        else
+                            TestsFailed("Window 'OllyDbg - " NameExt "' failed to appear. '" ProcessExe "' process detected.")
+                    }
+                    else
+                    {
+                        TestsOK("")
+                        Sleep, 1000
+                    }
+                }
             }
         }
-        else
-        {
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to delete '%OllyDbgDir%\ollydbg.ini'.`n
-        }
-    }
-    else
-    {
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%ModuleExe%'.`n
     }
 }

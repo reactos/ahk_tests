@@ -26,47 +26,47 @@ SplitPath, szDocument, NameExt
 Process, Close, %NameExt% ; Terminate external app, because we don't want it running
 Sleep, 1000
 RunApplication(szDocument)
-if bContinue
+if not bContinue
+    TestsFailed("We failed somewhere in prepare.ahk.")
+else
 {
-    IfWinActive, OllyDbg - %NameExt%
+    IfWinNotActive, OllyDbg - %NameExt%
+        TestsFailed("Window 'OllyDbg - " NameExt "' is not active.")
+    else
     {
         Sleep, 1000
         WinMenuSelectItem, OllyDbg - %NameExt%, , Debug, Run
-        if not ErrorLevel
+        if ErrorLevel
+            TestsFailed("Unable to hit 'Debug -> Run' in 'OllyDbg - " NameExt "' window.")
+        else
         {
             WinWaitActive, Calculator,,10
-            if not ErrorLevel
+            if ErrorLevel
+                TestsFailed("'Calculator' window failed to appear.")
+            else
             {
                 Sleep, 2000
                 WinClose, Calculator
                 WinWaitClose, Calculator,, 5
-                if not ErrorLevel
+                if ErrorLevel
+                    TestsFailed("'Calculator' window failed to close.")
+                else
                 {
                     WinWaitActive, OllyDbg - %NameExt%,, 7
-                    if not ErrorLevel
+                    if ErrorLevel
+                        TestsFailed("Window 'OllyDbg - " NameExt "' did not became active after closing 'Calculator' window.")
+                    else
                     {
                         Sleep, 1000
                         WinClose, OllyDbg - %NameExt%
                         WinWaitClose, OllyDbg - %NameExt%,,7
-                        if not ErrorLevel
-                            TestsOK("'" NameExt "' was opened via command line, ran it via 'Debug -> Run', closed its window and closed OllyDbg successfully.")
-                        else
+                        if ErrorLevel
                             TestsFailed("'OllyDbg - " NameExt "' window failed to close.")
+                        else
+                            TestsOK("'" NameExt "' was opened via command line, ran it via 'Debug -> Run', closed its window and closed OllyDbg successfully.")
                     }
-                    else
-                        TestsFailed("Window 'OllyDbg - " NameExt "' did not became active after closing 'Calculator' window.")
                 }
-                else
-                    TestsFailed("'Calculator' window failed to close.")
             }
-            else
-                TestsFailed("'Calculator' window failed to appear.")
         }
-        else
-            TestsFailed("Unable to hit 'Debug -> Run' in 'OllyDbg - " NameExt "' window.")
-    }    
-    else
-        TestsFailed("Window 'OllyDbg - " NameExt "' is not active.")
+    }
 }
-else
-    TestsFailed("We failed somewhere in prepare.ahk.")
