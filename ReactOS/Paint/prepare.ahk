@@ -17,16 +17,23 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-bContinue := false
-TestsTotal := 0
-TestsSkipped := 0
-TestsFailed := 0
-TestsOK := 0
-TestsExecuted := 0
 TestName = prepare
 ModuleExe = %A_WinDir%\System32\mspaint.exe
 
-Process, Close, mspaint.exe
+
+; Terminate application
+TestsTotal++
+SplitPath, ModuleExe, ProcessExe
+Process, Close, %ProcessExe%
+Process, WaitClose, %ProcessExe%, 4
+if ErrorLevel
+    TestsFailed("Unable to terminate '" ProcessExe "' process.")
+else
+    TestsOK("")
+
+
+RegDelete, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Applets\Paint ; Delete saved settings
+
 
 ; Test if can start application
 RunApplication(PathToFile)
@@ -34,48 +41,42 @@ RunApplication(PathToFile)
     global ModuleExe
     global TestName
     global bContinue
+    global TestsTotal
 
-    Sleep, 500
-    RegDelete, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Applets\Paint
-    IfExist, %ModuleExe%
+    TestsTotal++
+    IfNotExist, %ModuleExe%
+        TestsFailed("Can NOT find '" ModuleExe "'.")
+    else
     {
         if PathToFile =
         {
             Run, %ModuleExe%,, Max ; Start maximized
             WinWaitActive, untitled - Paint,,7
             if ErrorLevel
-            {
-                WinGetActiveTitle, title
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'untitled - paint' failed to appear. Active window caption: '%title%'`n
-            }
+                TestsFailed("Window 'untitled - paint' failed to appear.")
             else
             {
-                bContinue := true
+                TestsOK("")
                 Sleep, 1000
             }
         }
         else
         {
-            IfExist, %PathToFile%
+            IfNotExist, %PathToFile%
+                TestsFailed("Can NOT find '" PathToFile "'.")
+            else
             {
                 Run, %ModuleExe% "%PathToFile%",, Max
                 SplitPath, PathToFile, NameExt
                 WinWaitActive, %NameExt% - Paint,,7
                 if ErrorLevel
-                {
-                    WinGetActiveTitle, title
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window '%NameExt% - Paint' failed to appear. Active window caption: '%title%'`n
-                }
+                    TestsFailed("Window '" NameExt " - Paint' failed to appear.")
                 else
                 {
-                    bContinue := true
+                    TestsOK("")
                     Sleep, 1000
                 }
             }
-            else
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%PathToFile%'.`n
         }
     }
-    else
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%ModuleExe%'.`n
 }

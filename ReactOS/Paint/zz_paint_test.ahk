@@ -18,41 +18,24 @@
  */
 
 #Include ..\..\helper_functions.ahk
+InitalizeCounters()
 
-
-if 1 = --list
-{
 params =
 (
 
     1.SaveScreenShot
 
 )
-FileAppend, %params%, *
-}
-else
+
+if CheckParam()
 {
     #include prepare.ahk
 
+    ; Those brackets are required!
     if 1 = 1.SaveScreenShot
     {
         #include SaveScreenShot.ahk
     }
-    else
-    OutputDebug, Bad parameters: '%1%'!`r`n
 }
 
-if 1 != --list
-{
-    if not bContinue
-    {
-        SplitPath, ModuleExe, fName ; Extract filename from given path
-        WindowCleanUp(fName)  
-    }
-
-    TestsSkipped := TestsTotal - TestsOK - TestsFailed
-    TestsExecuted := TestsOK + TestsFailed
-    if (TestsSkipped < 0 or TestsExecuted < 0)
-        OutputDebug, %TestName%: Check TestsTotal, TestsOK and TestsFailed, because results returns less than 0.`n
-    OutputDebug, %TestName%: %TestsExecuted% tests executed (0 marked as todo, %TestsFailed% failures), %TestsSkipped% skipped.`n
-}
+ShowTestResults()
