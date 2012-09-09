@@ -18,45 +18,38 @@
  */
 
 ModuleExe = %A_WorkingDir%\Apps\Notepad Lite 3.3.1.0 Setup.exe
-bContinue := false
 TestName = 1.install
-
-TestsFailed := 0
-TestsOK := 0
-TestsTotal := 0
+MainAppFile = gsnote3.exe ; Mostly this is going to be process we need to look for
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
-IfExist, %ModuleExe%
-{
-    ; Get rid of other versions
-    IfExist, %A_ProgramFiles%\Notepad Lite
-    {
-        Process, Close, gsnote3.exe
-        FileRemoveDir, %A_ProgramFiles%\Notepad Lite, 1
-        if not ErrorLevel
-        {
-            bContinue := true
-        }
-        else
-        {
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT delete existing '%A_ProgramFiles%\Notepad Lite'.`n
-            bContinue := false
-        }
-    }
-    else
-    {
-        bContinue := true
-    }
-    
-    if bContinue
-    {
-        Run %ModuleExe%
-    }
-}
+TestsTotal++
+IfNotExist, %ModuleExe%
+    TestsFailed("'" ModuleExe "' not found.")
 else
 {
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%ModuleExe%' not found.`n
-    bContinue := false
+    Process, Close, %MainAppFile% ; Teminate process
+    Process, WaitClose, %MainAppFile%, 4
+    if ErrorLevel ; The PID still exists.
+        TestsFailed("Unable to terminate '" MainAppFile "' process.") ; So, process still exists
+    else
+    {
+        IfNotExist, %A_ProgramFiles%\Notepad Lite
+            bContinue := true
+        {
+            FileRemoveDir, %A_ProgramFiles%\Notepad Lite, 1
+            if ErrorLevel
+                TestsFailed("Unable to delete existing '" A_ProgramFiles "\Notepad Lite' ('" MainAppFile "' process is reported as terminated).'")
+            else
+                bContinue := true
+        }
+
+        if bContinue
+        {
+            RegDelete, HKEY_CURRENT_USER, SOFTWARE\GridinSoft\Notepad3 ; Delete saved settings
+            TestsOK("Either there was no previous versions or we succeeded removing it using hardcoded path.")
+            Run %ModuleExe%
+        }
+    }
 }
 
 
@@ -65,42 +58,49 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, 7-Zip self-extracting archive, Extract, 15
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'7-Zip self-extracting archive' window with 'Extract' button failed to appear.")
+    else
     {
         Sleep, 250
         ControlSetText, Edit1, %A_ProgramFiles%\Notepad Lite, 7-Zip self-extracting archive, Extract ; Path
-        if not ErrorLevel
-        {
-            ControlClick, Button2, 7-Zip self-extracting archive, Extract ; Hit 'Extract' button
-            if not ErrorLevel
-                TestsOK("'7-Zip self-extracting archive' window appeared, path changed and 'Extract' was clicked.")
-            else
-                TestsFailed("Unable to click 'Extract' in '7-Zip self-extracting archive' window.")
-        }
-        else
+        if ErrorLevel
             TestsFailed("Unable to change path to '" A_ProgramFiles "\Notepad Lite'.")
+        else
+        {
+            Sleep, 700
+            ControlClick, Button2, 7-Zip self-extracting archive, Extract ; Hit 'Extract' button
+            if ErrorLevel
+                TestsFailed("Unable to click 'Extract' in '7-Zip self-extracting archive' window.")
+            else
+            {
+                WinWaitClose, 7-Zip self-extracting archive, Extract, 5
+                if ErrorLevel
+                    TestsFailed("'7-Zip self-extracting archive' window failed to close despite 'Extract' button being clicked.")
+                else
+                    TestsOK("'7-Zip self-extracting archive' window appeared, path changed and 'Extract' was clicked.")
+            }
+        }
     }
-    else
-        TestsFailed("'7-Zip self-extracting archive' window with 'Extract' button failed to appear.")
 }
 
 
 TestsTotal++
 if bContinue
 {
-    SetTitleMatchMode, 1
-    WinWaitActive, Extracting, Cancel, 10 ; Wait 10 secs for window to appear
-    if not ErrorLevel ; Window is found and it is active
+    SetTitleMatchMode, 2 ; A window's title can contain WinTitle anywhere inside it to be a match.
+    WinWaitActive, Extracting, Cancel, 7
+    if ErrorLevel ; Window is found and it is active
+        TestsFailed("'Extracting' window failed to appear.")
+    else
     {
         OutputDebug, OK: %TestName%:%A_LineNumber%: 'Extracting' window appeared, waiting for it to close.`n
-        WinWaitClose, Extracting, Cancel, 15
-        if not ErrorLevel
-            TestsOK("'Extracting' window appeared and went away.")
-        else
+        WinWaitClose, Extracting, Cancel, 10
+        if ErrorLevel
             TestsFailed("'Extracting' window failed to dissapear.")
-    }
-    else
-        TestsFailed("'Extracting' window failed to appear.")
+        else
+            TestsOK("'Extracting' window appeared and went away.")
+    }      
 }
 
 
@@ -109,9 +109,9 @@ TestsTotal++
 if bContinue
 {
     Sleep, 2000
-    ProgramDir = %A_ProgramFiles%\Notepad Lite
-    IfExist, %ProgramDir%
-        TestsOK("The application has been installed, because '" ProgramDir "' was found.")
+    ProgramFile = %A_ProgramFiles%\Notepad Lite\%MainAppFile%
+    IfExist, %ProgramFile%
+        TestsOK("The application has been installed, because '" ProgramFile "' was found.")
     else
-        TestsFailed("Something went wrong, can't find '" ProgramDir "'.")
+        TestsFailed("Something went wrong, can't find '" ProgramFile "'.")
 }

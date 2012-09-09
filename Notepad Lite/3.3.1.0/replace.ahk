@@ -24,96 +24,96 @@ szDocument =  %A_WinDir%\TextFile.dat ; Case sensitive!
 TestsTotal++
 FileDelete, %szDocument%
 FileAppend, My name is Egijs Kolesnikovics, %szDocument%
-if not ErrorLevel
+if ErrorLevel
+    TestsFailed("Unable to create '%szDocument%'.")
+else
 {
     RunApplication(szDocument)
-    if bContinue
+    if not bContinue
+        TestsFailed("We failed somewhere in prepare.ahk.")
+    else
     {
-        IfWinActive, GridinSoft Notepad Lite - [%szDocument%]
+        IfWinNotActive, GridinSoft Notepad Lite - [%szDocument%]
+            TestsFailed("Window 'GridinSoft Notepad Lite - [" szDocument "]' is not an active window.")
+        else
         {
             SendInput, {ALTDOWN}s{ALTUP} ; WinMenuSelectItem does not work here
             Sleep, 500
             SendInput, r
             WinWaitActive, GridinSoft Notepad - Replace,,5
-            if not ErrorLevel
+            if ErrorLevel
+                TestsFailed("Window 'GridinSoft Notepad - Replace' failed to appear.")
+            else
             {
                 ControlSetText, Edit2, Egijs, GridinSoft Notepad - Replace ; Search for
-                if not ErrorLevel
+                if ErrorLevel
+                    TestsFailed("Unable to set 'Search for' text in 'GridinSoft Notepad - Replace' window.")
+                else
                 {
                     Sleep, 1000
                     ControlSetText, Edit1, Edijs, GridinSoft Notepad - Replace ; Replace with
-                    if not ErrorLevel
+                    if ErrorLevel
+                        TestsFailed("Unable to set 'Replace with' text in 'GridinSoft Notepad - Replace' window.")
+                    else
                     {
                         Sleep, 1000
                         SendInput, {ALTDOWN}o{ALTUP} ; Hit 'OK' button. 'ControlClick' does not report any error, but it fails all the time
                         Sleep, 1000
                         WinWaitClose, GridinSoft Notepad - Replace,,5
-                        if not ErrorLevel
+                        if ErrorLevel
+                            TestsFailed("Window 'GridinSoft Notepad - Replace' failed to close.")
+                        else
                         {
                             Sleep, 1000
                             WinWaitActive, Confirm replace,,5
-                            if not ErrorLevel
+                            if ErrorLevel
+                                TestsFailed("Window 'Confirm replace' failed to appear.")
+                            else
                             {
                                 Sleep, 1000
                                 ControlClick, TButton1, Confirm replace ; Hit 'Yes to all' button
-                                if not ErrorLevel
+                                if ErrorLevel
+                                    TestsFailed("Unable to hit 'Yes to all' button in 'Confirm replace' window.")
+                                else
                                 {
                                     WinWaitClose, Confirm replace,,5
-                                    if not ErrorLevel
+                                    if ErrorLevel
+                                        TestsFailed("Window 'Confirm replace' failed to close.")
+                                    else
                                     {
                                         WinWaitActive, GridinSoft Notepad Lite - [%szDocument%],,5
-                                        if not ErrorLevel
+                                        if ErrorLevel
+                                            TestsFailed("Window 'GridinSoft Notepad Lite - [" szDocument "]' is not active.")
+                                        else
                                         {
                                             WinClose, GridinSoft Notepad Lite - [%szDocument%]
                                             SplitPath, szDocument, NameExt
                                             WinWaitActive, *%NameExt% - GridinSoft Notepad,,5
-                                            if not ErrorLevel
+                                            if ErrorLevel
+                                                TestsFailed("Window '*" NameExt " - GridinSoft Notepad' failed to appear.")
+                                            else
                                             {
                                                 Sleep, 1000
                                                 ControlClick, Button1, *%NameExt% - GridinSoft Notepad ; Hit 'Yes' button
-                                                if not ErrorLevel
+                                                if ErrorLevel
+                                                    TestsFailed("Unable to hit 'Yes' button in '*" NameExt " - GridinSoft Notepad' window.")
+                                                else
                                                 {
                                                     WinWaitClose, GridinSoft Notepad Lite - [%szDocument%],,5
-                                                    if not ErrorLevel
-                                                        TestsOK("Opened document, replaced some text, saved and closed Notepad Lite successfully.")
-                                                    else
+                                                    if ErrorLevel
                                                         TestsFailed("Window 'GridinSoft Notepad Lite - [" szDocument "]' failed to close.")
+                                                    else
+                                                        TestsOK("Opened document, replaced some text, saved and closed Notepad Lite successfully.")
                                                 }
-                                                else
-                                                    TestsFailed("Unable to hit 'Yes' button in '*" NameExt " - GridinSoft Notepad' window.")
                                             }
-                                            else
-                                                TestsFailed("Window '*" NameExt " - GridinSoft Notepad' failed to appear.")
                                         }
-                                        else
-                                            TestsFailed("Window 'GridinSoft Notepad Lite - [" szDocument "]' is not active.")
                                     }
-                                    else
-                                        TestsFailed("Window 'Confirm replace' failed to close.")
                                 }
-                                else
-                                    TestsFailed("Unable to hit 'Yes to all' button in 'Confirm replace' window.")
                             }
-                            else
-                                TestsFailed("Window 'Confirm replace' failed to appear.")
                         }
-                        else
-                            TestsFailed("Window 'GridinSoft Notepad - Replace' failed to close.")
                     }
-                    else
-                        TestsFailed("Unable to set 'Replace with' text in 'GridinSoft Notepad - Replace' window.")
-                }
-                else
-                    TestsFailed("Unable to set 'Search for' text in 'GridinSoft Notepad - Replace' window.")
+                }  
             }
-            else
-                TestsFailed("Window 'GridinSoft Notepad - Replace' failed to appear.")
         }
-        else
-            TestsFailed("Window 'GridinSoft Notepad Lite - [" szDocument "]' failed to appear.")
     }
-    else
-        TestsFailed("We failed somewhere in prepare.ahk.")
 }
-else
-    TestsFailed("Unable to create '%szDocument%'.")

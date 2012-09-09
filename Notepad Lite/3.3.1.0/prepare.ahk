@@ -17,70 +17,74 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-bContinue := false
-TestsTotal := 0
-TestsSkipped := 0
-TestsFailed := 0
-TestsOK := 0
-TestsExecuted := 0
 TestName = prepare
-
 ModuleExe = %A_ProgramFiles%\Notepad Lite\gsnote3.exe
-Process, Close, gsnote3.exe
-Sleep, 1000
+
+
+; Terminate application
+TestsTotal++
+SplitPath, ModuleExe, ProcessExe
+Process, Close, %ProcessExe%
+Process, WaitClose, %ProcessExe%, 4
+if ErrorLevel
+    TestsFailed("Process '" ProcessExe "' failed to close.")
+else
+    TestsOK("")
+
+
+RegDelete, HKEY_CURRENT_USER, SOFTWARE\GridinSoft\Notepad3 ; Delete saved settings before RunApplication()
+
 
 ; Test if can start application
 RunApplication(PathToFile)
 {
     global ModuleExe
     global TestName
-    global bContinue
+    global TestsTotal
 
-    RegDelete, HKEY_CURRENT_USER, SOFTWARE\GridinSoft\Notepad3 ; Delete saved settings
-    IfExist, %ModuleExe%
+    TestsTotal++
+    IfNotExist, %ModuleExe%
+        TestsFailed("Test failed: Can NOT find '" ModuleExe "'.")
+    else
     {
         if PathToFile =
         {
             Run, %ModuleExe%,, Max
             Sleep, 1000
             WinWaitActive, GridinSoft Notepad Lite - [Untitled-1],, 10
-            if not ErrorLevel
+            if ErrorLevel
             {
-                bContinue := true
-                Sleep, 1000
+                Process, Exist, %ProcessExe%
+                NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                if NewPID = 0
+                    TestsFailed("Window 'GridinSoft Notepad Lite - [Untitled-1]' failed to appear. No '" ProcessExe "' process detected.")
+                else
+                    TestsFailed("Window 'GridinSoft Notepad Lite - [Untitled-1]' failed to appear. '" ProcessExe "' process detected.")
             }
             else
-            {
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'GridinSoft Notepad Lite - [Untitled-1]' failed to appear. Active window caption: '%title%'`n
-            }
+                TestsOK("")
         }
         else
         {
-            IfExist, %PathToFile%
+            IfNotExist, %PathToFile%
+                TestsFailed("Can NOT find '" PathToFile "'.")
+            else
             {
                 Run, %ModuleExe% "%PathToFile%",, Max
                 Sleep, 1000
                 WinWaitActive, GridinSoft Notepad Lite - [%PathToFile%],,10
-                if not ErrorLevel
+                if ErrorLevel
                 {
-                    bContinue := true
-                    Sleep, 1000
+                    Process, Exist, %ProcessExe%
+                    NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                    if NewPID = 0
+                        TestsFailed("Window 'GridinSoft Notepad Lite - [" PathToFile "]' failed to appear. No '" ProcessExe "' process detected.")
+                    else
+                        TestsFailed("Window 'GridinSoft Notepad Lite - [" PathToFile "]' failed to appear. '" ProcessExe "' process detected.")
                 }
                 else
-                {
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'GridinSoft Notepad Lite - [%PathToFile%]' failed to appear. Active window caption: '%title%'`n
-                }
-            }
-            else
-            {
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%PathToFile%'.`n
+                    TestsOK("")
             }
         }
-    }
-    else
-    {
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%ModuleExe%'.`n
     }
 }
