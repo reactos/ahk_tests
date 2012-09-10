@@ -203,16 +203,18 @@ WindowCleanup(ProcessName)
     if ErrorLevel != 0
     {
         Process, close, %ProcessName%
+        Run taskkill.exe /F /IM %ProcessName%,, Hide
         Process, WaitClose, %ProcessName%, 5
         if ErrorLevel
             OutputDebug, Helper Functions: Unable to terminate '%ProcessName%' process.`n
     }
     
-    SplitPath, ProcessName,,, name_no_ext 
+    SplitPath, ProcessName,,,, name_no_ext
     Process, Exist, %name_no_ext%.tmp ; Will kill some setups
     if ErrorLevel != 0
     {
         Process, close, %name_no_ext%.tmp
+        Run taskkill.exe /F /IM %name_no_ext%.tmp,, Hide
         Process, WaitClose, %name_no_ext%.tmp, 5
         if ErrorLevel
             OutputDebug, Helper Functions: Unable to terminate '%name_no_ext%.tmp' process.`n
@@ -222,6 +224,7 @@ WindowCleanup(ProcessName)
     if ErrorLevel != 0
     {
         Process, close, Setup.exe
+        Run taskkill.exe /F /IM Setup.exe,, Hide
         Process, WaitClose, Setup.exe, 5
         if ErrorLevel
             OutputDebug, Helper Functions: Unable to terminate 'Setup.exe' process.`n
@@ -241,7 +244,7 @@ WindowCleanup(ProcessName)
         }
     }
     
-    Sleep, 2500
+    Sleep, 500
     IfWinActive, Mozilla Crash Reporter
     {
         SendInput, {SPACE} ; Dont tell Mozilla about this crash
@@ -260,7 +263,7 @@ WindowCleanup(ProcessName)
             ControlFocus, OK, %ErrorWinTitle%
             if not ErrorLevel
             {
-                Sleep, 1200
+                Sleep, 200
                 SendInput, {ENTER} ; Hit 'OK' button
                 OutputDebug, Helper Functions: Sent ENTER to '%ErrorWinTitle%' window to hit 'OK' button.`n
             }
