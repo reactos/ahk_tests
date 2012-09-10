@@ -55,7 +55,7 @@ else
                 {
                     FileRemoveDir, %A_ProgramFiles%\IrfanView, 1
                     if ErrorLevel
-                        TestsFailed("Unable to delete existing '" A_ProgramFiles "\IrfanView' ('" MainAppFile "' process is reported as terminated).'")
+                        TestsFailed("Unable to delete hardcoded path '" A_ProgramFiles "\IrfanView' ('" MainAppFile "' process is reported as terminated).'")
                     else
                         bContinue := true
                 }
