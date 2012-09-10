@@ -19,42 +19,48 @@
 
 TestName = prepare
 
+; Test if the app is installed
+TestsTotal++
 RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\IrfanView, UninstallString
 if ErrorLevel
-{
-    ModuleExe = %A_ProgramFiles%\IrfanView\i_view32.exe
-    OutputDebug, %TestName%:%A_LineNumber%: Can NOT read data from registry. Key might not exist. Using hardcoded path.`n
-}
+    TestsFailed("Either registry key does not exist or we failed to read it.")
 else
 {
     SplitPath, UninstallerPath,, InstalledDir
     ModuleExe = %InstalledDir%\i_view32.exe
+    TestsOK("")
 }
 
 
 ; Terminate application
 TestsTotal++
-SplitPath, ModuleExe, ProcessExe
-Process, Close, %ProcessExe%
-Process, WaitClose, %ProcessExe%, 4
-if ErrorLevel
-    TestsFailed("Unable to terminate '" ProcessExe "' process.")
-else
-    TestsOK("")
+if bContinue
+{
+    SplitPath, ModuleExe, ProcessExe
+    Process, Close, %ProcessExe%
+    Process, WaitClose, %ProcessExe%, 4
+    if ErrorLevel
+        TestsFailed("Unable to terminate '" ProcessExe "' process.")
+    else
+        TestsOK("")
+}
 
 
 ; Delete settings separately from RunApplication() in case we want to write our own settings
 TestsTotal++
-IfExist, %A_AppData%\IrfanView
+if bContinue
 {
-    FileRemoveDir, %A_AppData%\IrfanView, 1
-    if ErrorLevel
-        TestsFailed("Unable to delete '" A_AppData "\IrfanView'.")
+    IfExist, %A_AppData%\IrfanView
+    {
+        FileRemoveDir, %A_AppData%\IrfanView, 1
+        if ErrorLevel
+            TestsFailed("Unable to delete '" A_AppData "\IrfanView'.")
+        else
+            TestsOK("")
+    }
     else
         TestsOK("")
 }
-else
-    TestsOK("")
 
 
 ; Test if can start application
