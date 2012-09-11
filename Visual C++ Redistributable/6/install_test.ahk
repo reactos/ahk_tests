@@ -18,25 +18,50 @@
  */
 
 ModuleExe = %A_WorkingDir%\Apps\VC6RedistSetup_enu.exe
-bContinue := false
 TestName = 1.install
-
-TestsFailed := 0
-TestsOK := 0
-TestsTotal := 0
+InstallDir = %A_WinDir%\System32
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
 TestsTotal++
-IfExist, %ModuleExe%
-{
-    FileDelete, %A_WinDir%\vcredist.exe
-    Run %ModuleExe%
-    TestsOK()
-}
+IfNotExist, %ModuleExe%
+    TestsFailed("Can NOT find '" ModuleExe "'.")
 else
 {
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%ModuleExe%' not found.`n
-    TestsFailed()
+    IfExist, %InstallDir%\mfc42.dll
+    {
+        FileDelete, %InstallDir%\mfc42.dll
+        if ErrorLevel
+            TestsFailed("Unable to delete '" InstallDir "\mfc42.dll'.")
+        else
+        {
+            IfExist, %InstallDir%\vcredist.exe ; remove this file too or installer will complain
+            {
+                FileDelete, %InstallDir%\vcredist.exe
+                if ErrorLevel
+                    TestsFailed("Unable to delete '" InstallDir "\vcredist.exe'.")
+                else
+                    TestsOK("")
+            }
+            else
+                TestsOK("")
+        }
+    }
+    else
+    {
+        IfExist, %InstallDir%\vcredist.exe
+        {
+            FileDelete, %InstallDir%\vcredist.exe
+            if ErrorLevel
+                TestsFailed("Unable to delete '" InstallDir "\vcredist.exe' (at least there is not '" InstallDir "\System32\mfc42.dll').")
+            else
+                TestsOK("")
+        }
+        else
+            TestsOK("")
+    }
+
+    if bContinue
+        Run %ModuleExe%
 }
 
 
@@ -45,27 +70,22 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, VCRedist Installation, Please read, 10
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("Window 'VCRedist Installation (Please read)' failed to appear.")
+    else
     {
         Sleep, 1000
         ControlClick, Button1, VCRedist Installation, Please read ; Hit 'Yes' button
-        if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'VCRedist Installation (Please read)' window appeared and 'Yes' button was clicked.`n
-        }
+        if ErrorLevel
+            TestsFailed("Unable to hit 'Yes' button in 'VCRedist Installation (Please read)' window.")
         else
         {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Yes' button in 'VCRedist Installation (Please read)' window. Active window caption: '%title%'.`n
+            WinWaitClose, VCRedist Installation, Please read, 4
+            if ErrorLevel
+                TestsFailed("'VCRedist Installation (Please read)' window failed to close despite 'Yes' button being clicked.")
+            else
+                TestsOK("'VCRedist Installation (Please read)' window appeared, 'Yes' button clicked and window closed.")
         }
-    }
-    else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'VCRedist Installation (Please read)' failed to appear. Active window caption: '%title%'.`n
     }
 }
 
@@ -75,37 +95,22 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, VCRedist Installation, Please type, 10
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("Window 'VCRedist Installation (Please type)' failed to appear.")
+    else
     {
-        ControlSetText, Edit1, %A_WinDir%, VCRedist Installation, Please type
-        if not ErrorLevel
+        ControlSetText, Edit1, %InstallDir%, VCRedist Installation, Please type
+        if ErrorLevel
+            TestsFailed("Unable to set path to '" InstallDir "' in 'VCRedist Installation (Please type)' window.")
+        else
         {
             Sleep, 1000
             ControlClick, Button2, VCRedist Installation, Please type ; Hit 'OK' button
-            if not ErrorLevel
-            {
-                TestsOK()
-                OutputDebug, OK: %TestName%:%A_LineNumber%: 'VCRedist Installation (Please type)' window appeared and 'OK' button was clicked.`n
-            }
+            if ErrorLevel
+                TestsFailed("Unable to hit 'OK' button in 'VCRedist Installation (Please type)' window.")
             else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'OK' button in 'VCRedist Installation (Please type)' window. Active window caption: '%title%'.`n
-            }
+                TestsOK("'VCRedist Installation (Please type)' window appeared and 'OK' button was clicked.")
         }
-        else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to set path to '%A_WinDir%' in 'VCRedist Installation (Please type)' window. Active window caption: '%title%'.`n
-        }
-    }
-    else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'VCRedist Installation (Please type)' failed to appear. Active window caption: '%title%'.`n
     }
 }
 
@@ -115,33 +120,21 @@ TestsTotal++
 if bContinue
 {
     WinWaitClose, VCRedist Installation,,10
-    if not ErrorLevel
-    {
-        TestsOK()
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'VCRedist Installation (Please type)' window went away.`n
-    }
+    if ErrorLevel
+        TestsFailed("Window 'VCRedist Installation' failed to close.")
     else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'VCRedist Installation' failed to close. Active window caption: '%title%'.`n
-    }
+        TestsOK("'VCRedist Installation (Please type)' window went away.")
 }
+
 
 ; Check if installed file(s) exist
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
-    ProgramFile = %A_WinDir%\system32\mfc42.dll
-    IfExist, %ProgramFile%
-    {
-        TestsOK()
-        OutputDebug, OK: %TestName%:%A_LineNumber%: The application has been installed, because '%ProgramFile%' was found.`n
-    }
+    Sleep, 7000 ; longer sleep is required
+    ProgramFile = %InstallDir%\mfc42.dll
+    IfNotExist, %ProgramFile%
+        TestsFailed("Something went wrong, can't find '" ProgramFile "'.")
     else
-    {
-        TestsFailed()
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Something went wrong, can't find '%ProgramFile%'.`n
-    }
+        TestsOK("The application has been installed, because '" ProgramFile "' was found.")
 }
