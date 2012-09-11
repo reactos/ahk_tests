@@ -24,16 +24,24 @@ szDocument =  %A_WorkingDir%\Media\Book.pdf ; Case sensitive!
 TestsTotal++
 RunApplication(szDocument)
 SplitPath, szDocument, NameExt
-if bContinue
+if not bContinue
+    TestsFailed("We failed somewhere in prepare.ahk.")
+else
 {
-    IfWinActive, %NameExt% - Universal Viewer (slister)
+    IfWinNotActive, %NameExt% - Universal Viewer (slister)
+        TestsFailed("Window '" NameExt " - Universal Viewer (slister)' failed to appear.")
+    else
     {
         Sleep, 1000
         ControlSetText, Edit1, 29, %NameExt% - Universal Viewer (slister) ; Set page number to 29
-        if not ErrorLevel
+        if ErrorLevel
+            TestsFailed("Unable to enter 'Page' number in '" NameExt " - Universal Viewer (slister)' window.")
+        else
         {
             ControlClick, Edit1, %NameExt% - Universal Viewer (slister) ; We have to click on it before sending keystroke
-            if not ErrorLevel
+            if ErrorLevel
+                TestsFailed("Unable to click 'Page' number in '" NameExt " - Universal Viewer (slister)' window.")
+            else
             {
                 SendInput, {ENTER} ; Hit enter to actually go to page
                 Sleep, 2000 ; Load page properly before searching for image on the screen
@@ -41,7 +49,9 @@ if bContinue
                 ; Need to find a way to show PDF in actual size
                 SearchImg = %A_WorkingDir%\Media\BookPage29Img800x600.jpg
 
-                IfExist, %SearchImg%
+                IfNotExist, %SearchImg%
+                    TestsFailed("Can NOT find '" SearchImg "'.")
+                else
                 {
                     ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, *14 %SearchImg%
                     if ErrorLevel = 2
@@ -54,37 +64,34 @@ if bContinue
                         Sleep, 500
                         SendInput, c
                         WinWaitActive, Universal Viewer, File not loaded, 5
-                        if not ErrorLevel
+                        if ErrorLevel
+                            TestsFailed("Window 'Universal Viewer (File not loaded)' failed to appear.")
+                        else
                         {
                             Sleep, 2000
                             WinClose, Universal Viewer, File not loaded
                             WinWaitClose, Universal Viewer, File not loaded, 7
-                            if not ErrorLevel
-                                TestsOK("Found image on the screen, so, page 29 was displayed correctly. Document and application closed successfully.")
-                            else
+                            if ErrorLevel
                                 TestsFailed("Window 'Universal Viewer (File not loaded)' failed to close.")
+                            else
+                            {
+                                Process, WaitClose, SumatraPDF.exe, 4
+                                if ErrorLevel
+                                {
+                                    Process, Close, SumatraPDF.exe
+                                    Process, WaitClose, SumatraPDF.exe, 4
+                                    if ErrorLevel
+                                        TestsFailed("Unable to terminate 'SumatraPDF.exe' process.")
+                                    else
+                                        TestsFailed("'SumatraPDF.exe' process failed to close on its own, so, we had to terminate it.")
+                                }
+                                else
+                                    TestsOK("Found image on the screen, so, page 29 was displayed correctly. Document and application closed successfully.")
+                            }
                         }
-                        else
-                            TestsFailed("Window 'Universal Viewer (File not loaded)' failed to appear.")
                     }
                 }
-                else
-                    TestsFailed("Can NOT find '" SearchImg "'.")
             }
-            else
-                TestsFailed("Unable to click 'Page' number in '" NameExt " - Universal Viewer (slister)' window.")
         }
-        else
-            TestsFailed("Unable to enter 'Page' number in '" NameExt " - Universal Viewer (slister)' window.")
     }
-    else
-        TestsFailed("Window '" NameExt " - Universal Viewer (slister)' failed to appear.")
-}
-else
-    TestsFailed("We failed somewhere in prepare.ahk.")
-
-if not bContinue
-{
-    ; If we failed, terminate SumatraPDF.exe
-    Process, Close, SumatraPDF.exe
 }
