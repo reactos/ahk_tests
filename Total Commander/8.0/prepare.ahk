@@ -17,100 +17,100 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-bContinue := false
-TestsTotal := 0
-TestsSkipped := 0
-TestsFailed := 0
-TestsOK := 0
-TestsExecuted := 0
 TestName = prepare
 
+; Test if the app is installed
+TestsTotal++
 RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Totalcmd, UninstallString
-if not ErrorLevel
-{
-    StringReplace, UninstallerPath, UninstallerPath, `",, All ; String contains quotes, replace em
-    SplitPath, UninstallerPath,, InstalledDir
-    ModuleExe = %InstalledDir%\TOTALCMD.EXE
-}
+if ErrorLevel
+    TestsFailed("Either registry key does not exist or we failed to read it.")
 else
 {
-    ModuleExe = C:\totalcmd\TOTALCMD.EXE
-    OutputDebug, %TestName%:%A_LineNumber%: Can NOT read data from registry. Key might not exist. Using hardcoded path.`n
+    SplitPath, UninstallerPath,, InstalledDir
+    ModuleExe = %InstalledDir%\TOTALCMD.exe
+    TestsOK("")
 }
+
+
+; Terminate application
+TestsTotal++
+if bContinue
+{
+    SplitPath, ModuleExe, ProcessExe
+    Process, Close, %ProcessExe%
+    Process, WaitClose, %ProcessExe%, 4
+    if ErrorLevel
+        TestsFailed("Unable to terminate '" ProcessExe "' process.")
+    else
+        TestsOK("")
+}
+
+
+; Delete settings separately from RunApplication() in case we want to write our own settings
+TestsTotal++
+if bContinue
+{
+    IfExist, %A_AppData%\GHISLER
+    {
+        FileRemoveDir, %A_AppData%\GHISLER, 1
+        if ErrorLevel
+            TestsFailed("Unable to delete '" A_AppData "\GHISLER'.")
+        else
+            TestsOK("")
+    }
+    else
+        TestsOK("")
+}
+
 
 RunApplication()
 {
     global ModuleExe
     global TestName
     global bContinue
-
-    IfExist, %ModuleExe%
-    {
-        Process, Close, TOTALCMD.EXE ; Teminate process
-        Sleep, 2500 ; To make sure folders are not locked
-        FileRemoveDir, %A_AppData%\GHISLER, 1 ; Delete all saved settings
-        Sleep, 1500
-        IfNotExist, %A_AppData%\GHISLER
-        {
-            Run, %ModuleExe%,, Max ; Start maximized
-            WinWaitActive, Total Commander, Program &information, 10
-            if not ErrorLevel
-            {
-                ControlGetText, BtnNumber, TPanel2, Total Commander, Program &information
-                if not ErrorLevel
-                {
-                    Sleep, 1000
-                    SendInput, %BtnNumber% ; Click button to start program
-                    WinWaitActive, Configuration, Layout, 5
-                    if not ErrorLevel
-                    {
-                        Sleep, 1000
-                        ControlClick, TButton30, Configuration, Layout ; Hit 'OK' button
-                        if not ErrorLevel
-                        {
-                            WinWaitActive, Total Commander 8.0 - NOT REGISTERED,,5
-                            if not ErrorLevel
-                            {
-                                bContinue := true
-                                Sleep, 1000
-                            }
-                            else
-                            {
-                                WinGetTitle, title, A
-                                OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Total Commander 8.0 - NOT REGISTERED' window failed to appear. Active window caption: '%title%'.`n
-                            }
-                        }
-                        else
-                        {
-                            WinGetTitle, title, A
-                            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'OK' button in 'Configuration (Layout)' window. Active window caption: '%title%'.`n
-                        }
-                    }
-                    else
-                    {
-                        WinGetTitle, title, A
-                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Configuration (Layout)' window failed to appear. Active window caption: '%title%'.`n
-                    }
-                }
-                else
-                {
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to get button number needed to hit in 'Total Commander (Program information)' window. Active window caption: '%title%'.`n
-                }
-            }
-            else
-            {
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Total Commander (Program information)' window failed to appear. Active window caption: '%title%'.`n
-            }
-        }
-        else
-        {
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Seems like we failed to delete '%A_AppData%\GHISLER'.`n
-        }
-    }
+    global TestsTotal
+    
+    TestsTotal++
+    IfNotExist, %ModuleExe%
+        TestsFailed("Can NOT find 'ModuleExe'.")
     else
     {
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%ModuleExe%'.`n
+        Run, %ModuleExe%,, Max ; Start maximized
+        WinWaitActive, Total Commander, Program &information, 10
+        if ErrorLevel
+            TestsFailed("'Total Commander (Program information)' window failed to appear.")
+        else
+        {
+            Sleep, 700
+            ControlGetText, BtnNumber, TPanel2, Total Commander, Program &information
+            if ErrorLevel
+                TestsFailed("Unable to get button number needed to hit in 'Total Commander (Program information)' window.")
+            else
+            {
+                Sleep, 700
+                SendInput, %BtnNumber% ; Click button to start program
+                WinWaitActive, Configuration, Layout, 5
+                if ErrorLevel
+                    TestsFailed("'Configuration (Layout)' window failed to appear.")
+                else
+                {
+                    Sleep, 700
+                    ControlClick, TButton30, Configuration, Layout ; Hit 'OK' button
+                    if ErrorLevel
+                        TestsFailed("Unable to hit 'OK' button in 'Configuration (Layout)' window.")
+                    else
+                    {
+                        WinWaitActive, Total Commander 8.0 - NOT REGISTERED,,5
+                        if ErrorLevel
+                            TestsFailed("'Total Commander 8.0 - NOT REGISTERED' window failed to appear.")
+                        else
+                        {
+                            TestsOK("")
+                            Sleep, 700
+                        }
+                    }
+                }
+            }
+        }
     }
 }

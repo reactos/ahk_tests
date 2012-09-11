@@ -22,28 +22,42 @@ TestName = 2.find_files
 ; Check if can find calc.exe in WinDir\..
 TestsTotal++
 RunApplication()
-if bContinue
+if not bContinue
+    TestsFailed("We failed somewhere in prepare.ahk.")
+else
 {
-    IfWinActive, Total Commander 8.0 - NOT REGISTERED
+    IfWinNotActive, Total Commander 8.0 - NOT REGISTERED
+        TestsFailed("'Total Commander 8.0 - NOT REGISTERED' is not active window.")
+    else
     {
         WinMenuSelectItem, Total Commander 8.0 - NOT REGISTERED, , Commands, Search
-        if not ErrorLevel
+        if ErrorLevel
+            TestsFailed("Unable to hit 'Commands -> Search' in 'Total Commander 8.0 - NOT REGISTERED' window.")
+        else
         {
             WinWaitActive, Find Files, &Start search, 5
-            if not ErrorLevel
+            if ErrorLevel
+                TestsFailed("'Find Files (Start search)' window failed to appear.")
+            else
             {
                 ControlSetText, Edit3, calc.exe, Find Files, &Start search ; Search for
-                if not ErrorLevel
+                if ErrorLevel
+                    TestsFailed("Unable to set 'Search for' to 'calc.exe' in 'Find Files (Start search)' window.")
+                else
                 {
                     SendInput, {ALTDOWN}i{ALTUP} ;  Focus 'Search in' field, ControlSetText will cause problems
                     SendInput, %A_WinDir%
                     Sleep, 1000
                     ControlClick, TButton16, Find Files, &Start search ; Hit 'Start search' button
-                    if not ErrorLevel
+                    if ErrorLevel
+                        TestsFailed("Unable to hit 'Start search' button in 'Find Files (Start search)' window.")
+                    else
                     {
                         ControlText := " [1 files and 0 directories found]"
                         ControlGetText, OutputVar, TMyPanel1, Find Files
-                        if not ErrorLevel
+                        if ErrorLevel
+                            TestsFailed("Unable to get caption of 'Start search' button in 'Find Files (Start search)' window.")
+                        else
                         {
                             TimeOut := 0
                             while (OutputVar <> ControlText) and (TimeOut < 40)
@@ -53,65 +67,21 @@ if bContinue
                                 TimeOut++
                             }
                             
-                            if (OutputVar == ControlText)
-                            {
-                                TestsOK()
-                                OutputDebug, OK: %TestName%:%A_LineNumber%: 'Find Files' executed by 'Commands -> Search' successfully.`n
-                                Sleep, 1000
-                                Process, Close, TOTALCMD.EXE ; Teminate process
-                            }
+                            if not (OutputVar == ControlText)
+                                TestsFailed("Timed out, result: '" OutputVar "'.")
                             else
                             {
-                                TestsFailed()
-                                WinGetTitle, title, A
-                                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Timed out, result: '%OutputVar%'. Active window caption: '%title%'.`n
+                                Process, Close, %ProcessExe%
+                                Process, WaitClose, %ProcessExe%, 4
+                                if ErrorLevel
+                                    TestsFailed("Unable to terminate '" ProcessExe "' process after search.")
+                                else
+                                    TestsOK("'Find Files' executed by 'Commands -> Search' successfully, process '" ProcessExe "' terminated.")
                             }
                         }
-                        else
-                        {
-                            TestsFailed()
-                            WinGetTitle, title, A
-                            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to get caption of 'Start search' button in 'Find Files (Start search)' window. Active window caption: '%title%'.`n
-                        }
-                    }
-                    else
-                    {
-                        TestsFailed()
-                        WinGetTitle, title, A
-                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Start search' button in 'Find Files (Start search)' window. Active window caption: '%title%'.`n
                     }
                 }
-                else
-                {
-                    TestsFailed()
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to set 'Search for' to 'calc.exe' in 'Find Files (Start search)' window. Active window caption: '%title%'.`n
-                }
-            }
-            else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Find Files (Start search)' window failed to appear. Active window caption: '%title%'.`n
             }
         }
-        else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Commands -> Search' in 'Total Commander 8.0 - NOT REGISTERED' window. Active window caption: '%title%'.`n
-        }
     }
-    else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Total Commander 8.0 - NOT REGISTERED' is not active window. Active window caption: '%title%'.`n
-    }
-}
-else
-{
-    TestsFailed()
-    WinGetTitle, title, A
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: We failed somewhere in prepare.ahk. Active window caption: '%title%'`n
 }

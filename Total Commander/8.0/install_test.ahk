@@ -17,54 +17,98 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-Modulexe = %A_WorkingDir%\Apps\Total Commander 8.0 Setup.exe
-bContinue := false
+ModulEExe = %A_WorkingDir%\Apps\Total Commander 8.0 Setup.exe
 TestName = 1.install
 InstallToDir = %A_ProgramFiles%\Total Commander ; This is where we are going to install
-
-TestsFailed := 0
-TestsOK := 0
-TestsTotal := 0
+MainAppFile = TOTALCMD.exe ; Mostly this is going to be process we need to look for
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
-IfExist, %Modulexe%
-{
-    ; Get rid of other versions
-    RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Totalcmd, UninstallString
-    if not ErrorLevel
-    {   
-        IfExist, %UninstallerPath%
-        {
-            Process, Close, TOTALCMD.exe ; Teminate process
-            Sleep, 1500
-            RunWait, %UninstallerPath% /7 ; Silently uninstall it
-            Sleep, 10000
-            ; Delete everything just in case
-            RegDelete, HKEY_CURRENT_USER, SOFTWARE\Ghisler
-            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Totalcmd
-            FileRemoveDir, %InstalledDir%, 1
-            FileRemoveDir, %A_AppData%\GHISLER, 1
-            Sleep, 1000
-            IfExist, %InstalledDir%
-            {
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to delete '%InstalledDir%'.`n
-                bContinue := false
-            }
-        }
-        Run %Modulexe%
-        bContinue := true
-    }
-    else
-    {
-        ; There was a problem (such as a nonexistent key or value). That probably means we have not installed this app before
-        Run %Modulexe%
-        bContinue := true
-    }
-}
+TestsTotal++
+IfNotExist, %ModuleExe%
+    TestsFailed("'" ModuleExe "' not found.")
 else
 {
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%Modulexe%' not found.`n
-    bContinue := false
+    Process, Close, %MainAppFile% ; Teminate process
+    Process, WaitClose, %MainAppFile%, 4
+    if ErrorLevel ; The PID still exists.
+        TestsFailed("Unable to terminate '" MainAppFile "' process.") ; So, process still exists
+    else
+    {
+        RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Totalcmd, UninstallString
+        if ErrorLevel
+        {
+            ; There was a problem (such as a nonexistent key or value). 
+            ; That probably means we have not installed this app before.
+            ; Check in default directory to be extra sure
+            IfNotExist, %InstallToDir%
+                bContinue := true ; No previous versions detected in hardcoded path
+            else
+            {
+                bHardcoded := true ; To know if we got path from registry or not
+                IfExist, %InstallToDir%\tcuninst.exe
+                {
+                    RunWait, %InstallToDir%\tcuninst.exe /7 ; Silently uninstall it
+                    Sleep, 7000
+                }
+
+                IfNotExist, %InstallToDir% ; Uninstaller might delete the dir
+                    bContinue := true
+                {
+                    FileRemoveDir, %InstallToDir%, 1
+                    if ErrorLevel
+                        TestsFailed("Unable to delete hardcoded path '" InstallToDir "' ('" MainAppFile "' process is reported as terminated).'")
+                    else
+                        bContinue := true
+                }
+            }
+        }
+        else
+        {
+            SplitPath, UninstallerPath,, InstalledDir
+            IfNotExist, %InstalledDir%
+                bContinue := true
+            else
+            {
+                IfExist, %UninstallerPath%
+                {
+                    RunWait, %UninstallerPath% /7 ; Silently uninstall it
+                    Sleep, 7000
+                }
+
+                IfNotExist, %InstalledDir%
+                    bContinue := true
+                else
+                {
+                    FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
+                    if ErrorLevel
+                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                    else
+                        bContinue := true
+                }
+            }
+        }
+    }
+
+    if bContinue
+    {
+        RegDelete, HKEY_CURRENT_USER, SOFTWARE\Ghisler
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Totalcmd
+        IfExist, %A_AppData%\GHISLER
+        {
+            FileRemoveDir, %A_AppData%\GHISLER, 1
+            if ErrorLevel
+                TestsFailed("Unable to delete '" A_AppData "\GHISLER'.")
+        }
+
+        if bContinue
+        {
+            if bHardcoded
+                TestsOK("Either there was no previous versions or we succeeded removing it using hardcoded path.")
+            else
+                TestsOK("Either there was no previous versions or we succeeded removing it using data from registry.")
+            Run %ModuleExe%
+        }
+    }
 }
 
 
@@ -73,28 +117,17 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Installation Total Commander 32+64bit 8.0, Please select a language, 15
-    if not ErrorLevel
-    {
-        Sleep, 1000
-        ; Hit 'Next' button. Specify all params in case some other window will pop up
-        ControlClick, Button3, Installation Total Commander 32+64bit 8.0, Please select a language 
-        if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installation Total Commander 32+64bit 8.0 (Please select a language)' window appeared and 'Next' button was clicked.`n
-        }
-        else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'Installation Total Commander 32+64bit 8.0 (Please select a language)' window. Active window caption: '%title%'.`n
-        }
-    }
+    if ErrorLevel
+        TestsFailed("'Installation Total Commander 32+64bit 8.0 (Please select a language)' window failed to appear.")
     else
     {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Installation Total Commander 32+64bit 8.0 (Please select a language)' window failed to appear. Active window caption: '%title%'.`n
+        Sleep, 700
+        ; Hit 'Next' button. Specify all params in case some other window will pop up
+        ControlClick, Button3, Installation Total Commander 32+64bit 8.0, Please select a language 
+        if ErrorLevel
+            TestsFailed("Unable to click 'Next' in 'Installation Total Commander 32+64bit 8.0 (Please select a language)' window.")
+        else
+            TestsOK("'Installation Total Commander 32+64bit 8.0 (Please select a language)' window appeared and 'Next' button was clicked.")
     }
 }
 
@@ -104,27 +137,16 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Installation Total Commander 32+64bit 8.0, Do you also, 5
-    if not ErrorLevel
-    {
-        Sleep, 1000
-        ControlClick, Button3, Installation Total Commander 32+64bit 8.0, Do you also
-        if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installation Total Commander 32+64bit 8.0 (Do you also)' window appeared and 'Next' button was clicked.`n
-        }
-        else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'Installation Total Commander 32+64bit 8.0 (Do you also)' window. Active window caption: '%title%'.`n
-        }
-    }
+    if ErrorLevel
+        TestsFailed("'Installation Total Commander 32+64bit 8.0 (Do you also)' window failed to appear.")
     else
     {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Installation Total Commander 32+64bit 8.0 (Do you also)' window failed to appear. Active window caption: '%title%'.`n
+        Sleep, 700
+        ControlClick, Button3, Installation Total Commander 32+64bit 8.0, Do you also
+        if ErrorLevel
+            TestsFailed("Unable to click 'Next' in 'Installation Total Commander 32+64bit 8.0 (Do you also)' window.")
+        else
+            TestsOK("'Installation Total Commander 32+64bit 8.0 (Do you also)' window appeared and 'Next' button was clicked.")
     }
 }
 
@@ -134,37 +156,22 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Installation Total Commander 32+64bit 8.0, Please enter target directory, 5
-    if not ErrorLevel
-    {
-        ControlSetText, Edit1, %InstallToDir%, Installation Total Commander 32+64bit 8.0, Please enter target directory
-        if not ErrorLevel
-        {
-            Sleep, 1000
-            ControlClick, Button2, Installation Total Commander 32+64bit 8.0, Please enter target directory
-            if not ErrorLevel
-            {
-                TestsOK()
-                OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installation Total Commander 32+64bit 8.0 (Please enter target directory)' window appeared and 'Next' button was clicked.`n
-            }
-            else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'Installation Total Commander 32+64bit 8.0 (Please enter target directory)' window. Active window caption: '%title%'.`n
-            }
-        }
-        else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to enter '%InstallToDir%' in 'Installation Total Commander 32+64bit 8.0 (Please enter target directory)' window. Active window caption: '%title%'.`n
-        }
-    }
+    if ErrorLevel
+        TestsFailed("'Installation Total Commander 32+64bit 8.0 (Please enter target directory)' window failed to appear.")
     else
     {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Installation Total Commander 32+64bit 8.0 (Please enter target directory)' window failed to appear. Active window caption: '%title%'.`n
+        ControlSetText, Edit1, %InstallToDir%, Installation Total Commander 32+64bit 8.0, Please enter target directory
+        if ErrorLevel
+            TestsFailed("Unable to enter '" InstallToDir "' in 'Installation Total Commander 32+64bit 8.0 (Please enter target directory)' window.")
+        else
+        {
+            Sleep, 700
+            ControlClick, Button2, Installation Total Commander 32+64bit 8.0, Please enter target directory
+            if ErrorLevel
+                TestsFailed("Unable to click 'Next' in 'Installation Total Commander 32+64bit 8.0 (Please enter target directory)' window.")
+            else
+                TestsOK("'Installation Total Commander 32+64bit 8.0 (Please enter target directory)' window appeared, dir changed, 'Next' button was clicked.")
+        }
     }
 }
 
@@ -174,27 +181,16 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Installation Total Commander 32+64bit 8.0, You can define, 5
-    if not ErrorLevel
-    {
-        Sleep, 1000
-        ControlClick, Button1, Installation Total Commander 32+64bit 8.0, You can define
-        if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installation Total Commander 32+64bit 8.0 (You can define)' window appeared and 'Next' button was clicked.`n
-        }
-        else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'Installation Total Commander 32+64bit 8.0 (You can define)' window. Active window caption: '%title%'.`n
-        }
-    }
+    if ErrorLevel
+        TestsFailed("'Installation Total Commander 32+64bit 8.0 (You can define)' window failed to appear.")
     else
     {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Installation Total Commander 32+64bit 8.0 (You can define)' window failed to appear. Active window caption: '%title%'.`n
+        Sleep, 700
+        ControlClick, Button1, Installation Total Commander 32+64bit 8.0, You can define
+        if ErrorLevel
+            TestsFailed("Unable to click 'Next' in 'Installation Total Commander 32+64bit 8.0 (You can define)' window.")
+        else
+            TestsOK("'Installation Total Commander 32+64bit 8.0 (You can define)' window appeared and 'Next' button was clicked.")
     }
 }
 
@@ -204,27 +200,16 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Installation Total Commander 32+64bit 8.0, Create shortcut, 5
-    if not ErrorLevel
-    {
-        Sleep, 1000
-        ControlClick, Button1, Installation Total Commander 32+64bit 8.0, Create shortcut
-        if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installation Total Commander 32+64bit 8.0 (Create shortcut)' window appeared and 'Next' button was clicked.`n
-        }
-        else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'Next' in 'Installation Total Commander 32+64bit 8.0 (Create shortcut)' window. Active window caption: '%title%'.`n
-        }
-    }
+    if ErrorLevel
+        TestsFailed("'Installation Total Commander 32+64bit 8.0 (Create shortcut)' window failed to appear.")
     else
     {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Installation Total Commander 32+64bit 8.0 (Create shortcut)' window failed to appear. Active window caption: '%title%'.`n
+        Sleep, 700
+        ControlClick, Button1, Installation Total Commander 32+64bit 8.0, Create shortcut
+        if ErrorLevel
+            TestsFailed("Unable to click 'Next' in 'Installation Total Commander 32+64bit 8.0 (Create shortcut)' window.")
+        else
+            TestsOK("'Installation Total Commander 32+64bit 8.0 (Create shortcut)' window appeared and 'Next' button was clicked.")
     }
 }
 
@@ -234,67 +219,40 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Installation Total Commander 32+64bit 8.0, Installation successful, 5
-    if not ErrorLevel
-    {
-        Sleep, 1000
-        ControlClick, Button1, Installation Total Commander 32+64bit 8.0, Installation successful
-        if not ErrorLevel
-        {
-            WinWaitClose, Installation Total Commander 32+64bit 8.0,, 5
-            if not ErrorLevel
-            {
-                TestsOK()
-                OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installation Total Commander 32+64bit 8.0 (Installation successful)' window appeared and 'OK' button was clicked.`n
-            }
-            else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Installation Total Commander 32+64bit 8.0' window failed to close. Active window caption: '%title%'.`n
-            }
-        }
-        else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to click 'OK' in 'Installation Total Commander 32+64bit 8.0 (Installation successful)' window. Active window caption: '%title%'.`n
-        }
-    }
+    if ErrorLevel
+        TestsFailed("'Installation Total Commander 32+64bit 8.0 (Installation successful)' window failed to appear.")
     else
     {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Installation Total Commander 32+64bit 8.0 (Installation successful)' window failed to appear. Active window caption: '%title%'.`n
+        Sleep, 700
+        ControlClick, Button1, Installation Total Commander 32+64bit 8.0, Installation successful
+        if ErrorLevel
+            TestsFailed("Unable to click 'OK' in 'Installation Total Commander 32+64bit 8.0 (Installation successful)' window. ")
+        else
+        {
+            WinWaitClose, Installation Total Commander 32+64bit 8.0,, 5
+            if ErrorLevel
+                TestsFailed("'Installation Total Commander 32+64bit 8.0' window failed to close.")
+            else
+                TestsOK("'Installation Total Commander 32+64bit 8.0 (Installation successful)' window appeared, 'OK' button was clicked and window closed.")
+        }
     }
 }
 
 
-
-
-;Check if program exists in program files
+; Check if program exists
 TestsTotal++
 if bContinue
 {
-    Sleep, 1000
+    Sleep, 2000
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Totalcmd, UninstallString
-    if not ErrorLevel
-    {
-        IfExist, %UninstallerPath%
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: Should be installed, because '%UninstallerPath%' was found.`n
-            bContinue := true
-        }
-        else
-        {
-            TestsFailed()
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%UninstallerPath%'.`n
-        }
-    }
+    if ErrorLevel
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
     else
     {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Either can not read registry or data doesn't exist. Active window caption: '%title%'.`n
+        SplitPath, UninstallerPath,, InstalledDir
+        IfNotExist, %InstalledDir%\%MainAppFile%
+            TestsFailed("Something went wrong, can't find '" InstalledDir "\" MainAppFile "'.")
+        else
+            TestsOK("The application has been installed, because '" InstalledDir "\" MainAppFile "' was found.")
     }
 }
