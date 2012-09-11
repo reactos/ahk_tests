@@ -55,54 +55,60 @@ else
                             TestsFailed("Unable to hit 'OK' button in 'Open (Enter the)' window.")
                         else
                         {
-                            Sleep, 2000 ; Give it some time to fail
-                            IfWinNotActive, Adobe Flash Player 10
-                                TestsFailed("Loaded '" szDocument "'. 'Adobe Flash Player 10' is not active anymore.")
+                            WinWaitClose,  Open, Enter the, 5
+                            if ErrorLevel
+                                TestsFailed("'Open (Enter the)' window failed to close despite 'OK' button being clicked.")
                             else
                             {
-                                WinMenuSelectItem, Adobe Flash Player 10, , Control, Play ; Control -> Play
-                                if ErrorLevel
-                                    TestsFailed("Unable to click 'Control -> Play' in 'Adobe Flash Player 10' window.")
+                                Sleep, 2000 ; Give it some time to fail
+                                IfWinNotActive, Adobe Flash Player 10
+                                    TestsFailed("Loaded '" szDocument "'. 'Adobe Flash Player 10' is not active anymore.")
                                 else
                                 {
-                                    SearchImg = %A_WorkingDir%\Media\SA_LoadLocalFlashIMG.jpg
-                        
-                                    IfNotExist, %SearchImg%
-                                        TestsFailed("Can NOT find '" SearchImg "'.")
+                                    WinMenuSelectItem, Adobe Flash Player 10, , Control, Play ; Control -> Play
+                                    if ErrorLevel
+                                        TestsFailed("Unable to click 'Control -> Play' in 'Adobe Flash Player 10' window.")
                                     else
                                     {
-                                        bFound := false
-                                        while TimeOut < 400
-                                        {
-                                            ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, *35 %SearchImg% ; Works on both XP SP3 and win2k3 SP2
-                                            if ErrorLevel = 2
-                                            {
-                                                TestsFailed("Could not conduct the ImageSearch ('" SearchImg "' exist).")
-                                                TimeOut := 400 ; Exit the loop
-                                            }
-                                            else if ErrorLevel = 1
-                                            {
-                                                bFound := false
-                                            }
-                                            else
-                                            {
-                                                TimeOut := 400 ; Exit the loop
-                                                bFound := true
-                                            }
-                                            TimeOut++
-                                            Sleep, 10
-                                        }
-                                        
-                                        if not bFound
-                                            TestsFailed("The search image '" SearchImg "' could NOT be found on the screen.")
+                                        SearchImg = %A_WorkingDir%\Media\SA_LoadLocalFlashIMG.jpg
+                            
+                                        IfNotExist, %SearchImg%
+                                            TestsFailed("Can NOT find '" SearchImg "'.")
                                         else
                                         {
-                                            Process, Close, %MainAppFile%
-                                            Process, WaitClose, %MainAppFile%, 4
-                                            if ErrorLevel
-                                                TestsFailed("Unable to terminate '" MainAppFile "' process.")
+                                            bFound := false
+                                            while TimeOut < 400
+                                            {
+                                                ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, *35 %SearchImg% ; Works on both XP SP3 and win2k3 SP2
+                                                if ErrorLevel = 2
+                                                {
+                                                    TestsFailed("Could not conduct the ImageSearch ('" SearchImg "' exist).")
+                                                    TimeOut := 400 ; Exit the loop
+                                                }
+                                                else if ErrorLevel = 1
+                                                {
+                                                    bFound := false
+                                                }
+                                                else
+                                                {
+                                                    TimeOut := 400 ; Exit the loop
+                                                    bFound := true
+                                                }
+                                                TimeOut++
+                                                Sleep, 10
+                                            }
+                                            
+                                            if not bFound
+                                                TestsFailed("The search image '" SearchImg "' could NOT be found on the screen.")
                                             else
-                                                TestsOK("Found '" SearchImg "' on the screen, so, we can play '" szDocument "'.")
+                                            {
+                                                Process, Close, %MainAppFile%
+                                                Process, WaitClose, %MainAppFile%, 4
+                                                if ErrorLevel
+                                                    TestsFailed("Unable to terminate '" MainAppFile "' process.")
+                                                else
+                                                    TestsOK("Found '" SearchImg "' on the screen, so, we can play '" szDocument "'.")
+                                            }
                                         }
                                     }
                                 }

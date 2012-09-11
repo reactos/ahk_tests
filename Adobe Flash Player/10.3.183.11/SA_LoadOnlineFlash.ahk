@@ -53,50 +53,56 @@ else
                         TestsFailed("Unable to hit 'OK' button in 'Open (Enter the)' window.")
                     else
                     {
-                        WinMove, Adobe Flash Player 10,, 10, 10 ; Change window coordinates
-                        Sleep, 25000 ; Depends on connection speed
-                        IfWinNotActive, Adobe Flash Player 10
-                            TestsFailed("Loaded '" szDocument "'. 'Adobe Flash Player 10' is not active anymore.")
+                        WinWaitClose, Open, Enter the, 5
+                        if ErrorLevel
+                            TestsFailed("'Open (Enter the)' window failed to close despite 'OK' button being clicked.")
                         else
                         {
-                            SearchImg = %A_WorkingDir%\Media\SA_LoadOnlineFlashIMG.jpg
-                
-                            IfNotExist, %SearchImg%
-                                TestsFailed("Can NOT find '" SearchImg "'.")
+                            WinMove, Adobe Flash Player 10,, 10, 10 ; Change window coordinates
+                            Sleep, 25000 ; Depends on connection speed
+                            IfWinNotActive, Adobe Flash Player 10
+                                TestsFailed("Loaded '" szDocument "'. 'Adobe Flash Player 10' is not active anymore.")
                             else
                             {
-                                bFound := false
-                                while TimeOut < 400
-                                {
-                                    ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, *60 %SearchImg%
-                                    if ErrorLevel = 2
-                                    {
-                                        TestsFailed("Could not conduct the ImageSearch ('" SearchImg "' exist).")
-                                        TimeOut := 400 ; Exit the loop
-                                    }
-                                    else if ErrorLevel = 1
-                                    {
-                                        bFound := false
-                                    }
-                                    else
-                                    {
-                                        TimeOut := 400 ; Exit the loop
-                                        bFound := true
-                                    }
-                                    TimeOut++
-                                    Sleep, 10
-                                }
-                                
-                                if not bFound
-                                    TestsFailed("The search image '" SearchImg "' could NOT be found on the screen. Color quality not 32bit?")
+                                SearchImg = %A_WorkingDir%\Media\SA_LoadOnlineFlashIMG.jpg
+                    
+                                IfNotExist, %SearchImg%
+                                    TestsFailed("Can NOT find '" SearchImg "'.")
                                 else
                                 {
-                                    Process, Close, %MainAppFile%
-                                    Process, WaitClose, %MainAppFile%, 4
-                                    if ErrorLevel
-                                        TestsFailed("Unable to terminate '" MainAppFile "' process.")
+                                    bFound := false
+                                    while TimeOut < 400
+                                    {
+                                        ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, *60 %SearchImg%
+                                        if ErrorLevel = 2
+                                        {
+                                            TestsFailed("Could not conduct the ImageSearch ('" SearchImg "' exist).")
+                                            TimeOut := 400 ; Exit the loop
+                                        }
+                                        else if ErrorLevel = 1
+                                        {
+                                            bFound := false
+                                        }
+                                        else
+                                        {
+                                            TimeOut := 400 ; Exit the loop
+                                            bFound := true
+                                        }
+                                        TimeOut++
+                                        Sleep, 10
+                                    }
+                                    
+                                    if not bFound
+                                        TestsFailed("The search image '" SearchImg "' could NOT be found on the screen. Color quality not 32bit?")
                                     else
-                                        TestsOK("Found '" SearchImg "' on the screen, so, we can play '" szDocument "'.")
+                                    {
+                                        Process, Close, %MainAppFile%
+                                        Process, WaitClose, %MainAppFile%, 4
+                                        if ErrorLevel
+                                            TestsFailed("Unable to terminate '" MainAppFile "' process.")
+                                        else
+                                            TestsOK("Found '" SearchImg "' on the screen, so, we can play '" szDocument "'.")
+                                    }
                                 }
                             }
                         }
