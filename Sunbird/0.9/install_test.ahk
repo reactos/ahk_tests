@@ -18,83 +18,96 @@
  */
 
 ModuleExe = %A_WorkingDir%\Apps\Sunbird 0.9 Setup.exe
-bContinue := false
 TestName = 1.install
-
-TestsFailed := 0
-TestsOK := 0
-TestsTotal := 0
+MainAppFile = sunbird.exe ; Mostly this is going to be process we need to look for
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
+TestsTotal++
 IfNotExist, %ModuleExe%
-{
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%ModuleExe%' not found.`n
-    bContinue := false
-}
+    TestsFailed("'" ModuleExe "' not found.")
 else
 {
-    ; Get rid of other versions
-    RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Mozilla Sunbird (0.9), UninstallString
-    if not ErrorLevel
-    {   
-        IfExist, %UninstallerPath%
-        {
-            Process, Close, sunbird.exe ; Teminate process
-            Sleep, 1500
-            RunWait, %UninstallerPath% /S ; Silently uninstall it
-            Sleep, 3500
-            ; Delete everything just in case
-            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Mozilla\Mozilla Sunbird
-            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Mozilla Sunbird 9.0
-            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Mozilla Sunbird (2.0.0.18)
-            SplitPath, UninstallerPath,, InstalledDir
-            FileRemoveDir, %InstalledDir%, 1
-            FileRemoveDir, %A_AppData%\Mozilla, 1
-            Sleep, 1000
-            IfExist, %InstalledDir%
-            {
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to delete '%InstalledDir%'.`n
-                bContinue := false
-            }
-            else
-            {
-                bContinue := true
-            }
-        }
-    }
+    Process, Close, %MainAppFile% ; Teminate process
+    Process, WaitClose, %MainAppFile%, 4
+    if ErrorLevel ; The PID still exists.
+        TestsFailed("Unable to terminate '" MainAppFile "' process.") ; So, process still exists
     else
     {
-        ; There was a problem (such as a nonexistent key or value). 
-        ; That probably means we have not installed this app before.
-        ; Check in default directory to be extra sure
-        IfExist, %A_ProgramFiles%\Mozilla Sunbird\uninstall\helper.exe
+        RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Mozilla Sunbird (0.9), UninstallString
+        if ErrorLevel
         {
-            Process, Close, sunbird.exe ; Teminate process
-            Sleep, 1500
-            RunWait, %A_ProgramFiles%\Mozilla Sunbird\uninstall\helper.exe /S ; Silently uninstall it
-            Sleep, 2500
-            FileRemoveDir, %A_ProgramFiles%\Mozilla Sunbird, 1
-            FileRemoveDir, %A_AppData%\Mozilla, 1
-            Sleep, 1000
-            IfExist, %A_ProgramFiles%\Mozilla Sunbird
-            {
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Previous version detected and failed to delete '%A_ProgramFiles%\Mozilla Sunbird'.`n
-                bContinue := false
-            }
+            ; There was a problem (such as a nonexistent key or value). 
+            ; That probably means we have not installed this app before.
+            ; Check in default directory to be extra sure
+            IfNotExist, %A_ProgramFiles%\Mozilla Sunbird
+                bContinue := true ; No previous versions detected in hardcoded path
             else
             {
-                bContinue := true
+                bHardcoded := true ; To know if we got path from registry or not
+                IfExist, %A_ProgramFiles%\Mozilla Sunbird\uninstall\helper.exe
+                {
+                    RunWait, %A_ProgramFiles%\Mozilla Sunbird\uninstall\helper.exe /S ; Silently uninstall it
+                    Sleep, 7000
+                }
+
+                IfNotExist, %A_ProgramFiles%\Mozilla Sunbird ; Uninstaller might delete the dir
+                    bContinue := true
+                {
+                    FileRemoveDir, %A_ProgramFiles%\Mozilla Sunbird, 1
+                    if ErrorLevel
+                        TestsFailed("Unable to delete hardcoded path '" A_ProgramFiles "\Mozilla Sunbird' ('" MainAppFile "' process is reported as terminated).'")
+                    else
+                        bContinue := true
+                }
             }
         }
         else
         {
-            ; No previous versions detected.
-            bContinue := true
+            SplitPath, UninstallerPath,, InstalledDir
+            IfNotExist, %InstalledDir%
+                bContinue := true
+            else
+            {
+                IfExist, %UninstallerPath%
+                {
+                    RunWait, %UninstallerPath% /S ; Silently uninstall it
+                    Sleep, 7000
+                }
+
+                IfNotExist, %InstalledDir%
+                    bContinue := true
+                else
+                {
+                    FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
+                    if ErrorLevel
+                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                    else
+                        bContinue := true
+                }
+            }
         }
     }
+
     if bContinue
     {
-        Run %ModuleExe%
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Mozilla\Mozilla Sunbird
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Mozilla Sunbird 9.0
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Mozilla Sunbird (0.9)
+        IfExist, %A_AppData%\Mozilla
+        {
+            FileRemoveDir, %A_AppData%\Mozilla, 1
+            if ErrorLevel
+                TestsFailed("Unable to delete '" A_AppData "\Mozilla'.")
+        }
+
+        if bContinue
+        {
+            if bHardcoded
+                TestsOK("Either there was no previous versions or we succeeded removing it using hardcoded path.")
+            else
+                TestsOK("Either there was no previous versions or we succeeded removing it using data from registry.")
+            Run %ModuleExe%
+        }
     }
 }
 
@@ -110,7 +123,7 @@ if bContinue
     else
     {
         OutputDebug, OK: %TestName%:%A_LineNumber%: 'Extracting' window appeared, waiting for it to close.`n
-        WinWaitClose, Extracting, Cancel, 15
+        WinWaitClose, Extracting, Cancel, 20
         if ErrorLevel 
             TestsFailed("'Extracting' window failed to dissapear.")
         else
@@ -123,12 +136,12 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Mozilla Sunbird Setup, This wizard, 15
+    WinWaitActive, Mozilla Sunbird Setup, This wizard, 20
     if ErrorLevel
         TestsFailed("'Mozilla Sunbird Setup (This wizard)' window failed to appear.")
     else
     {
-        Sleep, 250
+        Sleep, 700
         ControlClick, Button2, Mozilla Sunbird Setup, This wizard
         if ErrorLevel
             TestsFailed("Unable to click 'Next' in 'Mozilla Sunbird Setup (This wizard)' window.")
@@ -147,7 +160,7 @@ if bContinue
         TestsFailed("'Mozilla Sunbird Setup' window with 'Mozilla Sunbird Setup (License Agreement)' failed to appear.")
     else
     {
-        Sleep, 250
+        Sleep, 700
         ControlClick, Button4, Mozilla Sunbird Setup, License Agreement ; check 'I accept' radio button
         if ErrorLevel
             TestsFailed("Unable to check 'I agree' radio button in 'Mozilla Sunbird Setup (License Agreement)' window.")
@@ -180,7 +193,7 @@ if bContinue
         TestsFailed("'Mozilla Sunbird Setup (Setup Type)' window failed to appear.")
     else
     {
-        Sleep, 250
+        Sleep, 700
         ControlClick, Button2, Mozilla Sunbird Setup, Setup Type
         if ErrorLevel
             TestsFailed("Unable to click 'Next' in 'Mozilla Sunbird Setup (Setup Type)' window.")
@@ -199,7 +212,7 @@ if bContinue
         TestsFailed("'Mozilla Sunbird Setup (Installing)' window failed to appear.")
     else
     {
-        Sleep, 250
+        Sleep, 700
         OutputDebug, OK: %TestName%:%A_LineNumber%: 'Mozilla Sunbird Setup (Installing)' window appeared, waiting for it to close.`n
         WinWaitClose, Mozilla Sunbird Setup, Installing, 35
         if ErrorLevel
@@ -219,7 +232,7 @@ if bContinue
         TestsFailed("'Mozilla Sunbird Setup (Completing)' window failed to appear.")
     else
     {
-        Sleep, 250
+        Sleep, 700
         ControlClick, Button4, Mozilla Sunbird Setup, Completing ; Uncheck 'Launch Mozilla Sunbird now'
         if ErrorLevel
         {
@@ -229,6 +242,7 @@ if bContinue
         }
         else
         {
+            Sleep, 700
             ControlClick, Button2, Mozilla Sunbird Setup, Completing ; Hit 'Finish'
             if ErrorLevel
                 TestsFailed("Unable to click 'Finish' in 'Mozilla Sunbird Setup (Completing)' window.")
@@ -255,9 +269,11 @@ if bContinue
         TestsFailed("Either we can't read from registry or data doesn't exist.")
     else
     {
-        IfNotExist, %UninstallerPath%
-            TestsFailed("Something went wrong, can't find '" UninstallerPath "'.")
+        SplitPath, UninstallerPath,, InstalledDir
+        SplitPath, InstalledDir,, InstalledDir ; Split once more
+        IfNotExist, %InstalledDir%\%MainAppFile%
+            TestsFailed("Something went wrong, can't find '" InstalledDir "\" MainAppFile "'.")
         else
-            TestsOK("The application has been installed, because '" UninstallerPath "' was found.")
-    } 
+            TestsOK("The application has been installed, because '" InstalledDir "\" MainAppFile "' was found.")
+    }
 }

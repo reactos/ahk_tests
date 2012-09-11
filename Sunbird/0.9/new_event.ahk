@@ -73,12 +73,16 @@ else
                     if ErrorLevel
                         TestsFailed("Window '" TimeString " - Sunbird' is not active.")
                     else
-                        TestsOK("FIXME: find a way to really make sure we saved the event.") ; Event is saved encrypted in storage.sdb which is always there
+                    {
+                        Process, Close, %ProcessExe%
+                        Process, WaitClose, %ProcessExe%, 4
+                        if ErrorLevel
+                            TestsFailed("Unable to terminate '" ProcessExe "' process.")
+                        else
+                            TestsOK("FIXME: find a way to really make sure we saved the event, '" ProcessExe "' process terminated.") ; Event is saved encrypted in storage.sdb which is always there
+                    }
                 }
             }
         }
     }
 }
-
-
-Process, Close, sunbird.exe ; Teminate process
