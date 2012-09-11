@@ -18,75 +18,84 @@
  */
 
 ModuleExe = %A_WorkingDir%\Apps\uTorrent 3.0.25406 Setup.exe
-bContinue := false
 TestName = 1.install
-
-TestsFailed := 0
-TestsOK := 0
-TestsTotal := 0
+MainAppFile = uTorrent.exe ; Mostly this is going to be process we need to look for
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
-IfExist, %ModuleExe%
-{
-    ; Get rid of other versions
-    RegRead, InstalledDir, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\uTorrent, InstallLocation
-    if not ErrorLevel
-    {
-        Process, Close, uTorrent.exe ; Teminate process
-        Sleep, 1500
-        StringReplace, InstalledDir, InstalledDir, `",, All
-        ; Delete everything just in case
-        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\uTorrent
-        FileRemoveDir, %InstalledDir%, 1
-        FileRemoveDir, %A_AppData%\uTorrent, 1
-        Sleep, 1000
-        IfExist, %InstalledDir%
-        {
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to delete '%InstalledDir%'.`n
-            bContinue := false
-        }
-        else
-        {
-            bContinue := true
-        }
-    }
-    else
-    {
-        ; There was a problem (such as a nonexistent key or value). 
-        ; That probably means we have not installed this app before.
-        ; Check in default directory to be extra sure
-        IfExist, %A_ProgramFiles%\uTorrent\uTorrent.exe
-        {
-            Process, Close, uTorrent.exe ; Teminate process
-            Sleep, 1500
-            FileRemoveDir, %A_ProgramFiles%\uTorrent, 1
-            FileRemoveDir, %A_AppData%\uTorrent, 1
-            Sleep, 1000
-            IfExist, %A_ProgramFiles%\uTorrent
-            {
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Previous version detected and failed to delete '%A_ProgramFiles%\uTorrent'.`n
-                bContinue := false
-            }
-            else
-            {
-                bContinue := true
-            }
-        }
-        else
-        {
-            ; No previous versions detected.
-            bContinue := true
-        }
-    }
-    if bContinue
-    {
-        Run %ModuleExe%
-    }
-}
+TestsTotal++
+IfNotExist, %ModuleExe%
+    TestsFailed("'" ModuleExe "' not found.")
 else
 {
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%ModuleExe%' not found.`n
-    bContinue := false
+    Process, Close, %MainAppFile% ; Teminate process
+    Process, WaitClose, %MainAppFile%, 4
+    if ErrorLevel ; The PID still exists.
+        TestsFailed("Unable to terminate '" MainAppFile "' process.") ; So, process still exists
+    else
+    {
+        RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\uTorrent, UninstallString
+        if ErrorLevel
+        {
+            ; There was a problem (such as a nonexistent key or value). 
+            ; That probably means we have not installed this app before.
+            ; Check in default directory to be extra sure
+            IfNotExist, %A_ProgramFiles%\uTorrent
+                bContinue := true ; No previous versions detected in hardcoded path
+            else
+            {
+                bHardcoded := true ; To know if we got path from registry or not
+                IfNotExist, %A_ProgramFiles%\uTorrent ; Uninstaller might delete the dir
+                    bContinue := true
+                {
+                    FileRemoveDir, %A_ProgramFiles%\uTorrent, 1
+                    if ErrorLevel
+                        TestsFailed("Unable to delete hardcoded path '" A_ProgramFiles "\uTorrent' ('" MainAppFile "' process is reported as terminated).'")
+                    else
+                        bContinue := true
+                }
+            }
+        }
+        else
+        {
+            StringReplace, UninstallerPath, UninstallerPath, `",, All ; uTorrent string contains quotes
+            SplitPath, UninstallerPath,, InstalledDir
+            IfNotExist, %InstalledDir%
+                bContinue := true
+            else
+            {
+                IfNotExist, %InstalledDir%
+                    bContinue := true
+                else
+                {
+                    FileRemoveDir, %InstalledDir%, 1 ; Silent switch '/UNINSTALL' shows dialogs
+                    if ErrorLevel
+                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                    else
+                        bContinue := true
+                }
+            }
+        }
+    }
+
+    if bContinue
+    {
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\uTorrent
+        IfExist, %A_AppData%\uTorrent
+        {
+            FileRemoveDir, %A_AppData%\uTorrent, 1
+            if ErrorLevel
+                TestsFailed("Unable to delete '" A_AppData "\uTorrent'.")
+        }
+
+        if bContinue
+        {
+            if bHardcoded
+                TestsOK("Either there was no previous versions or we succeeded removing it using hardcoded path.")
+            else
+                TestsOK("Either there was no previous versions or we succeeded removing it using data from registry.")
+            Run %ModuleExe%
+        }
+    }
 }
 
 
@@ -95,27 +104,16 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, µTorrent Setup, This wizard, 10
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'µTorrent Setup (This wizard)' window failed to appear.")
+    else
     {
         Sleep, 700
         ControlClick, Button2, µTorrent Setup, This wizard ; Hit 'Next' button
-        if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'µTorrent Setup (This wizard)' window appeared and 'Next' button was clicked.`n
-        }
+        if ErrorLevel
+            TestsFailed("Unable to hit 'Next' button in 'µTorrent Setup (This wizard)' window.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'µTorrent Setup (This wizard)' window. Active window caption: '%title%'.`n
-        }
-    }
-    else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'µTorrent Setup (This wizard)' window failed to appear. Active window caption: '%title%'.`n
+            TestsOK("'µTorrent Setup (This wizard)' window appeared and 'Next' button was clicked.")
     }
 }
 
@@ -125,27 +123,16 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, µTorrent Setup, Beware, 5
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'µTorrent Setup (Beware)' window failed to appear.")
+    else
     {
         Sleep, 700
         ControlClick, Button2, µTorrent Setup, Beware ; Hit 'Next' button
-        if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'µTorrent Setup (Beware)' window appeared and 'Next' button was clicked.`n
-        }
+        if ErrorLevel
+            TestsFailed("Unable to hit 'Next' button in 'µTorrent Setup (Beware)' window.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'µTorrent Setup (Beware)' window. Active window caption: '%title%'.`n
-        }
-    }
-    else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'µTorrent Setup (Beware)' window failed to appear. Active window caption: '%title%'.`n
+            TestsOK("'µTorrent Setup (Beware)' window appeared and 'Next' button was clicked.")
     }
 }
 
@@ -155,27 +142,16 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, µTorrent Setup, Scroll, 5
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'µTorrent Setup (Scroll)' window failed to appear.")
+    else
     {
         Sleep, 700
         ControlClick, Button2, µTorrent Setup, Scroll ; Hit 'I Agree' button
-        if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'µTorrent Setup (Scroll)' window appeared and 'I Agree' button was clicked.`n
-        }
+        if ErrorLevel
+            TestsFailed("Unable to hit 'I Agree' button in 'µTorrent Setup (Scroll)' window.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'I Agree' button in 'µTorrent Setup (Scroll)' window. Active window caption: '%title%'.`n
-        }
-    }
-    else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'µTorrent Setup (Scroll)' window failed to appear. Active window caption: '%title%'.`n
+            TestsOK("'µTorrent Setup (Scroll)' window appeared and 'I Agree' button was clicked.")
     }
 }
 
@@ -185,27 +161,16 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, µTorrent Setup, Program Location, 5
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'µTorrent Setup (Program Location)' window failed to appear.")
+    else
     {
         Sleep, 700
         ControlClick, Button9, µTorrent Setup, Program Location ; Hit 'Next' button
-        if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'µTorrent Setup (Program Location)' window appeared and 'Next' button was clicked.`n
-        }
+        if ErrorLevel
+            TestsFailed("Unable to hit 'Next' button in 'µTorrent Setup (Program Location)' window.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'µTorrent Setup (Program Location)' window. Active window caption: '%title%'.`n
-        }
-    }
-    else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'µTorrent Setup (Program Location)' window failed to appear. Active window caption: '%title%'.`n
+            TestsOK("'µTorrent Setup (Program Location)' window appeared and 'Next' button was clicked.")
     }
 }
 
@@ -215,27 +180,16 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, µTorrent Setup, The following, 5
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'µTorrent Setup (The following)' window failed to appear.")
+    else
     {
         Sleep, 700
         ControlClick, Button16, µTorrent Setup, The following ; Hit 'Next' button
-        if not ErrorLevel
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'µTorrent Setup (The following)' window appeared and 'Next' button was clicked.`n
-        }
+        if ErrorLevel
+            TestsFailed("Unable to hit 'Next' button in 'µTorrent Setup (The following)' window.")
         else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'µTorrent Setup (The following)' window. Active window caption: '%title%'.`n
-        }
-    }
-    else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'µTorrent Setup (The following)' window failed to appear. Active window caption: '%title%'.`n
+            TestsOK("'µTorrent Setup (The following)' window appeared and 'Next' button was clicked.")
     }
 }
 
@@ -245,38 +199,23 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, µTorrent Setup, Check out, 5
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'µTorrent Setup (Check out)' window failed to appear.")
+    else
     {
         Sleep, 700
         Control, Uncheck,, Button1, µTorrent Setup, Check out ; Uncheck 'Yes, Id love to check out this free download' checkbox
-        if not ErrorLevel
+        if ErrorLevel
+            TestsFailed("Unable to uncheck 'Yes, Id love to check out this free download' checkbox in 'µTorrent Setup (Check out)' window.")
+        else
         {
             Sleep, 500
             ControlClick, Button17, µTorrent Setup, Check out ; Hit 'Next' button
-            if not ErrorLevel
-            {
-                TestsOK()
-                OutputDebug, OK: %TestName%:%A_LineNumber%: 'µTorrent Setup (Check out)' window appeared and 'Next' button was clicked.`n
-            }
+            if ErrorLevel
+                TestsFailed("Unable to hit 'Next' button in 'µTorrent Setup (Check out)' window.")
             else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Next' button in 'µTorrent Setup (Check out)' window. Active window caption: '%title%'.`n
-            }
+                TestsOK("'µTorrent Setup (Check out)' window appeared and 'Next' button was clicked.")
         }
-        else
-        {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to uncheck 'Yes, Id love to check out this free download' checkbox in 'µTorrent Setup (Check out)' window. Active window caption: '%title%'.`n
-        }
-    }
-    else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'µTorrent Setup (Check out)' window failed to appear. Active window caption: '%title%'.`n
     }
 }
 
@@ -290,98 +229,74 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, µTorrent Setup, &Install, 5
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'µTorrent Setup (Install)' window failed to appear.")
+    else
     {
         Sleep, 700
         Control, Uncheck,, Button1, µTorrent Setup, &Install ; Uncheck 'Set my homepage to µTorrent Web Search' checkbox
-        if not ErrorLevel
-        {
-            Control, Uncheck,, Button3, µTorrent Setup, &Install ; Uncheck 'Make µTorrent Web Search my default search provider' checkbox
-            if not ErrorLevel
-            {
-                Control, Uncheck,, Button2, µTorrent Setup, &Install ; Uncheck 'I accept...and want to install µTorrent Browser Bar' checkbox
-                if not ErrorLevel
-                {
-                    Sleep, 500
-                    ControlClick, Button20, µTorrent Setup, &Install ; Hit 'Install' button
-                    if not ErrorLevel
-                    {
-                        WinWaitClose, µTorrent Setup, &Install, 25
-                        if not ErrorLevel
-                        {
-                            TestsOK()
-                            OutputDebug, OK: %TestName%:%A_LineNumber%: 'µTorrent Setup (Install)' window appeared and 'Install' button was clicked.`n
-                            Process, Close, uTorrent.exe ; Setup wants to start the app, just terminate it
-                        }
-                        else
-                        {
-                            TestsFailed()
-                            WinGetTitle, title, A
-                            OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'µTorrent Setup (Install)' window failed to close. Active window caption: '%title%'.`n
-                        }
-                    }
-                    else
-                    {
-                        TestsFailed()
-                        WinGetTitle, title, A
-                        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'Install' button in 'µTorrent Setup (Install)' window. Active window caption: '%title%'.`n
-                    }
-                }
-                else
-                {
-                    TestsFailed()
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to uncheck 'I accept...and want to install µTorrent Browser Bar' checkbox in 'µTorrent Setup (Install)' window. Active window caption: '%title%'.`n
-                }
-            }
-            else
-            {
-                TestsFailed()
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to uncheck 'Make µTorrent Web Search my default search provider' checkbox in 'µTorrent Setup (Install)' window. Active window caption: '%title%'.`n
-            }
-        }
+        if ErrorLevel
+            TestsFailed("Unable to uncheck 'Set my homepage to µTorrent Web Search' checkbox in 'µTorrent Setup (Install)' window.")
         else
         {
-            TestsFailed()
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to uncheck 'Set my homepage to µTorrent Web Search' checkbox in 'µTorrent Setup (Install)' window. Active window caption: '%title%'.`n
+            Control, Uncheck,, Button3, µTorrent Setup, &Install ; Uncheck 'Make µTorrent Web Search my default search provider' checkbox
+            if ErrorLevel
+                TestsFailed("Unable to uncheck 'Make µTorrent Web Search my default search provider' checkbox in 'µTorrent Setup (Install)' window.")
+            else
+            {
+                Control, Uncheck,, Button2, µTorrent Setup, &Install ; Uncheck 'I accept...and want to install µTorrent Browser Bar' checkbox
+                if ErrorLevel
+                    TestsFailed("Unable to uncheck 'I accept...and want to install µTorrent Browser Bar' checkbox in 'µTorrent Setup (Install)' window.")
+                else
+                {
+                    Sleep, 700
+                    ControlClick, Button20, µTorrent Setup, &Install ; Hit 'Install' button
+                    if ErrorLevel
+                        TestsFailed("Unable to hit 'Install' button in 'µTorrent Setup (Install)' window.")
+                    else
+                    {
+                        WinWaitClose, µTorrent Setup, &Install, 10
+                        if ErrorLevel
+                            TestsFailed("'µTorrent Setup (Install)' window failed to close.")
+                        else
+                        {
+                            Process, wait, %MainAppFile%, 5
+                            NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                            if NewPID = 0
+                                TestsFailed("Process '" MainAppFile "' failed to appear.")
+                            else
+                            {
+                                Process, Close, %MainAppFile%
+                                Process, WaitClose, %MainAppFile%, 4
+                                if ErrorLevel
+                                    TestsFailed("Unable to terminate '" MainAppFile "' process.")
+                                else
+                                    TestsOK("'µTorrent Setup (Install)' window appeared, 'Install' button clicked, window closed, '" MainAppFile "' process terminated.")
+                            }
+                        }
+                    }
+                }
+            }
         }
-    }
-    else
-    {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'µTorrent Setup (Install)' window failed to appear. Active window caption: '%title%'.`n
     }
 }
 
 
-;Check if program exists in program files
+; Check if program exists
 TestsTotal++
 if bContinue
 {
     Sleep, 2000
-    RegRead, InstallLocation, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\uTorrent, InstallLocation
-    if not ErrorLevel
-    {
-        StringReplace, InstallLocation, InstallLocation, `",, All
-        InstallLocation = %InstallLocation%\uTorrent.exe
-        IfExist, %InstallLocation%
-        {
-            TestsOK()
-            OutputDebug, OK: %TestName%:%A_LineNumber%: The application has been installed, because '%InstallLocation%' was found.`n
-        }
-        else
-        {
-            TestsFailed()
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Something went wrong, can't find '%InstallLocation%'.`n
-        }
-    }
+    RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\uTorrent, UninstallString
+    if ErrorLevel
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
     else
     {
-        TestsFailed()
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Either we can't read from registry or data doesn't exist. Active window caption: '%title%'.`n
+        StringReplace, UninstallerPath, UninstallerPath, `",, All
+        SplitPath, UninstallerPath,, InstalledDir
+        IfNotExist, %InstalledDir%\%MainAppFile%
+            TestsFailed("Something went wrong, can't find '" InstalledDir "\" MainAppFile "'.")
+        else
+            TestsOK("The application has been installed, because '" InstalledDir "\" MainAppFile "' was found.")
     }
 }
