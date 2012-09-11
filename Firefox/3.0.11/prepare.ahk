@@ -19,72 +19,76 @@
 
 TestName = prepare
 
+; Test if the app is installed
+TestsTotal++
 RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Mozilla Firefox (3.0.11), UninstallString
 if ErrorLevel
-{
-    ModuleExe = %A_ProgramFiles%\Mozilla Firefox\firefox.exe
-    OutputDebug, %TestName%:%A_LineNumber%: Can NOT read data from registry. Key might not exist. Using hardcoded path.`n
-}
+    TestsFailed("Either registry key does not exist or we failed to read it.")
 else
 {
     SplitPath, UninstallerPath,, InstalledDir
     ModuleExe = %InstalledDir%\..\firefox.exe ; Go back one folder
+    TestsOK("")
 }
 
+
 TestsTotal++
-IfNotExist, %ModuleExe%
-    TestsFailed("Can NOT find '" ModuleExe "'.")
-else
+if bContinue
 {
-    SplitPath, ModuleExe, ProcessExe
-    Process, Close, %ProcessExe%
-    Process, WaitClose, %ProcessExe%, 5
-    if ErrorLevel ; The PID still exists.
-        TestsFailed("Unable to terminate '" ProcessExe "' process.")
+    IfNotExist, %ModuleExe%
+        TestsFailed("Can NOT find '" ModuleExe "'.")
     else
     {
-        Sleep, 2500 ; To make sure folders are not locked
-        FileRemoveDir, %A_AppData%\Mozilla, 1 ; Delete all saved settings
-        Sleep, 1500
-        IfExist, %A_AppData%\Mozilla
-            TestsFailed("Seems like we failed to delete '" A_AppData "\Mozilla'.")
+        SplitPath, ModuleExe, ProcessExe
+        Process, Close, %ProcessExe%
+        Process, WaitClose, %ProcessExe%, 5
+        if ErrorLevel ; The PID still exists.
+            TestsFailed("Unable to terminate '" ProcessExe "' process.")
         else
         {
-            FileCreateDir, %A_AppData%\Mozilla\Firefox\Profiles\ReactOS.default
-            if ErrorLevel
-                TestsFailed("Failed to create dir tree '" A_AppData "\Mozilla\Firefox\ReactOS.default'.")
+            Sleep, 2500 ; To make sure folders are not locked
+            FileRemoveDir, %A_AppData%\Mozilla, 1 ; Delete all saved settings
+            Sleep, 1500
+            IfExist, %A_AppData%\Mozilla
+                TestsFailed("Seems like we failed to delete '" A_AppData "\Mozilla'.")
             else
             {
-                FileAppend, [General]`nStartWithLastProfile=0`n`n[Profile0]`nName=default`nIsRelative=1`nPath=Profiles/ReactOS.default`n, %A_AppData%\Mozilla\Firefox\profiles.ini
+                FileCreateDir, %A_AppData%\Mozilla\Firefox\Profiles\ReactOS.default
                 if ErrorLevel
-                    TestsFailed("Failed to create and edit '" A_AppData "\Mozilla\Firefox\profiles.ini'.")
+                    TestsFailed("Failed to create dir tree '" A_AppData "\Mozilla\Firefox\ReactOS.default'.")
                 else
                 {
-                    szNoWarningOnClose := "user_pref(""browser.tabs.warnOnClose""`, false)`;" ; Now, new do not want any warnings when closing multiple tabs
-                    szNoFirstRun := "user_pref(""browser.startup.homepage_override.mstone""`, ""rv:1.9.0.11"")`;" ; Lets pretend we ran it once
-                    szRightsShown := "user_pref(""browser.rights.3.shown""`, true)`;" ; We know your rights, no need to ask
-                    szNoImprvHelp := "user_pref(""toolkit.telemetry.prompted""`, 2)`;`nuser_pref(""toolkit.telemetry.rejected""`, true)`;" ; We don't want to help to improve
-                    szDownloadDir := "user_pref(""browser.download.folderList""`, 0)`;" ; Desktop is our default download directory
-                    FileAppend, %szNoWarningOnClose%`n%szNoFirstRun%`n%szRightsShown%`n%szNoImprvHelp%`n`n%szDownloadDir%, %A_AppData%\Mozilla\Firefox\Profiles\ReactOS.default\prefs.js
+                    FileAppend, [General]`nStartWithLastProfile=0`n`n[Profile0]`nName=default`nIsRelative=1`nPath=Profiles/ReactOS.default`n, %A_AppData%\Mozilla\Firefox\profiles.ini
                     if ErrorLevel
-                        TestsFailed("Failed to create and edit '" A_AppData "\Mozilla\Firefox\Profiles\ReactOS.default\prefs.js'.")
+                        TestsFailed("Failed to create and edit '" A_AppData "\Mozilla\Firefox\profiles.ini'.")
                     else
                     {
-                        Run, %ModuleExe%,,Max ; Start maximized
-                        WinWaitActive, Mozilla Firefox Start Page - Mozilla Firefox,, 20
+                        szNoWarningOnClose := "user_pref(""browser.tabs.warnOnClose""`, false)`;" ; Now, new do not want any warnings when closing multiple tabs
+                        szNoFirstRun := "user_pref(""browser.startup.homepage_override.mstone""`, ""rv:1.9.0.11"")`;" ; Lets pretend we ran it once
+                        szRightsShown := "user_pref(""browser.rights.3.shown""`, true)`;" ; We know your rights, no need to ask
+                        szNoImprvHelp := "user_pref(""toolkit.telemetry.prompted""`, 2)`;`nuser_pref(""toolkit.telemetry.rejected""`, true)`;" ; We don't want to help to improve
+                        szDownloadDir := "user_pref(""browser.download.folderList""`, 0)`;" ; Desktop is our default download directory
+                        FileAppend, %szNoWarningOnClose%`n%szNoFirstRun%`n%szRightsShown%`n%szNoImprvHelp%`n`n%szDownloadDir%, %A_AppData%\Mozilla\Firefox\Profiles\ReactOS.default\prefs.js
                         if ErrorLevel
-                        {
-                            Process, Exist, %ProcessExe%
-                            NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
-                            if NewPID = 0
-                                TestsFailed("'Mozilla Firefox Start Page - Mozilla Firefox' window failed to appear. No '" ProcessExe "' process detected.")
-                            else
-                                TestsFailed("'Mozilla Firefox Start Page - Mozilla Firefox' window failed to appear. '" ProcessExe "' process detected.")
-                        }
+                            TestsFailed("Failed to create and edit '" A_AppData "\Mozilla\Firefox\Profiles\ReactOS.default\prefs.js'.")
                         else
                         {
-                            TestsOK("")
-                            Sleep, 700
+                            Run, %ModuleExe%,,Max ; Start maximized
+                            WinWaitActive, Mozilla Firefox Start Page - Mozilla Firefox,, 20
+                            if ErrorLevel
+                            {
+                                Process, Exist, %ProcessExe%
+                                NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                                if NewPID = 0
+                                    TestsFailed("'Mozilla Firefox Start Page - Mozilla Firefox' window failed to appear. No '" ProcessExe "' process detected.")
+                                else
+                                    TestsFailed("'Mozilla Firefox Start Page - Mozilla Firefox' window failed to appear. '" ProcessExe "' process detected.")
+                            }
+                            else
+                            {
+                                TestsOK("")
+                                Sleep, 700
+                            }
                         }
                     }
                 }
