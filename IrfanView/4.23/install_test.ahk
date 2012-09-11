@@ -147,7 +147,13 @@ if bContinue
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'IrfanView Setup (Welcome)' window.")
         else
-            TestsOK("'IrfanView Setup (Welcome)' window appeared and 'Next' button was clicked.")
+        {
+            WinWaitClose, IrfanView Setup, Welcome, 5
+            if ErrorLevel
+                TestsFailed("'IrfanView Setup (Welcome)' window failed to close despite 'Next' button being clicked.")
+            else
+                TestsOK("'IrfanView Setup (Welcome)' window appeared and 'Next' button was clicked.")
+        }
     }
 }
 
