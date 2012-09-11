@@ -17,28 +17,51 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-bContinue := false
-TestsTotal := 0
-TestsSkipped := 0
-TestsFailed := 0
-TestsOK := 0
-TestsExecuted := 0
 TestName = prepare
 
-Process, Close, vlc.exe
-
+; Test if the app is installed
+TestsTotal++
 RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\VLC media player, UninstallString
-if not ErrorLevel
-{
-    StringReplace, UninstallerPath, UninstallerPath, `",, All ; String contains quotes, replace em
-    SplitPath, UninstallerPath,, InstalledDir
-    ModuleExe = %InstalledDir%\vlc.exe
-}
+if ErrorLevel
+    TestsFailed("Either registry key does not exist or we failed to read it.")
 else
 {
-    ModuleExe = %A_ProgramFiles%\VideoLAN\VLC\vlc.exe
-    OutputDebug, %TestName%:%A_LineNumber%: Can NOT read data from registry. Key might not exist. Using hardcoded path.`n
+    SplitPath, UninstallerPath,, InstalledDir
+    ModuleExe = %InstalledDir%\vlc.exe
+    TestsOK("")
 }
+
+
+; Terminate application
+TestsTotal++
+if bContinue
+{
+    SplitPath, ModuleExe, ProcessExe
+    Process, Close, %ProcessExe%
+    Process, WaitClose, %ProcessExe%, 4
+    if ErrorLevel
+        TestsFailed("Unable to terminate '" ProcessExe "' process.")
+    else
+        TestsOK("")
+}
+
+
+; Delete settings separately from RunApplication() in case we want to write our own settings
+TestsTotal++
+if bContinue
+{
+    IfExist, %A_AppData%\vlc
+    {
+        FileRemoveDir, %A_AppData%\vlc, 1
+        if ErrorLevel
+            TestsFailed("Unable to delete '" A_AppData "\vlc'.")
+        else
+            TestsOK("")
+    }
+    else
+        TestsOK("")
+}
+
 
 ; Test if can start application
 RunApplication(PathToFile)
@@ -46,49 +69,57 @@ RunApplication(PathToFile)
     global ModuleExe
     global TestName
     global bContinue
-
-    Sleep, 500
-    FileRemoveDir, %A_AppData%\vlc, 1 ; Delete saved settings
-    IfExist, %ModuleExe%
+    global TestsTotal
+    
+    TestsTotal++
+    IfNotExist, %ModuleExe%
+        TestsFailed("Can NOT find '" ModuleExe "'.")
+    else
     {
         if PathToFile =
         {
             Run, %ModuleExe% ; Don't run it maximized
             Sleep, 1000
             WinWaitActive, VLC media player,,7
-            if not ErrorLevel
+            if ErrorLevel
             {
-                bContinue := true
-                Sleep, 1000
+                Process, Exist, %ProcessExe%
+                NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                if NewPID = 0
+                    TestsFailed("Window 'VLC media player' failed to appear. No '" ProcessExe "' process detected.")
+                else
+                    TestsFailed("Window 'VLC media player' failed to appear. '" ProcessExe "' process detected.")
             }
             else
             {
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'VLC media player' failed to appear. Active window caption: '%title%'`n
+                TestsOK("")
+                Sleep, 1000
             }
         }
         else
         {
-            IfExist, %PathToFile%
+            IfNotExist, %PathToFile%
+                TestsFailed("Can NOT find '" PathToFile "'.")
+            else
             {
                 Run, %ModuleExe% "%PathToFile%" ; Don't run it maximized
                 Sleep, 1000
                 WinWaitActive, VLC media player,,7 ; FIXME: is there a way to show filename in titlebar?
-                if not ErrorLevel
+                if ErrorLevel
                 {
-                    bContinue := true
-                    Sleep, 1000
+                    Process, Exist, %ProcessExe%
+                    NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                    if NewPID = 0
+                        TestsFailed("Window 'VLC media player' failed to appear when opening '" PathToFile "'. No '" ProcessExe "' process detected.")
+                    else
+                        TestsFailed("Window 'VLC media player' failed to appear when opening '" PathToFile "'. '" ProcessExe "' process detected.")
                 }
                 else
                 {
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'VLC media player' failed to appear when opening '%PathToFile%'. Active window caption: '%title%'`n
+                    TestsOK("")
+                    Sleep, 1000
                 }
             }
-            else
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%PathToFile%'.`n
         }
     }
-    else
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%ModuleExe%'.`n
 }

@@ -18,81 +18,96 @@
  */
 
 ModuleExe = %A_WorkingDir%\Apps\VLC 0.8.6i Setup.exe
-bContinue := false
 TestName = 1.install
-
-TestsFailed := 0
-TestsOK := 0
-TestsTotal := 0
+MainAppFile = vlc.exe ; Mostly this is going to be process we need to look for
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
-IfExist, %ModuleExe%
-{
-    ; Get rid of other versions
-    RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\VLC media player, UninstallString
-    if not ErrorLevel
-    {
-        Process, Close, vlc.exe ; Teminate process
-        Sleep, 1500
-        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\VideoLAN
-        StringReplace, UninstallerPath, UninstallerPath, `",, All
-        SplitPath, UninstallerPath,, InstallLocation
-        RunWait, %UninstallerPath% /S ; Silently uninstall it
-        Sleep, 2500
-        ; Delete everything just in case
-        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\VLC media player
-        FileRemoveDir, %InstallLocation%, 1
-        Sleep, 1000
-        IfExist, %InstallLocation%
-        {
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to delete '%InstallLocation%'.`n
-            bContinue := false
-        }
-        else
-        {
-            bContinue := true
-        }
-    }
-    else
-    {
-        ; There was a problem (such as a nonexistent key or value). 
-        ; That probably means we have not installed this app before.
-        ; Check in default directory to be extra sure
-        IfExist, %A_ProgramFiles%\VideoLAN\VLC\uninstall.exe
-        {
-            Process, Close, vlc.exe ; Teminate process
-            Sleep, 1500
-            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\VideoLAN
-            RunWait, %A_ProgramFiles%\VideoLAN\VLC\uninstall.exe /S ; Silently uninstall it
-            Sleep, 2500
-            FileRemoveDir, %A_ProgramFiles%\VideoLAN, 1
-            Sleep, 1000
-            IfExist, %A_ProgramFiles%\VideoLAN
-            {
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Previous version detected and failed to delete '%A_ProgramFiles%\VideoLAN'.`n
-                bContinue := false
-            }
-            else
-            {
-                bContinue := true
-            }
-        }
-        else
-        {
-            ; No previous versions detected.
-            bContinue := true
-        }
-    }
-    if bContinue
-    {
-        FileRemoveDir, %A_AppData%\vlc, 1
-        Run %ModuleExe%
-    }
-}
+TestsTotal++
+IfNotExist, %ModuleExe%
+    TestsFailed("'" ModuleExe "' not found.")
 else
 {
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%ModuleExe%' not found.`n
-    bContinue := false
+    Process, Close, %MainAppFile% ; Teminate process
+    Process, WaitClose, %MainAppFile%, 4
+    if ErrorLevel ; The PID still exists.
+        TestsFailed("Unable to terminate '" MainAppFile "' process.") ; So, process still exists
+    else
+    {
+        RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\VLC media player, UninstallString
+        if ErrorLevel
+        {
+            ; There was a problem (such as a nonexistent key or value). 
+            ; That probably means we have not installed this app before.
+            ; Check in default directory to be extra sure
+            IfNotExist, %A_ProgramFiles%\VideoLAN
+                bContinue := true ; No previous versions detected in hardcoded path
+            else
+            {
+                bHardcoded := true ; To know if we got path from registry or not
+                IfExist, %A_ProgramFiles%\VideoLAN\VLC\uninstall.exe
+                {
+                    RunWait, %A_ProgramFiles%\VideoLAN\VLC\uninstall.exe /S ; Silently uninstall it
+                    Sleep, 7000
+                }
+
+                IfNotExist, %A_ProgramFiles%\VideoLAN ; Uninstaller might delete the dir
+                    bContinue := true
+                {
+                    FileRemoveDir, %A_ProgramFiles%\VideoLAN, 1
+                    if ErrorLevel
+                        TestsFailed("Unable to delete hardcoded path '" A_ProgramFiles "\VideoLAN' ('" MainAppFile "' process is reported as terminated).'")
+                    else
+                        bContinue := true
+                }
+            }
+        }
+        else
+        {
+            SplitPath, UninstallerPath,, InstalledDir
+            IfNotExist, %InstalledDir%
+                bContinue := true
+            else
+            {
+                IfExist, %UninstallerPath%
+                {
+                    RunWait, %UninstallerPath% /S ; Silently uninstall it
+                    Sleep, 7000
+                }
+
+                IfNotExist, %InstalledDir%
+                    bContinue := true
+                else
+                {
+                    FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
+                    if ErrorLevel
+                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                    else
+                        bContinue := true
+                }
+            }
+        }
+    }
+
+    if bContinue
+    {
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\VideoLAN
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\VLC media player
+        IfExist, %A_AppData%\vlc
+        {
+            FileRemoveDir, %A_AppData%\vlc, 1
+            if ErrorLevel
+                TestsFailed("Unable to delete '" A_AppData "\vlc'.")
+        }
+
+        if bContinue
+        {
+            if bHardcoded
+                TestsOK("Either there was no previous versions or we succeeded removing it using hardcoded path.")
+            else
+                TestsOK("Either there was no previous versions or we succeeded removing it using data from registry.")
+            Run %ModuleExe%
+        }
+    }
 }
 
 
@@ -101,17 +116,17 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Installer Language, Please select, 15
-    if not ErrorLevel
-    {
-        Sleep, 250
-        ControlClick, Button1, Installer Language, Please select
-        if not ErrorLevel
-            TestsOK("'Installer Language (Please select)' window appeared and 'OK' was clicked.")
-        else
-            TestsFailed("Unable to hit 'OK' in 'Installer Language (Please select)' window.")
-    }
-    else
+    if ErrorLevel
         TestsFailed("'Installer Language (Please select)' window failed to appear.")
+    else
+    {
+        Sleep, 700
+        ControlClick, Button1, Installer Language, Please select
+        if ErrorLevel
+            TestsFailed("Unable to hit 'OK' in 'Installer Language (Please select)' window.")
+        else
+            TestsOK("'Installer Language (Please select)' window appeared and 'OK' was clicked.")
+    }
 }
 
 
@@ -120,17 +135,17 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, VideoLAN VLC media player 0.8.6i Setup, Welcome, 7
-    if not ErrorLevel
-    {
-        Sleep, 250
-        ControlClick, Button2, VideoLAN VLC media player 0.8.6i Setup, Welcome ; Hit 'Next' button
-        if not ErrorLevel
-            TestsOK("'VideoLAN VLC media player 0.8.6i Setup (Welcome)' window appeared and 'Next' was clicked.")
-        else
-            TestsFailed("Unable to hit 'Next' button in 'VideoLAN VLC media player 0.8.6i Setup (Welcome)' window.")
-    }
-    else
+    if ErrorLevel
         TestsFailed("'VideoLAN VLC media player 0.8.6i Setup (Welcome)' window failed to appear.")
+    else
+    {
+        Sleep, 700
+        ControlClick, Button2, VideoLAN VLC media player 0.8.6i Setup, Welcome ; Hit 'Next' button
+        if ErrorLevel
+            TestsFailed("Unable to hit 'Next' button in 'VideoLAN VLC media player 0.8.6i Setup (Welcome)' window.")
+        else
+            TestsOK("'VideoLAN VLC media player 0.8.6i Setup (Welcome)' window appeared and 'Next' was clicked.")
+    }
 }
 
 
@@ -139,17 +154,17 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, VideoLAN VLC media player 0.8.6i Setup, License Agreement, 7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'VideoLAN VLC media player 0.8.6i Setup (License Agreement)' window failed to appear.")
+    else
     {
         Sleep, 500
         ControlClick, Button2, VideoLAN VLC media player 0.8.6i Setup, License Agreement ; Hit 'I Agree' button
-        if not ErrorLevel
-            TestsOK("'VideoLAN VLC media player 0.8.6i Setup (License Agreement)' window appeared and 'I Agree' button was clicked.")
-        else
+        if ErrorLevel
             TestsFailed("Unable to hit 'I Agree' button in 'VideoLAN VLC media player 0.8.6i Setup (License Agreement)' window.")
+        else
+            TestsOK("'VideoLAN VLC media player 0.8.6i Setup (License Agreement)' window appeared and 'I Agree' button was clicked.")
     }
-    else
-        TestsFailed("'VideoLAN VLC media player 0.8.6i Setup (License Agreement)' window failed to appear.")
 }
 
 
@@ -158,17 +173,17 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, VideoLAN VLC media player 0.8.6i Setup, Choose Components, 7
-    if not ErrorLevel
-    {
-        Sleep, 250
-        ControlClick, Button2, VideoLAN VLC media player 0.8.6i Setup, Choose Components ; Hit 'Next' button
-        if not ErrorLevel
-            TestsOK("'VideoLAN VLC media player 0.8.6i Setup (Choose Components)' window appeared and 'Next' was clicked.")
-        else
-            TestsFailed("Unable to hit 'Next' button in 'VideoLAN VLC media player 0.8.6i Setup (Choose Components)' window.")
-    }
-    else
+    if ErrorLevel
         TestsFailed("'VideoLAN VLC media player 0.8.6i Setup (Choose Components)' window failed to appear.")
+    else
+    {
+        Sleep, 700
+        ControlClick, Button2, VideoLAN VLC media player 0.8.6i Setup, Choose Components ; Hit 'Next' button
+        if ErrorLevel
+            TestsFailed("Unable to hit 'Next' button in 'VideoLAN VLC media player 0.8.6i Setup (Choose Components)' window.")
+        else
+            TestsOK("'VideoLAN VLC media player 0.8.6i Setup (Choose Components)' window appeared and 'Next' was clicked.")
+    }
 }
 
 
@@ -177,17 +192,17 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, VideoLAN VLC media player 0.8.6i Setup, Choose Install Location, 7
-    if not ErrorLevel
-    {
-        Sleep, 250
-        ControlClick, Button2, VideoLAN VLC media player 0.8.6i Setup, Choose Install Location ; Hit 'Install' button
-        if not ErrorLevel
-            TestsOK("'VideoLAN VLC media player 0.8.6i Setup (Choose Install Location)' window appeared and 'Install' was clicked.")
-        else
-            TestsFailed("Unable to hit 'Install' button in 'VideoLAN VLC media player 0.8.6i Setup (Choose Install Location)' window.")
-    }
-    else
+    if ErrorLevel
         TestsFailed("'VideoLAN VLC media player 0.8.6i Setup (Choose Install Location)' window failed to appear.")
+    else
+    {
+        Sleep, 700
+        ControlClick, Button2, VideoLAN VLC media player 0.8.6i Setup, Choose Install Location ; Hit 'Install' button
+        if ErrorLevel
+            TestsFailed("Unable to hit 'Install' button in 'VideoLAN VLC media player 0.8.6i Setup (Choose Install Location)' window.")
+        else
+            TestsOK("'VideoLAN VLC media player 0.8.6i Setup (Choose Install Location)' window appeared and 'Install' was clicked.")
+    }
 }
 
 
@@ -196,17 +211,17 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, VideoLAN VLC media player 0.8.6i Setup, Installing, 7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("'VideoLAN VLC media player 0.8.6i Setup (Installing)' window failed to appear.")
+    else
     {
         OutputDebug, OK: %TestName%:%A_LineNumber%: 'VideoLAN VLC media player 0.8.6i Setup (Installing)' window appeared, waiting for it to close.`n
         WinWaitClose, VideoLAN VLC media player 0.8.6i Setup, Installing, 60
-        if not ErrorLevel
-            TestsOK("'VideoLAN VLC media player 0.8.6i Setup (Installing)' window went away.")
-        else
+        if ErrorLevel
             TestsFailed("'VideoLAN VLC media player 0.8.6i Setup (Installing)' window failed to close.")
+        else
+            TestsOK("'VideoLAN VLC media player 0.8.6i Setup (Installing)' window went away.")
     }
-    else
-        TestsFailed("'VideoLAN VLC media player 0.8.6i Setup (Installing)' window failed to appear.")
 }
 
 
@@ -215,50 +230,55 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, VideoLAN VLC media player 0.8.6i Setup, Completing, 7
-    if not ErrorLevel
-    {
-        Sleep, 250
-        Control, Uncheck,,Button4, VideoLAN VLC media player 0.8.6i Setup
-        if not ErrorLevel
-        {
-            ControlClick, Button2, VideoLAN VLC media player 0.8.6i Setup, Completing ; Hit 'Finish' button
-            if not ErrorLevel
-            {
-                Process, wait, vlc.exe, 5.5
-                NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
-                if NewPID = 0
-                    TestsOK("'VideoLAN VLC media player 0.8.6i Setup (Completing)' window appeared, 'Run VLC' were unchecked for sure and 'Finish' was clicked.")
-                else
-                {
-                    TestsFailed("Checkbox 'Run VLC' reported as checked in 'VideoLAN VLC media player 0.8.6i Setup (Completing)' window but 'vlc.ex' process still appeared.")
-                    Process, Close, vlc.exe
-                }
-            }
-            else
-                TestsFailed("Unable to hit 'Finish' button in 'VideoLAN VLC media player 0.8.6i Setup (Completing)' window.")
-        }
-        else
-            TestsFailed("Unable to uncheck 'Run VLC' checkbox in 'VideoLAN VLC media player 0.8.6i Setup (Completing)' window.")
-    }
-    else
+    if ErrorLevel
         TestsFailed("'VideoLAN VLC media player 0.8.6i Setup (Completing)' window failed to appear.")
+    else
+    {
+        Sleep, 700
+        Control, Uncheck,,Button4, VideoLAN VLC media player 0.8.6i Setup
+        if ErrorLevel
+            TestsFailed("Unable to uncheck 'Run VLC' checkbox in 'VideoLAN VLC media player 0.8.6i Setup (Completing)' window.")
+        else
+        {
+            Sleep, 700
+            ControlClick, Button2, VideoLAN VLC media player 0.8.6i Setup, Completing ; Hit 'Finish' button
+            if ErrorLevel
+                TestsFailed("Unable to hit 'Finish' button in 'VideoLAN VLC media player 0.8.6i Setup (Completing)' window.")
+            else
+            {
+                Process, wait, %MainAppFile%, 5
+                NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                if NewPID <> 0
+                {
+                    Process, Close, %MainAppFile%
+                    Process, WaitClose, %MainAppFile%, 4
+                    if ErrorLevel
+                        TestsFailed("Checkbox 'Run VLC' reported as unchecked in 'VideoLAN VLC media player 0.8.6i Setup (Completing)' window but '" MainAppFile "' process still appeared and we were unable to kill it.")
+                    else
+                        TestsFailed("Checkbox 'Run VLC' reported as unchecked in 'VideoLAN VLC media player 0.8.6i Setup (Completing)' window but '" MainAppFile "' process still appeared.")
+                }
+                else
+                    TestsOK("'VideoLAN VLC media player 0.8.6i Setup (Completing)' window appeared, 'Run VLC' were unchecked for sure and 'Finish' was clicked.")
+            }
+        }
+    }
 }
 
 
-; Check if program exists in program files
+; Check if program exists
 TestsTotal++
 if bContinue
 {
     Sleep, 2000
-    RegRead, UninstallString, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\VLC media player, UninstallString
-    if not ErrorLevel
-    {
-        StringReplace, UninstallString, UninstallString, `",, All
-        IfExist, %UninstallString%
-            TestsOK("The application has been installed, because '" UninstallString "' was found.")
-        else
-            TestsFailed("Something went wrong, can't find '" UninstallString "'.")
-    }
-    else
+    RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\VLC media player, UninstallString
+    if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")
+    else
+    {
+        SplitPath, UninstallerPath,, InstalledDir
+        IfNotExist, %InstalledDir%\%MainAppFile%
+            TestsFailed("Something went wrong, can't find '" InstalledDir "\" MainAppFile "'.")
+        else
+            TestsOK("The application has been installed, because '" InstalledDir "\" MainAppFile "' was found.")
+    }
 }
