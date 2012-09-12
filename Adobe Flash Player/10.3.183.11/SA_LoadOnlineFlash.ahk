@@ -43,7 +43,7 @@ else
             {
                 ControlSetText, Edit1, %szDocument%, Open, Enter the ; Enter path in 'Open' dialog
                 if ErrorLevel
-                    TestsFailed("Unable to enter path '%szDocument%' in 'Open (Enter the)' window.")
+                    TestsFailed("Unable to enter path '" szDocument "' in 'Open (Enter the)' window.")
                 else
                 {
                     Sleep, 700
