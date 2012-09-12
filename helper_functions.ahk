@@ -244,7 +244,7 @@ WindowCleanup(ProcessName)
         DllCall("CloseHandle", "UInt", h)  ; close process handle to save memory
         if (n && e)  ; if image is not null add to list:
         {
-            ; if (InStr(, %ExpectedSize%))
+            ; Check if we have '.tmp' in process name
             sztmp = .tmp
             IfInString, n, %sztmp%
             {
@@ -252,7 +252,6 @@ WindowCleanup(ProcessName)
                 if ErrorLevel != 0
                 {
                     Process, close, %n%
-                    Run taskkill.exe /F /IM %n%,, Hide
                     Process, WaitClose, %n%, 5
                     if ErrorLevel
                         OutputDebug, Helper Functions: Unable to terminate '%n%' process.`n
@@ -288,7 +287,6 @@ WindowCleanup(ProcessName)
         Process, WaitClose, msiexec.exe, 5
         if ErrorLevel
         {
-            Run taskkill.exe /F /IM msiexec.exe,, Hide
             Process, WaitClose, msiexec.exe, 5
             if ErrorLevel
                 OutputDebug, Helper Functions: Unable to terminate 'msiexec.exe' process.`n
