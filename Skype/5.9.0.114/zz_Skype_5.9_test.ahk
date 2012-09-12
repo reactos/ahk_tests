@@ -18,44 +18,22 @@
  */
 
 #Include ..\..\helper_functions.ahk
+InitalizeCounters()
 
-
-if 1 = --list
-{
 params =
 (
 
     1.install
 
 )
-FileAppend, %params%, *
-}
-else if 1 = 1.install
-{
-    #include install_test.ahk
-}
-else
-{
-    OutputDebug, Bad parameters: '%1%'!`r`n
-}
 
-if 1 != --list
+if CheckParam()
 {
-    if not bContinue
+    ; Those brackets are required!
+    if 1 = 1.install
     {
-        SplitPath, SetupExe, fName ; Extract filename from given path
-        WindowCleanUp(fName)
-        SplitPath, ModuleExe, fName
-        WindowCleanUp(fName)  
+        #include install_test.ahk
     }
-
-    ; Delete saved settings
-    Sleep, 1500
-    FileRemoveDir, %A_AppData%\Skype, 1
-
-    TestsSkipped := TestsTotal - TestsOK - TestsFailed
-    TestsExecuted := TestsOK + TestsFailed
-    if (TestsSkipped < 0 or TestsExecuted < 0)
-        OutputDebug, %TestName%: Check TestsTotal, TestsOK and TestsFailed, because results returns less than 0.`n
-    OutputDebug, %TestName%: %TestsExecuted% tests executed (0 marked as todo, %TestsFailed% failures), %TestsSkipped% skipped.`n
 }
+
+ShowTestResults()

@@ -17,123 +17,217 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#Include ..\..\helper_functions.ahk
+ModuleExe = %A_WorkingDir%\Apps\Skype 5.9.0.114 Setup.exe ; Not fully offline installer, is it?
+TestName = 1.install
+MainAppFile = Skype.exe ; Mostly this is going to be process we need to look for
 
-Module = Skype5.9.0.114:%1%
-bContinue := false
-
-SetupExe = %A_WorkingDir%\Apps\Skype_5.9_Setup.exe    
-
-TestsFailed := 0
-TestsOK := 0
-TestsTotal := 0
-
-; Delete previous versions of Skype if any or "Updating Skype" window 
-; will appear instead of "Installing Skype" and we don't want that
-Process, Close, Skype.exe
-FileRemoveDir, %A_ProgramFiles%\Skype, 1
-FileRemoveDir, %A_AppData%\Skype, 1
-RegDelete, HKEY_CLASSES_ROOT, Installer\Products\2A7527EE2A93F2D4D9CA9F2FB5A81E8D
-RegDelete, HKEY_CLASSES_ROOT, Installer\Products\7692FC6BE18C0C0489510C7547EF1F02
-Sleep, 2500
-
-; Test if Setup file exists
+; Test if Setup file exists, if so, delete installed files, and run Setup
 TestsTotal++
-IfExist, %SetupExe%
-{
-    TestsOK++
-    Run %SetupExe%
-    bContinue := true
-}
+IfNotExist, %ModuleExe%
+    TestsFailed("'" ModuleExe "' not found.")
 else
 {
-    TestsFailed++
-    OutputDebug, FAILED: %Module%:%A_LineNumber%: '%SetupExe%' not found.`n
-    bContinue := false
+    Process, Close, %MainAppFile% ; Teminate process
+    Process, WaitClose, %MainAppFile%, 4
+    if ErrorLevel ; The PID still exists.
+        TestsFailed("Unable to terminate '" MainAppFile "' process.") ; So, process still exists
+    else
+    {
+        RegRead, InstallLocation, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{EE7257A2-39A2-4D2F-9DAC-F9F25B8AE1D8}, InstallLocation
+        if ErrorLevel
+        {
+            ; There was a problem (such as a nonexistent key or value). 
+            ; That probably means we have not installed this app before.
+            ; Check in default directory to be extra sure
+            bHardcoded := true ; To know if we got path from registry or not
+            IfNotExist, %A_ProgramFiles%\Skype
+                bContinue := true ; No previous versions detected in hardcoded path
+            else
+            {
+                IfExist, %A_ProgramFiles%\Skype
+                {
+                    RunWait, MsiExec.exe /qn /norestart /x {AC76BA86-7AD7-1033-7B44-A71000000002} ; Silently uninstall it
+                    Sleep, 7000
+                }
+
+                IfNotExist, %A_ProgramFiles%\Skype ; Uninstaller might delete the dir
+                    bContinue := true
+                {
+                    FileRemoveDir, %A_ProgramFiles%\Skype, 1
+                    if ErrorLevel
+                        TestsFailed("Unable to delete existing '" A_ProgramFiles "\Adobe\Acrobat 7.0' ('" MainAppFile "' process is reported as terminated).'")
+                    else
+                        bContinue := true
+                }
+            }
+        }
+        else
+        {
+            IfNotExist, %InstallLocation%
+                bContinue := true
+            else
+            {
+                IfExist, %InstallLocation%
+                {
+                    RunWait, MsiExec.exe /qn /norestart /x {EE7257A2-39A2-4D2F-9DAC-F9F25B8AE1D8} ; Silently uninstall it
+                    Sleep, 7000
+                }
+
+                IfNotExist, %InstallLocation%
+                    bContinue := true
+                else
+                {
+                    FileRemoveDir, %InstallLocation%, 1 ; Delete just in case
+                    if ErrorLevel
+                        TestsFailed("Unable to delete existing '" InstallLocation "' ('" MainAppFile "' process is reported as terminated).")
+                    else
+                        bContinue := true
+                }
+            }
+        }
+    }
+
+    if bContinue
+    {
+        RegDelete, HKEY_LOCAL_MACHINE, SYSTEM\ControlSet001\Control\Session Manager, PendingFileRenameOperations ; Delete or 'A previous program installation' window will pop-up
+        RegDelete, HKEY_CLASSES_ROOT, Installer\Products\7692FC6BE18C0C0489510C7547EF1F02
+        RegDelete, HKEY_CLASSES_ROOT, Installer\Products\2A7527EE2A93F2D4D9CA9F2FB5A81E8D ; Delete this or 'Updating Skype' window will show up
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Skype
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\{EE7257A2-39A2-4D2F-9DAC-F9F25B8AE1D8}
+        IfExist, %A_AppData%\Skype
+        {
+            FileRemoveDir, %A_AppData%\Skype, 1
+            if ErrorLevel
+                TestsFailed("Unable to delete '" A_AppData "\Skype'.")
+        }
+
+        if bContinue
+        {
+            if bHardcoded
+                TestsOK("Either there was no previous versions or we succeeded removing it using hardcoded path.")
+            else
+                TestsOK("Either there was no previous versions or we succeeded removing it using data from registry.")
+            Run %ModuleExe%
+        }
+    }
 }
 
-; Test if 'Installing Skype' window with 'I agree - next' button can appear
+
+; Test if 'Installing Skype (More Options)' window appeared
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Installing Skype, &I agree - next, 20
-    if not ErrorLevel ;Window is found and it is active
+    WinWaitActive, Installing Skype, More Options, 25
+    if ErrorLevel
     {
-        TestsOK++
-        OutputDebug, OK: %Module%:%A_LineNumber%: 'Installing Skype' window with 'I agree - next' button appeared.`n
-
-        Sleep, 1500 ; Sometimes windows flashes 
-        SendInput, {ENTER} ; Click 'I agree - next' button
-        bContinue := true
+        IfWinActive, Updating Skype
+            TestsFailed("We probably failed to delete 'HKCR\Installer\Products\2A7527EE2A93F2D4D9CA9F2FB5A81E8D'.")
+        else
+            TestsFailed("'Installing Skype (More Options)' window failed to appear.")
     }
     else
     {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: 'Installing Skype' window with 'I agree - next' button failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
+        Sleep, 700
+        ControlClick, TButton1, Installing Skype, More Options ; Hit 'I agree - next' button
+        if ErrorLevel
+            TestsFailed("Unable to hit 'I agree - next' button in 'Installing Skype (More Options)' window.")
+        else ; Do not use WinWaitClose here, because it fails on win2k3 sp2
+            TestsOK("'Installing Skype (More Options)' window appeared and 'I agree - next' button was clicked.")
     }
 }
 
 
-; Test if 'Install Skype Click to Call' window can appear
+; Test if 'Installing Skype (Install Skype Click to Call)' window appeared
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Installing Skype, Install Skype Click to Call, 15
-    if not ErrorLevel
-    {
-        TestsOK++
-        OutputDebug, OK: %Module%:%A_LineNumber%: 'Skype Click to Call' window appeared.`n
-
-        Sleep, 1500
-        SendInput, {ENTER} ; Hit 'Continue' button
-        bContinue := true
-    }
+    WinWaitActive, Installing Skype, Install Skype Click to Call, 5
+    if ErrorLevel
+        TestsFailed("'Installing Skype (Install Skype Click to Call)' window failed to appear.")
     else
     {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: 'Skype Click to Call' window with 'Continue' button failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
+        Sleep, 700
+        Control, Uncheck,, TCheckBox1, Installing Skype, Install Skype Click to Call ; Uncheck 'Install Skype Click to Call' checkbox
+        if ErrorLevel
+            TestsFailed("Unable to uncheck 'Install Skype Click to Call' checkobx in 'Installing Skype (Install Skype Click to Call)' window.")
+        else
+        {
+            Sleep, 700
+            ControlClick, TButton1, Installing Skype, Install Skype Click to Call ; Hit 'Continue' button
+            if ErrorLevel
+                TestsFailed("Unable to hit 'Continue' button in 'Installing Skype (Install Skype Click to Call)' window.")
+            else
+                TestsOK("'Installing Skype (Install Skype Click to Call)' window appeared, checkbox 'Install Skype Click to Call' unchecked and 'Continue' button was clicked.")
+        }
     }
 }
 
-; Test if 'Skype' window with 'Sign me in' button can appear
+
+; Test if 'Installing Skype (Install the Bing Bar)' window appeared
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Skype, Close, 180 ; Installing process takes some time
-    if not ErrorLevel
-    {
-        TestsOK++
-        OutputDebug, OK: %Module%:%A_LineNumber%: 'Skype' window with 'Sign me in' button appeared.`n
-
-        Process, close, Skype.exe ; Terminate Skype application
-        bContinue := true
-    }
+    WinWaitActive, Installing Skype, Install the Bing Bar, 5
+    if ErrorLevel
+        TestsFailed("'Installing Skype (Install the Bing Bar)' window failed to appear.")
     else
     {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: 'Skype' window with 'Sign me in' button failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
+        Sleep, 700
+        Control, Uncheck,, TCheckBox2, Installing Skype, Install the Bing Bar ; Uncheck 'Install the Bing Bar' checkbox
+        if ErrorLevel
+            TestsFailed("Unable to uncheck 'Install the Bing Bar' checkobx in 'Installing Skype (Install the Bing Bar)' window.")
+        else
+        {
+            Sleep, 700
+            ControlClick, TButton1, Installing Skype, Install the Bing Bar ; Hit 'Continue' button
+            if ErrorLevel
+                TestsFailed("Unable to hit 'Continue' button in 'Installing Skype (Install the Bing Bar)' window.")
+            else
+                TestsOK("'Installing Skype (Install the Bing Bar)' window appeared, checkbox 'Install the Bing Bar' unchecked and 'Continue' button clicked.")
+        }
     }
 }
 
-; Test if application is installed
+
+; Test if 'Installing Skype' window can close
 TestsTotal++
 if bContinue
 {
-    Sleep, 2500
-    IfExist, %A_ProgramFiles%\Skype\Phone\Skype.exe
-    {
-        TestsOK++
-        OutputDebug, OK: %Module%:%A_LineNumber%: Should be installed, because '%A_ProgramFiles%\Skype\Phone\Skype.exe' was found.`n
-    }
+    WinWaitClose, Installing Skype,,120
+    if ErrorLevel
+        TestsFailed("'Installing Skype' window failed to close.")
     else
     {
-        TestsFailed++
-        OutputDebug, FAILED: %Module%:%A_LineNumber%: Can NOT find '%A_ProgramFiles%\Skype\Phone\Skype.exe'.`n
+        Process, wait, %MainAppFile%, 7
+        NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+        if NewPID = 0
+            TestsFailed("'Installing Skype' window closed, but '" MainAppFile "' process failed to appear.")
+        else
+        {
+            Process, Close, %MainAppFile%
+            Process, WaitClose, %MainAppFile%, 5
+            if ErrorLevel ; The PID still exists
+                TestsFailed("Unable to terminate '" MainAppFile "' process.")
+            else
+                TestsOK("'Installing Skype' window closed, '" MainAppFile "' process appeared and we terminated it.")
+        }
+    }
+}
+
+
+; Check if program exists
+TestsTotal++
+if bContinue
+{
+    Sleep, 2000
+    RegRead, InstallLocation, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{EE7257A2-39A2-4D2F-9DAC-F9F25B8AE1D8}, InstallLocation
+    if ErrorLevel
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
+    else
+    {
+        IfNotExist, %InstallLocation%Phone\%MainAppFile% ; Registry string contains trailing backslash
+            TestsFailed("Something went wrong, can't find '" InstallLocation "Phone\" MainAppFile "'.")
+        else
+            TestsOK("The application has been installed, because '" InstallLocation "Phone\" MainAppFile "' was found.")
     }
 }
