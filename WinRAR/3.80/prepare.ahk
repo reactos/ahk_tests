@@ -17,28 +17,51 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-bContinue := false
-TestsTotal := 0
-TestsSkipped := 0
-TestsFailed := 0
-TestsOK := 0
-TestsExecuted := 0
 TestName = prepare
 
-Process, Close, WinRAR.exe
-Sleep, 1500
-
+; Test if the app is installed
+TestsTotal++
 RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinRAR archiver, UninstallString
-if not ErrorLevel
-{
-    StringReplace, UninstallerPath, UninstallerPath, `",, All ; String contains quotes, replace em
-    SplitPath, UninstallerPath,, InstalledDir
-    ModuleExe = %InstalledDir%\WinRAR.exe
-}
+if ErrorLevel
+    TestsFailed("Either registry key does not exist or we failed to read it.")
 else
 {
-    ModuleExe = %A_ProgramFiles%\WinRAR\WinRAR.exe
-    OutputDebug, %TestName%:%A_LineNumber%: Can NOT read data from registry. Key might not exist. Using hardcoded path.`n
+    SplitPath, UninstallerPath,, InstalledDir
+    ModuleExe = %InstalledDir%\WinRAR.exe
+    TestsOK("")
+}
+
+
+; Terminate application
+TestsTotal++
+if bContinue
+{
+    SplitPath, ModuleExe, ProcessExe
+    Process, Close, %ProcessExe%
+    Process, WaitClose, %ProcessExe%, 4
+    if ErrorLevel
+        TestsFailed("Unable to terminate '" ProcessExe "' process.")
+    else
+        TestsOK("")
+}
+
+
+; Delete settings separately from RunApplication() in case we want to write our own settings
+TestsTotal++
+if bContinue
+{
+    RegDelete, HKEY_CURRENT_USER, SOFTWARE\WinRAR
+    RegDelete, HKEY_CURRENT_USER, SOFTWARE\WinRAR SFX
+    IfExist, %A_AppData%\WinRAR
+    {
+        FileRemoveDir, %A_AppData%\WinRAR, 1
+        if ErrorLevel
+            TestsFailed("Unable to delete '" A_AppData "\WinRAR'.")
+        else
+            TestsOK("")
+    }
+    else
+        TestsOK("")
 }
 
 
@@ -48,78 +71,80 @@ RunApplication(PathToFile)
     global ModuleExe
     global TestName
     global bContinue
+    global TestsTotal
+    global ProcessExe
 
-    Sleep, 500
-    RegDelete, HKEY_CURRENT_USER, SOFTWARE\WinRAR
-    Sleep, 500
-    
-    IfExist, %ModuleExe%
+    TestsTotal++
+    IfNotExist, %ModuleExe%
+        TestsFailed("Can NOT find '" ModuleExe "'.")
+    else
     {
         if PathToFile =
         {
             Run, %ModuleExe%,, Max ; Start maximized
-            WinRARIntegration()
+            ; WinRARIntegration()
             WinWaitActive, WinRAR - WinRAR (evaluation copy),,7
-            if not ErrorLevel
+            if ErrorLevel
             {
-                bContinue := true
-                Sleep, 1000
+                Process, Exist, %ProcessExe%
+                NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                if NewPID = 0
+                    TestsFailed("Window 'WinRAR - WinRAR (evaluation copy)' failed to appear. No '" ProcessExe "' process detected.")
+                else
+                    TestsFailed("Window 'WinRAR - WinRAR (evaluation copy)' failed to appear. '" ProcessExe "' process detected.")
             }
             else
             {
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'WinRAR - WinRAR (evaluation copy)' failed to appear. Active window caption: '%title%'`n
+                TestsOK("")
+                Sleep, 1000
             }
         }
         else
         {
-            IfExist, %PathToFile%
+            IfNotExist, %PathToFile%
+                TestsFailed("Can NOT find '" PathToFile "'.")
+            else
             {
                 Run, %ModuleExe% "%PathToFile%",, Max
-                WinRARIntegration()
+                ; WinRARIntegration()
                 SplitPath, PathToFile, NameExt
                 WinWaitActive, %NameExt% - WinRAR (evaluation copy),,7
-                if not ErrorLevel
+                if ErrorLevel
                 {
-                    bContinue := true
-                    Sleep, 1000
+                    Process, Exist, %ProcessExe%
+                    NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                    if NewPID = 0
+                        TestsFailed("Window '%NameExt% - WinRAR (evaluation copy)' failed to appear. No '" ProcessExe "' process detected.")
+                    else
+                        TestsFailed("Window '%NameExt% - WinRAR (evaluation copy)' failed to appear. '" ProcessExe "' process detected.")
                 }
                 else
                 {
-                    WinGetTitle, title, A
-                    OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window '%NameExt% - WinRAR (evaluation copy)' failed to appear. Active window caption: '%title%'`n
+                    TestsOK("")
+                    Sleep, 1000
                 }
             }
-            else
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%PathToFile%'.`n
         }
     }
-    else
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%ModuleExe%'.`n
 }
+
 
 WinRARIntegration()
 {
     global TestName
+    global TestsTotal
 
+    TestsTotal++
     WinWaitActive, Settings, Integration,7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("Window 'Settings (Integration)' failed to appear.")
+    else
     {
         Sleep, 1000
         ControlClick, Button27, Settings, Integration ; Hit 'OK' button
-        if not ErrorLevel
-        {
-            bContinue := true
-        }
+        if ErrorLevel
+            TestsFailed("Unable to hit 'OK' button in 'Settings (Integration)' window.")
         else
-        {
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Unable to hit 'OK' button in 'Settings (Integration)' window. Active window caption: '%title%'`n
-        }
-    }
-    else
-    {
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Settings (Integration)' failed to appear. Active window caption: '%title%'`n
+            TestsOK("")
     }
 }

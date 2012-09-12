@@ -29,103 +29,99 @@ else
 {
     SplitPath, szDocument, NameExt
     WinWaitActive, %NameExt% - WinRAR (evaluation copy),,7
-    if not ErrorLevel
+    if ErrorLevel
+        TestsFailed("Window '" NameExt " - WinRAR (evaluation copy)' failed to appear.")
+    else
     {
         WinMenuSelectItem, %NameExt% - WinRAR (evaluation copy), , Commands, Extract to the specified folder
-        if not ErrorLevel
+        if ErrorLevel
+            TestsFailed("Unable to click 'Commands -> Extract to the specified folder' in '" NameExt " - WinRAR (evaluation copy)' window.")
+        else
         {
             WinWaitActive, Extraction path and options,,7
-            if not ErrorLevel
+            if ErrorLevel
+                TestsFailed("Window 'Extraction path and options' failed to appear.")
+            else
             {
                 IfExist, %A_Desktop%\TestFile.txt
                 {
                     FileDelete, %A_Desktop%\TestFile.txt
-                    if not ErrorLevel
-                    {
-                        bContinue := true
-                    }
+                    if ErrorLevel
+                        TestsFailed("Unable to delete existing '" A_Desktop "\TestFile.txt'.")
                     else
-                        TestsFailed("Unable to delete existing '" A_Desktop "\TestFile.txt'.") 
+                        bContinue := true
                 }
                 else
-                {
                     bContinue := true
-                }
                 
                 if bContinue
                 {
                     Sleep, 1000
                     ControlSetText, Edit1, %A_Desktop%, Extraction path and options
-                    if not ErrorLevel
+                    if ErrorLevel
+                        TestsFailed("Unable to enter 'Destination path' in 'Extraction path and options' window.")
+                    else
                     {
                         Sleep, 1000
                         ControlClick, Button16, Extraction path and options ; Hit 'OK' button
-                        if not ErrorLevel
+                        if ErrorLevel
+                            TestsFailed("Unable to hit 'OK' button in 'Extraction path and options' window.")
+                        else
                         {
                             WinWaitActive, Enter password, &Enter password, 7
-                            if not ErrorLevel
+                            if ErrorLevel
+                                TestsFailed("Window 'Enter password (Enter password)' failed to appear.")
+                            else
                             {
                                 Sleep, 1000
                                 ControlSetText, Edit1, reactos, Enter password, Enter password
-                                if not ErrorLevel
+                                if ErrorLevel
+                                    TestsFailed("Unable to enter password in 'Enter password (Enter password)' window.")
+                                else
                                 {
                                     Sleep, 1000
                                     ControlClick, Button1, Enter password, Enter password ; Hit 'OK' button
-                                    if not ErrorLevel
+                                    if ErrorLevel
+                                        TestsFailed("Unable to hit 'OK' button in 'Enter password (Enter password)' window.")
+                                    else
                                     {
                                         WinWaitActive, %NameExt% - WinRAR (evaluation copy),,7
-                                        if not ErrorLevel
+                                        if ErrorLevel
+                                            TestsFailed("Window '" NameExt " - WinRAR (evaluation copy)' failed to appear after extraction.")
+                                        else
                                         {
                                             Sleep, 1000
                                             WinClose, %NameExt% - WinRAR (evaluation copy)
                                             WinWaitClose, %NameExt% - WinRAR (evaluation copy),,7
-                                            if not ErrorLevel
+                                            if ErrorLevel
+                                                TestsFailed("Window '" NameExt " - WinRAR (evaluation copy)' failed to close.")
+                                            else
                                             {
-                                                IfExist, %A_Desktop%\TestFile.txt
+                                                IfNotExist, %A_Desktop%\TestFile.txt
+                                                    TestsFailed("Can NOT find '" A_Desktop "\TestFile.txt'.")
+                                                else
                                                 {
                                                     FileReadLine, OutputVar, %A_Desktop%\TestFile.txt, 1
-                                                    if not ErrorLevel
+                                                    if ErrorLevel
+                                                        TestsFailed("Can NOT read contents of '" A_Desktop "\TestFile.txt'.")
+                                                    else
                                                     {
                                                         TestText = If you can read this, then test works.
-                                                        if OutputVar = %TestText%
-                                                            TestsOK("'" szDocument "' was extracted and application closed successfully.")
-                                                        else
+                                                        if OutputVar <> %TestText%
                                                             TestsFailed("Line 1 of '" A_Desktop "\TestFile.txt' is not the same as expected (" OutputVar ").")
+                                                        else
+                                                            TestsOK("'" szDocument "' was extracted and application closed successfully.")
                                                     }
-                                                    else
-                                                        TestsFailed("Can NOT read contents of '" A_Desktop "\TestFile.txt'.")
                                                 }
-                                                else
-                                                    TestsFailed("Can NOT find '" A_Desktop "\TestFile.txt'.")
                                             }
-                                            else
-                                                TestsFailed("Window '" NameExt " - WinRAR (evaluation copy)' failed to close.")
                                         }
-                                        else
-                                            TestsFailed("Window '" NameExt " - WinRAR (evaluation copy)' failed to appear after extraction.")
                                     }
-                                    else
-                                        TestsFailed("Unable to hit 'OK' button in 'Enter password (Enter password)' window.")
                                 }
-                                else
-                                    TestsFailed("Unable to enter password in 'Enter password (Enter password)' window.")
                             }
-                            else
-                                TestsFailed("Window 'Enter password (Enter password)' failed to appear.")
                         }
-                        else
-                            TestsFailed("Unable to hit 'OK' button in 'Extraction path and options' window.")
                     }
-                    else
-                        TestsFailed("Unable to enter 'Destination path' in 'Extraction path and options' window.")
                 }
             }
-            else
-                TestsFailed("Window 'Extraction path and options' failed to appear.")
         }
-        else
-            TestsFailed("Unable to click 'Commands -> Extract to the specified folder' in '" NameExt " - WinRAR (evaluation copy)' window.")
     }
-    else
-        TestsFailed("Window '" NameExt " - WinRAR (evaluation copy)' failed to appear.")
 }
