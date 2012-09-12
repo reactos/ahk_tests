@@ -75,7 +75,7 @@ else
                 {
                     FileRemoveDir, %InstallLocation%, 1
                     if ErrorLevel
-                        TestsFailed("Unable to delete existing '" %InstallLocation% "' ('" MainAppFile "' process is reported as terminated).'")
+                        TestsFailed("Unable to delete existing '" InstallLocation "' ('" MainAppFile "' process is reported as terminated).'")
                     else
                         bContinue := true
                 }
