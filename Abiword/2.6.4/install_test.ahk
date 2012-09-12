@@ -72,7 +72,8 @@ else
     if bContinue
     {
         RegDelete, HKEY_CURRENT_USER, SOFTWARE\AbiSuite
-        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\AbiSuite
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\AbiSuite ; Delete this or it will not show 'Installer Language (Please select)' window
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\AbiWord
         RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\AbiWord2
 
         if bContinue
@@ -94,7 +95,7 @@ if bContinue
 {
     WinWaitActive, Installer Language, Please select, 15
     if ErrorLevel
-        TestsFailed("'Installer Language (Please select)' window failed to appear.")
+        TestsFailed("'Installer Language (Please select)' window failed to appear. Unable to delete 'HKLM\SOFTWARE\AbiSuite'?")
     else
     {
         Sleep, 700
