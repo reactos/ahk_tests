@@ -39,11 +39,11 @@ else
             ; There was a problem (such as a nonexistent key or value). 
             ; That probably means we have not installed this app before.
             ; Check in default directory to be extra sure
+            bHardcoded := true ; To know if we got path from registry or not
             IfNotExist, %A_ProgramFiles%\IrfanView
                 bContinue := true ; No previous versions detected in hardcoded path
             else
             {
-                bHardcoded := true ; To know if we got path from registry or not
                 IfExist, %A_ProgramFiles%\IrfanView\iv_uninstall.exe
                 {
                     RunWait, %A_ProgramFiles%\IrfanView\iv_uninstall.exe /silent ; Silently uninstall it
