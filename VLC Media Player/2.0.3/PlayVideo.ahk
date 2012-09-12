@@ -19,47 +19,27 @@
 
 ; Test if VLC media player can play video
 
-TestsTotal++
 TestName = 2.PlayVideo
 szDocument =  %A_WorkingDir%\Media\Foundry accident.mp4 ; Case sensitive!
 
-if bContinue
+TestsTotal++
+RunApplication(szDocument)
+if not bContinue
+    TestsFailed("We failed somewhere in prepare.ahk.")
+else
 {
-    IfExist, %szDocument%
-    {
-        IfExist, %A_ProgramFiles%\VideoLAN\VLC\vlc.exe
-        {
-            Run, %A_ProgramFiles%\VideoLAN\VLC\vlc.exe "%szDocument%"
-            WinWaitActive, Foundry accident.mp4 - VLC media player,, 8
-            if not ErrorLevel
-            {
-                TestsOK++
-                OutputDebug, %TestName%:%A_LineNumber%: VLC media player can play '%A_WorkingDir%\Media\Foundry accident.mp4'.`n
-                bContinue := true
-            }
-            else
-            {
-                TestsFailed++
-                WinGetTitle, title, A
-                OutputDebug, %TestName%:%A_LineNumber%: Test failed: Window 'Foundry accident.mp4 - VLC media player' failed to appear. Active window caption: '%title%'`n
-                bContinue := false
-            }
-        }
-        else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%A_ProgramFiles%\VideoLAN\VLC\vlc.exe'. Active window caption: '%title%'`n
-            bContinue := false
-        }
-    }
+    SplitPath, szDocument, NameExt
+    WinWaitActive, %NameExt% - VLC media player,,7
+    WinGetPos, X, Y, Width, Height, %NameExt% - VLC media player
+    if not (Width > 439 AND Height > 359) ; Video is 440x360
+        TestsFailed("Size of '" NameExt " - VLC media player' window is not as expected when playing '" szDocument "' (is " Width "x" Height ").")
     else
     {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%szDocument%'. Active window caption: '%title%'`n
-        bContinue := false
+        WinClose, %NameExt% - VLC media player
+        WinWaitClose, %NameExt% - VLC media player,,7
+        if ErrorLevel
+            TestsFailed("'" NameExt " - Window 'VLC media player' failed to close.")
+        else
+            TestsOK("Size of '" NameExt " - VLC media player' window is " Width "x" Height ", so, probably we can play '" szDocument "'.")
     }
-
-    Process, close, vlc.exe ; We don't care now if application can close correctly, so, terminate
 }

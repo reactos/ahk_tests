@@ -17,41 +17,97 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-SetupExe = %A_WorkingDir%\Apps\VLC_Media_Player_2.0.3_Setup.exe
-bContinue := false
+ModuleExe = %A_WorkingDir%\Apps\VLC_Media_Player_2.0.3_Setup.exe
 TestName = 1.install
-
-TestsFailed := 0
-TestsOK := 0
-TestsTotal := 0
+MainAppFile = vlc.exe ; Mostly this is going to be process we need to look for
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
-IfExist, %SetupExe%
-{
-    ; Get rid of other versions
-    IfExist, %A_ProgramFiles%\VideoLAN\VLC\uninstall.exe
-    {
-        Process, Close, vlc.exe
-        RunWait, %A_ProgramFiles%\VideoLAN\VLC\uninstall.exe /S ; Run uninstaller in silent mode and wait until it is done
-        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\VideoLAN
-        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\VLC media player
-        FileRemoveDir, %A_ProgramFiles%\VideoLAN, 1
-        FileRemoveDir, %A_AppData%\vlc, 1
-        Sleep, 1000
-        IfExist, %A_ProgramFiles%\VideoLAN
-        {
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to delete '%A_ProgramFiles%\VideoLAN'.`n
-            bContinue := false
-        }
-    }
-    Run %SetupExe%
-    bContinue := true
-
-}
+TestsTotal++
+IfNotExist, %ModuleExe%
+    TestsFailed("'" ModuleExe "' not found.")
 else
 {
-    OutputDebug, %TestName%:%A_LineNumber%: Test failed: '%SetupExe%' not found.`n
-    bContinue := false
+    Process, Close, %MainAppFile% ; Teminate process
+    Process, WaitClose, %MainAppFile%, 4
+    if ErrorLevel ; The PID still exists.
+        TestsFailed("Unable to terminate '" MainAppFile "' process.") ; So, process still exists
+    else
+    {
+        RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\VLC media player, UninstallString
+        if ErrorLevel
+        {
+            ; There was a problem (such as a nonexistent key or value). 
+            ; That probably means we have not installed this app before.
+            ; Check in default directory to be extra sure
+            IfNotExist, %A_ProgramFiles%\VideoLAN
+                bContinue := true ; No previous versions detected in hardcoded path
+            else
+            {
+                bHardcoded := true ; To know if we got path from registry or not
+                IfExist, %A_ProgramFiles%\VideoLAN\VLC\uninstall.exe
+                {
+                    RunWait, %A_ProgramFiles%\VideoLAN\VLC\uninstall.exe /S ; Silently uninstall it
+                    Sleep, 7000
+                }
+
+                IfNotExist, %A_ProgramFiles%\VideoLAN ; Uninstaller might delete the dir
+                    bContinue := true
+                {
+                    FileRemoveDir, %A_ProgramFiles%\VideoLAN, 1
+                    if ErrorLevel
+                        TestsFailed("Unable to delete hardcoded path '" A_ProgramFiles "\VideoLAN' ('" MainAppFile "' process is reported as terminated).'")
+                    else
+                        bContinue := true
+                }
+            }
+        }
+        else
+        {
+            SplitPath, UninstallerPath,, InstalledDir
+            IfNotExist, %InstalledDir%
+                bContinue := true
+            else
+            {
+                IfExist, %UninstallerPath%
+                {
+                    RunWait, %UninstallerPath% /S ; Silently uninstall it
+                    Sleep, 7000
+                }
+
+                IfNotExist, %InstalledDir%
+                    bContinue := true
+                else
+                {
+                    FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
+                    if ErrorLevel
+                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                    else
+                        bContinue := true
+                }
+            }
+        }
+    }
+
+    if bContinue
+    {
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\VideoLAN
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\VLC media player
+        IfExist, %A_AppData%\vlc
+        {
+            FileRemoveDir, %A_AppData%\vlc, 1
+            if ErrorLevel
+                TestsFailed("Unable to delete '" A_AppData "\vlc'.")
+        }
+
+        if bContinue
+        {
+            if bHardcoded
+                TestsOK("Either there was no previous versions or we succeeded removing it using hardcoded path.")
+            else
+                TestsOK("Either there was no previous versions or we succeeded removing it using data from registry.")
+            Run %ModuleExe%
+        }
+    }
 }
 
 
@@ -60,28 +116,17 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, Installer Language, Please select a language, 15 ; Wait 15 secs for window to appear
-    if not ErrorLevel ;Window is found and it is active
-    {
-        if LeftClickControl("Button1") ; Hit 'OK'
-        {
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installer Language' window appeared and 'OK' button was clicked.`n
-            bContinue := true
-        }
-        else
-        {
-            TestsFailed++
-            WinGetTitle, title, A
-            OutputDebug, %TestName%:%A_LineNumber%: Test failed: Failed to hit 'OK' button in 'Installer Language' window. Active window caption: '%title%'.`n
-            bContinue := false
-        }
-    }
+    if ErrorLevel
+        TestsFailed("'Installer Language (Please select a language)' window failed to appear.")
     else
     {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'Installer Language' window failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
+        Sleep, 700
+        SendInput, {ENTER}
+        WinWaitClose, Installer Language, Please select a language, 5
+        if ErrorLevel
+            TestsFailed("Failed to hit 'OK' button in 'Installer Language (Please select a language)' window.")
+        else
+            TestsOK("'Installer Language (Please select a language)' window appeared, 'OK' button clicked, window closed.")
     }
 }
 
@@ -91,21 +136,13 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, VLC media player 2.0.3 Setup, Welcome to the VLC, 15
-    if not ErrorLevel
-    {
-        Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'VLC media player 2.0.3 Setup' window with 'Welcome to the VLC' appeared.`n
-        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
-        bContinue := true
-    }
+    if ErrorLevel
+        TestsFailed("'VLC media player 2.0.3 Setup (Welcome to the VLC)' failed to appear.")
     else
     {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'VLC media player 2.0.3 Setup' window with 'Welcome to the VLC' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
+        Sleep, 700
+        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
+        TestsOK("'VLC media player 2.0.3 Setup (Welcome to the VLC)' window appeared and Alt+N was sent.")
     }
 }
 
@@ -114,22 +151,14 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, VLC media player 2.0.3 Setup, License Agreement, 15
-    if not ErrorLevel
-    {
-        Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'VLC media player 2.0.3 Setup' window with 'License Agreement' appeared.`n
-        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'I Agree' button
-        bContinue := true
-    }
+    WinWaitActive, VLC media player 2.0.3 Setup, License Agreement, 7
+    if ErrorLevel
+        TestsFailed("'VLC media player 2.0.3 Setup (License Agreement)' window failed to appear.")
     else
     {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'VLC media player 2.0.3 Setup' window with 'License Agreement' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
+        Sleep, 700
+        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'I Agree' button
+        TestsOK("'VLC media player 2.0.3 Setup (License Agreement)' window appeared and Alt+N was sent.")
     }
 }
 
@@ -138,22 +167,14 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, VLC media player 2.0.3 Setup, Choose Components, 15
-    if not ErrorLevel
-    {
-        Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'VLC media player 2.0.3 Setup' window with 'Choose Components' appeared.`n
-        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
-        bContinue := true
-    }
+    WinWaitActive, VLC media player 2.0.3 Setup, Choose Components, 7
+    if ErrorLevel
+        TestsFailed("'VLC media player 2.0.3 Setup (Choose Components)' window failed to appear.")
     else
     {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'VLC media player 2.0.3 Setup' window with 'Choose Components' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
+        Sleep, 700
+        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
+        TestsOK("'VLC media player 2.0.3 Setup (Choose Components)' window appeared and Alt+N was sent.")
     }
 }
 
@@ -162,22 +183,14 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, VLC media player 2.0.3 Setup, Choose Install Location, 15
-    if not ErrorLevel
-    {
-        Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'VLC media player 2.0.3 Setup' window with 'Choose Install Location' appeared.`n
-        SendInput, {ALTDOWN}i{ALTUP} ; Hit 'Install' button
-        bContinue := true
-    }
+    WinWaitActive, VLC media player 2.0.3 Setup, Choose Install Location, 7
+    if ErrorLevel
+        TestsFailed("'VLC media player 2.0.3 Setup (Choose Install Location)' window failed to appear.")
     else
     {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'VLC media player 2.0.3 Setup' window with 'Choose Install Location' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
+        Sleep, 700
+        SendInput, {ALTDOWN}i{ALTUP} ; Hit 'Install' button
+        TestsOK("'VLC media player 2.0.3 Setup (Choose Install Location)' window appeared and Alt+I was sent.")
     }
 }
 
@@ -187,26 +200,17 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, VLC media player 2.0.3 Setup, Installing, 7
-    if not ErrorLevel
-    {
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'VLC media player 2.0.3 Setup' window with 'Installing' appeared, waiting for it to dissapear.`n
-        
-        WinWaitClose, VLC media player 2.0.3 Setup, Installing, 150
-        if not ErrorLevel
-        {
-            Sleep, 250
-
-            TestsOK++
-            OutputDebug, OK: %TestName%:%A_LineNumber%: 'VLC media player 2.0.3 Setup' window with 'Installing' went away.`n
-            bContinue := true
-        }
-    }
+    if ErrorLevel
+        TestsFailed("'VLC media player 2.0.3 Setup (Installing)' failed to appear.")
     else
     {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'VLC media player 2.0.3 Setup' window with 'Installing' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
+        OutputDebug, OK: %TestName%:%A_LineNumber%: 'VLC media player 2.0.3 Setup (Installing)' appeared, waiting for it to dissapear.`n
+        
+        WinWaitClose, VLC media player 2.0.3 Setup, Installing, 150
+        if ErrorLevel
+            TestsFailed("'VLC media player 2.0.3 Setup (Installing)' window failed to close.")
+        else
+            TestsOK("'VLC media player 2.0.3 Setup (Installing)' window went away.")
     }
 }
 
@@ -216,42 +220,51 @@ TestsTotal++
 if bContinue
 {
     WinWaitActive, VLC media player 2.0.3 Setup, Completing, 7
-    if not ErrorLevel
-    {
-        Sleep, 250
-
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'VLC media player 2.0.3 Setup' window with 'Completing' appeared.`n
-
-        SendInput, {ALTDOWN}r{ALTUP} ; Uncheck 'Run VLC'
-        SendInput, {ALTDOWN}f{ALTUP} ; Hit 'Finish' button
-        bContinue := true
-    }
+    if ErrorLevel
+        TestsFailed("'VLC media player 2.0.3 Setup (Completing)' window failed to appear.")
     else
     {
-        TestsFailed++
-        WinGetTitle, title, A
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: 'VLC media player 2.0.3 Setup' window with 'Completing' failed to appear. Active window caption: '%title%'.`n
-        bContinue := false
+        Sleep, 700
+        SendInput, {ALTDOWN}r{ALTUP} ; Uncheck 'Run VLC'
+        Sleep, 700
+        SendInput, {ALTDOWN}f{ALTUP} ; Hit 'Finish' button
+        WinWaitClose, VLC media player 2.0.3 Setup, Completing, 5
+        if ErrorLevel
+            TestsFailed("'VLC media player 2.0.3 Setup (Completing)' window failed to close.")
+        else
+        {
+            Process, wait, %MainAppFile%, 4
+            NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+            if NewPID <> 0
+            {
+                Process, Close, %MainAppFile%
+                Process, WaitClose, %MainAppFile%, 4
+                if ErrorLevel
+                    TestsFailed("'" MainAppFile "' process appeared (and unable to terminate it) despite 'Run VLC' checkbox being unchecked in 'VLC media player 2.0.3 Setup (Completing)' window.")
+                else
+                    TestsFailed("'" MainAppFile "' process appeared despite 'Run VLC' checkbox being unchecked in 'VLC media player 2.0.3 Setup (Completing)' window.")
+            }
+            else
+                TestsOK("'Run VLC' checkbox unchecked in 'VLC media player 2.0.3 Setup (Completing)' window and the window closed.")
+        }
     }
 }
 
-;Check if program exists in program files
+
+; Check if program exists
 TestsTotal++
 if bContinue
 {
-    Sleep, 250
-    AppExe = %A_ProgramFiles%\VideoLAN\VLC\vlc.exe
-    IfExist, %AppExe%
-    {
-        TestsOK++
-        OutputDebug, OK: %TestName%:%A_LineNumber%: Should be installed, because '%AppExe%' was found.`n
-        bContinue := true
-    }
+    Sleep, 2000
+    RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\VLC media player, UninstallString
+    if ErrorLevel
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
     else
     {
-        TestsFailed++
-        OutputDebug, %TestName%:%A_LineNumber%: Test failed: Can NOT find '%AppExe%'.`n
-        bContinue := false
+        SplitPath, UninstallerPath,, InstalledDir
+        IfNotExist, %InstalledDir%\%MainAppFile%
+            TestsFailed("Something went wrong, can't find '" InstalledDir "\" MainAppFile "'.")
+        else
+            TestsOK("The application has been installed, because '" InstalledDir "\" MainAppFile "' was found.")
     }
 }
