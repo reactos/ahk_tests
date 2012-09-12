@@ -69,55 +69,59 @@ RunApplication(PathToFile)
     global ModuleExe
     global TestName
     global TestsTotal
+    global bContinue
     global ProcessExe
 
     TestsTotal++
-    IfNotExist, %ModuleExe%
-        TestsFailed("Can NOT find '" ModuleExe "'.")
-    else
+    if bContinue
     {
-        if PathToFile =
-        {
-            Run, %ModuleExe%,, Max ; Start maximized
-            WinWaitActive, IrfanView,,7
-            if ErrorLevel
-            {
-                Process, Exist, %ProcessExe%
-                NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
-                if NewPID = 0
-                    TestsFailed("Window 'IrfanView' failed to appear. No '" ProcessExe "' process detected.")
-                else
-                    TestsFailed("Window 'IrfanView' failed to appear. '" ProcessExe "' process detected.")
-            }
-            else
-            {
-                TestsOK("")
-                Sleep, 1000
-            }
-        }
+        IfNotExist, %ModuleExe%
+            TestsFailed("Can NOT find '" ModuleExe "'.")
         else
         {
-            IfNotExist, %PathToFile%
-                TestsFailed("Can NOT find '" PathToFile "'.")
-            else
+            if PathToFile =
             {
-                Run, %ModuleExe% "%PathToFile%",, Max
-                Sleep, 1000
-                SplitPath, PathToFile, NameExt
-                WinWaitActive, %NameExt% - IrfanView,,7
+                Run, %ModuleExe%,, Max ; Start maximized
+                WinWaitActive, IrfanView,,7
                 if ErrorLevel
                 {
                     Process, Exist, %ProcessExe%
                     NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                     if NewPID = 0
-                        TestsFailed("Window '" NameExt " - IrfanView' failed to appear. No '" ProcessExe "' process detected.")
+                        TestsFailed("Window 'IrfanView' failed to appear. No '" ProcessExe "' process detected.")
                     else
-                        TestsFailed("Window '" NameExt " - IrfanView' failed to appear. '" ProcessExe "' process detected.")
+                        TestsFailed("Window 'IrfanView' failed to appear. '" ProcessExe "' process detected.")
                 }
                 else
                 {
                     TestsOK("")
                     Sleep, 1000
+                }
+            }
+            else
+            {
+                IfNotExist, %PathToFile%
+                    TestsFailed("Can NOT find '" PathToFile "'.")
+                else
+                {
+                    Run, %ModuleExe% "%PathToFile%",, Max
+                    Sleep, 1000
+                    SplitPath, PathToFile, NameExt
+                    WinWaitActive, %NameExt% - IrfanView,,7
+                    if ErrorLevel
+                    {
+                        Process, Exist, %ProcessExe%
+                        NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                        if NewPID = 0
+                            TestsFailed("Window '" NameExt " - IrfanView' failed to appear. No '" ProcessExe "' process detected.")
+                        else
+                            TestsFailed("Window '" NameExt " - IrfanView' failed to appear. '" ProcessExe "' process detected.")
+                    }
+                    else
+                    {
+                        TestsOK("")
+                        Sleep, 1000
+                    }
                 }
             }
         }
