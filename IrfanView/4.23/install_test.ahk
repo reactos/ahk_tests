@@ -152,7 +152,7 @@ if bContinue
             if ErrorLevel
                 TestsFailed("'IrfanView Setup (Welcome)' window failed to close despite 'Next' button being clicked.")
             else
-                TestsOK("'IrfanView Setup (Welcome)' window appeared and 'Next' button was clicked.")
+                TestsOK("'IrfanView Setup (Welcome)' window appeared, 'Next' button clicked and window closed.")
         }
     }
 }
