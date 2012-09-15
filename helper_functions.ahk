@@ -274,6 +274,8 @@ TerminateTmpProcesses()
 {
     ; http://www.autohotkey.com/docs/commands/Process.htm
     ; Example #4: Retrieves a list of running processes via DllCall
+    bError := false
+    iUnterminated := 0
 
     d = `n  ; string separator
     s := 4096  ; size of buffers and arrays (4 KB)
@@ -317,10 +319,21 @@ TerminateTmpProcesses()
                     Process, close, %n%
                     Process, WaitClose, %n%, 5
                     if ErrorLevel
+                    {
+                        bError := true
+                        iUnterminated++
                         OutputDebug, Helper Functions: Unable to terminate '%n%' process.`n
+                    }
                 }
             }
         }
     }
     DllCall("FreeLibrary", "UInt", hModule)  ; unload the library to free memory
+    if bError
+    {
+        OutputDebug, Helper Functions: Unable to terminate %iUnterminated% process(es).`n
+        return false
+    }
+    else
+        return true
 }
