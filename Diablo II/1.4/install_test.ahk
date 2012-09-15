@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-ModuleExe = %A_WorkingDir%\Apps\Diablo II 1.4 Setup.exe
+ModuleExe = %A_WorkingDir%\Apps\Diablo 2 Shareware 1.4.exe
 TestName = 1.install
 MainAppFile = Diablo II.exe ; Mostly this is going to be process we need to look for
 
