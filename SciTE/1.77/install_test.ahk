@@ -42,10 +42,13 @@ else
             if ErrorLevel
                 TestsFailed("Previous version detected and failed to delete '" InstallLocation "'. '" MainAppFile "' process not detected.")
             else
-            {
-                TestsOK("Either there was no previous versions or we succeeded removing it using hardcoded path.")
-                Run %ModuleExe%
-            }
+                bContinue := true
+        }
+        
+        if bContinue
+        {
+            TestsOK("Either there was no previous versions or we succeeded removing it using hardcoded path.")
+            Run %ModuleExe%
         }
     }
 }
