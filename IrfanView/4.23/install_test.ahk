@@ -63,7 +63,7 @@ else
         }
         else
         {
-            StringReplace, UninstallerPath, UninstallerPath, `",, All
+            StringReplace, UninstallerPath, UninstallerPath, `",, All ; Remove quotes in case some version quotes the path
             SplitPath, UninstallerPath,, InstalledDir
             IfNotExist, %InstalledDir%
                 bContinue := true
@@ -348,7 +348,7 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
+    ; No need to sleep, because we already waited for process to appear
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\IrfanView, UninstallString
     if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")
