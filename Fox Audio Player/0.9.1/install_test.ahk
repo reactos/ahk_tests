@@ -34,6 +34,7 @@ else
     else
     {
         InstallLocation = %A_ProgramFiles%\Fox Audio Player
+        RegDelete, HKEY_CURRENT_USER, Software\DrFiemost
         IfNotExist, %InstallLocation%
             bContinue := true ; No previous versions detected.
         else
