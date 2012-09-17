@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-ModuleExe = %A_WorkingDir%\Apps\Microsoft Tahome Font 1.0 Setup.exe
+ModuleExe = %A_WorkingDir%\Apps\Microsoft Tahoma Font 1.0 Setup.exe
 TestName = 1.install
 MainAppFile = Tahomabd.TTF
 
