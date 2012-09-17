@@ -241,6 +241,20 @@ WindowCleanup(ProcessName)
         }
     }
     
+    
+    Process, Exist, install.exe
+    if ErrorLevel != 0
+    {
+        Process, close, install.exe
+        Process, WaitClose, install.exe, 5
+        if ErrorLevel
+        {
+            Process, WaitClose, install.exe, 5
+            if ErrorLevel
+                OutputDebug, Helper Functions: Unable to terminate 'install.exe' process.`n
+        }
+    }
+    
     Sleep, 2500
     IfWinActive, Mozilla Crash Reporter
     {
