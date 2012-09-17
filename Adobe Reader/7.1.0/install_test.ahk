@@ -53,6 +53,7 @@ else
 
                 IfNotExist, %A_ProgramFiles%\Adobe\Acrobat 7.0 ; Uninstaller might delete the dir
                     bContinue := true
+                else
                 {
                     FileRemoveDir, %A_ProgramFiles%\Adobe\Acrobat 7.0, 1
                     if ErrorLevel
