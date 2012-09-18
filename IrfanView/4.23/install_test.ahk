@@ -147,14 +147,8 @@ if bContinue
         ControlClick, Button11, IrfanView Setup, Welcome ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'IrfanView Setup (Welcome)' window.")
-        else
-        {
-            WinWaitClose, IrfanView Setup, Welcome, 5
-            if ErrorLevel
-                TestsFailed("'IrfanView Setup (Welcome)' window failed to close despite 'Next' button being clicked.")
-            else
-                TestsOK("'IrfanView Setup (Welcome)' window appeared, 'Next' button clicked and window closed.")
-        }
+        else ; WinWaitClose will not work with this setup on win2k3 sp2
+            TestsOK("'IrfanView Setup (Welcome)' window appeared and 'Next' button was clicked.")
     }
 }
 
@@ -322,21 +316,23 @@ if bContinue
                 TestsFailed("Unable to hit 'Done' button in 'IrfanView Setup (Installation successfull)' window.")
             else
             {
-                WinWaitClose, IrfanView Setup, Installation successfull, 20
+                WinWaitClose, IrfanView Setup, Installation successfull, 25
                 if ErrorLevel
+                    ; Window will close only when it detects default browser process running (or something like that)
                     TestsFailed("'IrfanView Setup (Installation successfull)' window failed to close despite the 'Done' button being reported as clicked .")
                 else
                 {
-                    Process, Close, firefox.exe ; Terminate those until code to terminate default browser is written
-                    Process, Close, iexplore.exe
-                    Process, Close, Opera.exe
-                        
-                    Process, Wait, %MainAppFile%, 4
-                    NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
-                    if NewPID <> 0
-                        TestsFailed("'" MainAppFile "' process appeared despite 'Start Irfanview' checkbox being unchecked.")
+                    if not TerminateDefaultBrowser(10)
+                        TestsFailed("Either default browser process failed to appear of we failed to terminate it.")
                     else
-                        TestsOK("'IrfanView Setup (Installation successfull)' window appeared, 'Start IrfanView' checkbox unchecked, 'Done' button clicked and window closed. FIXME: terminate browser process.")
+                    {
+                        Process, Wait, %MainAppFile%, 4
+                        NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                        if NewPID <> 0
+                            TestsFailed("'" MainAppFile "' process appeared despite 'Start Irfanview' checkbox being unchecked.")
+                        else
+                            TestsOK("'IrfanView Setup (Installation successfull)' window appeared, 'Start IrfanView' checkbox unchecked, 'Done' button clicked and window closed.")
+                    }
                 }
             }
         }
