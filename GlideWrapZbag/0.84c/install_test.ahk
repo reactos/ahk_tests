@@ -197,11 +197,10 @@ if bContinue
                 TestsFailed("'zeckensack's Glide wrapper 0.84c Setup: Completed (Completed)' window failed to close despite 'Close' button being clicked.")
             else
             {
-                Sleep, 2500
-                Process, close, iexplore.exe
-                process, close, opera.exe
-                process, close, firefox.exe
-                TestsOK("'zeckensack's Glide wrapper 0.84c Setup: Completed (Completed)' window appeared, 'Close' button clicked and window closed. FIXME: terminate default browser process.")
+                if not TerminateDefaultBrowser(20)
+                    TestsFailed("Either default browser process failed to appear of we failed to terminate it.")
+                else
+                    TestsOK("'zeckensack's Glide wrapper 0.84c Setup: Completed (Completed)' window appeared, 'Close' button clicked and window closed.")
             }
         }
     }
