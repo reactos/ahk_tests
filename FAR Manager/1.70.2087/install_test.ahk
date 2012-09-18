@@ -310,7 +310,7 @@ if bContinue
                         if ErrorLevel <> 0
                             TestsFailed("Process '" MainAppFile "' appeared despite 'Run Far Manager v1.70' was unchecked in 'Far Manager v1.70 Setup (Completing)' window.")
                         else
-                            TestsOK("'Far Manager v1.70 Setup (Completing)' window appeared, 'Finish' button clicked and window closed. (FIXME: terminate browser!)")
+                            TestsOK("'Far Manager v1.70 Setup (Completing)' window appeared, 'Finish' button clicked and window closed.")
                     }
                 }
             }
