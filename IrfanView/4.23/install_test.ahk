@@ -336,7 +336,7 @@ if bContinue
                     if NewPID <> 0
                         TestsFailed("'" MainAppFile "' process appeared despite 'Start Irfanview' checkbox being unchecked.")
                     else
-                        TestsOK("'IrfanView Setup (Installation successfull)' window appeared, 'Start IrfanView' unchecked and 'Done' was clicked. FIXME: terminate browser process.")
+                        TestsOK("'IrfanView Setup (Installation successfull)' window appeared, 'Start IrfanView' checkbox unchecked, 'Done' button clicked and window closed. FIXME: terminate browser process.")
                 }
             }
         }
