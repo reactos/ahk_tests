@@ -213,16 +213,17 @@ if bContinue
                     TestsFailed("'Miranda IM 0.10.0 Setup (Click Finish)' window failed to close despite the 'Finish' button being reported as clicked .")
                 else
                 {
-                    Process, Wait, %MainAppFile%, 4
-                    NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
-                    if NewPID <> 0
-                        TestsFailed("'" MainAppFile "' process appeared despite 'Start Miranda IM' checkbox being unchecked.")
+                    if not TerminateDefaultBrowser(10)
+                        TestsFailed("Either default browser process failed to appear of we failed to terminate it.")
                     else
-                        TestsOK("'Miranda IM 0.10.0 Setup (Click Finish)' window appeared, 'Start Miranda IM' unchecked, 'Finish' button clicked and window closed. FIXME: terminate browser process.")
-                    
-                    Process, Close, firefox.exe ; Terminate those until code to terminate default browser is written
-                    Process, Close, iexplore.exe
-                    Process, Close, Opera.exe
+                    {
+                        Process, Wait, %MainAppFile%, 4
+                        NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                        if NewPID <> 0
+                            TestsFailed("'" MainAppFile "' process appeared despite 'Start Miranda IM' checkbox being unchecked.")
+                        else
+                            TestsOK("'Miranda IM 0.10.0 Setup (Click Finish)' window appeared, 'Start Miranda IM' unchecked, 'Finish' button clicked and window closed.")
+                    }
                 }
             }
         }
