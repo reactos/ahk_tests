@@ -26,6 +26,37 @@ SendMode Input ; Recommended for new scripts due to its superior speed and relia
 SetWorkingDir %A_ScriptDir% ; Ensures a consistent starting directory.
 
 
+TerminateDefaultBrowser(SecondsToWait)
+{
+    ; Usage: if not TerminateDefaultBrowser(10)
+    RegRead, szPath, HKEY_CLASSES_ROOT, http\shell\open\command
+    StringReplace, szPath, szPath, `",, All ; This will unquote path
+    SplitPath, szPath,,,, name_no_ext ; This will get rid of command line options
+    Process, Wait, %name_no_ext%.exe, %SecondsToWait%
+    NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed
+    if NewPID = 0
+    {
+        OutputDebug, FAILED: Helper Functions: '%name_no_ext%.exe' process did not appear within %SecondsToWait% seconds.`n
+        return false
+    }
+    else
+    {
+        Process, Close, %name_no_ext%.exe ; Teminate process
+        Process, WaitClose, %name_no_ext%.exe, 4
+        if ErrorLevel ; The PID still exists
+        {
+            OutputDebug, FAILED: Helper Functions: Unable to terminate default browser ('%name_no_ext%.exe') process.`n
+            return false
+        }
+        else
+        {
+            OutputDebug, OK: Helper Functions: Default browser process ('%name_no_ext%.exe') was terminated successfully.`n
+            return true ; Default browser process is terminated
+        }
+    }
+}
+
+
 CheckParam() ; Usage: if CheckParam() {..} //No need of ELSE part
 {
     global params
