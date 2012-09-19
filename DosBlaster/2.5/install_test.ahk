@@ -43,21 +43,24 @@ else
             IfNotExist, %A_ProgramFiles%\DosBlaster
                 bContinue := true ; No previous versions detected in hardcoded path
             else
-            {
-                IfExist, %A_ProgramFiles%\DosBlaster\2.5\unins000.exe
+            {   
+                UninstallerPath = %A_ProgramFiles%\DosBlaster\2.5\unins000.exe /SILENT
+                WaitUninstallDone(UninstallerPath, 3)
+                if bContinue
                 {
-                    RunWait, %A_ProgramFiles%\DosBlaster\2.5\unins000.exe /SILENT ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %A_ProgramFiles%\DosBlaster ; Uninstaller might delete the dir
-                    bContinue := true
-                {
-                    FileRemoveDir, %A_ProgramFiles%\DosBlaster, 1
-                    if ErrorLevel
-                        TestsFailed("Unable to delete hardcoded path '" A_ProgramFiles "\DosBlaster' ('" MainAppFile "' process is reported as terminated).'")
-                    else
+                    IfNotExist, %A_ProgramFiles%\DosBlaster ; Uninstaller might delete the dir
+                    {
                         bContinue := true
+                        TestsInfo("Uninstaller deleted hardcoded path '" A_ProgramFiles "\DosBlaster'.")
+                    }
+                    else
+                    {
+                        FileRemoveDir, %A_ProgramFiles%\DosBlaster, 1
+                        if ErrorLevel
+                            TestsFailed("Unable to delete hardcoded path '" A_ProgramFiles "\DosBlaster' ('" MainAppFile "' process is reported as terminated).'")
+                        else
+                            bContinue := true
+                    }
                 }
             }
         }
@@ -69,37 +72,39 @@ else
                 bContinue := true
             else
             {
-                IfExist, %UninstallerPath%
+                UninstallerPath = %UninstallerPath% /SILENT
+                WaitUninstallDone(UninstallerPath, 3)
+                if bContinue
                 {
-                    RunWait, %UninstallerPath% /SILENT ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %InstalledDir%
-                    bContinue := true
-                else
-                {
-                    FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
-                    else
+                    IfNotExist, %InstalledDir%
+                    {
+                        TestsInfo("Uninstaller deleted '" InstalledDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
+                        if ErrorLevel
+                            TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                        else
+                            bContinue := true
+                    }
                 }
             }
         }
     }
 
-    if not TerminateTmpProcesses() ; Silent uninstall switch left us one window, so, terminate its process
-        TestsFailed("Unable to terminate some '*.tmp' processes.")
-    else
-        bContinue := true
-
     if bContinue
     {
-        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\DosBlaster_is1
+        if not TerminateTmpProcesses() ; Silent uninstall switch left us one window, so, terminate its process
+            TestsFailed("Unable to terminate some '*.tmp' processes.")
+        else
+            bContinue := true
 
         if bContinue
         {
+            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\DosBlaster_is1
+
             if bHardcoded
                 TestsOK("Either there was no previous versions or we succeeded removing it using hardcoded path.")
             else
