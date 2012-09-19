@@ -26,6 +26,24 @@ SendMode Input ; Recommended for new scripts due to its superior speed and relia
 SetWorkingDir %A_ScriptDir% ; Ensures a consistent starting directory.
 
 
+ExeFilePathNoParam(szPath)
+{
+    ; Usage: szFunctionResult := ExeFilePathNoParam(szSomePath)
+    ; szSomePath := ExeFilePathNoParam(szSomePath)
+    StringReplace, szPath, szPath, `",, All ; Remove quotes in case there are some
+    szExt = .exe
+    StringGetPos, iPos, szPath, %szExt%
+    if iPos >= 0
+    {
+        StringLen, iLength, szPath
+        StringTrimRight, szResult, szPath, iLength - iPos - 4
+        return szResult
+    }
+    else
+        return szPath
+}
+
+
 TestsInfo(DebugMessage)
 {
     ; Usage: TestsInfo("Your message here.")
