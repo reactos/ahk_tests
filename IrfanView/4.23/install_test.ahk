@@ -40,50 +40,72 @@ else
             ; That probably means we have not installed this app before.
             ; Check in default directory to be extra sure
             bHardcoded := true ; To know if we got path from registry or not
-            IfNotExist, %A_ProgramFiles%\IrfanView
-                bContinue := true ; No previous versions detected in hardcoded path
+            szDefaultDir = %A_ProgramFiles%\IrfanView
+            IfNotExist, %szDefaultDir%
+            {
+                TestsInfo("No previous versions detected in hardcoded path: '" szDefaultDir "'.")
+                bContinue := true
+            }
             else
             {
-                IfExist, %A_ProgramFiles%\IrfanView\iv_uninstall.exe
+                IfExist, %szDefaultDir%\iv_uninstall.exe
                 {
-                    RunWait, %A_ProgramFiles%\IrfanView\iv_uninstall.exe /silent ; Silently uninstall it
+                    TestsInfo("Found uninstaller '" szDefaultDir "\iv_uninstall.exe' (hardcoded path), so, lets run it.")
+                    RunWait, %szDefaultDir%\iv_uninstall.exe /silent ; Silently uninstall it
                     Sleep, 7000
                 }
 
-                IfNotExist, %A_ProgramFiles%\IrfanView ; Uninstaller might delete the dir
-                    bContinue := true
+                IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
                 {
-                    FileRemoveDir, %A_ProgramFiles%\IrfanView, 1
+                    TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
+                    bContinue := true
+                }
+                else
+                {
+                    FileRemoveDir, %szDefaultDir%, 1
                     if ErrorLevel
-                        TestsFailed("Unable to delete hardcoded path '" A_ProgramFiles "\IrfanView' ('" MainAppFile "' process is reported as terminated).'")
+                        TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
                     else
+                    {
+                        TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
                         bContinue := true
+                    }
                 }
             }
         }
         else
         {
-            StringReplace, UninstallerPath, UninstallerPath, `",, All ; Remove quotes in case some version quotes the path
+            UninstallerPath := ExeFilePathNoParam(UninstallerPath)
             SplitPath, UninstallerPath,, InstalledDir
             IfNotExist, %InstalledDir%
+            {
+                TestsInfo("Got '" InstalledDir "' from registry and such path does not exist.")
                 bContinue := true
+            }
             else
             {
                 IfExist, %UninstallerPath%
                 {
+                    TestsInfo("Found uninstaller (registry data), so, lets run it: '" UninstallerPath "'.")
                     RunWait, %UninstallerPath% /silent ; Silently uninstall it
                     Sleep, 7000
                 }
 
                 IfNotExist, %InstalledDir%
+                {
+                    TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
                     bContinue := true
+                }
                 else
                 {
                     FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
                     if ErrorLevel
                         TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
                     else
+                    {
+                        TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
                         bContinue := true
+                    }
                 }
             }
         }
