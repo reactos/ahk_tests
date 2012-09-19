@@ -26,6 +26,15 @@ SendMode Input ; Recommended for new scripts due to its superior speed and relia
 SetWorkingDir %A_ScriptDir% ; Ensures a consistent starting directory.
 
 
+TestsInfo(DebugMessage)
+{
+    ; Usage: TestsInfo("Your message here.")
+    global TestName
+
+    OutputDebug, Info: %TestName%: %DebugMessage%`n
+}
+
+
 TerminateDefaultBrowser(SecondsToWait)
 {
     ; Usage: if not TerminateDefaultBrowser(10)
