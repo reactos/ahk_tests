@@ -44,6 +44,11 @@ WaitUninstallDone(szUninstallerPath, SecondsToWait)
         szParentName := GetProcessName(PID)
         ChildPID := GetChildProcessesList(PID)
         szChildName := GetProcessName(ChildPID)
+        ; If you really know there is some child process, result can't be '' (increase sleep in GetChildProcessesList())
+        if szChildName <>
+            TestsInfo("Reported child name is '" szChildName "'.")
+        else
+            TestsInfo("Are you sure '" szParentName "' haves no child process?")
         Process, WaitClose, %szChildName%, %SecondsToWait%
         if ErrorLevel ; The PID still exists
         {
@@ -349,29 +354,14 @@ WindowCleanup(ProcessName)
         }
     }
     
-    Sleep, 2500
-    IfWinActive, Mozilla Crash Reporter
+    WinGetTitle, ErrorWinTitle, A
+    if not ErrorLevel
     {
-        SendInput, {SPACE} ; Dont tell Mozilla about this crash
-        Sleep, 200
-        SendInput, {TAB}
-        Sleep, 200
-        SendInput, {TAB}
-        Sleep, 200
-        SendInput, {ENTER} ; Hit 'Quit Firefox'
-    }
-    else
-    {
-        WinGetTitle, ErrorWinTitle, A
+        ControlFocus, OK, %ErrorWinTitle%
         if not ErrorLevel
         {
-            ControlFocus, OK, %ErrorWinTitle%
-            if not ErrorLevel
-            {
-                Sleep, 1200
-                SendInput, {ENTER} ; Hit 'OK' button
-                OutputDebug, Helper Functions: Sent ENTER to '%ErrorWinTitle%' window to hit 'OK' button.`n
-            }
+            SendInput, {ENTER} ; Hit 'OK' button
+            OutputDebug, Helper Functions: Sent ENTER to '%ErrorWinTitle%' window to hit 'OK' button.`n
         }
     }
 }
@@ -449,7 +439,7 @@ TerminateTmpProcesses()
 
 GetChildProcessesList(PID)
 {
-   Sleep, 700 ; Child process doesn't start right away, need some sleep
+   ; Sleep, 10 ; Child process doesn't start right away, need some sleep
    ChildProcesses = 
    
    ;We get the list of processes of the system (pidlist)
