@@ -162,8 +162,7 @@ if bContinue
         TestsFailed("'IrfanView Setup (Welcome)' window failed to appear.")
     else
     {
-        Sleep, 700
-        ControlClick, Button11, IrfanView Setup, Welcome ; Hit 'Next' button
+        ControlClick, Button11 ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'IrfanView Setup (Welcome)' window.")
         else ; WinWaitClose will not work with this setup on win2k3 sp2
@@ -176,13 +175,12 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, IrfanView Setup, What's new, 7
+    WinWaitActive, IrfanView Setup, What's new, 3
     if ErrorLevel
         TestsFailed("'IrfanView Setup (What's new)' window failed to appear.")
     else
     {
-        Sleep, 700
-        ControlClick, Button11, IrfanView Setup, What's new ; Hit 'Next' button
+        ControlClick, Button11 ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'IrfanView Setup (What's new)' window.")
         else
@@ -195,19 +193,17 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, IrfanView Setup, Do you want to associate, 7
+    WinWaitActive, IrfanView Setup, Do you want to associate, 3
     if ErrorLevel
         TestsFailed("'IrfanView Setup (Do you want to associate)' window failed to appear.")
     else
     {
-        Sleep, 700
-        ControlClick, Button1, IrfanView Setup, Do you want to associate ; Hit 'Images only' button
+        ControlClick, Button1 ; Hit 'Images only' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Images only' button in 'IrfanView Setup (Do you want to associate)' window.")
         else
         {
-            Sleep, 500
-            ControlClick, Button16, IrfanView Setup, Do you want to associate ; Hit 'Next' button
+            ControlClick, Button16 ; Hit 'Next' button
             if ErrorLevel
                 TestsFailed("Unable to hit 'Next' button in 'IrfanView Setup (Do you want to associate)' window.")
             else
@@ -221,27 +217,25 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, IrfanView Setup, Google Desktop Search, 7
+    WinWaitActive, IrfanView Setup, Google Desktop Search, 3
     if ErrorLevel
         TestsFailed("'IrfanView Setup (Google Desktop Search)' window failed to appear.")
     else
     {
-        Sleep, 700
-        ControlGetText, OutputVar, Button1, IrfanView Setup
+        ControlGetText, OutputVar, Button1
         if OutputVar <> &Install Google Desktop Search ; We are in XP system
         {
-            Control, Uncheck,, Button1, IrfanView Setup, Google Desktop Search ; Uncheck 'Google Toolbar for Internet Explorer'
+            Control, Uncheck,, Button1 ; Uncheck 'Google Toolbar for Internet Explorer'
             if ErrorLevel
                 TestsFailed("Unable to uncheck 'Google Toolbar for Internet Explorer' in 'IrfanView Setup (Google Desktop Search)' window.")
             else
             {
-                Control, Uncheck,, Button2, IrfanView Setup, Google Desktop Search ; Uncheck 'Google Desktop Search'
+                Control, Uncheck,, Button2 ; Uncheck 'Google Desktop Search'
                 if ErrorLevel
                     TestsFailed("Unable to uncheck 'Google Desktop Search' in 'IrfanView Setup (Google Desktop Search)' window.")
                 else
                 {
-                    Sleep, 700
-                    ControlClick, Button18, IrfanView Setup, Google Desktop Search ; Hit 'Next' button
+                    ControlClick, Button18 ; Hit 'Next' button
                     if ErrorLevel
                         TestsFailed("Unable to hit 'Next' button in 'IrfanView Setup (Google Desktop Search)' window.")
                     else
@@ -252,13 +246,12 @@ if bContinue
         else
         {
             ; We are in win2k3 system
-            Control, Check,, Button2, IrfanView Setup, Google Desktop Search ; Check 'Dont install Google Desktop Search'
+            Control, Check,, Button2 ; Check 'Dont install Google Desktop Search'
             if ErrorLevel
                 TestsFailed("Unable to check 'Dont install Google Desktop Search' in 'IrfanView Setup (Google Desktop Search)' window.")
             else
             {
-                Sleep, 700
-                ControlClick, Button18, IrfanView Setup, Google Desktop Search ; Hit 'Next' button
+                ControlClick, Button18 ; Hit 'Next' button
                 if ErrorLevel
                     TestsFailed("Unable to hit 'Next' button in 'IrfanView Setup (Google Desktop Search)' window.")
                 else
@@ -273,19 +266,17 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, IrfanView Setup, Ready to install, 7
+    WinWaitActive, IrfanView Setup, Ready to install, 3
     if ErrorLevel
         TestsFailed("'IrfanView Setup (Ready to install)' window failed to appear.")
     else
     {
-        Sleep, 700
-        Control, Check,, Button2, IrfanView Setup, Ready to install ; Check 'Users Application Data folder'
+        Control, Check,, Button2 ; Check 'Users Application Data folder'
         if ErrorLevel
             TestsFailed("Unable to check 'Users Application Data folder' in 'IrfanView Setup (Ready to install)' window.")
         else
         {
-            Sleep, 700
-            ControlClick, Button23, IrfanView Setup, Ready to install ; Hit 'Next' button
+            ControlClick, Button23 ; Hit 'Next' button
             if ErrorLevel
                 TestsFailed("Unable to hit 'Next' button in 'IrfanView Setup (Ready to install)' window.")
             else
@@ -299,13 +290,12 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, IrfanView Setup, You want to change, 7
+    WinWaitActive, IrfanView Setup, You want to change, 3
     if ErrorLevel
         TestsFailed("'IrfanView Setup (You want to change)' window failed to appear.")
     else
     {
-        Sleep, 700
-        ControlClick, Button1, IrfanView Setup, You want to change ; Hit 'Yes' button
+        ControlClick, Button1 ; Hit 'Yes' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Yes' button in 'IrfanView Setup (You want to change)' window.")
         else
@@ -318,39 +308,36 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, IrfanView Setup, Installation successfull, 7
+    WinWaitActive, IrfanView Setup, Installation successfull, 3
     if ErrorLevel
         TestsFailed("'IrfanView Setup (Installation successfull)' window failed to appear.")
     else
     {
-        Sleep, 700
-        Control, Uncheck,, Button2, IrfanView Setup, Installation successfull ; Uncheck 'Start IrfanView'
+        Control, Uncheck,, Button2 ; Uncheck 'Start IrfanView'
         if ErrorLevel
             TestsFailed("Unable to uncheck 'Start IrfanView' in 'IrfanView Setup (Installation successfull)' window.")
         else
         {
-            Sleep, 700
-            ControlClick, Button27, IrfanView Setup, Installation successfull ; Hit 'Done' button
-            if ErrorLevel
-                TestsFailed("Unable to hit 'Done' button in 'IrfanView Setup (Installation successfull)' window.")
+            ControlGet, bChecked, Checked, Button2, IrfanView Setup, Installation successfull ; Need all params or it will fail
+            if bChecked = 1
+                TestsFailed("'Start IrfanView' checkbox reported as unchecked in 'IrfanView Setup (Installation successfull)' window, but further inspection proves that it was still checked.")
             else
             {
-                WinWaitClose, IrfanView Setup, Installation successfull, 25
+                ControlClick, Button27 ; Hit 'Done' button
                 if ErrorLevel
-                    ; Window will close only when it detects default browser process running (or something like that)
-                    TestsFailed("'IrfanView Setup (Installation successfull)' window failed to close despite the 'Done' button being reported as clicked .")
+                    TestsFailed("Unable to hit 'Done' button in 'IrfanView Setup (Installation successfull)' window.")
                 else
                 {
-                    if not TerminateDefaultBrowser(10)
-                        TestsFailed("Either default browser process failed to appear of we failed to terminate it.")
+                    WinWaitClose,,, 20 ; It loads browser, so, need more to sleep
+                    if ErrorLevel
+                        ; Window will close only when it detects default browser process running (or something like that)
+                        TestsFailed("'IrfanView Setup (Installation successfull)' window failed to close despite the 'Done' button being reported as clicked .")
                     else
                     {
-                        Process, Wait, %MainAppFile%, 4
-                        NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
-                        if NewPID <> 0
-                            TestsFailed("'" MainAppFile "' process appeared despite 'Start Irfanview' checkbox being unchecked.")
+                        if not TerminateDefaultBrowser(10)
+                            TestsFailed("Either default browser process failed to appear of we failed to terminate it.")
                         else
-                            TestsOK("'IrfanView Setup (Installation successfull)' window appeared, 'Start IrfanView' checkbox unchecked, 'Done' button clicked and window closed.")
+                            TestsOK("'IrfanView Setup (Installation successfull)' window appeared, 'Start IrfanView' checkbox unchecked, 'Done' button clicked, browser process terminated and window closed.")
                     }
                 }
             }
