@@ -45,7 +45,7 @@ else
             else
             {   
                 UninstallerPath = %A_ProgramFiles%\DosBlaster\2.5\unins000.exe /SILENT
-                WaitUninstallDone(UninstallerPath, 3)
+                WaitUninstallDone(UninstallerPath, 3) ; There is one child process
                 if bContinue
                 {
                     IfNotExist, %A_ProgramFiles%\DosBlaster ; Uninstaller might delete the dir
@@ -73,7 +73,7 @@ else
             else
             {
                 UninstallerPath = %UninstallerPath% /SILENT
-                WaitUninstallDone(UninstallerPath, 3)
+                WaitUninstallDone(UninstallerPath, 3) ; There is one child process
                 if bContinue
                 {
                     IfNotExist, %InstalledDir%
