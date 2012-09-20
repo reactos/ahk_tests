@@ -47,28 +47,26 @@ else
                 bContinue := true
             }
             else
-            {
-                IfExist, %szDefaultDir%\iv_uninstall.exe
+            {   
+                UninstallerPath = %szDefaultDir%\iv_uninstall.exe /silent
+                WaitUninstallDone(UninstallerPath, 3)
+                if bContinue
                 {
-                    TestsInfo("Found uninstaller '" szDefaultDir "\iv_uninstall.exe' (hardcoded path), so, lets run it.")
-                    RunWait, %szDefaultDir%\iv_uninstall.exe /silent ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
-                {
-                    TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
-                    bContinue := true
-                }
-                else
-                {
-                    FileRemoveDir, %szDefaultDir%, 1
-                    if ErrorLevel
-                        TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
+                    IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
+                    {
+                        TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
+                        bContinue := true
+                    }
                     else
                     {
-                        TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
-                        bContinue := true
+                        FileRemoveDir, %szDefaultDir%, 1
+                        if ErrorLevel
+                            TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
+                            bContinue := true
+                        }
                     }
                 }
             }
@@ -84,27 +82,26 @@ else
             }
             else
             {
-                IfExist, %UninstallerPath%
-                {
-                    TestsInfo("Found uninstaller (registry data), so, lets run it: '" UninstallerPath "'.")
-                    RunWait, %UninstallerPath% /silent ; Silently uninstall it
-                    Sleep, 7000
-                }
+                UninstallerPath = %UninstallerPath% /silent
+                WaitUninstallDone(UninstallerPath, 3)
 
-                IfNotExist, %InstalledDir%
+                if bContinue
                 {
-                    TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
-                    bContinue := true
-                }
-                else
-                {
-                    FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                    IfNotExist, %InstalledDir%
+                    {
+                        TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
+                        bContinue := true
+                    }
                     else
                     {
-                        TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
-                        bContinue := true
+                        FileRemoveDir, %InstalledDir%, 1 ; Uninstaller leaved the path for us to delete, so, do it
+                        if ErrorLevel
+                            TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
+                            bContinue := true
+                        }
                     }
                 }
             }
