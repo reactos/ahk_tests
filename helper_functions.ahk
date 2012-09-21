@@ -42,6 +42,7 @@ WaitUninstallDone(szUninstallerPath, SecondsToWait)
     {
         RunWait, %szUninstallerPath%,,, PID
         szParentName := GetProcessName(PID)
+        ; Sleep, 10 ; Child process doesn't start right away, need some sleep
         ChildPID := GetChildProcessesList(PID)
         szChildName := GetProcessName(ChildPID)
         ; If you really know there is some child process, result can't be '' (increase sleep in GetChildProcessesList())
@@ -439,7 +440,6 @@ TerminateTmpProcesses()
 
 GetChildProcessesList(PID)
 {
-   ; Sleep, 10 ; Child process doesn't start right away, need some sleep
    ChildProcesses = 
    
    ;We get the list of processes of the system (pidlist)
