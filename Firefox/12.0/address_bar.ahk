@@ -29,26 +29,34 @@ else
         TestsFailed("'Mozilla Firefox Start Page - Mozilla Firefox' is not active window.")
     else
     {
-        Sleep, 1000
         SendInput, {ALTDOWN}d{ALTUP} ; Go to address bar
-        Sleep, 1200 ; Let it to respond
-        SendInput, http{:}//dsx86{.}patrickaalto{.}com
-        Sleep, 500
-        SendInput, {ENTER}
-
-        Sleep, 7500 ; Let it to load the page, maybe we will crash
-
-        WinWaitActive, DSx86 by Patrick Aalto - Mozilla Firefox,, 7
+        ; copy text to clipboard and compare
+        clipboard = ; Empty the clipboard
+        Send, ^c
+        ClipWait, 2
         if ErrorLevel
-            TestsFailed("'DSx86 by Patrick Aalto - Mozilla Firefox' window failed to appear, so, typing URL failed (Alt+D).")
+            TestsFailed("The attempt to copy text onto the clipboard failed.")
         else
         {
-            Process, Close, %ProcessExe%
-            Process, WaitClose, %ProcessExe%, 5
-            if ErrorLevel ; The PID still exists.
-                TestsFailed("Unable to terminate '" ProcessExe "' process.")
+            if clipboard <> about:home
+                TestsFailed("Clipboard content is not the same as expected (is '" clipboard "', should be 'about:home') Can't focus address bar using Alt+D?.")
             else
-                TestsOK("'DSx86 by Patrick Aalto - Mozilla Firefox' window appeared, so typing URL works (Alt+D), '" ProcessExe "' process closed.")
+            {
+                SendInput, http{:}//dsx86{.}patrickaalto{.}com{ENTER}
+                WinWaitActive, DSx86 by Patrick Aalto - Mozilla Firefox,, 7
+                if ErrorLevel
+                    TestsFailed("'DSx86 by Patrick Aalto - Mozilla Firefox' window failed to appear, so, typing URL failed (Alt+D).")
+                else
+                {
+                    Sleep, 5500 ; Let it to load the page, maybe we will crash
+                    Process, Close, %ProcessExe%
+                    Process, WaitClose, %ProcessExe%, 5
+                    if ErrorLevel ; The PID still exists.
+                        TestsFailed("Unable to terminate '" ProcessExe "' process.")
+                    else
+                        TestsOK("'DSx86 by Patrick Aalto - Mozilla Firefox' window appeared, so typing URL works (Alt+D), '" ProcessExe "' process closed.")
+                }
+            }
         }
     }
 }

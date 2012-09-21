@@ -31,7 +31,6 @@ else
     {
         SearchArrowImg = %A_WorkingDir%\Media\searcharrow.png
 
-        Sleep, 1000
         ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, *4 %SearchArrowImg%
         if ErrorLevel = 2
             TestsFailed("Could not conduct the ImageSearch ('" SearchArrowImg "' is missing?).")
@@ -40,18 +39,16 @@ else
         else
         {
             MouseClick, left, %FoundX%, %FoundY%
-            Sleep, 500
             SendInput, y ;Y for Yahoo search
-            Sleep, 700
             SendInput, {CTRLDOWN}k{CTRLUP}edijus{ENTER} ; Go to search bar
-            Sleep, 7500 ; Let it to load, maybe something will fail
-            WinWaitActive, edijus - Yahoo! Search Results - Mozilla Firefox,,25
+            Sleep, 5500 ; Let it to load, maybe something will fail
+            WinWaitActive, edijus - Yahoo! Search Results - Mozilla Firefox,,7
             if ErrorLevel
                 TestsFailed("'edijus - Yahoo! Search Results - Mozilla Firefox' window failed to appear, so, search bar do not work. Bugs 5574, 5930, 6990?")
             else
             {
                 Process, Close, %ProcessExe%
-                Process, WaitClose, %ProcessExe%, 5
+                Process, WaitClose, %ProcessExe%, 4
                 if ErrorLevel ; The PID still exists.
                     TestsFailed("Unable to terminate '" ProcessExe "' process.")
                 else

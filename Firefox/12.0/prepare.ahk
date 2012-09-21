@@ -46,9 +46,7 @@ if bContinue
             TestsFailed("Unable to terminate '" ProcessExe "' process.")
         else
         {
-            Sleep, 2500 ; To make sure folders are not locked
             FileRemoveDir, %A_AppData%\Mozilla, 1 ; Delete all saved settings
-            Sleep, 1500
             IfExist, %A_AppData%\Mozilla
                 TestsFailed("Seems like we failed to delete '" A_AppData "\Mozilla'.")
             else
@@ -87,7 +85,6 @@ if bContinue
                             else
                             {
                                 TestsOK("")
-                                Sleep, 700
                             }
                         }
                     }
