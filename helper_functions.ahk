@@ -354,8 +354,8 @@ WindowCleanup(ProcessName)
                 OutputDebug, Helper Functions: Unable to terminate 'install.exe' process.`n
         }
     }
-    
-    WinGetTitle, ErrorWinTitle, A
+
+    WinGetActiveTitle, ErrorWinTitle
     if not ErrorLevel
     {
         ControlFocus, OK, %ErrorWinTitle%
