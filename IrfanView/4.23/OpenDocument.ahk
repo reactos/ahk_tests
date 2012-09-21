@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-TestName = 2.GoToPage
+TestName = 2.OpenDocument
 szDocument =  %A_WorkingDir%\Media\BookPage29Img.jpg ; Case sensitive!
 
 ; Test if can open picture using File -> Open dialog and close application successfully
