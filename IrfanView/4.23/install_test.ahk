@@ -363,7 +363,7 @@ if bContinue
         TestsFailed("Either we can't read from registry or data doesn't exist.")
     else
     {
-        StringReplace, UninstallerPath, UninstallerPath, `",, All
+        UninstallerPath := ExeFilePathNoParam(UninstallerPath)
         SplitPath, UninstallerPath,, InstalledDir
         IfNotExist, %InstalledDir%\%MainAppFile%
             TestsFailed("Something went wrong, can't find '" InstalledDir "\" MainAppFile "'.")
