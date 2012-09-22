@@ -54,22 +54,22 @@ else
                 WaitUninstallDone(UninstallerPath, 3)
                 if bContinue
                 {
-                    IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
+                    ; 2.0.0.20, 3.0.11, 12.0 starts 'Au_.exe' process
+                    Process, WaitClose, Au_.exe, 7
+                    if ErrorLevel ; The PID still exists
                     {
-                        TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
-                        bContinue := true
+                        TestsInfo("'Au_.exe' process failed to close.")
+                        Process, Close, Au_.exe
+                        Process, WaitClose, Au_.exe, 3
+                        if ErrorLevel ; The PID still exists
+                            TestsFailed("Unable to terminate 'Au_.exe' process.")
                     }
                     else
                     {
-                        ; 2.0.0.20, 3.0.11, 12.0 starts 'Au_.exe' process
-                        Process, WaitClose, Au_.exe, 7
-                        if ErrorLevel ; The PID still exists
+                        IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
                         {
-                            TestsInfo("'Au_.exe' process failed to close.")
-                            Process, Close, Au_.exe
-                            Process, WaitClose, Au_.exe, 3
-                            if ErrorLevel ; The PID still exists
-                                TestsFailed("Unable to terminate 'Au_.exe' process.")
+                            TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
+                            bContinue := true
                         }
                         else
                         {
@@ -101,21 +101,21 @@ else
                 WaitUninstallDone(UninstallerPath, 3)
                 if bContinue
                 {
-                    IfNotExist, %InstalledDir%
+                    Process, WaitClose, Au_.exe, 7
+                    if ErrorLevel ; The PID still exists
                     {
-                        TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
-                        bContinue := true
+                        TestsInfo("'Au_.exe' process failed to close.")
+                        Process, Close, Au_.exe
+                        Process, WaitClose, Au_.exe, 3
+                        if ErrorLevel ; The PID still exists
+                            TestsFailed("Unable to terminate 'Au_.exe' process.")
                     }
                     else
                     {
-                        Process, WaitClose, Au_.exe, 7
-                        if ErrorLevel ; The PID still exists
+                        IfNotExist, %InstalledDir%
                         {
-                            TestsInfo("'Au_.exe' process failed to close.")
-                            Process, Close, Au_.exe
-                            Process, WaitClose, Au_.exe, 3
-                            if ErrorLevel ; The PID still exists
-                                TestsFailed("Unable to terminate 'Au_.exe' process.")
+                            TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
+                            bContinue := true
                         }
                         else
                         {
