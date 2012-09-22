@@ -157,6 +157,7 @@ if bContinue
 TestsTotal++
 if bContinue
 {
+    DetectHiddenText, Off ; Hidden text is not detected
     WinWaitActive, IrfanView Setup, Welcome, 7
     if ErrorLevel
         TestsFailed("'IrfanView Setup (Welcome)' window failed to appear.")
@@ -165,8 +166,14 @@ if bContinue
         ControlClick, Button11 ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'IrfanView Setup (Welcome)' window.")
-        else ; WinWaitClose will not work with this setup on win2k3 sp2
-            TestsOK("'IrfanView Setup (Welcome)' window appeared and 'Next' button was clicked.")
+        else
+        {
+            WinWaitClose, IrfanView Setup, Welcome, 7
+            if ErrorLevel
+                TestsFailed("'IrfanView Setup (Welcome)' window failed to close despite 'Next' button being clicked.")
+            else
+                TestsOK("'IrfanView Setup (Welcome)' window appeared, 'Next' button clicked and window closed.")
+        }
     }
 }
 
