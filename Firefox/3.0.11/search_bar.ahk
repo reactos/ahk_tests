@@ -35,7 +35,6 @@ else
             TestsFailed("Can NOT find '" SearchArrowImg "'.")
         else
         {
-            Sleep, 1000
             ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, *11 %SearchArrowImg%
             if ErrorLevel = 2
                 TestsFailed("Could not conduct the ImageSearch.")
@@ -44,22 +43,36 @@ else
             else
             {
                 MouseClick, left, %FoundX%, %FoundY%
-                Sleep, 500
                 SendInput, y ;Y for Yahoo search
-                Sleep, 700
-                SendInput, {CTRLDOWN}k{CTRLUP}edijus{ENTER} ; Go to search bar
-                Sleep, 7500 ; Let it to load, maybe something will fail
-                WinWaitActive, edijus - Yahoo! Search Results - Mozilla Firefox,,25
+                SendInput, {CTRLDOWN}k{CTRLUP}edijus ; Go to search bar and type 'edijus'
+                ; copy text to clipboard and compare
+                clipboard = ; Empty the clipboard
+                Send, ^a ; Select all
+                Send, ^c
+                ClipWait, 2
                 if ErrorLevel
-                    TestsFailed("'edijus - Yahoo! Search Results - Mozilla Firefox' window failed to appear, so, search bar do not work. Bugs 5574, 5930, 6990?")
+                    TestsFailed("The attempt to copy text onto the clipboard failed.")
                 else
                 {
-                    Process, Close, %ProcessExe%
-                    Process, WaitClose, %ProcessExe%, 5
-                    if ErrorLevel ; The PID still exists.
-                        TestsFailed("Unable to terminate '" ProcessExe "' process.")
+                    if clipboard <> edijus
+                        TestsFailed("Clipboard content is not the same as expected (is '" clipboard "', should be 'edijus') Can't focus serch bar using Ctrl+K?.")
                     else
-                        TestsOK("'edijus - Yahoo! Search Results - Mozilla Firefox' window appeared, so search bar works, '" ProcessExe "' process closed.")
+                    {
+                        SendInput, {ENTER}
+                        WinWaitActive, edijus - Yahoo! Search Results - Mozilla Firefox,,15 ; Time depends on connection speed
+                        if ErrorLevel
+                            TestsFailed("'edijus - Yahoo! Search Results - Mozilla Firefox' window failed to appear, so, search bar do not work. Bugs 5574, 5930, 6990?")
+                        else
+                        {
+                            Sleep, 5500 ; Let the URL to load, maybe something will fail
+                            Process, Close, %ProcessExe%
+                            Process, WaitClose, %ProcessExe%, 5
+                            if ErrorLevel ; The PID still exists.
+                                TestsFailed("Unable to terminate '" ProcessExe "' process.")
+                            else
+                                TestsOK("'edijus - Yahoo! Search Results - Mozilla Firefox' window appeared, so search bar works, '" ProcessExe "' process closed.")
+                        }
+                    }
                 }
             }
         }
