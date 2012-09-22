@@ -46,9 +46,7 @@ if bContinue
             TestsFailed("Unable to terminate '" ProcessExe "' process.")
         else
         {
-            Sleep, 2500 ; To make sure folders are not locked
             FileRemoveDir, %A_AppData%\Mozilla, 1 ; Delete all saved settings
-            Sleep, 1500
             IfExist, %A_AppData%\Mozilla
                 TestsFailed("Seems like we failed to delete '" A_AppData "\Mozilla'.")
             else
@@ -63,7 +61,7 @@ if bContinue
                         TestsFailed("Failed to create and edit '" A_AppData "\Mozilla\Firefox\profiles.ini'.")
                     else
                     {
-                        szNoWarningOnClose := "user_pref(""browser.tabs.warnOnClose""`, false)`;" ; Now, new do not want any warnings when closing multiple tabs
+                        szNoWarningOnClose := "user_pref(""browser.tabs.warnOnClose""`, false)`;" ; Now, we do not want any warnings when closing multiple tabs
                         szNoFirstRun := "user_pref(""browser.startup.homepage_override.mstone""`, ""rv:1.8.1.20"")`;" ; Lets pretend we ran it once
                         szRightsShown := "user_pref(""browser.rights.3.shown""`, true)`;" ; We know your rights, no need to ask
                         szNoImprvHelp := "user_pref(""toolkit.telemetry.prompted""`, 2)`;`nuser_pref(""toolkit.telemetry.rejected""`, true)`;" ; We don't want to help to improve
@@ -88,7 +86,6 @@ if bContinue
                             else
                             {
                                 TestsOK("")
-                                Sleep, 700
                             }
                         }
                     }
