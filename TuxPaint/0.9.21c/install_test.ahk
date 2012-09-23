@@ -39,51 +39,69 @@ else
             ; There was a problem (such as a nonexistent key or value). 
             ; That probably means we have not installed this app before.
             ; Check in default directory to be extra sure
-            IfNotExist, %A_ProgramFiles%\TuxPaint
-                bContinue := true ; No previous versions detected in hardcoded path
-            else
+            bHardcoded := true ; To know if we got path from registry or not
+            szDefaultDir = %A_ProgramFiles%\TuxPaint
+            IfNotExist, %szDefaultDir%
             {
-                bHardcoded := true ; To know if we got path from registry or not
-                IfExist, %A_ProgramFiles%\TuxPaint\unins000.exe
+                TestsInfo("No previous versions detected in hardcoded path: '" szDefaultDir "'.")
+                bContinue := true
+            }
+            else
+            {   
+                UninstallerPath = %szDefaultDir%\unins000.exe /silent
+                WaitUninstallDone(UninstallerPath, 3)
+                if bContinue
                 {
-                    RunWait, %A_ProgramFiles%\TuxPaint\unins000.exe /silent ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %A_ProgramFiles%\TuxPaint ; Uninstaller might delete the dir
-                    bContinue := true
-                {
-                    FileRemoveDir, %A_ProgramFiles%\TuxPaint, 1
-                    if ErrorLevel
-                        TestsFailed("Unable to delete hardcoded path '" A_ProgramFiles "\TuxPaint' ('" MainAppFile "' process is reported as terminated).'")
-                    else
+                    IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
+                    {
+                        TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %szDefaultDir%, 1
+                        if ErrorLevel
+                            TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
         else
         {
-            StringReplace, UninstallerPath, UninstallerPath, `",, All ; TuxPaint data is quoted
+            UninstallerPath := ExeFilePathNoParam(UninstallerPath)
             SplitPath, UninstallerPath,, InstalledDir
             IfNotExist, %InstalledDir%
+            {
+                TestsInfo("Got '" InstalledDir "' from registry and such path does not exist.")
                 bContinue := true
+            }
             else
             {
-                IfExist, %UninstallerPath%
+                UninstallerPath = %UninstallerPath% /silent
+                WaitUninstallDone(UninstallerPath, 3) ; Child process '*.tmp'
+                if bContinue
                 {
-                    RunWait, %UninstallerPath% /silent ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %InstalledDir%
-                    bContinue := true
-                else
-                {
-                    FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
-                    else
+                    IfNotExist, %InstalledDir%
+                    {
+                        TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %InstalledDir%, 1 ; Uninstaller leaved the path for us to delete, so, do it
+                        if ErrorLevel
+                            TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
@@ -115,14 +133,13 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Select Setup Language, Select the language, 15
+    WinWaitActive, Select Setup Language, Select the language, 10
     if ErrorLevel
         TestsFailed("'Select Setup Language (Select the language')' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, {ENTER} ; Hit 'OK' button
-        WinWaitClose, Select Setup Language, Select the language, 5
+        WinWaitClose, Select Setup Language, Select the language, 3
         if ErrorLevel
             TestsFailed("'Select Setup Language (Select the language')' window failed to close despite 'ENTER' was sent to it.")
         else
@@ -135,12 +152,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Tux Paint, Welcome to the Tux Paint, 15
+    WinWaitActive, Setup - Tux Paint, Welcome to the Tux Paint, 10
     if ErrorLevel
         TestsFailed("'Setup - Tux Paint (Welcome to the Tux Paint)' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, !n ; Hit 'Next' button
         TestsOK("'Setup - Tux Paint (Welcome to the Tux Paint)' window appeared, Alt+N was sent.")
     }
@@ -151,14 +167,12 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Tux Paint, License Agreement, 7
+    WinWaitActive, Setup - Tux Paint, License Agreement, 3
     if ErrorLevel
         TestsFailed("'Setup - Tux Paint (License Agreement)' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, !a ; Check 'I accept' radiobutton (Fails to check? Bug 7215)
-        Sleep, 1000 ; Wait until 'Next' button is enabled
         SendInput, !n ; Hit 'Next' button
         TestsOK("'Setup - Tux Paint (License Agreement)' window appeared, Alt+A and Alt+N were sent.")
     }
@@ -169,12 +183,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Tux Paint, Choose Installation Type, 7
+    WinWaitActive, Setup - Tux Paint, Choose Installation Type, 3
     if ErrorLevel
         TestsFailed("'Setup - Tux Paint (Choose Installation Type)' window failed to appear (bug 7215?).")
     else
     {
-        Sleep, 700
         SendInput, !n ; Hit 'Next' button
         TestsOK("'Setup - Tux Paint (Choose Installation Type)' window appeared, Alt+N was sent.")
     }
@@ -185,12 +198,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Tux Paint, Select Destination Location, 7
+    WinWaitActive, Setup - Tux Paint, Select Destination Location, 3
     if ErrorLevel
         TestsFailed("'Setup - Tux Paint (Select Destination Location)' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, !n ; Hit 'Next' button
         TestsOK("'Setup - Tux Paint (Select Destination Location)' window appeared, Alt+N was sent.")
     }
@@ -201,12 +213,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Tux Paint, Select Start Menu Folder, 7
+    WinWaitActive, Setup - Tux Paint, Select Start Menu Folder, 3
     if ErrorLevel
         TestsFailed("'Setup - Tux Paint (Select Start Menu Folder)' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, !n ; Hit 'Next' button
         TestsOK("'Setup - Tux Paint (Select Start Menu Folder)' window appeared, Alt+N was sent.")
     }
@@ -217,12 +228,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Tux Paint, Select Additional Tasks, 7
+    WinWaitActive, Setup - Tux Paint, Select Additional Tasks, 3
     if ErrorLevel
         TestsFailed("'Setup - Tux Paint (Select Additional Tasks)' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, !n ; Hit 'Next' button
         TestsOK("'Setup - Tux Paint (Select Additional Tasks)' window appeared, Alt+N was sent.")
     }
@@ -233,12 +243,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Tux Paint, Ready to Install, 7
+    WinWaitActive, Setup - Tux Paint, Ready to Install, 3
     if ErrorLevel
         TestsFailed("'Setup - Tux Paint (Ready to Install)' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, !i ; Hit 'Install' button
         TestsOK("'Setup - Tux Paint (Ready to Install)' window appeared, Alt+I was sent.")
     }
@@ -249,14 +258,13 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Tux Paint, Installing, 7
+    WinWaitActive, Setup - Tux Paint, Installing, 3
     if ErrorLevel
         TestsFailed("'Setup - Tux Paint (Installing)' window failed to appear.")
     else
     {
-        Sleep, 700
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Tux Paint (Installing)' window appeared, waiting for it to close.`n
-        WinWaitClose, Setup - Tux Paint, Installing, 25
+        TestsInfo("'Setup - Tux Paint (Installing)' window appeared, waiting for it to close.")
+        WinWaitClose, Setup - Tux Paint, Installing, 15
         if ErrorLevel
             TestsFailed("'Setup - Tux Paint (Installing)' window failed to close.")
         else
@@ -269,16 +277,14 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Tux Paint, Completing, 7
+    WinWaitActive, Setup - Tux Paint, Completing, 3
     if ErrorLevel
         TestsFailed("'Setup - Tux Paint (Completing)' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, {SPACE}{DOWN}{SPACE} ; FIXME: Find better solution. AHK 'Control, Uncheck' won't work here!
-        Sleep, 500
         SendInput, !f ; Hit 'Finish' button
-        WinWaitClose, Setup - Tux Paint, Completing, 5
+        WinWaitClose, Setup - Tux Paint, Completing, 3
         if ErrorLevel
             TestsFailed("'Setup - Tux Paint (Completing)' window failed to close despite Alt+F was sent.")
         else
@@ -305,7 +311,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Tux Paint_is1, UninstallString
     if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")
