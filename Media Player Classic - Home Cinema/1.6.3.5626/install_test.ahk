@@ -100,14 +100,13 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Select Setup Language, Select the language, 15
+    WinWaitActive, Select Setup Language, Select the language, 5
     if ErrorLevel
         TestsFailed("'Select Setup Language (Select the language)' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, {ENTER} ; Hit 'OK' button
-        WinWaitClose, Select Setup Language, Select the language, 7
+        WinWaitClose, Select Setup Language, Select the language, 3
         if ErrorLevel
             TestsFailed("'Select Setup Language (Select the language)' window failed to close despite 'ENTER' was sent.")
         else
@@ -120,12 +119,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - MPC-HC, This will install, 8
+    WinWaitActive, Setup - MPC-HC, This will install, 5
     if ErrorLevel
         TestsFailed("'Setup - MPC-HC (This will install)' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, !n ; Hit 'Next' button
         TestsOK("'Setup - MPC-HC (This will install)' window appeared, Alt+N was sent.")
     }
@@ -136,14 +134,12 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - MPC-HC, License Agreement, 7
+    WinWaitActive, Setup - MPC-HC, License Agreement, 3
     if ErrorLevel
         TestsFailed("'Setup - MPC-HC (License Agreement)' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, !a ; Check 'I accept' radiobutton
-        Sleep, 1000 ; Sleep until 'Next' button is enabled
         SendInput, !n ; Hit 'Next' button
         TestsOK("'Setup - MPC-HC (License Agreement)' window appeared, Alt+A and Alt+N was sent.")
     }
@@ -154,12 +150,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - MPC-HC, Select Destination Location, 7
+    WinWaitActive, Setup - MPC-HC, Select Destination Location, 3
     if ErrorLevel
         TestsFailed("'Setup - MPC-HC (Select Destination Location)' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, !n ; Hit 'Next' button
         TestsOK("'Setup - MPC-HC (Select Destination Location)' window appeared, Alt+N was sent.")
     }
@@ -170,12 +165,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - MPC-HC, Select Components, 7
+    WinWaitActive, Setup - MPC-HC, Select Components, 3
     if ErrorLevel
         TestsFailed("'Setup - MPC-HC (Select Components)' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, !n ; Hit 'Next' button
         TestsOK("'Setup - MPC-HC (Select Components)' window appeared, Alt+N was sent.")
     }
@@ -186,12 +180,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - MPC-HC, Select Start Menu Folder, 7
+    WinWaitActive, Setup - MPC-HC, Select Start Menu Folder, 3
     if ErrorLevel
         TestsFailed("'Setup - MPC-HC (Select Start Menu Folder)' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, !n ; Hit 'Next' button
         TestsOK("'Setup - MPC-HC (Select Start Menu Folder)' window appeared, Alt+N was sent.")
     }
@@ -202,14 +195,12 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - MPC-HC, Select Additional Tasks, 7
+    WinWaitActive, Setup - MPC-HC, Select Additional Tasks, 3
     if ErrorLevel
         TestsFailed("'Setup - MPC-HC (Select Additional Tasks)' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, !q ; Check 'Create a Quick Launch icon' checkbox //We want to test more things
-        Sleep, 500
         SendInput, !n ; Hit 'Next' button
         TestsOK("'Setup - MPC-HC (Select Additional Tasks)' window appeared, Alt+Q and Alt+N was sent.")
     }
@@ -220,12 +211,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - MPC-HC, Ready to Install, 7
+    WinWaitActive, Setup - MPC-HC, Ready to Install, 3
     if ErrorLevel
         TestsFailed("'Setup - MPC-HC (Ready to Install)' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, !i ; Hit 'Install' button
         TestsOK("'Setup - MPC-HC (Ready to Install)' window appeared and Alt+I was sent.")
     }
@@ -236,14 +226,13 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - MPC-HC, Installing, 7
+    WinWaitActive, Setup - MPC-HC, Installing, 3
     if ErrorLevel
         TestsFailed("'Setup - MPC-HC (Installing)' window failed to appear.")
     else
     {
-        Sleep, 700
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installing' window appeared, waiting for it to close.`n
-        WinWaitClose, Setup - MPC-HC, Installing, 25
+        TestsInfo("'Installing' window appeared, waiting for it to close.")
+        WinWaitClose, Setup - MPC-HC, Installing, 10
         if ErrorLevel
             TestsFailed("'Setup - MPC-HC (Installing)' window failed to dissapear.")
         else
@@ -255,14 +244,13 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - MPC-HC, Completing, 7
+    WinWaitActive, Setup - MPC-HC, Completing, 3
     if ErrorLevel
         TestsFailed("'Setup - MPC-HC (Completing)' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, !f ; Hit 'Finish' button
-        WinWaitClose, Setup - MPC-HC, Completing, 5
+        WinWaitClose, Setup - MPC-HC, Completing, 3
         if ErrorLevel
             TestsFailed("'Setup - MPC-HC (Completing)' window failed to close despite Alt+F was sent.")
         else
@@ -274,7 +262,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{2624B969-7135-4EB1-B0F6-2D8C397B45F7}_is1, UninstallString
     if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")
