@@ -49,12 +49,10 @@ else
                     TestsFailed("'" A_ProgramFiles "\7-Zip\' window failed to appear.")
                 else
                 {
-                    Sleep, 270
                     SendInput {Down} ; We have only one file there, so hit down arrow to select that file
                     SendInput !F ; Alt+F (File)
                     SendInput {Right} ; 7-Zip -> Add to archive
                     SendInput {Enter}
-                    Sleep, 1200
                     WinWaitActive, Add to Archive,, 7
                     if ErrorLevel
                         TestsFailed("'Add to Archive' window failed to appear.")
@@ -65,11 +63,13 @@ else
                             TestsFailed("Unable to click 'OK' button in 'Add to Archive' window.")
                         else
                         {
-                            Sleep, 2500 ; Give it some time to archive
                             IfNotExist, %A_ProgramFiles%\7-Zip\AHK_Test\SampleFile.7z
                                 TestsFailed("'" A_ProgramFiles "\7-Zip\AHK_Test\SampleFile.7z' doesn't exist.")
                             else
-                                TestsOK("'" A_ProgramFiles "\7-Zip\AHK_Test\SampleFile.7z' exist.")  
+                            {
+                                TestsOK("Created archive '" A_ProgramFiles "\7-Zip\AHK_Test\SampleFile.7z' successfully.") 
+                                TerminateApplication() ; We don't care now if application can close correctly, so, terminate
+                            }
                         }
                     }
                 }
@@ -77,6 +77,3 @@ else
         }
     }
 }
-
-
-Process, close, 7zFM.exe ; We don't care now if application can close correctly, so, terminate
