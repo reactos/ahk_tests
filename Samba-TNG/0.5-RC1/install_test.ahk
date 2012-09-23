@@ -50,18 +50,16 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, 7-Zip self-extracting archive, Extract, 15
+    WinWaitActive, 7-Zip self-extracting archive, Extract, 5
     if ErrorLevel
         TestsFailed("'7-Zip self-extracting archive' window with 'Extract' button failed to appear.")
     else
     {
-        Sleep, 250
         ControlSetText, Edit1, C:\ReactOS\Samba-TNG, 7-Zip self-extracting archive, Extract ; Path
         if ErrorLevel
             TestsFailed("Unable to change 'Edit1' control text to 'C:\ReactOS\Samba-TNG'.")
         else
         {
-            Sleep, 700
             ControlClick, Button2, 7-Zip self-extracting archive, Extract ; Hit 'Extract' button
             if ErrorLevel
                 TestsFailed("Unable to click 'Extract' in '7-Zip self-extracting archive' window.")
@@ -82,12 +80,18 @@ TestsTotal++
 if bContinue
 {
     SetTitleMatchMode, 2 ; A window's title can contain WinTitle anywhere inside it to be a match.
-    WinWaitActive, Extracting, Cancel, 10 ; Wait 10 secs for window to appear
+    WinWaitActive, Extracting, Cancel, 3
     if ErrorLevel
-        TestsFailed("'Extracting' window failed to appear.")
+    {
+        ; Sometimes files are extracted so fast that AHK doesn't detect the window
+        IfNotExist, C:\ReactOS\Samba-TNG
+            TestsFailed("'Extracting' window failed to appear (SetTitleMatchMode=2) and 'C:\ReactOS\Samba-TNG' doesnt exist.")
+        else
+            TestsOK("AHK unabled to detect 'Extracting' window, but 'C:\ReactOS\Samba-TNG' exist.")
+    }
     else
     {
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Extracting' window appeared, waiting for it to close.`n
+        TestsInfo("'Extracting' window appeared, waiting for it to close.")
         WinWaitClose, Extracting, Cancel, 15
         if ErrorLevel
             TestsFailed("'Extracting' window failed to close.")
@@ -101,7 +105,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     IfExist, C:\ReactOS\Samba-TNG
         TestsOK("The application has been installed, because 'C:\ReactOS\Samba-TNG' was found.")
     else
