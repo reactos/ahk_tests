@@ -35,11 +35,15 @@ else
         Run, %ModuleExe% ; Do not run it maximized!
         WinWaitActive, Adobe Flash Player 10,,7
         if ErrorLevel
-            TestsFailed("'Adobe Flash Player 10' window failed to appear.")
-        else
         {
-            Sleep, 1000 ; We are good to go
-            TestsOK("")
+            Process, Exist, %MainAppFile%
+            NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+            if NewPID = 0
+                TestsFailed("Window 'Adobe Flash Player 10' failed to appear. No '" MainAppFile "' process detected.")
+            else
+                TestsFailed("Window 'Adobe Flash Player 10' failed to appear. '" MainAppFile "' process detected.")
         }
+        else
+            TestsOK("")
     }
 }

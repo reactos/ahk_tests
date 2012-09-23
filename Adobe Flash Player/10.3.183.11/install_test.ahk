@@ -29,9 +29,8 @@ else
 {
     InstallLocation = %A_WinDir%\System32\Macromed\Flash
     Process, Close, %MainAppFile% ; Teminate process
-    Sleep, 2000
-    Process, Exist, %MainAppFile%
-    if ErrorLevel <> 0
+    Process, WaitClose, %MainAppFile%, 4
+    if ErrorLevel ; The PID still exists.
         TestsFailed("Unable to terminate '" MainAppFile "' process.") ; So, process still exists
     else
     {
@@ -55,7 +54,7 @@ else
                     else
                     {
                         ControlClick, Button3, Uninstall Adobe Flash Player ; Uninstall
-                        Sleep, 5000
+                        Sleep, 5000 ; FIXME: remove hardcoded sleep call. ControlGet,, Enabled will report Button3 being enabled while it is not.
                         ControlClick, Button3, Uninstall Adobe Flash Player ; Done
                         WinWaitClose, Uninstall Adobe Flash Player,,7
                         if ErrorLevel
@@ -152,13 +151,12 @@ if bContinue
         TestsFailed("'Adobe® Flash® Player 10.3 Installer' window with 'Install' button failed to appear.")
     else
     {
-        Sleep, 250
         Control, Check,,Button6, Adobe® Flash® Player 10.3 Installer ; Check 'I have read and agree' checkbox
         if ErrorLevel
             TestsFailed("Unable to check 'I have read and agree' checkbox in 'Adobe® Flash® Player 10.3 Installer' window.")
         else
         {
-            Sleep, 1500 ; Wait until 'Install' button is enabled
+            Sleep, 1500 ; Wait until 'Install' button is enabled. FIXME: ControlGet,, Enabled will report Button3 being enabled while it is not.
             ControlClick, Button3, Adobe® Flash® Player 10.3 Installer ; Hit 'Install' button
             if ErrorLevel
                 TestsFailed("Unable to hit 'Install' button in 'Adobe® Flash® Player 10.3 Installer' window.")
@@ -177,11 +175,7 @@ if bContinue
         TestsFailed("'Adobe® Flash® Player 10.3 Installer' is not active window.")
     else
     {
-        while not %OutputVar% ; Sleep while 'Done' button is disabled
-        {
-            ControlGet, OutputVar, Enabled,, Button3, Adobe® Flash® Player 10.3 Installer
-            Sleep, 1000
-        }
+        Sleep, 2000 ; FIXME: ControlGet,, Enabled will report Button3 being enabled while it is not.
         ControlClick, Button3, Adobe® Flash® Player 10.3 Installer ; Hit 'Done' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Done' button in 'Adobe® Flash® Player 10.3 Installer' window.")
@@ -199,7 +193,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Adobe Flash Player ActiveX, UninstallString
     if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")

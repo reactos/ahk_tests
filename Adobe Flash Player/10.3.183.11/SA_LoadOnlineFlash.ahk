@@ -36,7 +36,7 @@ else
             TestsFailed("Unable to click 'File -> Open' in 'Adobe Flash Player 10' window.")
         else
         {
-            WinWaitActive, Open, Enter the, 7
+            WinWaitActive, Open, Enter the, 3
             if ErrorLevel
                 TestsFailed("'Open (Enter the)' window is not active window.")
             else
@@ -46,20 +46,19 @@ else
                     TestsFailed("Unable to enter path '" szDocument "' in 'Open (Enter the)' window.")
                 else
                 {
-                    Sleep, 700
-                    OutputDebug, %TestName%:%A_LineNumber%: If BSOD, then bug 6023.`n
+                    TestsInfo("If BSOD, then bug 6023.")
                     ControlClick, Button1, Open, Enter the
                     if ErrorLevel
                         TestsFailed("Unable to hit 'OK' button in 'Open (Enter the)' window.")
                     else
                     {
-                        WinWaitClose, Open, Enter the, 5
+                        WinWaitClose, Open, Enter the, 3
                         if ErrorLevel
                             TestsFailed("'Open (Enter the)' window failed to close despite 'OK' button being clicked.")
                         else
                         {
                             WinMove, Adobe Flash Player 10,, 10, 10 ; Change window coordinates
-                            Sleep, 25000 ; Depends on connection speed
+                            Sleep, 25000 ; Depends on connection speed..?
                             IfWinNotActive, Adobe Flash Player 10
                                 TestsFailed("Loaded '" szDocument "'. 'Adobe Flash Player 10' is not active anymore.")
                             else

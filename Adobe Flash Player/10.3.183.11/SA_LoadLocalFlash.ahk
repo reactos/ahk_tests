@@ -39,7 +39,7 @@ else
                 TestsFailed("Unable to click 'File -> Open' in 'Adobe Flash Player 10' window.")
             else
             {
-                WinWaitActive, Open, Enter the, 7
+                WinWaitActive, Open, Enter the, 3
                 if ErrorLevel
                     TestsFailed("'Open (Enter the)' window is not active window.")
                 else
@@ -49,13 +49,12 @@ else
                         TestsFailed("Unable to enter path '" szDocument "' in 'Open (Enter the)' window.")
                     else
                     {
-                        Sleep, 700
                         ControlClick, Button1, Open, Enter the
                         if ErrorLevel
                             TestsFailed("Unable to hit 'OK' button in 'Open (Enter the)' window.")
                         else
                         {
-                            WinWaitClose,  Open, Enter the, 5
+                            WinWaitClose,  Open, Enter the, 3
                             if ErrorLevel
                                 TestsFailed("'Open (Enter the)' window failed to close despite 'OK' button being clicked.")
                             else
