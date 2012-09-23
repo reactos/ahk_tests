@@ -39,49 +39,71 @@ else
             ; There was a problem (such as a nonexistent key or value). 
             ; That probably means we have not installed this app before.
             ; Check in default directory to be extra sure
-            IfNotExist, %A_ProgramFiles%\mIRC
-                bContinue := true ; No previous versions detected in hardcoded path
-            else
+            bHardcoded := true ; To know if we got path from registry or not
+            szDefaultDir = %A_ProgramFiles%\mIRC
+            IfNotExist, %szDefaultDir%
             {
-                bHardcoded := true ; To know if we got path from registry or not
-                IfExist, %A_ProgramFiles%\mIRC\Uninstall.exe
+                TestsInfo("No previous versions detected in hardcoded path: '" szDefaultDir "'.")
+                bContinue := true
+            }
+            else
+            {   
+                UninstallerPath = %szDefaultDir%\Uninstall.exe /S
+                WaitUninstallDone(UninstallerPath, 3)
+                if bContinue
                 {
-                    RunWait, %A_ProgramFiles%\mIRC\Uninstall.exe /S ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %A_ProgramFiles%\mIRC ; Uninstaller might delete the dir
-                    bContinue := true
-                {
-                    FileRemoveDir, %A_ProgramFiles%\mIRC, 1
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" A_ProgramFiles "\mIRC' ('" MainAppFile "' process is reported as terminated).'")
-                    else
+                    IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
+                    {
+                        TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %szDefaultDir%, 1
+                        if ErrorLevel
+                            TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
         else
         {
-            IfNotExist, %InstallLocation%
+            UninstallerPath = %InstallLocation%\uninstall.exe
+            UninstallerPath := ExeFilePathNoParam(UninstallerPath)
+            SplitPath, UninstallerPath,, InstalledDir
+            IfNotExist, %InstalledDir%
+            {
+                TestsInfo("Got '" InstalledDir "' from registry and such path does not exist.")
                 bContinue := true
+            }
             else
             {
-                IfExist, %InstallLocation%\Uninstall.exe
-                {
-                    RunWait, %InstallLocation%\Uninstall.exe /S ; Silently uninstall it
-                    Sleep, 7000
-                }
+                UninstallerPath = %UninstallerPath% /S ; There is one child process 'Au_.exe'
+                WaitUninstallDone(UninstallerPath, 3)
 
-                IfNotExist, %InstallLocation%
-                    bContinue := true
-                else
+                if bContinue
                 {
-                    FileRemoveDir, %InstallLocation%, 1 ; Delete just in case
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" InstallLocation "' ('" MainAppFile "' process is reported as terminated).")
-                    else
+                    IfNotExist, %InstalledDir%
+                    {
+                        TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %InstalledDir%, 1 ; Uninstaller leaved the path for us to delete, so, do it
+                        if ErrorLevel
+                            TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
@@ -120,7 +142,6 @@ if bContinue
         TestsFailed("'mIRC Setup (Welcome to the mIRC)' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, !n ; Hit 'Next' button
         TestsOK("'mIRC Setup (Welcome to the mIRC)' window appeared, Alt+N was sent.")
     }
@@ -131,12 +152,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, mIRC Setup, License Agreement, 7
+    WinWaitActive, mIRC Setup, License Agreement, 3
     if ErrorLevel
         TestsFailed("'mIRC Setup (License Agreement)' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, !a ; Hit 'I Agree' button
         TestsOK("'mIRC Setup (License Agreement)' window appeared, Alt+A was sent.")
     }
@@ -147,12 +167,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, mIRC Setup, Choose Install Location, 7
+    WinWaitActive, mIRC Setup, Choose Install Location, 3
     if ErrorLevel
         TestsFailed("'mIRC Setup (Choose Install Location)' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, !n ; Hit 'Next' button
         TestsOK("'mIRC Setup (Choose Install Location)' window appeared, Alt+N was sent.")
     }
@@ -163,12 +182,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, mIRC Setup, Choose Components, 7
+    WinWaitActive, mIRC Setup, Choose Components, 3
     if ErrorLevel
         TestsFailed("'mIRC Setup(Choose Components)' window failed to appear")
     else
     {
-        Sleep, 700
         SendInput, !n ; Hit 'Next' button
         TestsOK("'mIRC Setup(Choose Components)' window appeared, Alt+N was sent.")
     }
@@ -179,14 +197,12 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, mIRC Setup, Select Additional Tasks, 7
+    WinWaitActive, mIRC Setup, Select Additional Tasks, 3
     if ErrorLevel
         TestsFailed("'mIRC Setup (Select Additional Tasks)' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, {TAB}{TAB}{SPACE}{TAB}{SPACE} ; Uncheck 'Backup Current Files' and 'Automatically Check for Updates'
-        Sleep, 500
         SendInput, !n ; Hit 'Next' button
         TestsOK("'mIRC Setup (Select Additional Tasks)' window appeared, checkboxes 'Backup Current Files' and 'Automatically Check for Updates' unchecked, Alt+N was sent.")
     }
@@ -197,12 +213,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, mIRC Setup, Ready to Install, 7
+    WinWaitActive, mIRC Setup, Ready to Install, 3
     if ErrorLevel
         TestsFailed("'mIRC Setup (Ready to Install)' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, {ALTDOWN}i{ALTUP} ; Hit 'Install' button
         TestsOK("'mIRC Setup (Ready to Install)' window appeared, Alt+I was sent.")
     }
@@ -213,14 +228,13 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, mIRC Setup, Installing, 7
+    WinWaitActive, mIRC Setup, Installing, 3
     if ErrorLevel
         TestsFailed("'mIRC Setup (Installing)' window failed to appear.")
     else
     {
-        Sleep, 700
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installing' window appeared, waiting for it to close.`n
-        WinWaitClose, mIRC Setup, Installing, 25
+        TestsInfo("'Installing' window appeared, waiting for it to close.")
+        WinWaitClose, mIRC Setup, Installing, 10
         if ErrorLevel
             TestsFailed("'mIRC Setup (Installing)' window failed to close.")
         else
@@ -233,15 +247,14 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, mIRC Setup, Completing, 7
+    WinWaitActive, mIRC Setup, Completing, 3
     if ErrorLevel
         TestsFailed("'mIRC Setup (Completing)' window failed to appear.")
     else
     {
-        Sleep, 700
-        OutputDebug, OK: %TestName%:%A_LineNumber%: In a sec will send '{ALT DOWN}f' (note: no '{ALT UP}' event).`n
+        TestsInfo("In a sec will send '{ALT DOWN}f' (note: no '{ALT UP}' event).")
         SendInput, {ALT DOWN}f ; Hit 'Finish' button
-        WinWaitClose, mIRC Setup, Completing, 7
+        WinWaitClose, mIRC Setup, Completing, 3
         if ErrorLevel
             TestsFailed("'mIRC Setup (Completing)' window failed to close.")
         else
@@ -257,7 +270,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     RegRead, InstalledDir, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\mIRC, InstallLocation
     if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")
