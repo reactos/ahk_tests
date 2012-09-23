@@ -30,20 +30,16 @@ else
     else
     {
         SendInput, {ALTDOWN}m{ALTUP} ; Drop down 'Message' from file menu
-        Sleep, 1000
         SendInput, n ; Select 'New Message' menu item
         WinWaitActive, Compose: (no subject),,10
         if ErrorLevel
             TestsFailed("Window 'Compose: (no subject)' failed to appear.")
         else
         {
-            Sleep, 2200
             SendInput, reactos.dev@gmail.com ; Enter recipients e-mail
             SendInput, {ALTDOWN}s{ALTUP} ; Go to 'Subject' field
-            Sleep, 800
             FormatTime, TimeString
             SendInput, %TimeString% ; Enter time and date into 'Subject' field
-            Sleep, 500
             SendInput, {TAB}Congratulations, Thunderbird is working. ; Message body
             SendInput, {CTRLDOWN}{ENTER}{CTRLUP} ; Ctrl+Return to send message now
             WinWaitActive, Mail Server Password Required,,10
@@ -51,14 +47,13 @@ else
                 TestsFailed("Window 'Mail Server Password Required' failed to appear.")
             else
             {
-                Sleep, 1500
                 SendInput, 3d1ju5test{ENTER} ; Enter password
                 WinWaitActive, Inbox for reactos.dev@gmail.com - Thunderbird,,10
                 if ErrorLevel
                     TestsFailed("Window 'Inbox for reactos.dev@gmail.com - Thunderbird' failed to appear after sending email.")
                 else
                 {
-                    Sleep, 7000 ; Sleep to actually send the message
+                    Sleep, 7000 ; Sleep to actually send the message. FIXME: do not hardcode!
                     TestsOK("Composed and sent new email successfully.")
                 }
             }

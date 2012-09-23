@@ -19,85 +19,100 @@
 
 TestName = prepare
 
+TestsTotal++
 RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Mozilla Thunderbird (2.0.0.18), UninstallString
 if ErrorLevel
-{
-    ModuleExe = %A_ProgramFiles%\Mozilla Thunderbird\thunderbird.exe
-    OutputDebug, %TestName%:%A_LineNumber%: Can NOT read data from registry. Key might not exist. Using hardcoded path.`n
-}
+    TestsFailed("Either registry key does not exist or we failed to read it.")
 else
 {
-    StringReplace, UninstallerPath, UninstallerPath, `",, All ; String contains quotes, replace em
     SplitPath, UninstallerPath,, InstalledDir
-    ModuleExe = %InstalledDir%\..\thunderbird.exe ; Go back one folder
+    SplitPath, InstalledDir,, InstalledDir ; Split once more, since installer was in subdir (Thunderbird specific)
+    ModuleExe = %InstalledDir%\thunderbird.exe
+    TestsOK("")
 }
+
 
 szDocument = %A_WorkingDir%\Media\Thunderbird 2.0.0.18 prefs.js ; Case insensitive
 
+
+; Terminate application
 TestsTotal++
-IfNotExist, %ModuleExe%
-    TestsFailed("Can NOT find '" ModuleExe "'").
-else
+if bContinue
 {
-    Process, Close, thunderbird.exe ; Teminate process
-    Sleep, 2500 ; To make sure folders are not locked
-    FileRemoveDir, %A_AppData%\Thunderbird, 1 ; Delete all saved settings
-    Sleep, 1500
-    IfExist, %A_AppData%\Thunderbird
-        TestsFailed("Seems like we failed to delete '" A_AppData "\Thunderbird'.")
+    SplitPath, ModuleExe, ProcessExe
+    Process, Close, %ProcessExe%
+    Process, WaitClose, %ProcessExe%, 4
+    if ErrorLevel
+        TestsFailed("Unable to terminate '" ProcessExe "' process.")
+    else
+        TestsOK("")
+}
+
+
+TestsTotal++
+if bContinue
+{
+    IfNotExist, %ModuleExe%
+        TestsFailed("Can NOT find '" ModuleExe "'").
     else
     {
-        FileCreateDir, %A_AppData%\Thunderbird\Profiles\ReactOS.default\Mail\Local Folders
-        if ErrorLevel
-            TestsFailed("Failed to create dir tree '" A_AppData "\Thunderbird\ReactOS.default\Mail\Local Folders'.")
+        FileRemoveDir, %A_AppData%\Thunderbird, 1 ; Delete all saved settings
+        IfExist, %A_AppData%\Thunderbird
+            TestsFailed("Seems like we failed to delete '" A_AppData "\Thunderbird'.")
         else
         {
-            FileAppend, [General]`nStartWithLastProfile=1`n`n[Profile0]`nName=default`nIsRelative=1`nPath=Profiles/ReactOS.default`n, %A_AppData%\Thunderbird\profiles.ini
+            FileCreateDir, %A_AppData%\Thunderbird\Profiles\ReactOS.default\Mail\Local Folders
             if ErrorLevel
-                TestsFailed("Failed to create and edit '" A_AppData "\Thunderbird\profiles.ini'.")
+                TestsFailed("Failed to create dir tree '" A_AppData "\Thunderbird\ReactOS.default\Mail\Local Folders'.")
             else
             {
-                IfNotExist, %szDocument%
-                    TestsFailed("Can NOT find '" szDocument "'.")
+                FileAppend, [General]`nStartWithLastProfile=1`n`n[Profile0]`nName=default`nIsRelative=1`nPath=Profiles/ReactOS.default`n, %A_AppData%\Thunderbird\profiles.ini
+                if ErrorLevel
+                    TestsFailed("Failed to create and edit '" A_AppData "\Thunderbird\profiles.ini'.")
                 else
                 {
-                    FileCopy, %szDocument%, %A_AppData%\Thunderbird\Profiles\ReactOS.default\prefs.js
-                    if ErrorLevel <> 0
-                        TestsFailed("Can NOT copy '" szDocument "' to '" A_AppData "\Thunderbird\Profiles\ReactOS.default\prefs.js'.")
+                    IfNotExist, %szDocument%
+                        TestsFailed("Can NOT find '" szDocument "'.")
                     else
                     {
-                        ; We need those two extension-less files
-                        FileAppend,, %A_AppData%\Thunderbird\Profiles\ReactOS.default\Mail\Local Folders\Trash
-                        if ErrorLevel
-                            TestsFailed("Unable to create extension-less file '" A_AppData "\Thunderbird\Profiles\ReactOS.default\Mail\Local Folders\Trash'.")
+                        FileCopy, %szDocument%, %A_AppData%\Thunderbird\Profiles\ReactOS.default\prefs.js
+                        if ErrorLevel <> 0
+                            TestsFailed("Can NOT copy '" szDocument "' to '" A_AppData "\Thunderbird\Profiles\ReactOS.default\prefs.js'.")
                         else
                         {
-                            FileAppend,, %A_AppData%\Thunderbird\Profiles\ReactOS.default\Mail\Local Folders\Unsent Messages
+                            ; We need those two extension-less files
+                            FileAppend,, %A_AppData%\Thunderbird\Profiles\ReactOS.default\Mail\Local Folders\Trash
                             if ErrorLevel
-                                TestsFailed("Unable to create extension-less file '" A_AppData "\Thunderbird\Profiles\ReactOS.default\Mail\Local Folders\Unsent Messages'.")
+                                TestsFailed("Unable to create extension-less file '" A_AppData "\Thunderbird\Profiles\ReactOS.default\Mail\Local Folders\Trash'.")
                             else
                             {
-                                Run, %ModuleExe%,, Max ; Start maximized
-                                WinWaitActive, Enter your password:,,15
+                                FileAppend,, %A_AppData%\Thunderbird\Profiles\ReactOS.default\Mail\Local Folders\Unsent Messages
                                 if ErrorLevel
-                                {
-                                    Process, Exist, thunderbird.exe
-                                    NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
-                                    if NewPID = 0
-                                        TestsFailed("Window 'Enter your password:' failed to appear. No 'thunderbird.exe' process detected.")
-                                    else
-                                        TestsFailed("Window 'Enter your password:' failed to appear. 'thunderbird.exe' process detected.")
-                                }
+                                    TestsFailed("Unable to create extension-less file '" A_AppData "\Thunderbird\Profiles\ReactOS.default\Mail\Local Folders\Unsent Messages'.")
                                 else
                                 {
-                                    SendInput, 3d1ju5test{ENTER} ; ControlClick won't work
-                                    WinWaitActive, Inbox for reactos.dev@gmail.com - Thunderbird,,15
+                                    Run, %ModuleExe%,, Max ; Start maximized
+                                    WinWaitActive, Enter your password:,,15
                                     if ErrorLevel
-                                        TestsFailed("Window 'Inbox for reactos.dev@gmail.com - Thunderbird' failed to appear.")
+                                    {
+                                        Process, Exist, thunderbird.exe
+                                        NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                                        if NewPID = 0
+                                            TestsFailed("Window 'Enter your password:' failed to appear. No 'thunderbird.exe' process detected.")
+                                        else
+                                            TestsFailed("Window 'Enter your password:' failed to appear. 'thunderbird.exe' process detected.")
+                                    }
                                     else
                                     {
-                                        TestsOK("We are logged in.")
-                                        Sleep, 3000 ; yeah, at least 3 secs
+                                        SendInput, 3d1ju5test{ENTER} ; ControlClick won't work
+                                        WinWaitActive, Inbox for reactos.dev@gmail.com - Thunderbird,,15
+                                        if ErrorLevel
+                                            TestsFailed("Window 'Inbox for reactos.dev@gmail.com - Thunderbird' failed to appear.")
+                                        else
+                                        {
+                                            TestsOK("We are logged in.")
+                                            ; Sleep, 3000 ; yeah, at least 3 secs
+                                        }
                                     }
                                 }
                             }
