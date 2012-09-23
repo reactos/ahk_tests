@@ -39,50 +39,70 @@ else
             ; There was a problem (such as a nonexistent key or value). 
             ; That probably means we have not installed this app before.
             ; Check in default directory to be extra sure
-            IfNotExist, %A_ProgramFiles%\TeamViewer
-                bContinue := true ; No previous versions detected in hardcoded path
-            else
+            bHardcoded := true ; To know if we got path from registry or not
+            szDefaultDir = %A_ProgramFiles%\TeamViewer
+            IfNotExist, %szDefaultDir%
             {
-                bHardcoded := true ; To know if we got path from registry or not
-                IfExist, %A_ProgramFiles%\TeamViewer\Version7\uninstall.exe
+                TestsInfo("No previous versions detected in hardcoded path: '" szDefaultDir "'.")
+                bContinue := true
+            }
+            else
+            {   
+                UninstallerPath = %szDefaultDir%\uninstall.exe /S
+                WaitUninstallDone(UninstallerPath, 8)
+                if bContinue
                 {
-                    RunWait, %A_ProgramFiles%\TeamViewer\Version7\uninstall.exe /S ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %A_ProgramFiles%\TeamViewer ; Uninstaller might delete the dir
-                    bContinue := true
-                {
-                    FileRemoveDir, %A_ProgramFiles%\TeamViewer, 1
-                    if ErrorLevel
-                        TestsFailed("Unable to delete hardcoded path '" A_ProgramFiles "\TeamViewer' ('" MainAppFile "' process is reported as terminated).'")
-                    else
+                    IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
+                    {
+                        TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %szDefaultDir%, 1
+                        if ErrorLevel
+                            TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
         else
         {
+            UninstallerPath := ExeFilePathNoParam(UninstallerPath)
             SplitPath, UninstallerPath,, InstalledDir
             IfNotExist, %InstalledDir%
+            {
+                TestsInfo("Got '" InstalledDir "' from registry and such path does not exist.")
                 bContinue := true
+            }
             else
             {
-                IfExist, %UninstallerPath%
-                {
-                    RunWait, %UninstallerPath% /S ; Silently uninstall it
-                    Sleep, 7000
-                }
+                UninstallerPath = %UninstallerPath% /S
+                WaitUninstallDone(UninstallerPath, 8) ; Child process 'Au_.exe'
 
-                IfNotExist, %InstalledDir%
-                    bContinue := true
-                else
+                if bContinue
                 {
-                    FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
-                    else
+                    IfNotExist, %InstalledDir%
+                    {
+                        TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %InstalledDir%, 1 ; Uninstaller leaved the path for us to delete, so, do it
+                        if ErrorLevel
+                            TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
@@ -114,7 +134,8 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, TeamViewer 7 Setup, Welcome to TeamViewer, 15 ; Wait 15 secs for window to appear
+    DetectHiddenText, Off ; Hidden text is not detected
+    WinWaitActive, TeamViewer 7 Setup, Welcome to TeamViewer, 7 ; Wait 15 secs for window to appear
     if ErrorLevel
         TestsFailed("'TeamViewer 7 Setup (Welcome to TeamViewer)' window failed to appear.")
     else
@@ -122,19 +143,24 @@ if bContinue
         ; Check 'Install' radiobutton
         SendMessage, 0x201, 0, 0, Button4
         SendMessage, 0x202, 0, 0, Button4
-        
+
         ; Check 'Show advanced settings' checkbox
         SendMessage, 0x201, 0, 0, Button6
         SendMessage, 0x202, 0, 0, Button6
-        
-        Sleep, 700
+
         ; Hit 'Next' button
         SendMessage, 0x201, 0, 0, Button2
         SendMessage, 0x202, 0, 0, Button2
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'TeamViewer 7 Setup (Welcome to TeamViewer)' window.")
         else
-            TestsOK("'TeamViewer 7 Setup (Welcome to TeamViewer)' window appeared, 'Install' radiobutton and 'Show advanced settings' checkbox checked, 'Next' button was clicked.")
+        {
+            WinWaitClose, TeamViewer 7 Setup, Welcome to TeamViewer, 3
+            if ErrorLevel
+                TestsFailed("'TeamViewer 7 Setup (Welcome to TeamViewer)' window failed to close despite 'Next' button being clicked.")
+            else
+                TestsOK("'TeamViewer 7 Setup (Welcome to TeamViewer)' window appeared, 'Install' radiobutton and 'Show advanced settings' checkbox checked, 'Next' button was clicked.")
+        }
     }
 }
 
@@ -143,7 +169,7 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, TeamViewer 7 Setup, Environment, 5
+    WinWaitActive, TeamViewer 7 Setup, Environment, 3
     if ErrorLevel
         TestsFailed("'TeamViewer 7 Setup (Environment)' window failed to appear.")
     else
@@ -155,7 +181,6 @@ if bContinue
             TestsFailed("Failed to check 'personal / non-commercial use' radiobutton in 'TeamViewer 7 Setup (Environment)' window.")
         else
         {
-            Sleep, 700
             ; Hit 'Next' button
             SendMessage, 0x201, 0, 0, Button2
             SendMessage, 0x202, 0, 0, Button2
@@ -172,7 +197,7 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, TeamViewer 7 Setup, License Agreement, 5
+    WinWaitActive, TeamViewer 7 Setup, License Agreement, 3
     if ErrorLevel
         TestsFailed("'License Agreement' window failed to appear.")
     else
@@ -184,7 +209,6 @@ if bContinue
             TestsFailed("Failed to check 'I accept the terms...' checkbox in 'License Agreement'.")
         else
         {
-            Sleep, 700
             ; Hit 'Next' button
             SendMessage, 0x201, 0, 0, Button2
             SendMessage, 0x202, 0, 0, Button2
@@ -201,7 +225,7 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, TeamViewer 7 Setup, Choose installation type, 5
+    WinWaitActive, TeamViewer 7 Setup, Choose installation type, 3
     if ErrorLevel
         TestsFailed("'TeamViewer 7 Setup (Choose installation type)' window failed to appear.")
     else
@@ -213,7 +237,6 @@ if bContinue
             TestsFailed("Failed to check 'No (default)' radiobutton in 'TeamViewer 7 Setup (Choose installation type)' window.")
         else
         {
-            Sleep, 700
             ; Hit 'Next' button
             SendMessage, 0x201, 0, 0, Button2
             SendMessage, 0x202, 0, 0, Button2
@@ -230,7 +253,7 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, TeamViewer 7 Setup, Access Control, 5
+    WinWaitActive, TeamViewer 7 Setup, Access Control, 3
     if ErrorLevel
         TestsFailed("'TeamViewer 7 Setup (Access Control)' window failed to appear.")
     else
@@ -242,7 +265,6 @@ if bContinue
             TestsFailed("Failed to check 'Full access (recommended)' radiobutton in 'TeamViewer 7 Setup (Access Control)' window.")
         else
         {
-            Sleep, 700
             ; Hit 'Next' button
             SendMessage, 0x201, 0, 0, Button2
             SendMessage, 0x202, 0, 0, Button2
@@ -259,7 +281,7 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, TeamViewer 7 Setup, Install VPN adapter, 5
+    WinWaitActive, TeamViewer 7 Setup, Install VPN adapter, 3
     if ErrorLevel
         TestsFailed("'TeamViewer 7 Setup (Install VPN adapter)' window window failed to appear.")
     else
@@ -271,7 +293,6 @@ if bContinue
             TestsFailed("Failed to check 'Use TeamViewer VPN' checkbox in 'TeamViewer 7 Setup (Install VPN adapter)' window.")
         else
         {
-            Sleep, 700
             ; Hit 'Next' button
             SendMessage, 0x201, 0, 0, Button2
             SendMessage, 0x202, 0, 0, Button2
@@ -288,7 +309,7 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, TeamViewer 7 Setup, Choose Install Location, 5
+    WinWaitActive, TeamViewer 7 Setup, Choose Install Location, 3
     if ErrorLevel
         TestsFailed("'TeamViewer 7 Setup (Choose Install Location)' window failed to appear.")
     else
@@ -308,12 +329,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, TeamViewer 7 Setup, Choose Start, 5
+    WinWaitActive, TeamViewer 7 Setup, Choose Start, 3
     if ErrorLevel
         TestsFailed("'TeamViewer 7 Setup (Choose Start Menu Folder)' window failed to appear.")
     else
     {   
-        Sleep, 500
         ; Hit 'Finish' button
         SendMessage, 0x201, 0, 0, Button2
         SendMessage, 0x202, 0, 0, Button2
@@ -329,11 +349,12 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, TeamViewer 7 Setup, Installing, 5
+    WinWaitActive, TeamViewer 7 Setup, Installing, 3
     if ErrorLevel
         TestsFailed("'TeamViewer 7 Setup (Installing)' window failed to appear.")
     else
     {
+        TestsInfo("'TeamViewer 7 Setup (Installing)' window appeared, waiting for it to close.")
         WinWaitClose, TeamViewer 7 Setup, Installing, 35 ; 35secs should be enough time to get thru install
         if ErrorLevel
             TestsFailed("'TeamViewer 7 Setup (Installing)' window failed to close.")
@@ -345,9 +366,8 @@ if bContinue
                 TestsFailed("Process '" MainAppFile "' failed to appear.")
             else
             {
-                Sleep, 500
                 Process, Close, %MainAppFile%
-                Process, WaitClose, %MainAppFile%, 4
+                Process, WaitClose, %MainAppFile%, 7
                 if ErrorLevel
                     TestsFailed("Unable to terminate '" MainAppFile "' process.")
                 else
@@ -362,7 +382,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\TeamViewer 7, UninstallString
     if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")
