@@ -33,14 +33,12 @@ else
     {
         ; Go to License -> License. WinMenuSelectItem doesn't work here.
         SendInput, !l ; {ALTDOWN}l{ALTUP}
-        Sleep, 1000
         SendInput, l
         WinWaitActive, License Agreement - AIDA32, Registration Request, 10
         if ErrorLevel
             TestsFailed("Window 'License Agreement - AIDA32 (Registration Request)' failed to appear.")
         else
         {
-            Sleep, 1000
             ControlClick, TListBox1, License Agreement - AIDA32
             if ErrorLevel
                 TestsFailed("Unable to click on first license field in 'License Agreement - AIDA32 (Registration Request)' window.")
@@ -52,10 +50,10 @@ else
                 {
                     iScroll++
                     SendInput, {DOWN}
-                    Sleep, 900
+                    Sleep, 50
                 }
                 
-                OutputDebug, %TestName%:%A_LineNumber%: In 1sec will close 'License Agreement - AIDA32' window, if BSOD then bug #6355?.`n
+                TestsInfo("In 1sec will close 'License Agreement - AIDA32' window, if BSOD then bug #6355?.")
                 ControlClick, TButton2, License Agreement - AIDA32 ; Click 'Close' button
                 if ErrorLevel
                     TestsFailed("Unable to hit 'Close' button in 'License Agreement - AIDA32 (Registration Request)' window.")
@@ -70,8 +68,8 @@ else
                         WinWaitClose, AIDA32 - Enterprise System Information,, 10
                         if not ErrorLevel
                         {
-                            Sleep, 2000
-                            IfWinExist, aida32.bin - Application Error
+                            WinWait, aida32.bin - Application Error,,2
+                            if not ErrorLevel
                                 TestsFailed("'aida32.bin - Application Error (The exception)' window appeared, bug 7090?")
                             else
                                 TestsOK("License was read, application closed correctly.")

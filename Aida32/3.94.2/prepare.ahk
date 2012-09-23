@@ -47,8 +47,7 @@ RunApplication()
             else
             {
                 Run, %ModuleExe% ; 'Max' doesn't work with aida32
-                Sleep, 1000
-                WinWaitActive, AIDA32 - Enterprise System Information,,15
+                WinWaitActive, AIDA32 - Enterprise System Information,,10
                 if ErrorLevel
                 {
                     Process, Exist, aida32.bin
@@ -60,7 +59,6 @@ RunApplication()
                 }
                 else
                 {
-                    Sleep, 1500
                     WinMaximize, AIDA32 - Enterprise System Information ; Maximize the window
                     TestsOK("")
                 }

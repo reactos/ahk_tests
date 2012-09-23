@@ -69,10 +69,10 @@ if bContinue
         TestsFailed("'7-Zip self-extracting archive' window with 'Extract' button failed to appear.")
     else
     {
-        Sleep, 700
-        ControlSetText, Edit1, %A_ProgramFiles%\Aida32, 7-Zip self-extracting archive, Extract ; Path
+        InstallLocation = %A_ProgramFiles%\Aida32
+        ControlSetText, Edit1, %InstallLocation%, 7-Zip self-extracting archive, Extract ; Path
         if ErrorLevel
-            TestsFailed("Unable to change path to '" A_ProgramFiles "\Aida32'.")
+            TestsFailed("Unable to change path to '" InstallLocation "'.")
         else
         {
             ControlClick, Button2, 7-Zip self-extracting archive, Extract ; Hit 'Extract' button
@@ -95,17 +95,23 @@ TestsTotal++
 if bContinue
 {
     SetTitleMatchMode, 2 ; A window's title can contain WinTitle anywhere inside it to be a match.
-    WinWaitActive, Extracting, Cancel, 10 ; Wait 10 secs for window to appear
+    WinWaitActive, Extracting, Cancel, 7
     if ErrorLevel
-        TestsFailed("'Extracting' window failed to appear.")
+    {
+        ; Sometimes files are extracted so fast that AHK doesn't detect the window
+        IfNotExist, %InstallLocation%\aida32.exe
+            TestsFailed("'Extracting' window failed to appear (SetTitleMatchMode=2) and '" InstallLocation "\aida32.exe' doesnt exist.")
+        else
+            TestsOK("AHK unabled to detect 'Extracting' window, but '" InstallLocation "\aida32.exe' exist.")
+    }
     else
     {
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Extracting' window appeared, waiting for it to close.`n
+        TestsInfo("'Extracting' window appeared, waiting for it to close.")
         WinWaitClose, Extracting, Cancel, 15
         if ErrorLevel
-            TestsFailed("'Extracting' window failed to dissapear.")
+            TestsFailed("'Extracting' window failed to close.")
         else
-            TestsOK("'Extracting' window appeared and went away.")
+            TestsOK("'Extracting' window went away.")
     }
 }
 
@@ -114,7 +120,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     ProgramExe = %A_ProgramFiles%\Aida32\aida32.exe
     IfNotExist, %ProgramExe%
         TestsFailed("Something went wrong, can't find '" ProgramExe "'.")
