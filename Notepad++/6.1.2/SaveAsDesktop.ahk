@@ -32,19 +32,17 @@ else
     else
     {
         SendInput, Line 1{ENTER}Line two with @{ENTER}Line 3 with question mark?{ENTER}{ENTER}This is line 5. Line 4 was empty.
-        Sleep, 1500
         IfWinNotActive, *new  1 - Notepad++
             TestsFailed("The '*new  1 - Notepad++' window is not active anymore.")
         else
         {
             SendInput, {CTRLDOWN}s{CTRLUP}
-            Sleep, 1500 ; It can appear and fail, so sleep
-            WinWaitActive, Save As,, 15
+            WinWaitActive, Save As,, 5
             if ErrorLevel
                 TestsFailed("'Save As' dialog failed to appear.")
             else
             {
-                OutputDebug, OK: %TestName%:%A_LineNumber%: 'Save As' dialog appeared.`n
+                TestsInfo("'Save As' dialog appeared.")
                 bContinue := true
             }
         }
@@ -63,18 +61,21 @@ else
                 TestsFailed("Unable to enter '" A_Desktop "\new  1.txt' in 'File name' field in 'Save As' window.")
             else
             {
-                Sleep, 3500
                 FileDelete, %A_Desktop%\new  1.txt ; Delete file before saving
-                Sleep, 1500
                 SendInput, !s ; Hit 'Save' in 'Save As' dialog
-                Sleep, 1500 ; Let file to appear
-                szDocumentPath = %A_Desktop%\new  1.txt
-                IfNotExist, %szDocumentPath%
-                    TestsFailed("File '" szDocumentPath "' does not exist, but it should.")
+                WinWaitClose, Save As,, 3
+                if ErrorLevel
+                    TestsFailed("'Save As' dialog failed to close.")
                 else
                 {
-                    OutputDebug, OK: %TestName%:%A_LineNumber%: '%szDocumentPath%' exist as it should.`n
-                    bContinue := true
+                    szDocumentPath = %A_Desktop%\new  1.txt
+                    IfNotExist, %szDocumentPath%
+                        TestsFailed("File '" szDocumentPath "' does not exist, but it should.")
+                    else
+                    {
+                        TestsInfo("'" szDocumentPath "' exist as it should.")
+                        bContinue := true
+                    }
                 }
             }
         }
@@ -86,7 +87,7 @@ else
     {
         bContinue := false
         WinClose, %szDocumentPath% - Notepad++
-        WinWaitClose, %szDocumentPath% - Notepad++,,10
+        WinWaitClose, %szDocumentPath% - Notepad++,,5
         if ErrorLevel
             TestsFailed("Failed to close '" szDocumentPath " - Notepad++' window.")
         else

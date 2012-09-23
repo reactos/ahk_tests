@@ -36,20 +36,19 @@ else
             TestsFailed("Window '" szDocument " - Notepad++' is not active.")
         else
         {
-            Sleep, 700
             SendInput, {CTRLDOWN}a{CTRLUP}{BACKSPACE}New text.
-            WinWaitActive, *%szDocument% - Notepad++,, 5 ; We were able to change text
+            WinWaitActive, *%szDocument% - Notepad++,, 3 ; We were able to change text
             if ErrorLevel
                 TestsFailed("Failed to change text.")
             else
             {
                 SendInput, {CTRLDOWN}s{CTRLUP}
-                WinWaitActive, %szDocument% - Notepad++,, 5 ; We were able to save
+                WinWaitActive, %szDocument% - Notepad++,, 3 ; We were able to save
                 if ErrorLevel
                     TestsFailed("Failed to save.")
                 else
                 {
-                    WinClose, %szDocument% - Notepad++,, 5 
+                    WinClose, %szDocument% - Notepad++,, 3
                     if ErrorLevel
                         TestsFailed("Failed to close '" szDocument " - Notepad++' window.")
                     else
@@ -59,7 +58,7 @@ else
                             TestsFailed("For some reason number of lines is wrong! Is '" iLines "' and should be '1'.")
                         else
                         {
-                            TestsOK("")
+                            TestsOK("Created a document, opened it with Notepad++, entered some text, saved the doc, closed Notepad++.")
                             FileDelete, %szDocument%
                         }
                     }
