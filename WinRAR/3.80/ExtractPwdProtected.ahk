@@ -28,7 +28,7 @@ if not bContinue
 else
 {
     SplitPath, szDocument, NameExt
-    WinWaitActive, %NameExt% - WinRAR (evaluation copy),,7
+    WinWaitActive, %NameExt% - WinRAR (evaluation copy),,5
     if ErrorLevel
         TestsFailed("Window '" NameExt " - WinRAR (evaluation copy)' failed to appear.")
     else
@@ -38,7 +38,7 @@ else
             TestsFailed("Unable to click 'Commands -> Extract to the specified folder' in '" NameExt " - WinRAR (evaluation copy)' window.")
         else
         {
-            WinWaitActive, Extraction path and options,,7
+            WinWaitActive, Extraction path and options,,3
             if ErrorLevel
                 TestsFailed("Window 'Extraction path and options' failed to appear.")
             else
@@ -56,43 +56,38 @@ else
                 
                 if bContinue
                 {
-                    Sleep, 1000
                     ControlSetText, Edit1, %A_Desktop%, Extraction path and options
                     if ErrorLevel
                         TestsFailed("Unable to enter 'Destination path' in 'Extraction path and options' window.")
                     else
                     {
-                        Sleep, 1000
                         ControlClick, Button16, Extraction path and options ; Hit 'OK' button
                         if ErrorLevel
                             TestsFailed("Unable to hit 'OK' button in 'Extraction path and options' window.")
                         else
                         {
-                            WinWaitActive, Enter password, &Enter password, 7
+                            WinWaitActive, Enter password, &Enter password, 5
                             if ErrorLevel
                                 TestsFailed("Window 'Enter password (Enter password)' failed to appear.")
                             else
                             {
-                                Sleep, 1000
                                 ControlSetText, Edit1, reactos, Enter password, Enter password
                                 if ErrorLevel
                                     TestsFailed("Unable to enter password in 'Enter password (Enter password)' window.")
                                 else
                                 {
-                                    Sleep, 1000
                                     ControlClick, Button1, Enter password, Enter password ; Hit 'OK' button
                                     if ErrorLevel
                                         TestsFailed("Unable to hit 'OK' button in 'Enter password (Enter password)' window.")
                                     else
                                     {
-                                        WinWaitActive, %NameExt% - WinRAR (evaluation copy),,7
+                                        WinWaitActive, %NameExt% - WinRAR (evaluation copy),,5
                                         if ErrorLevel
                                             TestsFailed("Window '" NameExt " - WinRAR (evaluation copy)' failed to appear after extraction.")
                                         else
                                         {
-                                            Sleep, 1000
                                             WinClose, %NameExt% - WinRAR (evaluation copy)
-                                            WinWaitClose, %NameExt% - WinRAR (evaluation copy),,7
+                                            WinWaitClose, %NameExt% - WinRAR (evaluation copy),,5
                                             if ErrorLevel
                                                 TestsFailed("Window '" NameExt " - WinRAR (evaluation copy)' failed to close.")
                                             else

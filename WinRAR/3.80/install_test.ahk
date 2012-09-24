@@ -39,54 +39,74 @@ else
             ; There was a problem (such as a nonexistent key or value). 
             ; That probably means we have not installed this app before.
             ; Check in default directory to be extra sure
-            IfNotExist, %A_ProgramFiles%\WinRAR
-                bContinue := true ; No previous versions detected in hardcoded path
+            bHardcoded := true ; To know if we got path from registry or not
+            szDefaultDir = %A_ProgramFiles%\WinRAR
+            IfNotExist, %szDefaultDir%
+            {
+                TestsInfo("No previous versions detected in hardcoded path: '" szDefaultDir "'.")
+                bContinue := true
+            }
             else
             {
-                bHardcoded := true ; To know if we got path from registry or not
-                Run, regsvr32 /s /u "%A_ProgramFiles%\WinRAR\RarExt.dll"
+                Run, regsvr32 /s /u "%szDefaultDir%\RarExt.dll"
                 Process, Close, explorer.exe
-                IfExist, %A_ProgramFiles%\WinRAR\Uninstall.exe
+                UninstallerPath = %szDefaultDir%\Uninstall.exe /S
+                WaitUninstallDone(UninstallerPath, 3)
+                if bContinue
                 {
-                    RunWait, %A_ProgramFiles%\WinRAR\Uninstall.exe /S ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %A_ProgramFiles%\WinRAR ; Uninstaller might delete the dir
-                    bContinue := true
-                {
-                    FileRemoveDir, %A_ProgramFiles%\WinRAR, 1
-                    if ErrorLevel
-                        TestsFailed("Unable to delete hardcoded path '" A_ProgramFiles "\WinRAR' ('" MainAppFile "' process is reported as terminated).'")
-                    else
+                    IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
+                    {
+                        TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %szDefaultDir%, 1
+                        if ErrorLevel
+                            TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
         else
         {
+            UninstallerPath := ExeFilePathNoParam(UninstallerPath)
             SplitPath, UninstallerPath,, InstalledDir
             IfNotExist, %InstalledDir%
+            {
+                TestsInfo("Got '" InstalledDir "' from registry and such path does not exist.")
                 bContinue := true
+            }
             else
             {
                 Run, regsvr32 /s /u "%InstalledDir%\RarExt.dll"
                 Process, Close, explorer.exe ; Explorer restart is required
-                IfExist, %UninstallerPath%
-                {
-                    RunWait, %UninstallerPath% /S ; Silently uninstall it
-                    Sleep, 7000
-                }
+                UninstallerPath = %UninstallerPath% /S
+                WaitUninstallDone(UninstallerPath, 3) ; Child process 'cmd.exe'
 
-                IfNotExist, %InstalledDir%
-                    bContinue := true
-                else
+                if bContinue
                 {
-                    FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
-                    else
+                    IfNotExist, %InstalledDir%
+                    {
+                        TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %InstalledDir%, 1 ; Uninstaller leaved the path for us to delete, so, do it
+                        if ErrorLevel
+                            TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
@@ -121,22 +141,28 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, WinRAR 3.80, Install, 15
+    WinWait, WinRAR 3.80, Install, 15
     if ErrorLevel
-        TestsFailed("'WinRAR 3.80' window with 'Install' button failed to appear.")
+        TestsFailed("'WinRAR 3.80 (Install)' window doesn't exist.")
     else
     {
-        Sleep, 700
-        ControlClick, Button2, WinRAR 3.80, Install
+        WinActivate ; WinRAR 3.80, Install
+        WinWaitActive, WinRAR 3.80, Install, 3
         if ErrorLevel
-            TestsFailed("Unable to click 'Install' button in 'WinRAR 3.80 (Install)' window.")
+            TestsFailed("Unable to activate existing 'WinRAR 3.80 (Install)' window.")
         else
         {
-            WinWaitClose, WinRAR 3.80, Install, 5
+            ControlClick, Button2, WinRAR 3.80, Install
             if ErrorLevel
-                TestsFailed("'WinRAR 3.80 (Install)' window failed to close despite 'Install' button being clicked.")
+                TestsFailed("Unable to click 'Install' button in 'WinRAR 3.80 (Install)' window.")
             else
-                TestsOK("'WinRAR 3.80' window appeared, 'Install' button clicked and window closed.")
+            {
+                WinWaitClose, WinRAR 3.80, Install, 3
+                if ErrorLevel
+                    TestsFailed("'WinRAR 3.80 (Install)' window failed to close despite 'Install' button being clicked.")
+                else
+                    TestsOK("'WinRAR 3.80' window appeared, 'Install' button clicked and window closed.")
+            }
         }
     }
 }
@@ -146,17 +172,23 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, WinRAR Setup, Shell integration, 15
+    WinWait, WinRAR Setup, Shell integration, 5
     if ErrorLevel
-        TestsFailed("'WinRAR Setup (Shell integration)' window failed to appear.")
+        TestsFailed("'WinRAR Setup (Shell integration)' window doesn't exist.")
     else
     {
-        Sleep, 700
-        ControlClick, Button27, WinRAR Setup, Shell integration
+        WinActivate ; WinRAR Setup, Shell integration
+        WinWaitActive, WinRAR Setup, Shell integration, 5
         if ErrorLevel
-            TestsFailed("Unable to click 'OK' in 'WinRAR Setup (Shell integration)' window.")
+            TestsFailed("Unable to activate existing 'WinRAR Setup (Shell integration)' window.")
         else
-            TestsOK("'WinRAR Setup (Shell integration)' window appeared and 'OK' was clicked.")
+        {
+            ControlClick, Button27, WinRAR Setup, Shell integration
+            if ErrorLevel
+                TestsFailed("Unable to click 'OK' in 'WinRAR Setup (Shell integration)' window.")
+            else
+                TestsOK("'WinRAR Setup (Shell integration)' window appeared and 'OK' was clicked.")
+        }
     }
 }
 
@@ -165,30 +197,43 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, WinRAR Setup, WinRAR has been successfully, 15
+    WinWait, WinRAR Setup, WinRAR has been successfully, 5
     if ErrorLevel
-        TestsFailed("'WinRAR Setup (WinRAR has been successfully)' window failed to appear.")
+        TestsFailed("'WinRAR Setup (WinRAR has been successfully)' window doesn't exist.")
     else
     {
-        Sleep, 700
-        ControlClick, Button1, WinRAR Setup, WinRAR has been successfully
+        WinActivate ; WinRAR Setup, WinRAR has been successfully
+        WinWaitActive, WinRAR Setup, WinRAR has been successfully, 3
         if ErrorLevel
-            TestsFailed("Unable to click 'Done' button in 'WinRAR Setup (WinRAR has been successfully)' window.")
+            TestsFailed("Unable to activate existing 'WinRAR Setup (WinRAR has been successfully)' window.")
         else
         {
-            SetTitleMatchMode, 2 ; A window's title can contain WinTitle anywhere inside it to be a match.
-            ; WinRAR will open explorer window, close it
-            WinWait, WinRAR ahk_class CabinetWClass,, 22
+            ControlClick, Button1, WinRAR Setup, WinRAR has been successfully
             if ErrorLevel
-                TestsFailed("Explorer window 'WinRAR' (SetTitleMatchMode=2) failed to appear.")
+                TestsFailed("Unable to click 'Done' button in 'WinRAR Setup (WinRAR has been successfully)' window.")
             else
             {
-                WinClose, WinRAR ahk_class CabinetWClass
-                WinWaitClose, WinRAR ahk_class CabinetWClass,, 5
+                WinWaitClose, WinRAR Setup, WinRAR has been successfully, 3
                 if ErrorLevel
-                    TestsFailed("Unable to close explorer window 'WinRAR' (SetTitleMatchMode=2).")
+                    TestsFailed("'WinRAR Setup (WinRAR has been successfully)' window failed to close despite 'Done' button being clicked.")
                 else
-                    TestsOK("'WinRAR Setup (WinRAR has been successfully)' window appeared and 'Done' was clicked.")
+                {
+                    TestsInfo("'WinRAR Setup (WinRAR has been successfully)' window closed.")
+                    SetTitleMatchMode, 2 ; A window's title can contain WinTitle anywhere inside it to be a match.
+                    ; WinRAR will open explorer window, close it
+                    WinWait, WinRAR ahk_class CabinetWClass,, 22
+                    if ErrorLevel
+                        TestsFailed("Explorer window 'WinRAR' (SetTitleMatchMode=2) failed to appear.")
+                    else
+                    {
+                        WinClose, WinRAR ahk_class CabinetWClass
+                        WinWaitClose, WinRAR ahk_class CabinetWClass,, 5
+                        if ErrorLevel
+                            TestsFailed("Unable to close explorer window 'WinRAR' (SetTitleMatchMode=2).")
+                        else
+                            TestsOK("'WinRAR Setup (WinRAR has been successfully)' window appeared, 'Done' button clicked and window closed.")
+                    }
+                }
             }
         }
     }
@@ -199,7 +244,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinRAR archiver, UninstallString
     if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")

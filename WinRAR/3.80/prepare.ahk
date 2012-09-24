@@ -94,10 +94,7 @@ RunApplication(PathToFile)
                     TestsFailed("Window 'WinRAR - WinRAR (evaluation copy)' failed to appear. '" ProcessExe "' process detected.")
             }
             else
-            {
                 TestsOK("")
-                Sleep, 1000
-            }
         }
         else
         {
@@ -119,10 +116,7 @@ RunApplication(PathToFile)
                         TestsFailed("Window '%NameExt% - WinRAR (evaluation copy)' failed to appear. '" ProcessExe "' process detected.")
                 }
                 else
-                {
                     TestsOK("")
-                    Sleep, 1000
-                }
             }
         }
     }
@@ -140,7 +134,6 @@ WinRARIntegration()
         TestsFailed("Window 'Settings (Integration)' failed to appear.")
     else
     {
-        Sleep, 1000
         ControlClick, Button27, Settings, Integration ; Hit 'OK' button
         if ErrorLevel
             TestsFailed("Unable to hit 'OK' button in 'Settings (Integration)' window.")
