@@ -27,7 +27,7 @@ if not bContinue
     TestsFailed("We failed somewhere in prepare.ahk.")
 else
 {
-    WinWaitActive, VLC media player,,7
+    WinWaitActive, VLC media player,,3
     if ErrorLevel
         TestsFailed("Window 'VLC media player' failed to appear.")
     else
@@ -37,12 +37,11 @@ else
             TestsFailed("Unable to click 'File -> Quick Open File' in 'VLC media player' window.")
         else
         {
-            WinWaitActive, Open File, Look, 7
+            WinWaitActive, Open File, Look, 3
             if ErrorLevel
                 TestsFailed("Window 'Open File (Look)' failed to appear.")
             else
             {
-                Sleep, 1000
                 ControlSetText, Edit1, %szDocument%, Open File, Look
                 if ErrorLevel
                     TestsFailed("Unable to enter 'File name (" szDocument ")' in 'Open File (Look)' window.")
@@ -53,12 +52,12 @@ else
                         TestsFailed("Unable to hit 'Open' button in 'Open File (Look)' window.")
                     else
                     {
-                        WinWaitClose, Open File, Look, 7
+                        WinWaitClose, Open File, Look, 3
                         if ErrorLevel
                             TestsFailed("Window 'Open File (Look)' failed to close.")
                         else
                         {
-                            WinWaitActive, VLC media player,,7
+                            WinWaitActive, VLC media player,,3
                             if ErrorLevel
                                 TestsFailed("Window 'VLC media player' failed to appear after opening '" szDocument "'.")
                             else
@@ -71,7 +70,7 @@ else
                                 else
                                 {
                                     WinClose, VLC media player
-                                    WinWaitClose, VLC media player,,7
+                                    WinWaitClose, VLC media player,,3
                                     if ErrorLevel
                                         TestsFailed("Window 'VLC media player' failed to close.")
                                     else

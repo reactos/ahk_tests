@@ -79,8 +79,7 @@ RunApplication(PathToFile)
         if PathToFile =
         {
             Run, %ModuleExe% ; Don't run it maximized
-            Sleep, 1000
-            WinWaitActive, VLC media player,,7
+            WinWaitActive, VLC media player,,9
             if ErrorLevel
             {
                 Process, Exist, %ProcessExe%
@@ -91,10 +90,7 @@ RunApplication(PathToFile)
                     TestsFailed("Window 'VLC media player' failed to appear. '" ProcessExe "' process detected.")
             }
             else
-            {
                 TestsOK("")
-                Sleep, 1000
-            }
         }
         else
         {
@@ -103,8 +99,7 @@ RunApplication(PathToFile)
             else
             {
                 Run, %ModuleExe% "%PathToFile%" ; Don't run it maximized
-                Sleep, 1000
-                WinWaitActive, VLC media player,,7 ; FIXME: is there a way to show filename in titlebar?
+                WinWaitActive, VLC media player,,9 ; FIXME: is there a way to show filename in titlebar?
                 if ErrorLevel
                 {
                     Process, Exist, %ProcessExe%
@@ -115,10 +110,7 @@ RunApplication(PathToFile)
                         TestsFailed("Window 'VLC media player' failed to appear when opening '" PathToFile "'. '" ProcessExe "' process detected.")
                 }
                 else
-                {
                     TestsOK("")
-                    Sleep, 1000
-                }
             }
         }
     }
