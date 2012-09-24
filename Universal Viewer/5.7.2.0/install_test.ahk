@@ -39,51 +39,69 @@ else
             ; There was a problem (such as a nonexistent key or value). 
             ; That probably means we have not installed this app before.
             ; Check in default directory to be extra sure
-            IfNotExist, %A_ProgramFiles%\Universal Viewer
-                bContinue := true ; No previous versions detected in hardcoded path
-            else
+            bHardcoded := true ; To know if we got path from registry or not
+            szDefaultDir = %A_ProgramFiles%\Universal Viewer
+            IfNotExist, %szDefaultDir%
             {
-                bHardcoded := true ; To know if we got path from registry or not
-                IfExist, %A_ProgramFiles%\Universal Viewer\unins000.exe
+                TestsInfo("No previous versions detected in hardcoded path: '" szDefaultDir "'.")
+                bContinue := true
+            }
+            else
+            {   
+                UninstallerPath = %szDefaultDir%\unins000.exe /SILENT
+                WaitUninstallDone(UninstallerPath, 3)
+                if bContinue
                 {
-                    RunWait, %A_ProgramFiles%\Universal Viewer\unins000.exe /SILENT ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %A_ProgramFiles%\Universal Viewer ; Uninstaller might delete the dir
-                    bContinue := true
-                {
-                    FileRemoveDir, %A_ProgramFiles%\Universal Viewer, 1
-                    if ErrorLevel
-                        TestsFailed("Unable to delete hardcoded path '" A_ProgramFiles "\Universal Viewer' ('" MainAppFile "' process is reported as terminated).'")
-                    else
+                    IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
+                    {
+                        TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %szDefaultDir%, 1
+                        if ErrorLevel
+                            TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
         else
         {
-            StringReplace, UninstallerPath, UninstallerPath, `",, All ; Universal Viewer registry data contains quotes
+            UninstallerPath := ExeFilePathNoParam(UninstallerPath)
             SplitPath, UninstallerPath,, InstalledDir
             IfNotExist, %InstalledDir%
+            {
+                TestsInfo("Got '" InstalledDir "' from registry and such path does not exist.")
                 bContinue := true
+            }
             else
             {
-                IfExist, %UninstallerPath%
+                UninstallerPath = %UninstallerPath% /SILENT
+                WaitUninstallDone(UninstallerPath, 3) ; Child process '*.tmp'
+                if bContinue
                 {
-                    RunWait, %UninstallerPath% /SILENT ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %InstalledDir%
-                    bContinue := true
-                else
-                {
-                    FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
-                    else
+                    IfNotExist, %InstalledDir%
+                    {
+                        TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %InstalledDir%, 1 ; Uninstaller leaved the path for us to delete, so, do it
+                        if ErrorLevel
+                            TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
@@ -117,18 +135,17 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Select Setup Language, Select the language, 15
+    WinWaitActive, Select Setup Language, Select the language, 10
     if ErrorLevel
         TestsFailed("'Select Setup Language (Select the language)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TNewButton1, Select Setup Language, Select the language
         if ErrorLevel
             TestsFailed("Unable to hit 'OK' in 'Select Setup Language (Select the language)' window.")
         else
         {
-            WinWaitClose, Select Setup Language, Select the language, 5
+            WinWaitClose, Select Setup Language, Select the language, 3
             if ErrorLevel
                 TestsFailed("'Select Setup Language (Select the language)' window failed to close despite 'OK' button being clicked.")
             else
@@ -142,12 +159,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Universal Viewer Free, Welcome, 12
+    WinWaitActive, Setup - Universal Viewer Free, Welcome, 10
     if ErrorLevel
         TestsFailed("'Setup - Universal Viewer Free (Welcome)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TNewButton1, Setup - Universal Viewer Free, Welcome ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Setup - Universal Viewer Free (Welcome)' window.")
@@ -161,12 +177,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Universal Viewer Free, Select Destination Location, 7
+    WinWaitActive, Setup - Universal Viewer Free, Select Destination Location, 3
     if ErrorLevel
         TestsFailed("'Setup - Universal Viewer Free (Select Destination Location)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TNewButton3, Setup - Universal Viewer Free, Select Destination Location ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Setup - Universal Viewer Free (Select Destination Location)' window.")
@@ -185,7 +200,6 @@ if bContinue
         TestsFailed("'Setup - Universal Viewer Free (Select Additional Tasks)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TNewButton3, Setup - Universal Viewer Free, Select Additional Tasks ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Setup - Universal Viewer Free (Select Additional Tasks)' window.")
@@ -204,7 +218,6 @@ if bContinue
         TestsFailed("'Setup - Universal Viewer Free (Ready to Install)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TNewButton3, Setup - Universal Viewer Free, Ready to Install ; Hit 'Install' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Install' button in 'Setup - Universal Viewer Free (Ready to Install)' window.")
@@ -223,8 +236,8 @@ if bContinue
         TestsFailed("'Setup - Universal Viewer Free (Installing)' window failed to appear.")
     else
     {
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Universal Viewer Free (Installing)' window appeared, waiting for it to close.`n
-        WinWaitClose, Setup - Universal Viewer Free, Installing, 20
+        TestsInfo("'Setup - Universal Viewer Free (Installing)' window appeared, waiting for it to close.")
+        WinWaitClose, Setup - Universal Viewer Free, Installing, 15
         if ErrorLevel
             TestsFailed("'Setup - Universal Viewer Free (Installing)' window failed to close.")
         else
@@ -237,20 +250,18 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Universal Viewer Free, Completing, 7
+    WinWaitActive, Setup - Universal Viewer Free, Completing, 3
     if ErrorLevel
         TestsFailed("'Setup - Universal Viewer Free (Completing)' window failed to appear.")
     else
     {
-        Sleep, 700
-        SendInput, {SPACE}{DOWN}{SPACE} ; Uncheck 'Launch Universal Viewer' and 'View version history'. Control, Uncheck won't work here
-        Sleep, 1000
+        SendInput, {SPACE}{DOWN}{SPACE} ; Uncheck 'Launch Universal Viewer' and 'View version history'. FIXME: Control, Uncheck won't work here
         ControlClick, TNewButton3, Setup - Universal Viewer Free, Completing ; Hit 'Finish' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Finish' button in 'Setup - Universal Viewer Free (Completing)' window.")
         else
         {
-            Process, wait, %MainAppFile%, 5
+            Process, wait, %MainAppFile%, 3 ; FIXME: find perfect way to uncheck 'Launch Universal Viewer' and remove this block
             NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
             if NewPID <> 0
             {
@@ -271,7 +282,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Universal Viewer Free_is1, UninstallString
     if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")

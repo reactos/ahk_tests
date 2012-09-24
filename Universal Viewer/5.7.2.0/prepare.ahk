@@ -91,14 +91,13 @@ RunApplication(PathToFile)
                 if PathToFile =
                 {
                     Run, %ModuleExe%,, Max ; Start maximized
-                    Sleep, 1000
-                    WinWaitActive, Universal Viewer, File not loaded,15
+                    WinWaitActive, Universal Viewer, File not loaded, 10
                     if ErrorLevel
                         TestsFailed("Window 'Universal Viewer (File not loaded)' failed to appear.")
                     else
                     {
+                        Sleep, 500 ; Sleep is a must
                         TestsOK("")
-                        Sleep, 1000
                     }
                 }
                 else
@@ -108,16 +107,15 @@ RunApplication(PathToFile)
                     else
                     {
                         Run, %ModuleExe% "%PathToFile%",, Max
-                        Sleep, 1000
                         SplitPath, PathToFile, NameExt
                         SetTitleMatchMode, 1 ; A window's title must start with the specified WinTitle to be a match.
-                        WinWaitActive, %NameExt% - Universal Viewer,,15
+                        WinWaitActive, %NameExt% - Universal Viewer,, 10
                         if ErrorLevel
                             TestsFailed("Window '" NameExt " - Universal Viewer' failed to appear (AHK TitleMachMode=1).")
                         else
                         {
+                            Sleep, 500 ; Sleep is a must
                             TestsOK("")
-                            Sleep, 1000
                         }
                     }
                 }
