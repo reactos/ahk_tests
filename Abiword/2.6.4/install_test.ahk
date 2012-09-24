@@ -28,9 +28,8 @@ IfNotExist, %ModuleExe%
 else
 {
     Process, Close, %MainAppFile% ; Teminate process
-    Sleep, 2000
-    Process, Exist, %MainAppFile%
-    if ErrorLevel <> 0
+    Process, WaitClose, %MainAppFile%, 4
+    if ErrorLevel ; The PID still exists.
         TestsFailed("Unable to terminate '" MainAppFile "' process.") ; So, process still exists
     else
     {
@@ -41,30 +40,44 @@ else
             ; There was a problem (such as a nonexistent key or value). 
             ; That probably means we have not installed this app before.
             ; Check in default directory to be extra sure
-            IfNotExist, %A_ProgramFiles%\AbiSuite2
-                bContinue := true ; No previous versions detected in hardcoded path
+            bHardcoded := true ; To know if we got path from registry or not
+            szDefaultDir = %A_ProgramFiles%\AbiSuite2
+            IfNotExist, %szDefaultDir%
+            {
+                TestsInfo("No previous versions detected in hardcoded path: '" szDefaultDir "'.")
+                bContinue := true
+            }
             else
             {
-                bHardcoded := true ; To know if we got path from registry or not
-                FileRemoveDir, %A_ProgramFiles%\AbiSuite2, 1
+                FileRemoveDir, %szDefaultDir%, 1
                 if ErrorLevel
-                    TestsFailed("Unable to delete existing '" A_ProgramFiles "\AbiSuite2' ('" MainAppFile "' process is reported as terminated).'")
+                    TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
                 else
+                {
+                    TestsInfo("Succeeded deleting hardcoded path: '" szDefaultDir "'.")
                     bContinue := true
+                }
             }
         }
         else
         {
+            UninstallerPath := ExeFilePathNoParam(UninstallerPath)
             SplitPath, UninstallerPath,, InstalledDir
             IfNotExist, %InstalledDir%
+            {
+                TestsInfo("Got '" InstalledDir "' from registry and such path does not exist.")
                 bContinue := true
+            }
             else
             {
-                FileRemoveDir, %InstalledDir%, 1 ; Delete it
+                FileRemoveDir, %InstalledDir%, 1 ; There is no silent uninstall switch
                 if ErrorLevel
                     TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
                 else
+                {
+                    TestsInfo("Succeeded deleting path (registry data): '" InstalledDir "'.")
                     bContinue := true
+                }
             }
         }
     }
@@ -93,18 +106,17 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Installer Language, Please select, 15
+    WinWaitActive, Installer Language, Please select, 10
     if ErrorLevel
         TestsFailed("'Installer Language (Please select)' window failed to appear. Unable to delete 'HKLM\SOFTWARE\AbiSuite'?")
     else
     {
-        Sleep, 700
         ControlClick, Button1, Installer Language, Please select
         if ErrorLevel
             TestsFailed("Unable to hit 'OK' button in 'Installer Language (Please select)' window.")
         else
         {
-            WinWaitClose, Installer Language, Please select, 7
+            WinWaitClose, Installer Language, Please select, 3
             if ErrorLevel
                 TestsFailed("'Installer Language (Please select)' window failed to close despite 'OK' button being reported as clicked.")
             else
@@ -118,12 +130,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, AbiWord 2.6.4 Setup, This wizard, 15
+    WinWaitActive, AbiWord 2.6.4 Setup, This wizard, 10
     if ErrorLevel
         TestsFailed("'AbiWord 2.6.4 Setup (This wizard)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, AbiWord 2.6.4 Setup, This wizard ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'AbiWord 2.6.4 Setup (This wizard)' window.")
@@ -137,12 +148,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, AbiWord 2.6.4 Setup, License Agreement, 5
+    WinWaitActive, AbiWord 2.6.4 Setup, License Agreement, 3
     if ErrorLevel
         TestsFailed("'AbiWord 2.6.4 Setup (License Agreement)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, AbiWord 2.6.4 Setup, License Agreement
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'AbiWord 2.6.4 Setup (License Agreement)' window.")
@@ -156,12 +166,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, AbiWord 2.6.4 Setup, Choose Components, 5
+    WinWaitActive, AbiWord 2.6.4 Setup, Choose Components, 3
     if ErrorLevel
         TestsFailed("'AbiWord 2.6.4 Setup (Choose Components)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, AbiWord 2.6.4 Setup, Choose Components
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'AbiWord 2.6.4 Setup (Choose Components)' window.")
@@ -175,12 +184,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, AbiWord 2.6.4 Setup, Choose Install Location, 5
+    WinWaitActive, AbiWord 2.6.4 Setup, Choose Install Location, 3
     if ErrorLevel
         TestsFailed("'AbiWord 2.6.4 Setup (Choose Install Location)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, AbiWord 2.6.4 Setup, Choose Install Location
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'AbiWord 2.6.4 Setup (Choose Install Location)' window.")
@@ -194,12 +202,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, AbiWord 2.6.4 Setup, Choose Start Menu Folder, 5
+    WinWaitActive, AbiWord 2.6.4 Setup, Choose Start Menu Folder, 3
     if ErrorLevel
         TestsFailed("'AbiWord 2.6.4 Setup (Choose Start Menu Folder)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, AbiWord 2.6.4 Setup, Choose Start Menu Folder
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'AbiWord 2.6.4 Setup (Choose Start Menu Folder)' window.")
@@ -213,19 +220,18 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, AbiWord 2.6.4 Setup, Installing, 5
+    WinWaitActive, AbiWord 2.6.4 Setup, Installing, 3
     if ErrorLevel
         TestsFailed("'AbiWord 2.6.4 Setup (Installing)' window failed to appear.")
     else
     {
-        Sleep, 700
-        OutputDebug, OK: %TestName%: 'Installing' window appeared, waiting for it to close.`n
+        TestsInfo("'Installing' window appeared, waiting for it to close.")
         WinWaitClose, AbiWord 2.6.4 Setup, Installing, 45
         if ErrorLevel
             TestsFailed("'AbiWord 2.6.4 Setup (Installing)' window failed to disappear.")
         else
         {
-            WinWaitActive, AbiWord 2.6.4 Setup, Installation Complete, 7
+            WinWaitActive, AbiWord 2.6.4 Setup, Installation Complete, 3
             if ErrorLevel
                 TestsFailed("'AbiWord 2.6.4 Setup (Installation Complete)' window failed to appear.")
             else
@@ -245,34 +251,32 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, AbiWord 2.6.4 Setup, Completing, 7
+    WinWaitActive, AbiWord 2.6.4 Setup, Completing, 3
     if ErrorLevel
         TestsFailed("'AbiWord 2.6.4 Setup (Completing)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button4, AbiWord 2.6.4 Setup, Completing ; Uncheck 'Run AbiWord 2.6.4'
         if ErrorLevel
         {
             TestsFailed("Unable to uncheck 'Run AbiWord 2.6.4' checkbox in 'AbiWord 2.6.4 Setup (Completing)' window.")
-            Process, Close, AbiWord.exe ; Just in case
+            Process, Close, %MainAppFile% ; Just in case
         }
         else
         {
-            ControlClick, Button2, AbiWord 2.6.4 Setup, Completing ; Hit 'Finish'
-            if ErrorLevel
-                TestsFailed("Unable to hit 'Finish' button in 'AbiWord 2.6.4 Setup (Completing)' window.")
+            ControlGet, bChecked, Checked, Button4
+            if bChecked = 1
+                TestsFailed("'Run AbiWord 2.6.4' checkbox in 'AbiWord 2.6.4 Setup (Completing)' window reported as unchecked, but further inspection proves that it was still checked.")
             else
             {
-                WinWaitClose, AbiWord 2.6.4 Setup, Completing, 7
+                ControlClick, Button2, AbiWord 2.6.4 Setup, Completing ; Hit 'Finish'
                 if ErrorLevel
-                    TestsFailed("'AbiWord 2.6.4 Setup (Completing)' window failed to close despite 'Finish' button being clicked.")
+                    TestsFailed("Unable to hit 'Finish' button in 'AbiWord 2.6.4 Setup (Completing)' window.")
                 else
                 {
-                    Process, Wait, AbiWord.exe, 4
-                    NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
-                    if NewPID != 0
-                        TestsFailed("Process 'AbiWord.exe' appeared despite 'Run AbiWord 2.6.4' checkbox reported as unchecked in 'AbiWord 2.6.4 Setup (Completing)' window.")
+                    WinWaitClose, AbiWord 2.6.4 Setup, Completing, 3
+                    if ErrorLevel
+                        TestsFailed("'AbiWord 2.6.4 Setup (Completing)' window failed to close despite 'Finish' button being clicked.")
                     else
                         TestsOK("'AbiWord 2.6.4 Setup (Completing)' window appeared, 'Finish' button clicked and window closed.")
                 }
@@ -286,7 +290,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\AbiWord2, UninstallString
     if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")

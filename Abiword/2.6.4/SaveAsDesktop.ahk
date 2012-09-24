@@ -26,19 +26,19 @@ if not bContinue
     TestsFailed("We failed somwehere in 'prepare.ahk'.")
 else
 {
-    WinWaitActive, Untitled1 - AbiWord,,5
+    WinWaitActive, Untitled1 - AbiWord,,3
     if ErrorLevel
         TestsFailed("Window 'Untitled1 - AbiWord' failed to appear.")
     else
     {
         SendInput, AbiWord %TestName% test by Edijus
-        WinWaitActive, *Untitled1 - AbiWord,,5
+        WinWaitActive, *Untitled1 - AbiWord,,3
         if ErrorLevel
             TestsFailed("Window '*Untitled1 - AbiWord' failed to appear.")
         else
         {
             SendInput, !{F4}
-            WinWaitActive, AbiWord, Save changes, 5
+            WinWaitActive, AbiWord, Save changes, 3
             if ErrorLevel
                 TestsFailed("Window 'AbiWord (Save changes)' failed to appear.")
             else
@@ -64,7 +64,6 @@ else
                             else
                             {
                                 FileDelete, %A_Desktop%\AbiWordTest.txt
-                                Sleep, 1500
                                 ControlSetText, Edit1, %A_Desktop%\AbiWordTest.txt, Save File As
                                 if ErrorLevel
                                     TestsFailed("Unable to change Edit1 control text to '" A_Desktop "\AbiWordTest.txt' in 'Save File As' window.")

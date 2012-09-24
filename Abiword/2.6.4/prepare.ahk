@@ -19,19 +19,35 @@
 
 TestName = prepare
 
-Process, Close, AbiWord.exe
 
+; Test if the app is installed
+TestsTotal++
 RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\AbiWord2, UninstallString
 if ErrorLevel
-{
-    ModuleExe = %A_ProgramFiles%\AbiSuite2\AbiWord\bin\AbiWord.exe
-    OutputDebug, %TestName%:%A_LineNumber%: Can NOT read data from registry. Key might not exist. Using hardcoded path.`n
-}
+    TestsFailed("Either registry key does not exist or we failed to read it.")
 else
 {
     SplitPath, UninstallerPath,, InstalledDir
     ModuleExe = %InstalledDir%\AbiWord\bin\AbiWord.exe
+    TestsOK("")
 }
+
+
+; Terminate application
+TestsTotal++
+if bContinue
+{
+    SplitPath, ModuleExe, ProcessExe
+    Process, Close, %ProcessExe%
+    Process, WaitClose, %ProcessExe%, 4
+    if ErrorLevel
+        TestsFailed("Unable to terminate '" ProcessExe "' process.")
+    else
+        TestsOK("")
+}
+
+
+RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\AbiSuite
 
 
 ; Test if can start application
@@ -41,45 +57,49 @@ RunApplication(PathToFile)
     global TestName
     global bContinue
     global TestsTotal
+    global ProcessExe
 
     TestsTotal++
-    Process, Close, AbiWord.exe
-    Process, WaitClose, AbiWord.exe, 4
-    if ErrorLevel
-        TestsFailed("Unable to close 'AbiWord.exe' process.")
+    IfNotExist, %ModuleExe%
+        TestsFailed("Can NOT find '" ModuleExe "'.")
     else
     {
-        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\AbiSuite
-        Sleep, 500
-        IfNotExist, %ModuleExe%
-            TestsFailed("Can NOT find '" ModuleExe "'.")
-        else
+        if PathToFile =
         {
-            if PathToFile =
+            Run, %ModuleExe%,, Max ; Start maximized
+            WinWaitActive, Untitled1 - AbiWord,,7
+            if ErrorLevel
             {
-                Run, %ModuleExe%,, Max ; Start maximized
-                Sleep, 1000
-                WinWaitActive, Untitled1 - AbiWord,,7
-                if ErrorLevel
-                    TestsFailed("Window 'Untitled1 - AbiWord' failed to appear.")
+                Process, Exist, %ProcessExe%
+                NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                if NewPID = 0
+                    TestsFailed("Window 'Untitled1 - AbiWord' failed to appear. No '" ProcessExe "' process detected.")
                 else
-                    TestsOK("")
+                    TestsFailed("Window 'Untitled1 - AbiWord' failed to appear. '" ProcessExe "' process detected.")
             }
             else
+                TestsOK("")
+        }
+        else
+        {
+            IfNotExist, %PathToFile%
+                TestsFailed("Can NOT find '" PathToFile "'.")
+            else
             {
-                IfNotExist, %PathToFile%
-                    TestsFailed("Can NOT find '" PathToFile "'.")
-                else
+                Run, %ModuleExe% "%PathToFile%",, Max
+                SplitPath, PathToFile, NameExt
+                WinWaitActive, %NameExt% - AbiWord,,7
+                if ErrorLevel
                 {
-                    Run, %ModuleExe% "%PathToFile%",, Max
-                    Sleep, 1000
-                    SplitPath, PathToFile, NameExt
-                    WinWaitActive, %NameExt% - AbiWord,,7
-                    if ErrorLevel
-                        TestsFailed("Window '%NameExt% - AbiWord' failed to appear.")
+                    Process, Exist, %ProcessExe%
+                    NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                    if NewPID = 0
+                        TestsFailed("Window '" NameExt " - AbiWord' failed to appear. No '" ProcessExe "' process detected.")
                     else
-                        TestsOK("")
+                        TestsFailed("Window '" NameExt " - AbiWord' failed to appear. '" ProcessExe "' process detected.")
                 }
+                else
+                    TestsOK("")
             }
         }
     }
