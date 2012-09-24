@@ -44,30 +44,44 @@ else
             ; That probably means we have not installed this app before.
             ; Check in default directory to be extra sure
             bHardcoded := true ; To know if we got path from registry or not
-            IfNotExist, %A_ProgramFiles%\Abyss Web Server
-                bContinue := true ; No previous versions detected in hardcoded path
-            else
+            szDefaultDir = %A_ProgramFiles%\Abyss Web Server
+            IfNotExist, %szDefaultDir%
             {
-                FileRemoveDir, %A_ProgramFiles%\Abyss Web Server, 1 ; Silent switch '/S' shows a dialog
+                TestsInfo("No previous versions detected in hardcoded path: '" szDefaultDir "'.")
+                bContinue := true
+            }
+            else
+            {   
+                FileRemoveDir, %szDefaultDir%, 1
                 if ErrorLevel
-                    TestsFailed("Unable to delete hardcoded path '" A_ProgramFiles "\Abyss Web Server' ('" MainAppFile "' process is reported as terminated).'")
+                    TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
                 else
+                {
+                    TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
                     bContinue := true
+                }
             }
         }
         else
         {
-            StringReplace, UninstallerPath, UninstallerPath, `", , All ; Abyss string path contains quotes
+            UninstallerPath := ExeFilePathNoParam(UninstallerPath)
             SplitPath, UninstallerPath,, InstalledDir
             IfNotExist, %InstalledDir%
+            {
+                TestsInfo("Got '" InstalledDir "' from registry and such path does not exist.")
                 bContinue := true
+            }
             else
             {
-                FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
+                ; Silent switch '/S' shows a dialog
+                FileRemoveDir, %InstalledDir%, 1
                 if ErrorLevel
                     TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
                 else
+                {
+                    TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
                     bContinue := true
+                }
             }
         }
     }
@@ -103,13 +117,12 @@ if bContinue
     }
     else
     {
-        Sleep, 700
         ControlClick, Button2, Abyss Web Server X1 Setup: License Agreement, Please read ; Hit 'I Agree' button
         if ErrorLevel
             TestsFailed("Unable to hit 'I Agree' button in 'Abyss Web Server X1 Setup: License Agreement (Please read)' window.")
         else
         {
-            WinWaitClose, Abyss Web Server X1 Setup: License Agreement, Please read, 5
+            WinWaitClose, Abyss Web Server X1 Setup: License Agreement, Please read, 3
             if ErrorLevel
                 TestsFailed("'Abyss Web Server X1 Setup: License Agreement (Please read)' window failed to close despite 'I Agree' button being clicked.")
             else
@@ -123,12 +136,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Abyss Web Server X1 Setup: Installation Options, This will install, 7
+    WinWaitActive, Abyss Web Server X1 Setup: Installation Options, This will install, 3
     if ErrorLevel
         TestsFailed("'Abyss Web Server X1 Setup: Installation Options (This will install)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, Abyss Web Server X1 Setup: Installation Options, This will install ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Abyss Web Server X1 Setup: Installation Options (This will install)' window.")
@@ -142,12 +154,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Abyss Web Server X1 Setup: Installation Folder, Choose a directory, 7
+    WinWaitActive, Abyss Web Server X1 Setup: Installation Folder, Choose a directory, 3
     if ErrorLevel
         TestsFailed("'Abyss Web Server X1 Setup: Installation Folder (Choose a directory)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, Abyss Web Server X1 Setup: Installation Folder, Choose a directory ; Hit 'Install' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Install' button in 'Abyss Web Server X1 Setup: Installation Folder (Choose a directory)' window.")
@@ -161,24 +172,21 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Abyss Web Server X1 Setup: Installing, Show, 7
+    WinWaitActive, Abyss Web Server X1 Setup: Installing, Show, 3
     if ErrorLevel
         TestsFailed("'Abyss Web Server X1 Setup: Installing (Show)' window failed to appear.")
     else
     {
-        Sleep, 700
         WinWaitActive, Abyss Web Server Startup Configuration, Select the startup, 25
         if ErrorLevel
             TestsFailed("'Abyss Web Server Startup Configuration (Select the startup)' window failed to pop-up.")
         else
         {
-            Sleep, 700
             ControlClick, Button3, Abyss Web Server Startup Configuration, Select the startup ; Check 'Manual startup' radiobutton
             if ErrorLevel
                 TestsFailed("Unable to check 'Manual startup' radiobutton in 'Abyss Web Server Startup Configuration (Select the startup)' window.")
             else
             {
-                Sleep, 700
                 ControlClick, Button1, Abyss Web Server Startup Configuration, Select the startup ; Hit 'OK' button
                 if ErrorLevel
                     TestsFailed("Unable to hit 'OK' button in 'Abyss Web Server Startup Configuration (Select the startup)' window.")
@@ -189,12 +197,12 @@ if bContinue
                         TestsFailed("'Abyss Web Server Startup Configuration (Select the startup)' window failed to close despite 'OK' button being clicked.")
                     else
                     {
+                        TestsInfo("'Abyss Web Server Startup Configuration (Select the startup)' window appeared and closed.")
                         WinWaitActive, Abyss Web Server X1 Setup, Setup has completed, 5
                         if ErrorLevel
                             TestsFailed("'Abyss Web Server X1 Setup (Setup has completed)' window failed to appear.")
                         else
                         {
-                            Sleep, 700
                             ControlClick, Button2, Abyss Web Server X1 Setup, Setup has completed ; Hit 'No' button
                             if ErrorLevel
                                 TestsFailed("Unable to hit 'No' button in 'Abyss Web Server X1 Setup (Setup has completed)' window.")
@@ -205,7 +213,6 @@ if bContinue
                                     TestsFailed("'Abyss Web Server X1 Setup: Completed (Completed)' window failed to appear.")
                                 else
                                 {
-                                    Sleep, 700
                                     ControlClick, Button2, Abyss Web Server X1 Setup: Completed, Completed ; Hit 'Close' button
                                     if ErrorLevel
                                         TestsFailed("Unable to hit 'Close' button in 'Abyss Web Server X1 Setup: Completed (Completed)' window.")
@@ -232,7 +239,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     RegRead, UninstallerPath, HKEY_CURRENT_USER, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\AbyssWebServer, UninstallString
     if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")
