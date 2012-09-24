@@ -20,14 +20,6 @@
 TestName = 2.ExtractArchive
 szDocument = %A_WorkingDir%\Media\7Zip_TestFile.7z
 
-; Test if can terminate process
-TestsTotal++
-Process, Close, 7zFM.exe
-Process, WaitClose, 7zFM.exe, 4
-if ErrorLevel
-    TestsFailed("Process '7zFM.exe' failed to close.")
-else
-    TestsOK("Process '7zFM.exe' does not exist.")
 
 ; Test if can extract file to the folder in desktop
 TestsTotal++
@@ -67,7 +59,7 @@ else
                             TestsFailed("Unable to hit 'OK' button in 'Copy (Copy to)' window.")
                         else
                         {
-                            Sleep, 4000 ; Give it some time to extract
+                            Sleep, 3000 ; Give it some time to extract (there is some window, but AHK might not detect it, so hardcode sleep)
                             IfNotExist, %A_Desktop%\7-Zip\TestFile.txt
                                 TestsFailed("Can NOT find '" A_Desktop "\7-Zip\TestFile.txt'.")
                             else

@@ -32,7 +32,6 @@ else
         TestsFailed("Window '7-Zip File Manager' failed to appear.")
     else
     {
-        Sleep, 1500 ; Let it to fully load
         WinMenuSelectItem, 7-Zip File Manager, , Tools, Benchmark
         if ErrorLevel
             TestsFailed("Unable to hit 'Tools -> Benchmark'.")
@@ -48,7 +47,6 @@ else
                     TestsFailed("Unable to choose '32MB' as 'Dictionary size' in 'Benchmark'.")
                 else
                 {
-                    Sleep, 2000
                     ControlGetText, OutputVar, Static30, Benchmark
                     TimeOut := 0
                     while (OutputVar = "...") and (TimeOut < 90)

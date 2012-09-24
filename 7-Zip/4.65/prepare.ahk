@@ -19,18 +19,46 @@
 
 TestName = prepare
 
-
+; Test if the app is installed
+TestsTotal++
 RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\7-Zip, UninstallString
 if ErrorLevel
-{
-    ModuleExe = %A_ProgramFiles%\7-Zip\7zFM.exe
-    OutputDebug, %TestName%:%A_LineNumber%: Can NOT read data from registry. Key might not exist. Using hardcoded path.`n
-}
+    TestsFailed("Either registry key does not exist or we failed to read it.")
 else
 {
-    StringReplace, UninstallerPath, UninstallerPath, `",, All ; String contains quotes, replace em
+    StringReplace, UninstallerPath, UninstallerPath, `",, All ; 9.20 haves quoted path
     SplitPath, UninstallerPath,, InstalledDir
     ModuleExe = %InstalledDir%\7zFM.exe
+    TestsOK("")
+}
+
+
+TerminateApplication() ; execute the function
+
+
+; Delete settings
+RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\7-Zip
+RegDelete, HKEY_CURRENT_USER, SOFTWARE\7-Zip
+
+
+; Function to test if can terminate application
+TerminateApplication()
+{
+    global TestsTotal
+    global ModuleExe
+    global bContinue
+
+    TestsTotal++
+    if bContinue
+    {
+        SplitPath, ModuleExe, ProcessExe
+        Process, Close, %ProcessExe%
+        Process, WaitClose, %ProcessExe%, 4
+        if ErrorLevel
+            TestsFailed("Unable to terminate '" ProcessExe "' process.")
+        else
+            TestsOK("")
+    }
 }
 
 
@@ -38,43 +66,47 @@ else
 RunApplication(PathToFile)
 {
     global ModuleExe
+    global ProcessExe
     global TestName
     global bContinue
     global TestsTotal
 
     TestsTotal++
-    Process, Close, 7zFM.exe
-    Process, WaitClose, 7zFM.exe, 4
-    if ErrorLevel
-        TestsFailed("Process '7zFM.exe' failed to close.")
+    IfNotExist, %ModuleExe%
+        TestsFailed("Can NOT find '" ModuleExe "'.")
     else
     {
-        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\7-Zip
-        RegDelete, HKEY_CURRENT_USER, SOFTWARE\7-Zip
-        IfNotExist, %ModuleExe%
-            TestsFailed("Can NOT find '" ModuleExe "'.")
-        else
+        if PathToFile =
         {
-            if PathToFile =
+            Run, %ModuleExe%,, Max ; Start maximized
+            WinWaitActive, 7-Zip File Manager,,7
+            if ErrorLevel
             {
-                Run, %ModuleExe%,, Max ; Start maximized
-                Sleep, 1000
-                WinWaitActive, 7-Zip File Manager,,7
-                if ErrorLevel
-                    TestsFailed("Window '7-Zip File Manager' failed to appear.")
+                Process, Exist, %ProcessExe%
+                NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                if NewPID = 0
+                    TestsFailed("Window '7-Zip File Manager' failed to appear. No '" ProcessExe "' process detected.")
                 else
-                    TestsOK("")
+                    TestsFailed("Window '7-Zip File Manager' failed to appear. '" ProcessExe "' process detected.")
             }
             else
+                TestsOK("")
+        }
+        else
+        {
+            Run, %ModuleExe% "%PathToFile%",, Max
+            WinWaitActive, %PathToFile%\,,7
+            if ErrorLevel
             {
-                Run, %ModuleExe% "%PathToFile%",, Max
-                Sleep, 1000
-                WinWaitActive, %PathToFile%\,,7
-                if ErrorLevel
-                    TestsFailed("Window '" PathToFile "\' failed to appear.")
+                Process, Exist, %ProcessExe%
+                NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                if NewPID = 0
+                    TestsFailed("Window '" PathToFile "\' failed to appear. No '" ProcessExe "' process detected.")
                 else
-                    TestsOK("")
+                    TestsFailed("Window '" PathToFile "\' failed to appear. '" ProcessExe "' process detected.")
             }
+            else
+                TestsOK("")
         }
     }
 }
