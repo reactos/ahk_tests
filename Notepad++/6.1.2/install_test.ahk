@@ -118,13 +118,20 @@ else
 
     if bContinue
     {
-        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Notepad++
-        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Notepad++
-        IfExist, %A_AppData%\Notepad++
+        Process, wait, explorer.exe, 5
+        NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed
+        if NewPID = 0
+            TestsFailed("'explorer.exe' process failed to start.")
+        else
         {
-            FileRemoveDir, %A_AppData%\Notepad++, 1
-            if ErrorLevel
-                TestsFailed("Unable to delete '" A_AppData "\Notepad++'.")
+            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Notepad++
+            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Notepad++
+            IfExist, %A_AppData%\Notepad++
+            {
+                FileRemoveDir, %A_AppData%\Notepad++, 1
+                if ErrorLevel
+                    TestsFailed("Unable to delete '" A_AppData "\Notepad++'.")
+            }
         }
 
         if bContinue

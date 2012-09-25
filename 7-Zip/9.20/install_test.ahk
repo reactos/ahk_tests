@@ -125,14 +125,21 @@ else
 
     if bContinue
     {
-        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\7-Zip
-        RegDelete, HKEY_CURRENT_USER, SOFTWARE\7-Zip
-        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\7-Zip
-        IfExist, %A_AppData%\7-Zip
+        Process, wait, explorer.exe, 5
+        NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed
+        if NewPID = 0
+            TestsFailed("'explorer.exe' process failed to start.")
+        else
         {
-            FileRemoveDir, %A_AppData%\7-Zip, 1
-            if ErrorLevel
-                TestsFailed("Unable to delete '" A_AppData "\7-Zip'.")
+            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\7-Zip
+            RegDelete, HKEY_CURRENT_USER, SOFTWARE\7-Zip
+            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\7-Zip
+            IfExist, %A_AppData%\7-Zip
+            {
+                FileRemoveDir, %A_AppData%\7-Zip, 1
+                if ErrorLevel
+                    TestsFailed("Unable to delete '" A_AppData "\7-Zip'.")
+            }
         }
 
         if bContinue
