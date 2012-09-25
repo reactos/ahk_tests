@@ -40,50 +40,68 @@ else
             ; That probably means we have not installed this app before.
             ; Check in default directory to be extra sure
             bHardcoded := true ; To know if we got path from registry or not
-            IfNotExist, %A_ProgramFiles%\Audiograbber
-                bContinue := true ; No previous versions detected in hardcoded path
-            else
+            szDefaultDir = %A_ProgramFiles%\Audiograbber
+            IfNotExist, %szDefaultDir%
             {
-                IfExist, %A_ProgramFiles%\Audiograbber\Uninstall.exe
+                TestsInfo("No previous versions detected in hardcoded path: '" szDefaultDir "'.")
+                bContinue := true
+            }
+            else
+            {   
+                UninstallerPath = %szDefaultDir%\Uninstall.exe /S
+                WaitUninstallDone(UninstallerPath, 3)
+                if bContinue
                 {
-                    RunWait, %A_ProgramFiles%\Audiograbber\Uninstall.exe /S ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %A_ProgramFiles%\Audiograbber ; Uninstaller might delete the dir
-                    bContinue := true
-                {
-                    FileRemoveDir, %A_ProgramFiles%\Audiograbber, 1
-                    if ErrorLevel
-                        TestsFailed("Unable to delete hardcoded path '" A_ProgramFiles "\Audiograbber' ('" MainAppFile "' process is reported as terminated).'")
-                    else
+                    IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
+                    {
+                        TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %szDefaultDir%, 1
+                        if ErrorLevel
+                            TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
         else
         {
-            StringReplace, UninstallerPath, UninstallerPath, `", , All
+            UninstallerPath := ExeFilePathNoParam(UninstallerPath)
             SplitPath, UninstallerPath,, InstalledDir
             IfNotExist, %InstalledDir%
+            {
+                TestsInfo("Got '" InstalledDir "' from registry and such path does not exist.")
                 bContinue := true
+            }
             else
             {
-                IfExist, %UninstallerPath%
+                UninstallerPath = %UninstallerPath% /S
+                WaitUninstallDone(UninstallerPath, 3) ; Child process 'Au_.exe'
+                if bContinue
                 {
-                    RunWait, %UninstallerPath% /S ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %InstalledDir%
-                    bContinue := true
-                else
-                {
-                    FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
-                    else
+                    IfNotExist, %InstalledDir%
+                    {
+                        TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %InstalledDir%, 1 ; Uninstaller leaved the path for us to delete, so, do it
+                        if ErrorLevel
+                            TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
@@ -110,18 +128,17 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Installer Language, Please select, 15
+    WinWaitActive, Installer Language, Please select, 10
     if ErrorLevel
         TestsFailed("'Installer Language (Please select)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button1, Installer Language, Please select ; Hit 'OK' button
         if ErrorLevel
             TestsFailed("Unable to hit 'OK' button in 'Installer Language (Please select)' window.")
         else
         {
-            WinWaitClose, Installer Language, Please select, 5
+            WinWaitClose, Installer Language, Please select, 3
             if ErrorLevel
                 TestsFailed("'Installer Language (Please select)' window failed to close despite 'OK' button being clicked.")
             else
@@ -140,13 +157,12 @@ if bContinue
         TestsFailed("'Audiograbber 1.83 SE Setup (This wizard)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, Audiograbber 1.83 SE Setup, This wizard ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Audiograbber 1.83 SE Setup (This wizard)' window.")
         else
         {
-            WinWaitClose, Audiograbber 1.83 SE Setup, This wizard, 5
+            WinWaitClose, Audiograbber 1.83 SE Setup, This wizard, 3
             if ErrorLevel
                 TestsFailed("'Audiograbber 1.83 SE Setup (This wizard)' window failed to close despite 'Next' button being clicked.")
             else
@@ -160,12 +176,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Audiograbber 1.83 SE Setup, License Agreement, 7
+    WinWaitActive, Audiograbber 1.83 SE Setup, License Agreement, 3
     if ErrorLevel
         TestsFailed("'Audiograbber 1.83 SE Setup (License Agreement)' window failed to appear.")
     else
     {
-        Sleep, 6700 ; Longer sleep is required here
         ControlClick, Button2, Audiograbber 1.83 SE Setup, License Agreement ; Hit 'I Agree' button
         if ErrorLevel
             TestsFailed("Unable to hit 'I Agree' button in 'Audiograbber 1.83 SE Setup (License Agreement)' window.")
@@ -179,12 +194,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Audiograbber 1.83 SE Setup, Choose Install Location, 7
+    WinWaitActive, Audiograbber 1.83 SE Setup, Choose Install Location, 3
     if ErrorLevel
         TestsFailed("'Audiograbber 1.83 SE Setup (Choose Install Location)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, Audiograbber 1.83 SE Setup, Choose Install Location ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Audiograbber 1.83 SE Setup (Choose Install Location)' window.")
@@ -198,12 +212,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Audiograbber 1.83 SE Setup, Additional options, 7
+    WinWaitActive, Audiograbber 1.83 SE Setup, Additional options, 3
     if ErrorLevel
         TestsFailed("'Audiograbber 1.83 SE Setup (Additional options)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button3, Audiograbber 1.83 SE Setup, Additional options ; Hit 'Skip' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Skip' button in 'Audiograbber 1.83 SE Setup (Additional options)' window.")
@@ -223,29 +236,26 @@ if bContinue
         TestsFailed("'Audiograbber 1.83 SE Setup (Completing)' window failed to appear.")
     else
     {
-        Sleep, 700
         Control, Uncheck,, Button4, Audiograbber 1.83 SE Setup, Completing ; Uncheck 'Start Audiograbber 1.83 SE'
         if ErrorLevel
             TestsFailed("Unable to uncheck 'Start Audiograbber 1.83 SE' checkbox in 'Audiograbber 1.83 SE Setup (Completing)' window.")
         else
         {
-            Sleep, 700
-            ControlClick, Button2, Audiograbber 1.83 SE Setup, Completing ; Hit 'Finish' button
-            if ErrorLevel
-                TestsFailed("Unable to hit 'Finish' button in 'Audiograbber 1.83 SE Setup (Completing)' window.")
+            ControlGet, bChecked, Checked, Button4
+            if bChecked = 1
+                TestsFailed("'Start Audiograbber 1.83 SE' checkbox in 'Audiograbber 1.83 SE Setup (Completing)' window reported as unchecked, but further inspection proves that it was still checked.")
             else
             {
-                WinWaitClose, Audiograbber 1.83 SE Setup, Completing, 20
+                ControlClick, Button2, Audiograbber 1.83 SE Setup, Completing ; Hit 'Finish' button
                 if ErrorLevel
-                    TestsFailed("'Audiograbber 1.83 SE Setup (Completing)' window failed to close despite the 'Finish' button being reported as clicked .")
+                    TestsFailed("Unable to hit 'Finish' button in 'Audiograbber 1.83 SE Setup (Completing)' window.")
                 else
-                {       
-                    Process, Wait, %MainAppFile%, 4
-                    NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
-                    if NewPID <> 0
-                        TestsFailed("'" MainAppFile "' process appeared despite 'Start Audiograbber 1.83 SE' checkbox being unchecked.")
+                {
+                    WinWaitClose, Audiograbber 1.83 SE Setup, Completing, 3
+                    if ErrorLevel
+                        TestsFailed("'Audiograbber 1.83 SE Setup (Completing)' window failed to close despite the 'Finish' button being reported as clicked .")
                     else
-                        TestsOK("'Audiograbber 1.83 SE Setup (Completing)' window appeared, 'Start Audiograbber 1.83 SE' unchecked and 'Finish' was clicked.")
+                        TestsOK("'Audiograbber 1.83 SE Setup (Completing)' window appeared, 'Start Audiograbber 1.83 SE' unchecked and 'Finish' button clicked and window closed.")
                 }
             }
         }
@@ -257,7 +267,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Audiograbber, UninstallString
     if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")
