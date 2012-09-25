@@ -28,7 +28,7 @@ if not bContinue
 else
 {
     SplitPath, szDocument, NameExt
-    WinWaitActive, Adobe Reader - [%NameExt%],,15
+    WinWaitActive, Adobe Reader - [%NameExt%],,5
     if ErrorLevel
         TestsFailed("Window 'Adobe Reader - [" NameExt "]' failed to appear.")
     else
@@ -38,7 +38,6 @@ else
             TestsFailed("Unable to right-click on document in 'Adobe Reader - [" NameExt "]' window.")
         else
         {
-            Sleep, 1200
             SendInput, s ; Select 'Search' from popup menu
             ControlGetText, OutputVar, Static34, Adobe Reader - [%NameExt%]
             ControlText = Where would you like to search?
@@ -60,7 +59,6 @@ else
                 TestsFailed("It took too long for Search side bar to appear.")
             else
             {
-                Sleep, 1000 ; Sleep one more second for side bar to properly load
                 ControlSetText, Edit10, phone during, Adobe Reader - [%NameExt%]
                 if ErrorLevel
                     TestsFailed("Unable to change 'Edit10' control text in 'Adobe Reader - [%NameExt%]' window.")

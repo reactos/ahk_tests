@@ -28,9 +28,8 @@ IfNotExist, %ModuleExe%
 else
 {
     Process, Close, %MainAppFile% ; Teminate process
-    Sleep, 2000
-    Process, Exist, %MainAppFile%
-    if ErrorLevel <> 0
+    Process, WaitClose, %MainAppFile%, 4
+    if ErrorLevel ; The PID still exists.
         TestsFailed("Unable to terminate '" MainAppFile "' process.") ; So, process still exists
     else
     {
@@ -40,50 +39,68 @@ else
             ; There was a problem (such as a nonexistent key or value). 
             ; That probably means we have not installed this app before.
             ; Check in default directory to be extra sure
-            IfNotExist, %A_ProgramFiles%\Adobe\Acrobat 7.0
-                bContinue := true ; No previous versions detected in hardcoded path
-            else
+            bHardcoded := true ; To know if we got path from registry or not
+            szDefaultDir = %A_ProgramFiles%\Adobe\Acrobat 7.0
+            IfNotExist, %szDefaultDir%
             {
-                bHardcoded := true ; To know if we got path from registry or not
-                IfExist, %A_ProgramFiles%\Adobe\Acrobat 7.0
+                TestsInfo("No previous versions detected in hardcoded path: '" szDefaultDir "'.")
+                bContinue := true
+            }
+            else
+            {   
+                UninstallerPath = %A_WinDir%\System32\MsiExec.exe /qn /norestart /x {AC76BA86-7AD7-1033-7B44-A71000000002}
+                WaitUninstallDone(UninstallerPath, 3)
+                if bContinue
                 {
-                    RunWait, MsiExec.exe /qn /norestart /x {AC76BA86-7AD7-1033-7B44-A71000000002} ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %A_ProgramFiles%\Adobe\Acrobat 7.0 ; Uninstaller might delete the dir
-                    bContinue := true
-                else
-                {
-                    FileRemoveDir, %A_ProgramFiles%\Adobe\Acrobat 7.0, 1
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" A_ProgramFiles "\Adobe\Acrobat 7.0' ('" MainAppFile "' process is reported as terminated).'")
-                    else
+                    IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
+                    {
+                        TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %szDefaultDir%, 1
+                        if ErrorLevel
+                            TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
         else
         {
-            IfNotExist, %InstallLocation%
+            InstalledDir = %InstallLocation%
+            IfNotExist, %InstalledDir%
+            {
+                TestsInfo("Got '" InstalledDir "' from registry and such path does not exist.")
                 bContinue := true
+            }
             else
             {
-                IfExist, %InstallLocation%
+                UninstallerPath = %A_WinDir%\System32\MsiExec.exe /qn /norestart /x {AC76BA86-7AD7-1033-7B44-A71000000002}
+                WaitUninstallDone(UninstallerPath, 3)
+                if bContinue
                 {
-                    RunWait, MsiExec.exe /qn /norestart /x {AC76BA86-7AD7-1033-7B44-A71000000002} ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %InstallLocation%
-                    bContinue := true
-                else
-                {
-                    FileRemoveDir, %InstallLocation%, 1 ; Delete just in case
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" InstallLocation "' ('" MainAppFile "' process is reported as terminated).")
-                    else
+                    IfNotExist, %InstalledDir%
+                    {
+                        TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %InstalledDir%, 1 ; Uninstaller leaved the path for us to delete, so, do it
+                        if ErrorLevel
+                            TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
@@ -123,18 +140,60 @@ if bContinue
         TestsFailed("'Adobe Reader 7.1.0 (Resume)' window failed to appear.")
     else
     {
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Adobe Reader 7.1.0' window with 'Resume' button appeared.`n
+        ; 'Adobe Reader 7.1.0 (Resume)' window is in the background, so, WinWaitClose won't work here
         WinWaitActive, Adobe Reader 7.1.0 - Setup, Next, 50
         if ErrorLevel
             TestsFailed("First 'Adobe Reader 7.1.0 - Setup' window (Splash Screen) failed to appear.")
         else
         {
-            Sleep, 700
-            ControlClick, Button1, Adobe Reader 7.1.0 - Setup, Next
+            TestsInfo("Active window is 'Adobe Reader 7.1.0 - Setup' window (Splash Screen).")
+            Sleep, 650 ; Sleep is a must!
+            ; One time Button1 is 'Next', next time it is 'Cancel'. So, check what button do we need to click
+            szNextButtonText = Next
+            ControlGetText, szButtonText, Button1, Adobe Reader 7.1.0 - Setup, Next
             if ErrorLevel
-                TestsFailed("Unable to click first 'Next' in 'Adobe Reader 7.1.0 - Setup' window.")
+                TestsFailed("Unable to get 'Button1' text in 'Adobe Reader 7.1.0 - Setup (Next)' window.")
             else
-                TestsOK("'Adobe Reader 7.1.0 - Setup' window appeared and first 'Next' button was clicked.")
+            {
+                TestsInfo("'Button1 (" szButtonText ")'")
+                IfInString, szButtonText, %szNextButtonText%
+                    szTheButton = Button1
+                else
+                {
+                    ControlGetText, szButtonText, Button2, Adobe Reader 7.1.0 - Setup, Next
+                    if ErrorLevel
+                        TestsFailed("Unable to get 'Button2' text in 'Adobe Reader 7.1.0 - Setup (Next)' window.")
+                    else
+                    {
+                        TestsInfo("'Button2 (" szButtonText ")'")
+                        IfInString, szButtonText, %szNextButtonText%
+                            szTheButton = Button2
+                        else
+                        {
+                            ControlGetText, szButtonText, Button3, Adobe Reader 7.1.0 - Setup, Next
+                            if ErrorLevel
+                                TestsFailed("Unable to get 'Button3' text in 'Adobe Reader 7.1.0 - Setup (Next)' window.")
+                            else
+                            {
+                                TestsInfo("'Button3 (" szButtonText ")'")
+                                IfInString, szButtonText, %szNextButtonText%
+                                    szTheButton = Button3
+                                else
+                                    TestsFailed("None of 3 button caption contained '" szNextButtonText "'.")
+                            }
+                        }
+                    }
+                }
+            }
+
+            if bContinue
+            {
+                ControlClick, %szTheButton%, Adobe Reader 7.1.0 - Setup, Next
+                if ErrorLevel
+                    TestsFailed("Unable to click '" szTheButton "(" szButtonText ")' in 'Adobe Reader 7.1.0 - Setup' splashscreen window.")
+                else
+                    TestsOK("'Adobe Reader 7.1.0 - Setup' window appeared and first '" szTheButton "(" szButtonText ")' button clicked.")
+            }
         }
     } 
 }
@@ -144,17 +203,59 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Adobe Reader 7.1.0 - Setup, Welcome to Setup, 14
+    WinWaitActive, Adobe Reader 7.1.0 - Setup, Welcome to Setup, 3
     if ErrorLevel
         TestsFailed("'Adobe Reader 7.1.0 - Setup (Welcome to Setup)' window failed to appear.")
     else
     {
-        Sleep, 700
-        ControlClick, Button1, Adobe Reader 7.1.0 - Setup, Welcome to Setup
+        TestsInfo("Active window is 'Adobe Reader 7.1.0 - Setup (Welcome to Setup)'.")
+        Sleep, 650 ; Sleep is a must!
+        ; One time Button1 is 'Next', next time it is 'Cancel'. So, check what button do we need to click
+        szNextButtonText = Next
+        ControlGetText, szButtonText, Button1, Adobe Reader 7.1.0 - Setup, Welcome to Setup
         if ErrorLevel
-            TestsFailed("Unable to hit 'Next' button in 'Adobe Reader 7.1.0 - Setup (Welcome to Setup)' window.")
+            TestsFailed("Unable to get 'Button1' text in 'Adobe Reader 7.1.0 - Setup (Welcome to Setup)' window.")
         else
-            TestsOK("'Adobe Reader 7.1.0 - Setup (Welcome to Setup)' window appeared and 'Next' button was clicked.")
+        {
+            TestsInfo("'Button1 (" szButtonText ")'")
+            IfInString, szButtonText, %szNextButtonText%
+                szTheButton = Button1
+            else
+            {
+                ControlGetText, szButtonText, Button2, Adobe Reader 7.1.0 - Setup, Welcome to Setup
+                if ErrorLevel
+                    TestsFailed("Unable to get 'Button2' text in 'Adobe Reader 7.1.0 - Setup (Welcome to Setup)' window.")
+                else
+                {
+                    TestsInfo("'Button2 (" szButtonText ")'")
+                    IfInString, szButtonText, %szNextButtonText%
+                        szTheButton = Button2
+                    else
+                    {
+                        ControlGetText, szButtonText, Button3, Adobe Reader 7.1.0 - Setup, Welcome to Setup
+                        if ErrorLevel
+                            TestsFailed("Unable to get 'Button3' text in 'Adobe Reader 7.1.0 - Setup (Welcome to Setup)' window.")
+                        else
+                        {
+                            TestsInfo("'Button3 (" szButtonText ")'")
+                            IfInString, szButtonText, %szNextButtonText%
+                                szTheButton = Button3
+                            else
+                                TestsFailed("None of 3 button caption contained '" szNextButtonText "'.")
+                        }
+                    }
+                }
+            }
+        }
+
+        if bContinue
+        {
+            ControlClick, %szTheButton%, Adobe Reader 7.1.0 - Setup, Welcome to Setup
+            if ErrorLevel
+                TestsFailed("Unable to hit '" szTheButton "(" szButtonText ")' button in 'Adobe Reader 7.1.0 - Setup (Welcome to Setup)' window.")
+            else
+                TestsOK("'Adobe Reader 7.1.0 - Setup (Welcome to Setup)' window appeared and '" szTheButton "(" szButtonText ")' button was clicked.")
+        }
     }
 }
 
@@ -168,7 +269,6 @@ if bContinue
         TestsFailed("'Adobe Reader 7.1.0 - Setup (Destination Folder)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button1, Adobe Reader 7.1.0 - Setup, Destination Folder
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in ' Adobe Reader 7.1.0 - Setup (Destination Folder)' window.")
@@ -182,12 +282,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Adobe Reader 7.1.0 - Setup, Ready to Install, 7
+    WinWaitActive, Adobe Reader 7.1.0 - Setup, Ready to Install, 3
     if ErrorLevel
         TestsFailed("'Adobe Reader 7.1.0 - Setup (Ready to Install)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button1, Adobe Reader 7.1.0 - Setup, Ready to Install ; Hit 'Install' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Install' button in 'Adobe Reader 7.1.0 - Setup (Ready to Install)' window.")
@@ -203,17 +302,16 @@ if bContinue
 {
     WinWaitActive, Adobe Reader 7.1.0 - Setup, Installing Adobe, 7
     if ErrorLevel
-        TestsFailed("'Adobe Reader 7.1.0 - Setup (Installing)' window failed to appear.")
+        TestsFailed("'Adobe Reader 7.1.0 - Setup (Installing Adobe)' window failed to appear.")
     else
     {
-        Sleep, 700
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Adobe Reader 7.1.0 - Setup (Installing Adobe)' window appeared, waiting for it to close.`n
-        WinWaitClose, Adobe Reader 7.1.0 - Setup, Installing Adobe, 55
+        TestsInfo("'Adobe Reader 7.1.0 - Setup (Installing Adobe)' window appeared, waiting for it to close.")
+        WinWaitClose, Adobe Reader 7.1.0 - Setup, Installing Adobe, 85
         if ErrorLevel
             TestsFailed("'Adobe Reader 7.1.0 - Setup (Installing Adobe)' window failed to dissapear.")
         else
         {
-            WinWaitActive, Adobe Reader 7.1.0 - Setup, Setup Completed, 7
+            WinWaitActive, Adobe Reader 7.1.0 - Setup, Setup Completed, 3
             if ErrorLevel
                 TestsFailed("'Adobe Reader 7.1.0 - Setup (Setup Completed)' window failed to appear.")
             else
@@ -223,7 +321,7 @@ if bContinue
                     TestsFailed("Unable to hit 'Finish' button in 'Adobe Reader 7.1.0 - Setup (Setup Completed)' window.")
                 else
                 {
-                    WinWaitClose, Adobe Reader 7.1.0 - Setup, Setup Completed, 5
+                    WinWaitClose, Adobe Reader 7.1.0 - Setup, Setup Completed, 3
                     if ErrorLevel
                         TestsFailed("'Adobe Reader 7.1.0 - Setup (Setup Completed)' window failed to close despite 'Finish' button being clicked.")
                     else
@@ -239,7 +337,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     RegRead, InstallLocation, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{AC76BA86-7AD7-1033-7B44-A71000000002}, InstallLocation
     if not ErrorLevel
     {

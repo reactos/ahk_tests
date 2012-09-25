@@ -19,16 +19,47 @@
 
 TestName = prepare
 
-Process, Close, AcroRd32.exe
-
+; Test if the app is installed
+TestsTotal++
 RegRead, InstalledPathReg, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{AC76BA86-7AD7-1033-7B44-A71000000002}, InstallLocation
 if ErrorLevel
-{
-    ModuleExe = %A_ProgramFiles%\Adobe\Acrobat 7.0\Reader\AcroRd32.exe
-    OutputDebug, %TestName%:%A_LineNumber%: Can NOT read data from registry. Key might not exist. Using hardcoded path.`n
-}
+    TestsFailed("Either registry key does not exist or we failed to read it.")
 else
+{
     ModuleExe = %InstalledPathReg%AcroRd32.exe ; InstalledPathReg already contains backslash
+    TestsOK("")
+}
+
+
+; Terminate application
+TestsTotal++
+if bContinue
+{
+    SplitPath, ModuleExe, ProcessExe
+    Process, Close, %ProcessExe%
+    Process, WaitClose, %ProcessExe%, 4
+    if ErrorLevel
+        TestsFailed("Unable to terminate '" ProcessExe "' process.")
+    else
+        TestsOK("")
+}
+
+
+; Get rid of application settings
+TestsTotal++
+if bContinue
+{
+    RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Adobe\Acrobat Reader
+    RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Adobe\Repair\Acrobat Reader
+    RegDelete, HKEY_CURRENT_USER, SOFTWARE\Adobe\Acrobat Reader
+    IfExist, %A_AppData%\Adobe\Acrobat
+        FileRemoveDir, %A_AppData%\Adobe\Acrobat, 1
+
+    IfExist, %A_AppData%\Adobe\Acrobat
+        TestsFailed("Unable to delete '" A_AppData "\Adobe\Acrobat'.")
+    else
+        TestsOK("")
+}
 
 
 ; Test if can start application
@@ -40,70 +71,49 @@ RunApplication(PathToFile)
     global TestsTotal
 
     TestsTotal++
-    Process, Close, AcroRd32.exe
-    Process, WaitClose, AcroRd32.exe, 4
-    if ErrorLevel
-        TestsFailed("Process 'AcroRd32.exe' failed to close.")
-    else
+    if bContinue
     {
-        ; Get rid of application settings
-        IfExist, %A_AppData%\Adobe\Acrobat
-            FileRemoveDir, %A_AppData%\Adobe\Acrobat, 1
-
-        Sleep, 700
-        IfExist, %A_AppData%\Adobe\Acrobat
-            TestsFailed("Unable to delete '" A_AppData "\Adobe\Acrobat'.")
+        RegWrite, REG_DWORD, HKEY_LOCAL_MACHINE, SOFTWARE\Adobe\Acrobat Reader\7.0\AdobeViewer, EULA, 1 ; Accept EULA
+        IfNotExist, %ModuleExe%
+            TestsFailed("Can NOT find '" ModuleExe "'.")
         else
         {
-            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Adobe\Acrobat Reader
-            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Adobe\Repair\Acrobat Reader
-            RegDelete, HKEY_CURRENT_USER, SOFTWARE\Adobe\Acrobat Reader
-
-            RegWrite, REG_DWORD, HKEY_LOCAL_MACHINE, SOFTWARE\Adobe\Acrobat Reader\7.0\AdobeViewer, EULA, 1 ; Accept EULA
-            Sleep, 700
-            IfNotExist, %ModuleExe%
-                TestsFailed("Can NOT find '" ModuleExe "'.")
+            if PathToFile =
+            {
+                Run, %ModuleExe%,, Max ; Start maximized
+                WinWaitActive, Adobe Reader,,15
+                if ErrorLevel
+                {
+                    Process, Exist, AcroRd32.exe
+                    NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                    if NewPID = 0
+                        TestsFailed("Window 'Adobe Reader' failed to appear. No 'AcroRd32.exe' process detected.")
+                    else
+                        TestsFailed("Window 'Adobe Reader' failed to appear. 'AcroRd32.exe' process detected.")
+                }
+                else
+                    TestsOK("")
+            }
             else
             {
-                if PathToFile =
+                IfNotExist, %PathToFile%
+                    TestsFailed("Can NOT find '" PathToFile "'.")
+                else
                 {
-                    Run, %ModuleExe%,, Max ; Start maximized
-                    Sleep, 1000
-                    WinWaitActive, Adobe Reader,,15
+                    Run, %ModuleExe% "%PathToFile%",, Max
+                    SplitPath, PathToFile, NameExt
+                    WinWaitActive, Adobe Reader - [%NameExt%],,15
                     if ErrorLevel
                     {
-                        Process, Exist, AcroRd32.exe
+                        Process, Exist, AcroRd32.exe.exe
                         NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                         if NewPID = 0
-                            TestsFailed("Window 'Adobe Reader' failed to appear. No 'AcroRd32.exe' process detected.")
+                            TestsFailed("Window 'Adobe Reader - [" NameExt "]' failed to appear. No 'AcroRd32.exe.exe' process detected.")
                         else
-                            TestsFailed("Window 'Adobe Reader' failed to appear. 'AcroRd32.exe' process detected.")
+                            TestsFailed("Window 'Adobe Reader - [" NameExt "]' failed to appear. 'AcroRd32.exe.exe' process detected.")
                     }
                     else
                         TestsOK("")
-                }
-                else
-                {
-                    IfNotExist, %PathToFile%
-                        TestsFailed("Can NOT find '" PathToFile "'.")
-                    else
-                    {
-                        Run, %ModuleExe% "%PathToFile%",, Max
-                        Sleep, 1000
-                        SplitPath, PathToFile, NameExt
-                        WinWaitActive, Adobe Reader - [%NameExt%],,15
-                        if ErrorLevel
-                        {
-                            Process, Exist, AcroRd32.exe.exe
-                            NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
-                            if NewPID = 0
-                                TestsFailed("Window 'Adobe Reader - [" NameExt "]' failed to appear. No 'AcroRd32.exe.exe' process detected.")
-                            else
-                                TestsFailed("Window 'Adobe Reader - [" NameExt "]' failed to appear. 'AcroRd32.exe.exe' process detected.")
-                        }
-                        else
-                            TestsOK("")
-                    }
                 }
             }
         }
