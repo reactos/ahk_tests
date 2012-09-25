@@ -92,7 +92,6 @@ if bContinue
         TestsFailed("'Diablo II Shareware Setup' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, i ; Hit 'Install Diablo Shareware' button
         TestsOK("'Diablo II Shareware Setup' appeared and 'i' was sent.")
     }
@@ -103,12 +102,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, License Agreement, Do you agree, 7
+    WinWaitActive, License Agreement, Do you agree, 3
     if ErrorLevel
         TestsFailed("'License Agreement (Do you agree)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, License Agreement, Do you agree ; Hit 'Agree' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Agree' button in 'License Agreement (Do you agree)' window.")
@@ -122,12 +120,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Diablo II - choose install directory, &Select an install, 7
+    WinWaitActive, Diablo II - choose install directory, &Select an install, 3
     if ErrorLevel
         TestsFailed("'Diablo II - choose install directory (Select an install)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button1, Diablo II - choose install directory, &Select an install ; Hit 'OK' button
         if ErrorLevel
             TestsFailed("Unable to hit 'OK' button in 'Diablo II - choose install directory (Select an install)' window.")
@@ -141,12 +138,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Desktop Shortcut?, Would you like, 7
+    WinWaitActive, Desktop Shortcut?, Would you like, 3
     if ErrorLevel
         TestsFailed("'Desktop Shortcut? (Would you like)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button1, Desktop Shortcut?, Would you like ; Hit 'Yes' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Yes' button in 'Desktop Shortcut? (Would you like)' window.")
@@ -161,7 +157,7 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive,, Installing Diablo II, 7 ; Window haves no caption bar
+    WinWaitActive,, Installing Diablo II, 3 ; Window haves no caption bar
     if ErrorLevel
         TestsFailed("'Installing Diablo II' window failed to appear.")
     else
@@ -179,12 +175,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Diablo II Setup - Video Test, Diablo II Setup will, 7
+    WinWaitActive, Diablo II Setup - Video Test, Diablo II Setup will, 3
     if ErrorLevel
         TestsFailed("'Diablo II Setup - Video Test (Diablo II Setup will)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button3, Diablo II Setup - Video Test, Diablo II Setup will ; Hit 'Cancel' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Cancel' button in 'Diablo II Setup - Video Test (Diablo II Setup will)' window.")
@@ -198,12 +193,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, View ReadMe?, Would you like, 7
+    WinWaitActive, View ReadMe?, Would you like, 3
     if ErrorLevel
         TestsFailed("'View ReadMe? (Would you like)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, View ReadMe?, Would you like ; Hit 'No' button
         if ErrorLevel
             TestsFailed("Unable to hit 'No' button in 'View ReadMe? (Would you like)' window.")
@@ -221,14 +215,13 @@ if bContinue
         TestsFailed("'Diablo II Shareware Setup' window does not exist.")
     else
     {
-        WinWaitActive, Diablo II Shareware Setup,, 7
+        WinWaitActive, Diablo II Shareware Setup,, 3
         if ErrorLevel
             TestsFailed("'Diablo II Shareware Setup' window is not an active window.")
         else
         {
-            Sleep, 700
             SendInput, x ; Hit 'Exit installer' button
-            WinWaitClose, Diablo II Shareware Setup,, 7
+            WinWaitClose, Diablo II Shareware Setup,, 3
             if ErrorLevel
                 TestsFailed("'Diablo II Shareware Setup' window failed to close despite 'x' was sent.")
             else
@@ -242,7 +235,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     RegRead, InstalledDir, HKEY_LOCAL_MACHINE, SOFTWARE\Blizzard Entertainment\Diablo II Shareware, InstallPath
     if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")
