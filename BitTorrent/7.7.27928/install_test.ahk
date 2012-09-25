@@ -108,7 +108,6 @@ if bContinue
         TestsFailed("'BitTorrent Setup (This wizard)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button4, BitTorrent Setup, This wizard ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'BitTorrent Setup (This wizard)' window.")
@@ -122,12 +121,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, BitTorrent Setup, Beware, 5
+    WinWaitActive, BitTorrent Setup, Beware, 3
     if ErrorLevel
         TestsFailed("'BitTorrent Setup (Beware)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button4, BitTorrent Setup, Beware ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'BitTorrent Setup (Beware)' window.")
@@ -141,12 +139,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, BitTorrent Setup, Scroll, 5
+    WinWaitActive, BitTorrent Setup, Scroll, 3
     if ErrorLevel
         TestsFailed("'BitTorrent Setup (Scroll)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button4, BitTorrent Setup, Scroll ; Hit 'I Agree' button
         if ErrorLevel
             TestsFailed("Unable to hit 'I Agree' button in 'BitTorrent Setup (Scroll)' window.")
@@ -160,12 +157,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, BitTorrent Setup, Program Location, 5
+    WinWaitActive, BitTorrent Setup, Program Location, 3
     if ErrorLevel
         TestsFailed("'BitTorrent Setup (Program Location)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button11, BitTorrent Setup, Program Location ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'BitTorrent Setup (Program Location)' window.")
@@ -179,12 +175,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, BitTorrent Setup, The following, 5
+    WinWaitActive, BitTorrent Setup, The following, 3
     if ErrorLevel
         TestsFailed("'BitTorrent Setup (The following)' window failed to appear.")
     else
     {
-        Sleep, 3700
         ControlClick, Button18, BitTorrent Setup, The following ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'BitTorrent Setup (The following)' window.")
@@ -202,12 +197,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, BitTorrent Setup, &Install, 10
+    WinWaitActive, BitTorrent Setup, &Install, 10 ; It takes some time here
     if ErrorLevel
         TestsFailed("'BitTorrent Setup (Install)' window failed to appear.")
     else
     {
-        Sleep, 700
         Control, Uncheck,, Button1, BitTorrent Setup, &Install ; Uncheck 'Set my homepage to BitTorrent Web Search' checkbox
         if ErrorLevel
             TestsFailed("Unable to uncheck 'Set my homepage to BitTorrent Web Search' checkbox in 'BitTorrent Setup (Install)' window.")
@@ -223,7 +217,6 @@ if bContinue
                     TestsFailed("Unable to uncheck 'I accept...and want to install µTorrent Browser Bar' checkbox in 'BitTorrent Setup (Install)' window.")
                 else
                 {
-                    Sleep, 700
                     ControlClick, Button21, BitTorrent Setup, &Install ; Hit 'Install' button
                     if ErrorLevel
                         TestsFailed("Unable to hit 'Install' button in 'BitTorrent Setup (Install)' window.")
@@ -234,7 +227,7 @@ if bContinue
                             TestsFailed("'BitTorrent Setup (Install)' window failed to close.")
                         else
                         {
-                            Process, wait, %MainAppFile%, 10
+                            Process, wait, %MainAppFile%, 10 ; Setup starts the process
                             NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                             if NewPID = 0
                                 TestsFailed("Process '" MainAppFile "' failed to appear.")
@@ -260,7 +253,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BitTorrent, UninstallString
     if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")
