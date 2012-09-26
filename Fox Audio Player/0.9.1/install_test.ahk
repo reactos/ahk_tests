@@ -59,24 +59,22 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, 7-Zip self-extracting archive, Extract, 15
+    WinWaitActive, 7-Zip self-extracting archive, Extract, 7
     if ErrorLevel
         TestsFailed("'7-Zip self-extracting archive' window with 'Extract' button failed to appear.")
     else
     {
-        Sleep, 250
         ControlSetText, Edit1, %InstallLocation%, 7-Zip self-extracting archive, Extract ; Path
         if ErrorLevel
             TestsFailed("Unable to change 'Edit1' control text to '" InstallLocation "'.")
         else
         {
-            Sleep, 700
             ControlClick, Button2, 7-Zip self-extracting archive, Extract ; Hit 'Extract' button
             if ErrorLevel
                 TestsFailed("Unable to click 'Extract' in '7-Zip self-extracting archive' window.")
             else
             {
-                WinWaitClose, 7-Zip self-extracting archive, Extract, 4
+                WinWaitClose, 7-Zip self-extracting archive, Extract, 3
                 if ErrorLevel
                     TestsFailed("'7-Zip self-extracting archive' window failed to close despite 'Extract' button being clicked.")
                 else
@@ -91,7 +89,7 @@ TestsTotal++
 if bContinue
 {
     SetTitleMatchMode, 2 ; A window's title can contain WinTitle anywhere inside it to be a match.
-    WinWaitActive, Extracting, Cancel, 7
+    WinWaitActive, Extracting, Cancel, 3
     if ErrorLevel
     {
         ; Sometimes files are extracted so fast that AHK doesn't detect the window
@@ -102,8 +100,8 @@ if bContinue
     }
     else
     {
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Extracting' window appeared, waiting for it to close.`n
-        WinWaitClose, Extracting, Cancel, 15
+        TestsInfo("'Extracting' window appeared, waiting for it to close.")
+        WinWaitClose, Extracting, Cancel, 5
         if ErrorLevel
             TestsFailed("'Extracting' window failed to close.")
         else
@@ -116,7 +114,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     IfExist, %InstallLocation%\fap-0.9.1-win32-bin\%MainAppFile%
         TestsOK("The application has been installed, because '" InstallLocation "\fap-0.9.1-win32-bin\" MainAppFile "' was found.")
     else
