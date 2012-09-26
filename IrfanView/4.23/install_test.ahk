@@ -84,7 +84,6 @@ else
             {
                 UninstallerPath = %UninstallerPath% /silent
                 WaitUninstallDone(UninstallerPath, 3)
-
                 if bContinue
                 {
                     IfNotExist, %InstalledDir%
