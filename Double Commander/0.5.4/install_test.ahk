@@ -40,50 +40,68 @@ else
             ; That probably means we have not installed this app before.
             ; Check in default directory to be extra sure
             bHardcoded := true ; To know if we got path from registry or not
-            IfNotExist, %A_ProgramFiles%\Double Commander
-                bContinue := true ; No previous versions detected in hardcoded path
-            else
+            szDefaultDir = %A_ProgramFiles%\Double Commander
+            IfNotExist, %szDefaultDir%
             {
-                IfExist, %A_ProgramFiles%\Double Commander\unins000.exe
+                TestsInfo("No previous versions detected in hardcoded path: '" szDefaultDir "'.")
+                bContinue := true
+            }
+            else
+            {   
+                UninstallerPath = %szDefaultDir%\unins000.exe /SILENT
+                WaitUninstallDone(UninstallerPath, 3)
+                if bContinue
                 {
-                    RunWait, %A_ProgramFiles%\Double Commander\unins000.exe /SILENT ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %A_ProgramFiles%\Double Commander ; Uninstaller might delete the dir
-                    bContinue := true
-                {
-                    FileRemoveDir, %A_ProgramFiles%\Double Commander, 1
-                    if ErrorLevel
-                        TestsFailed("Unable to delete hardcoded path '" A_ProgramFiles "\Double Commander' ('" MainAppFile "' process is reported as terminated).'")
-                    else
+                    IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
+                    {
+                        TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %szDefaultDir%, 1
+                        if ErrorLevel
+                            TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
         else
         {
-            StringReplace, UninstallerPath, UninstallerPath, `", , All
+            UninstallerPath := ExeFilePathNoParam(UninstallerPath)
             SplitPath, UninstallerPath,, InstalledDir
             IfNotExist, %InstalledDir%
+            {
+                TestsInfo("Got '" InstalledDir "' from registry and such path does not exist.")
                 bContinue := true
+            }
             else
             {
-                IfExist, %UninstallerPath%
+                UninstallerPath = %UninstallerPath% /SILENT
+                WaitUninstallDone(UninstallerPath, 3) ; Child process '_iu14D2N.tmp'
+                if bContinue
                 {
-                    RunWait, %UninstallerPath% /SILENT ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %InstalledDir%
-                    bContinue := true
-                else
-                {
-                    FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
-                    else
+                    IfNotExist, %InstalledDir%
+                    {
+                        TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %InstalledDir%, 1 ; Uninstaller leaved the path for us to delete, so, do it
+                        if ErrorLevel
+                            TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
@@ -115,7 +133,7 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Select Setup Language, Select the language, 15
+    WinWaitActive, Select Setup Language, Select the language, 10
     if ErrorLevel
         TestsFailed("'Select Setup Language (Select the language)' window failed to appear.")
     else
@@ -126,7 +144,7 @@ if bContinue
             TestsFailed("Unable to hit 'OK' button in 'Select Setup Language (Select the language)' window.")
         else
         {
-            WinWaitClose, Select Setup Language, Select the language, 5
+            WinWaitClose, Select Setup Language, Select the language, 3
             if ErrorLevel
                 TestsFailed("'Select Setup Language (Select the language)' window failed to close despite 'OK' button being clicked.")
             else
@@ -140,12 +158,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Double Commander, Welcome, 15
+    WinWaitActive, Setup - Double Commander, Welcome, 10
     if ErrorLevel
         TestsFailed("'Setup - Double Commander (Welcome)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TNewButton1, Setup - Double Commander, Welcome ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Setup - Double Commander (Welcome)' window.")
@@ -159,12 +176,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Double Commander, License Agreement, 5
+    WinWaitActive, Setup - Double Commander, License Agreement, 3
     if ErrorLevel
         TestsFailed("'Setup - Double Commander (License Agreement)' window failed to appear.")
     else
     {
-        Sleep, 700
         Control, Check,, TNewRadioButton1, Setup - Double Commander, License Agreement ; Check 'I accept the agreement' radiobutton
         if ErrorLevel
             TestsFailed("Unable to check 'I accept' radiobutton in 'Setup - Double Commander (License Agreement)' window.")
@@ -182,7 +198,6 @@ if bContinue
                 TestsFailed("'Next' button did not get enabled in 'Setup - Double Commander (License Agreement)' window after checking 'I accept' radiobutton.")
             else
             {
-                Sleep, 700
                 ControlClick, TNewButton2, Setup - Double Commander, License Agreement ; Hit 'Next' button
                 if ErrorLevel
                     TestsFailed("Unable to hit 'Next' button in 'Setup - Double Commander (License Agreement)' window.")
@@ -198,12 +213,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Double Commander, Select Destination Location, 5
+    WinWaitActive, Setup - Double Commander, Select Destination Location, 3
     if ErrorLevel
         TestsFailed("'Setup - Double Commander (Select Destination Location)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TNewButton3, Setup - Double Commander, Select Destination Location ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Setup - Double Commander (Select Destination Location)' window.")
@@ -218,12 +232,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Double Commander, Select Start Menu Folder, 5
+    WinWaitActive, Setup - Double Commander, Select Start Menu Folder, 3
     if ErrorLevel
         TestsFailed("'Setup - Double Commander (Select Start Menu Folder)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TNewButton4, Setup - Double Commander, Select Start Menu Folder ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Setup - Double Commander (Select Start Menu Folder)' window.")
@@ -237,12 +250,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Double Commander, Select Additional Tasks, 5
+    WinWaitActive, Setup - Double Commander, Select Additional Tasks, 3
     if ErrorLevel
         TestsFailed("'Setup - Double Commander (Select Additional Tasks)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TNewButton4, Setup - Double Commander, Select Additional Tasks ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Setup - Double Commander (Select Additional Tasks)' window.")
@@ -256,12 +268,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Double Commander, Ready to Install, 5
+    WinWaitActive, Setup - Double Commander, Ready to Install, 3
     if ErrorLevel
         TestsFailed("'Setup - Double Commander (Ready to Install)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TNewButton4, Setup - Double Commander, Ready to Install ; Hit 'Install' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Install' button in 'Setup - Double Commander (Ready to Install)' window.")
@@ -275,12 +286,12 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Double Commander, Installing, 5
+    WinWaitActive, Setup - Double Commander, Installing, 3
     if ErrorLevel
         TestsFailed("'Setup - Double Commander (Installing)' window failed to appear.")
     else
     {
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Double Commander (Installing)' window appeared, waiting for it to close.`n
+        TestsInfo("'Setup - Double Commander (Installing)' window appeared, waiting for it to close.")
         WinWaitClose, Setup - Double Commander, Installing, 30
         if ErrorLevel
             TestsFailed("'Setup - Double Commander (Installing)' window failed to close.")
@@ -294,25 +305,24 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Double Commander, Completing, 5
+    WinWaitActive, Setup - Double Commander, Completing, 3
     if ErrorLevel
         TestsFailed("'Setup - Double Commander (Completing)' window failed to appear.")
     else
     {
-        Sleep, 700
-        SendInput, {SPACE} ; Uncheck 'Launch Double Commander' checkbox. 'Control, uncheck' won't work here
-        Sleep, 700
+        Sleep, 700 ; Sleep is a must until better way to uncheck 'Launch Double Commander' checkbox is found
+        SendInput, {SPACE} ; Uncheck 'Launch Double Commander' checkbox. FIXME: 'Control, uncheck' won't work here
         ControlClick, TNewButton4, Setup - Double Commander, Completing ; Hit 'Finish' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Finish' button in 'Setup - Double Commander (Completing)' window.")
         else
         {
-            WinWaitClose, Setup - Double Commander, Completing, 5
+            WinWaitClose, Setup - Double Commander, Completing, 3
             if ErrorLevel
                 TestsFailed("'Setup - Double Commander (Completing)' window failed to close despite 'Finish' button being clicked.")
             else
             {
-                Process, Wait, %MainAppFile%, 4
+                Process, Wait, %MainAppFile%, 3
                 NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                 if NewPID <> 0
                     TestsFailed("'" MainAppFile "' process appeared despite 'Launch Double Commander' checkbox being unchecked in 'Setup - Double Commander (Completing)' window.")
@@ -328,7 +338,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Double Commander_is1, UninstallString
     if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")
