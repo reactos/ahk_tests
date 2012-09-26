@@ -29,9 +29,8 @@ IfNotExist, %ModuleExe%
 else
 {
     Process, Close, %MainAppFile% ; Teminate process
-    Sleep, 2000
-    Process, Exist, %MainAppFile%
-    if ErrorLevel <> 0
+    Process, WaitClose, %MainAppFile%, 4
+    if ErrorLevel ; The PID still exists.
         TestsFailed("Unable to terminate '" MainAppFile "' process.") ; So, process still exists
     else
     {
@@ -92,18 +91,17 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Installer Language, Please select, 15
+    WinWaitActive, Installer Language, Please select, 10
     if ErrorLevel
         TestsFailed("'Installer Language (Please select)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button1, Installer Language, Please select
         if ErrorLevel
             TestsFailed("Unable to hit 'OK' button in 'Installer Language (Please select)' window.")
         else
         {
-            WinWaitClose, Installer Language, Please select, 5
+            WinWaitClose, Installer Language, Please select, 3
             if ErrorLevel
                 TestsFailed("'Installer Language (Please select)' window failed to close despite 'OK' button being clicked.")
             else
@@ -117,12 +115,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Far Manager v1.70 Setup, This program will install, 15
+    WinWaitActive, Far Manager v1.70 Setup, This program will install, 10
     if ErrorLevel
         TestsFailed("'Far Manager v1.70 Setup (This program will install')' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, Far Manager v1.70 Setup, This program will install
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Far Manager v1.70 Setup (This program will install)' window.")
@@ -136,18 +133,16 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Far Manager v1.70 Setup, License Agreement, 15
+    WinWaitActive, Far Manager v1.70 Setup, License Agreement, 3
     if ErrorLevel
         TestsFailed("'Far Manager v1.70 Setup (License Agreement)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button4, Far Manager v1.70 Setup, License Agreement ; check 'I accept' checkbox
         if ErrorLevel
             TestsFailed("Unable to check 'I agree' radio button in 'Far Manager v1.70 Setup (License Agreement)' window.")
         else
         {
-            Sleep, 1500 ; Give some time for 'Next' to get enabled
             ControlGet, OutputVar, Enabled,, Button2, Far Manager v1.70 Setup, License Agreement
             if not %OutputVar%
                 TestsFailed("'I agree' radio button is checked in 'Far Manager v1.70 Setup (License Agreement)' window, but 'Next' button is disabled.")
@@ -168,12 +163,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Far Manager v1.70 Setup, Choose Install Location, 7
+    WinWaitActive, Far Manager v1.70 Setup, Choose Install Location, 3
     if ErrorLevel
         TestsFailed("'Far Manager v1.70 Setup (Choose Install Location)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, Far Manager v1.70 Setup, Choose Install Location
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Far Manager v1.70 Setup (Choose Install Location)' window.")
@@ -187,12 +181,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Far Manager v1.70 Setup, Choose Components, 7
+    WinWaitActive, Far Manager v1.70 Setup, Choose Components, 3
     if ErrorLevel
         TestsFailed("'Far Manager v1.70 Setup (Choose Components)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, Far Manager v1.70 Setup, Choose Components
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Far Manager v1.70 Setup (Choose Components)' window.")
@@ -206,12 +199,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Far Manager v1.70 Setup, Choose Start Menu Folder, 7
+    WinWaitActive, Far Manager v1.70 Setup, Choose Start Menu Folder, 3
     if ErrorLevel
         TestsFailed("'Far Manager v1.70 Setup (Choose Start Menu Folder)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, Far Manager v1.70 Setup, Choose Start Menu Folder ; Hit 'Install' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Install' button in 'Far Manager v1.70 Setup (Choose Start Menu Folder)' window.")
@@ -225,19 +217,18 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Far Manager v1.70 Setup, Installing, 7
+    WinWaitActive, Far Manager v1.70 Setup, Installing, 3
     if ErrorLevel
         TestsFailed("'Far Manager v1.70 Setup (Installing)' window failed to appear.")
     else
     {
-        Sleep, 700
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Installing' window appeared, waiting for it to close.`n
+        TestsInfo("'Installing' window appeared, waiting for it to close.")
         WinWaitClose, Far Manager v1.70 Setup, Installing, 35
         if ErrorLevel
             TestsFailed("'Far Manager v1.70 Setup (Installing)' window failed to dissapear.")
         else
         {
-            WinWaitActive, Far Manager v1.70 Setup, Installation Complete, 5
+            WinWaitActive, Far Manager v1.70 Setup, Installation Complete, 3
             if ErrorLevel
                 TestsFailed("'Far Manager v1.70 Setup (Installation Complete)' window failed to appear.")
             else
@@ -257,12 +248,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Far Manager v1.70 Setup, Additional tasks, 7
+    WinWaitActive, Far Manager v1.70 Setup, Additional tasks, 3
     if ErrorLevel
         TestsFailed("'Far Manager v1.70 Setup (Additional tasks)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, Far Manager v1.70 Setup, Additional tasks
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Far Manager v1.70 Setup (Additional tasks)' window.")
@@ -276,12 +266,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Far Manager v1.70 Setup, Completing, 7
+    WinWaitActive, Far Manager v1.70 Setup, Completing, 3
     if ErrorLevel
         TestsFailed("'Far Manager v1.70 Setup (Completing)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button4, Far Manager v1.70 Setup, Completing ; Uncheck 'Run Far Manager v1.70'
         if ErrorLevel
         {
@@ -290,25 +279,24 @@ if bContinue
         }
         else
         {
-            ControlClick, Button5, Far Manager v1.70 Setup, Completing ; Uncheck 'Show whats new'
-            if ErrorLevel
-                TestsFailed("Unable to uncheck 'Show whats new' checkbox in 'Far Manager v1.70 Setup (Completing)' window.")
+            ControlGet, bChecked, Checked, Button4
+            if bChecked = 1
+                TestsFailed("'Run Far Manager v1.70' checkbox in 'Far Manager v1.70 Setup (Completing)' window reported as unchecked, but further inspection proves that it was still checked.")
             else
             {
-                Sleep, 700
-                ControlClick, Button2, Far Manager v1.70 Setup, Completing ; Hit 'Finish'
+                ControlClick, Button5, Far Manager v1.70 Setup, Completing ; Uncheck 'Show whats new'
                 if ErrorLevel
-                    TestsFailed("Unable to hit 'Finish' button in 'Far Manager v1.70 Setup (Completing)' window.")
+                    TestsFailed("Unable to uncheck 'Show whats new' checkbox in 'Far Manager v1.70 Setup (Completing)' window.")
                 else
                 {
-                    WinWaitClose, Far Manager v1.70 Setup, Completing, 5
+                    ControlClick, Button2, Far Manager v1.70 Setup, Completing ; Hit 'Finish'
                     if ErrorLevel
-                        TestsFailed("'Far Manager v1.70 Setup (Completing)' window failed to close despite 'Finish' button being clicked.")
+                        TestsFailed("Unable to hit 'Finish' button in 'Far Manager v1.70 Setup (Completing)' window.")
                     else
                     {
-                        Process, Exist, %MainAppFile%
-                        if ErrorLevel <> 0
-                            TestsFailed("Process '" MainAppFile "' appeared despite 'Run Far Manager v1.70' was unchecked in 'Far Manager v1.70 Setup (Completing)' window.")
+                        WinWaitClose, Far Manager v1.70 Setup, Completing, 3
+                        if ErrorLevel
+                            TestsFailed("'Far Manager v1.70 Setup (Completing)' window failed to close despite 'Finish' button being clicked.")
                         else
                             TestsOK("'Far Manager v1.70 Setup (Completing)' window appeared, 'Finish' button clicked and window closed.")
                     }
@@ -323,7 +311,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Far manager, UninstallString
     if not ErrorLevel
     {

@@ -31,7 +31,6 @@ else
     else
     {
         SendInput, {DOWN}{DOWN}{DOWN} ; Focus 'Plugins'
-        Sleep, 1000
         SendInput, {ENTER} ; Open 'Plugins' folder
         WinWaitActive, {%A_ProgramFiles%\Far\Plugins} - Far,,5
         if ErrorLevel

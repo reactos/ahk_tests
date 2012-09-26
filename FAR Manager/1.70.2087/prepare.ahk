@@ -19,16 +19,16 @@
 
 TestName = prepare
 
+; Test if the app is installed
+TestsTotal++
 RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Far manager, UninstallString
 if ErrorLevel
-{
-    ModuleExe = %A_ProgramFiles%\Far\Far.exe
-    OutputDebug, %TestName%:%A_LineNumber%: Can NOT read data from registry. Key might not exist. Using hardcoded path.`n
-}
+    TestsFailed("Either registry key does not exist or we failed to read it.")
 else
 {
     SplitPath, UninstallerPath,, InstalledDir
     ModuleExe = %InstalledDir%\Far.exe
+    TestsOK("")
 }
 
 
@@ -52,7 +52,6 @@ RunApplication()
         else
         {
             Run, %ModuleExe%
-            Sleep, 1000
             WinWaitActive, {%A_ProgramFiles%\Far} - Far,, 10
             if ErrorLevel
             {
@@ -64,10 +63,7 @@ RunApplication()
                     TestsFailed("Window '{" A_ProgramFiles "\Far} - Far' failed to appear. 'Far.exe' process detected.")
             }
             else
-            {
                 TestsOK("")
-                Sleep, 1000
-            }
         }
     }
 }
