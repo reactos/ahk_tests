@@ -39,51 +39,69 @@ else
             ; There was a problem (such as a nonexistent key or value). 
             ; That probably means we have not installed this app before.
             ; Check in default directory to be extra sure
-            IfNotExist, %A_ProgramFiles%\Filzip
-                bContinue := true ; No previous versions detected in hardcoded path
-            else
+            bHardcoded := true ; To know if we got path from registry or not
+            szDefaultDir = %A_ProgramFiles%\Filzip
+            IfNotExist, %szDefaultDir%
             {
-                bHardcoded := true ; To know if we got path from registry or not
-                IfExist, %A_ProgramFiles%\Filzip\unins000.exe
+                TestsInfo("No previous versions detected in hardcoded path: '" szDefaultDir "'.")
+                bContinue := true
+            }
+            else
+            {   
+                UninstallerPath = %szDefaultDir%\unins000.exe /SILENT
+                WaitUninstallDone(UninstallerPath, 3)
+                if bContinue
                 {
-                    RunWait, %A_ProgramFiles%\Filzip\unins000.exe /SILENT ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %A_ProgramFiles%\Filzip ; Uninstaller might delete the dir
-                    bContinue := true
-                {
-                    FileRemoveDir, %A_ProgramFiles%\Filzip, 1
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" A_ProgramFiles "\Filzip' ('" MainAppFile "' process is reported as terminated).'")
-                    else
+                    IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
+                    {
+                        TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %szDefaultDir%, 1
+                        if ErrorLevel
+                            TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
         else
         {
-            StringReplace, UninstallerPath, UninstallerPath, `",, All ; The Filzip uninstaller path is quoted, remove quotes
+            UninstallerPath := ExeFilePathNoParam(UninstallerPath)
             SplitPath, UninstallerPath,, InstalledDir
             IfNotExist, %InstalledDir%
+            {
+                TestsInfo("Got '" InstalledDir "' from registry and such path does not exist.")
                 bContinue := true
+            }
             else
             {
-                IfExist, %UninstallerPath%
+                UninstallerPath = %UninstallerPath% /SILENT
+                WaitUninstallDone(UninstallerPath, 3) ; Child '_iu14D2N.tmp'
+                if bContinue
                 {
-                    RunWait, %UninstallerPath% /SILENT ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %InstalledDir%
-                    bContinue := true
-                else
-                {
-                    FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
-                    else
+                    IfNotExist, %InstalledDir%
+                    {
+                        TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %InstalledDir%, 1 ; Uninstaller leaved the path for us to delete, so, do it
+                        if ErrorLevel
+                            TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
@@ -110,18 +128,17 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Select Setup Language, Select the language, 15
+    WinWaitActive, Select Setup Language, Select the language, 7
     if ErrorLevel
         TestsFailed("'Select Setup Language (Select the language)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TButton1, Select Setup Language, Select the language ; hit 'OK' button
         if ErrorLevel
             TestsFailed("Unable to hit 'OK' button in 'Select Setup Language (Select the language)' window.")
         else
         {
-            WinWaitClose, Select Setup Language, Select the language, 5
+            WinWaitClose, Select Setup Language, Select the language, 3
             if ErrorLevel
                 TestsFailed("'Select Setup Language (Select the language)' window failed to close despite 'OK' button being clicked.")
             else
@@ -140,7 +157,6 @@ if bContinue
         TestsFailed("'Setup - Filzip (Welcome)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TButton1, Setup - Filzip, Welcome ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Setup - Filzip (Welcome)' window.")
@@ -154,18 +170,16 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Filzip, License Agreement, 7
+    WinWaitActive, Setup - Filzip, License Agreement, 3
     if ErrorLevel
         TestsFailed("'Setup - Filzip (License Agreement)' window failed to appear.")
     else
     {
-        Sleep, 500
         Control, Check,, TRadioButton1, Setup - Filzip, License Agreement ; Check 'I accept the agreement' radio button
         if ErrorLevel
             TestsFailed("Unable to check 'I accept the agreement' radiobutton in 'Setup - Filzip (License Agreement)' window.")
         else
         {
-            Sleep, 700
             ControlClick, TButton2, Setup - Filzip, License Agreement ; Hit 'Next' button
             if ErrorLevel
                 TestsFailed("Unable to hit 'Next' button in 'Setup - Filzip (License Agreement)' window.")
@@ -180,12 +194,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Filzip, Select Destination Location, 7
+    WinWaitActive, Setup - Filzip, Select Destination Location, 3
     if ErrorLevel
         TestsFailed("'Setup - Filzip (Select Destination Location)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TButton3, Setup - Filzip, Select Destination Location ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Setup - Filzip (Select Destination Location)' window.")
@@ -199,12 +212,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Filzip, Select Components, 7
+    WinWaitActive, Setup - Filzip, Select Components, 3
     if ErrorLevel
         TestsFailed("'Setup - Filzip (Select Components)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TButton3, Setup - Filzip, Select Components ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Setup - Filzip (Select Components)' window.")
@@ -218,12 +230,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Filzip, Select Start Menu Folder, 7
+    WinWaitActive, Setup - Filzip, Select Start Menu Folder, 3
     if ErrorLevel
         TestsFailed("'Setup - Filzip (Select Start Menu Folder)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TButton4, Setup - Filzip, Select Start Menu Folder ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Setup - Filzip (Select Start Menu Folder)' window.")
@@ -237,12 +248,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Filzip, Ready to Install, 7
+    WinWaitActive, Setup - Filzip, Ready to Install, 3
     if ErrorLevel
         TestsFailed("'Setup - Filzip (Ready to Install)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TButton4, Setup - Filzip, Ready to Install ; Hit 'Install' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Install' button in 'Setup - Filzip (Ready to Install)' window.")
@@ -256,13 +266,13 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Filzip, Installing, 7
+    WinWaitActive, Setup - Filzip, Installing, 3
     if ErrorLevel
         TestsFailed("'Setup - Filzip (Installing)' window failed to appear.")
     else
     {
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Setup - Filzip (Installing)' window appeared, waiting for it to close.`n
-        WinWaitClose, Setup - Filzip, Installing, 20
+        TestsInfo("'Setup - Filzip (Installing)' window appeared, waiting for it to close.")
+        WinWaitClose, Setup - Filzip, Installing, 15
         if ErrorLevel
             TestsFailed("'Setup - Filzip (Installing)' window failed to close.")
         else
@@ -275,14 +285,13 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Filzip, Completing, 7
+    WinWaitActive, Setup - Filzip, Completing, 3
     if ErrorLevel
         TestsFailed("'Setup - Filzip (Completing)' window failed to appear.")
     else
     {
-        Sleep, 700
+        Sleep, 700 ; Sleep ultil there is better way to uncheck control
         SendInput, {SPACE}{DOWN}{SPACE} ; Uncheck 'View readme.txt' and 'Run Filzip' //FIXME: is there a better way? Control, Uncheck won't work here
-        Sleep, 500
         ControlClick, TButton4, Setup - Filzip, Completing ; Hit 'Finish' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Finish' button in 'Setup - Filzip (Completing)' window.")
@@ -293,7 +302,7 @@ if bContinue
                 TestsFailed("'Setup - Filzip (Completing)' window failed to close despite 'Finish' button being clicked.")
             else
             {
-                Process, Wait, %MainAppFile%, 4
+                Process, Wait, %MainAppFile%, 3
                 NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                 if NewPID <> 0
                 {
@@ -313,7 +322,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Filzip 3.0.6.93_is1, UninstallString
     if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")

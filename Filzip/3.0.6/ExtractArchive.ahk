@@ -29,7 +29,7 @@ if not bContinue
 else
 {
     SplitPath, szDocument, NameExt
-    WinWaitActive, Filzip - %NameExt%,,7
+    WinWaitActive, Filzip - %NameExt%,,3
     if ErrorLevel
         TestsFailed("Window 'Filzip - " NameExt "' failed to appear.")
     else
@@ -51,7 +51,6 @@ else
                     TestsFailed("Unable to set destination path in 'Extract files' window to 'C:\Filzip_Test'.")
                 else
                 {
-                    Sleep, 500
                     ControlClick, TButton3, Extract files
                     if ErrorLevel
                         TestsFailed("Unable to hit 'Extract' button in 'Extract files' window.")
@@ -62,7 +61,6 @@ else
                             TestsFailed("'Extract files' window failed to close.")
                         else
                         {
-                            Sleep, 500
                             IfNotExist, C:\Filzip_Test\TestFile.txt
                                 TestsFailed("'C:\Filzip_Test\TestFile.txt' does NOT exist, but it should.")
                             else

@@ -17,18 +17,37 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+TestName = prepare
+
+; Test if the app is installed
+TestsTotal++
 RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Filzip 3.0.6.93_is1, UninstallString
 if ErrorLevel
-{
-    ModuleExe = %A_ProgramFiles%\Filzip\Filzip.exe
-    OutputDebug, %TestName%:%A_LineNumber%: Can NOT read data from registry. Key might not exist. Using hardcoded path.`n
-}
+    TestsFailed("Either registry key does not exist or we failed to read it.")
 else
 {
     StringReplace, UninstallerPath, UninstallerPath, `",, All ; The Filzip uninstaller path is quoted, remove quotes
     SplitPath, UninstallerPath,, InstalledDir
     ModuleExe = %InstalledDir%\Filzip.exe
+    TestsOK("")
 }
+
+
+; Terminate application
+TestsTotal++
+if bContinue
+{
+    SplitPath, ModuleExe, ProcessExe
+    Process, Close, %ProcessExe%
+    Process, WaitClose, %ProcessExe%, 4
+    if ErrorLevel
+        TestsFailed("Unable to terminate '" ProcessExe "' process.")
+    else
+        TestsOK("")
+}
+
+
+RegDelete, HKEY_CURRENT_USER, SOFTWARE\Filzip
 
 
 ; Test if can start application
@@ -41,19 +60,11 @@ RunApplication(PathToFile)
     global ProcessExe
 
     TestsTotal++
-    SplitPath, ModuleExe, ProcessExe
-    Process, Close, %ProcessExe%
-    Process, WaitClose, %ProcessExe%, 4
-    if ErrorLevel
-        TestsFailed("Process '" ProcessExe "' failed to close.")
-    else
+    if bContinue
     {
-        RegDelete, HKEY_CURRENT_USER, SOFTWARE\Filzip
-        Sleep, 500
         ; Disable auto update. We do not wan't any unexpected popups coming out.
         RegWrite, REG_DWORD, HKEY_CURRENT_USER, Software\Filzip\Config\AutoUpd, AutoUpd, 0
         RegWrite, REG_DWORD, HKEY_CURRENT_USER, Software\Filzip\Config\Settings, RegDialog, 0 ; Disable registration dialog
-        
         IfNotExist, %ModuleExe%
             TestsFailed("Can NOT find '" ModuleExe "'.")
         else
@@ -82,7 +93,6 @@ RunApplication(PathToFile)
                 else
                 {
                     Run, %ModuleExe% "%PathToFile%",, Max
-                    Sleep, 1000
                     AssociateWithFilzip()
                     SplitPath, PathToFile, NameExt
                     WinWaitActive, Filzip - %NameExt%,,7
