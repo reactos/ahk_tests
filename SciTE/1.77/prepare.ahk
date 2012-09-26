@@ -41,55 +41,54 @@ RunApplication(PathToFile)
     global ProcessExe
 
     TestsTotal++
-    IfNotExist, %ModuleExe%
-        TestsFailed("Can NOT find '" ModuleExe "'.")
-    else
+    if bContinue
     {
-        if PathToFile =
-        {
-            Run, %ModuleExe% ; Max does not work here
-            Sleep, 1000
-            WinWaitActive, (Untitled) - SciTE,, 10
-            if ErrorLevel
-            {
-                Process, Exist, %ProcessExe%
-                NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
-                if NewPID = 0
-                    TestsFailed("Window '(Untitled) - SciTE' failed to appear. No '" ProcessExe "' process detected.")
-                else
-                    TestsFailed("Window '(Untitled) - SciTE' failed to appear. '" ProcessExe "' process detected.")
-            }
-            else
-            {
-                TestsOK("")
-                WinMaximize, (Untitled) - SciTE
-                Sleep, 1000
-            }
-        }
+        IfNotExist, %ModuleExe%
+            TestsFailed("Can NOT find '" ModuleExe "'.")
         else
         {
-            IfNotExist, %PathToFile%
-                TestsFailed("Can NOT find '" PathToFile "'.")
-            else
+            if PathToFile =
             {
-                Run, %ModuleExe% "%PathToFile%" ; Max does not work here
-                Sleep, 1000
-                SplitPath, PathToFile, NameExt
-                WinWaitActive, %NameExt% - SciTE,,10
+                Run, %ModuleExe% ; Max does not work here
+                WinWaitActive, (Untitled) - SciTE,, 7
                 if ErrorLevel
                 {
                     Process, Exist, %ProcessExe%
                     NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                     if NewPID = 0
-                        TestsFailed("Window '" NameExt " - SciTE' failed to appear. No '" ProcessExe "' process detected.")
+                        TestsFailed("Window '(Untitled) - SciTE' failed to appear. No '" ProcessExe "' process detected.")
                     else
-                        TestsFailed("Window '" NameExt " - SciTE' failed to appear. '" ProcessExe "' process detected.")
+                        TestsFailed("Window '(Untitled) - SciTE' failed to appear. '" ProcessExe "' process detected.")
                 }
                 else
                 {
                     TestsOK("")
-                    WinMaximize, %NameExt% - SciTE
-                    Sleep, 1000
+                    WinMaximize, (Untitled) - SciTE
+                }
+            }
+            else
+            {
+                IfNotExist, %PathToFile%
+                    TestsFailed("Can NOT find '" PathToFile "'.")
+                else
+                {
+                    Run, %ModuleExe% "%PathToFile%" ; Max does not work here
+                    SplitPath, PathToFile, NameExt
+                    WinWaitActive, %NameExt% - SciTE,,7
+                    if ErrorLevel
+                    {
+                        Process, Exist, %ProcessExe%
+                        NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                        if NewPID = 0
+                            TestsFailed("Window '" NameExt " - SciTE' failed to appear. No '" ProcessExe "' process detected.")
+                        else
+                            TestsFailed("Window '" NameExt " - SciTE' failed to appear. '" ProcessExe "' process detected.")
+                    }
+                    else
+                    {
+                        TestsOK("")
+                        WinMaximize, %NameExt% - SciTE
+                    }
                 }
             }
         }

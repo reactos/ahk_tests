@@ -43,30 +43,26 @@ else
                 TestsFailed("Unable to hit 'Search -> Replace' in '" NameExt " - SciTE' window.")
             else
             {
-                WinWaitActive, Replace, Fi&nd what, 5
+                WinWaitActive, Replace, Fi&nd what, 3
                 if ErrorLevel
                     TestsFailed("Window 'Replace (Find what)' failed to appear.")
                 else
                 {
-                    Sleep, 1000
                     ControlSetText, Edit1, Egijs, Replace, Fi&nd what
                     if ErrorLevel
                         TestsFailed("Unable to set 'Find what' to 'Egijs' in 'Replace (Find what)' window.")
                     else
                     {
-                        Sleep, 1000
                         ControlSetText, Edit2, Edijs, Replace, Fi&nd what
                         if ErrorLevel
                             TestsFailed("Unable to set 'Replace with' to 'Edijs' in 'Replace (Find what)' window.")
                         else
                         {
-                            Sleep, 500
                             ControlClick, Button8, Replace, Fi&nd what
                             if ErrorLevel
                                 TestsFailed("Unable to hit 'Replace All' button in 'Replace (Find what)' window.")
                             else
                             {
-                                Sleep, 1000
                                 ControlGetText, OutputVar, Static4, Replace, Fi&nd what
                                 if ErrorLevel
                                     TestsFailed("Unable to get number of 'Replacements' in 'Replace (Find what)' window.")
@@ -82,7 +78,6 @@ else
                                             TestsFailed("Unable to close 'Replace (Find what)' window.")
                                         else
                                         {
-                                            Sleep, 1000
                                             WinWaitActive, %NameExt% * SciTE,,5
                                             if ErrorLevel
                                                 TestsFailed("'" NameExt " * SciTE' is not active window.")
