@@ -18,12 +18,7 @@
  */
 
 ModuleExe = %A_WorkingDir%\Apps\DOSBox 0.74 Setup.exe
-bContinue := false
 TestName = 1.install
-
-TestsFailed := 0
-TestsOK := 0
-TestsTotal := 0
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
 TestsTotal++
@@ -43,18 +38,18 @@ else
             bContinue := true ; No previous versions detected.
         else
         {
-            IfExist, %InstallLocation%\uninstall.exe
-                RunWait, %InstallLocation%\uninstall.exe /S ; Silently uninstall it
+            UninstallerPath = %InstallLocation%\Uninstall.exe /S
+            WaitUninstallDone(UninstallerPath, 3) ; Child name 'Au_.exe'
+            if bContinue
+            {
+                IfExist, %InstallLocation%
+                    FileRemoveDir, %InstallLocation%, 1
 
-            Sleep, 2500
-            IfExist, %InstallLocation%
-                FileRemoveDir, %InstallLocation%, 1
-
-            Sleep, 1000
-            IfExist, %InstallLocation%
-                TestsFailed("Previous version detected and failed to delete '" InstallLocation "'. 'dosbox.exe' process not detected.")
-            else
-                bContinue := true
+                IfExist, %InstallLocation%
+                    TestsFailed("Previous version detected and failed to delete '" InstallLocation "'. 'dosbox.exe' process not detected.")
+                else
+                    bContinue := true
+            }
         }
     }
 
@@ -79,7 +74,13 @@ if bContinue
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'License Agreement' window.")
         else
-            TestsOK("'DOSBox 0.74 Installer Setup: License Agreement' window appeared and 'Next' button was clicked.")
+        {
+            WinWaitClose, DOSBox 0.74 Installer Setup: License Agreement, DOSBox v0.74 License, 3
+            if ErrorLevel
+                TestsFailed("'DOSBox 0.74 Installer Setup: License Agreement' window failed to close despite 'Next' button being clicked.")
+            else
+                TestsOK("'DOSBox 0.74 Installer Setup: License Agreement' window appeared, 'Next' button clicked and window closed.")
+        }
     }
 }
 
@@ -88,7 +89,7 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, DOSBox 0.74 Installer Setup: Installation Options, Select components, 7
+    WinWaitActive, DOSBox 0.74 Installer Setup: Installation Options, Select components, 3
     if ErrorLevel
         TestsFailed("'DOSBox 0.74 Installer Setup: Installation Options' window with 'Next' button failed to appear.")
     else
@@ -106,7 +107,7 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, DOSBox 0.74 Installer Setup: Installation Folder, This will install, 7
+    WinWaitActive, DOSBox 0.74 Installer Setup: Installation Folder, This will install, 3
     if ErrorLevel
         TestsFailed("'DOSBox 0.74 Installer Setup: Installation Folder' window with 'Install' button failed to appear.")
     else
@@ -130,7 +131,7 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, DOSBox 0.74 Installer Setup: Completed, Completed, 7
+    WinWaitActive, DOSBox 0.74 Installer Setup: Completed, Completed, 3
     if ErrorLevel
         TestsFailed("'DOSBox 0.74 Installer Setup: Completed' window with 'Close' button failed to appear.")
     else
@@ -140,7 +141,7 @@ if bContinue
             TestsFailed("Unable to hit 'Close' button in 'DOSBox 0.74 Installer Setup: Completed' window.")
         else
         {
-            WinWaitClose, DOSBox 0.74 Installer Setup: Completed, Completed, 5
+            WinWaitClose, DOSBox 0.74 Installer Setup: Completed, Completed, 3
             if ErrorLevel
                 TestsFailed("'DOSBox 0.74 Installer Setup: Completed' failed to close despite 'Close' button being clicked.")
             else
@@ -154,7 +155,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     IfNotExist, %InstallLocation%\dosbox.exe
         TestsFailed("Something went wrong, can't find '" InstallLocation "\dosbox.exe'.")
     else
