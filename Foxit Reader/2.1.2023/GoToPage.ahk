@@ -28,7 +28,7 @@ if not bContinue
 else
 {
     SplitPath, szDocument, NameExt
-    WinWaitActive, %NameExt% - Foxit Reader 2.1 - [%NameExt%],,7
+    WinWaitActive, %NameExt% - Foxit Reader 2.1 - [%NameExt%],,3
     if ErrorLevel
         TestsFailed("Window '" NameExt " - Foxit Reader 2.1 - [" NameExt "]' failed to appear.")
     else
@@ -54,7 +54,6 @@ else
                         TestsFailed("Unable to hit 'OK' button in 'Go to  Page' window.")
                     else
                     {
-                        Sleep, 2000 ; Load page properly before searching for image on the screen
                         SearchImg = %A_WorkingDir%\Media\BookPage29Img.jpg
                         
                         IfNotExist, %SearchImg%
@@ -68,10 +67,8 @@ else
                                 TestsFailed("The search image '" SearchImg "' could NOT be found on the screen.")
                             else
                             {
-                                OutputDebug, OK: %TestName%:%A_LineNumber%: Found image on the screen, so, page 29 was displayed correctly. Next step - close document.`n
-                                Sleep, 1000
+                                TestsInfo("Found image on the screen, so, page 29 was displayed correctly. Next step - close document.")
                                 SendInput, {CTRLDOWN}w{CTRLUP} ; Shortcut to close document
-                                Sleep, 2000 ; Let some error to come up
                                 WinWaitActive, Foxit Reader 2.1,,5
                                 if ErrorLevel
                                     TestsFailed("Window 'Foxit Reader 2.1' failed to appear after closing document.")

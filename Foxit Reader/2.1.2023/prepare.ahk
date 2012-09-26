@@ -19,17 +19,34 @@
 
 TestName = prepare
 
+; Test if the app is installed
+TestsTotal++
 RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Foxit Reader, UninstallString
 if ErrorLevel
-{
-    ModuleExe = %A_ProgramFiles%\Foxit Software\Foxit Reader.exe
-    OutputDebug, %TestName%:%A_LineNumber%: Can NOT read data from registry. Key might not exist. Using hardcoded path.`n
-}
+    TestsFailed("Either registry key does not exist or we failed to read it.")
 else
 {
     SplitPath, UninstallerPath,, InstalledDir
     ModuleExe = %InstalledDir%\Foxit Reader.exe
+    TestsOK("")
 }
+
+
+; Terminate application
+TestsTotal++
+if bContinue
+{
+    SplitPath, ModuleExe, ProcessExe
+    Process, Close, %ProcessExe%
+    Process, WaitClose, %ProcessExe%, 4
+    if ErrorLevel
+        TestsFailed("Unable to terminate '" ProcessExe "' process.")
+    else
+        TestsOK("")
+}
+
+
+RegDelete, HKEY_CURRENT_USER, SOFTWARE\Foxit Sofrware\Foxit Reader
 
 
 ; Test if can start application
@@ -38,17 +55,12 @@ RunApplication(PathToFile)
     global ModuleExe
     global TestName
     global TestsTotal
+    global ProcessExe
+    global bContinue
 
     TestsTotal++
-    SplitPath, ModuleExe, ProcessExe
-    Process, Close, %ProcessExe%
-    Process, WaitClose, %ProcessExe%, 4
-    if ErrorLevel
-        TestsFailed("Process '" ProcessExe "' failed to close.")
-    else
+    if bContinue
     {
-        RegDelete, HKEY_CURRENT_USER, SOFTWARE\Foxit Sofrware\Foxit Reader
-        Sleep, 500
         ; Disable 'Set Foxit Readed to be default PDF reader' dialog
         RegWrite, REG_SZ, HKEY_CURRENT_USER, Software\Foxit Software\Foxit Reader\MainFrame, CheckRegister, 0
         
@@ -70,10 +82,7 @@ RunApplication(PathToFile)
                         TestsFailed("Window 'Foxit Reader 2.1' failed to appear. '" ProcessExe "' process detected.")
                 }
                 else
-                {
                     TestsOK("")
-                    Sleep, 1000
-                }
             }
             else
             {
@@ -82,7 +91,6 @@ RunApplication(PathToFile)
                 else
                 {
                     Run, %ModuleExe% "%PathToFile%",, Max
-                    Sleep, 1000
                     SplitPath, PathToFile, NameExt
                     WinWaitActive, %NameExt% - Foxit Reader 2.1 - [%NameExt%],,7
                     if ErrorLevel
@@ -95,10 +103,7 @@ RunApplication(PathToFile)
                             TestsFailed("Window '" NameExt " - Foxit Reader 2.1 - [" NameExt "]' failed to appear. '" ProcessExe "' process detected.")
                     }
                     else
-                    {
                         TestsOK("")
-                        Sleep, 1000
-                    }
                } 
             }
         }
