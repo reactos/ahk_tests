@@ -41,9 +41,8 @@ RunApplication()
         else
         {
             Run, %ModuleExe%
-            Sleep, 1000
             SetTitleMatchMode, 1 ; A window's title must start with the specified WinTitle to be a match.
-            WinWaitActive, DOSBox 0.72,, 10
+            WinWaitActive, DOSBox 0.72,, 5
             if ErrorLevel
             {
                 Process, Exist, dosbox.exe
@@ -57,7 +56,6 @@ RunApplication()
             {
                 TestsOK("")
                 SetTitleMatchMode, 3 ; A window's title must exactly match WinTitle to be a match
-                Sleep, 1000
             }
         }
     }

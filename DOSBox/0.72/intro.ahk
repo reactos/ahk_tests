@@ -32,7 +32,6 @@ else
     else
     {
         SendInput, intro
-        Sleep, 2000
         SendInput, {ENTER}
         SetTitleMatchMode, 2 ; A window's title can contain WinTitle anywhere inside it to be a match
         WinWaitActive, Program:    INTRO,,5
@@ -41,9 +40,7 @@ else
         else
         {
             SendInput, {ENTER}{ENTER}{ENTER} ; Read the intro
-            Sleep, 1000
             SendInput, exit
-            Sleep, 2000
             SendInput, {ENTER}
             WinWaitClose, Program:    INTRO,,5
             if ErrorLevel
