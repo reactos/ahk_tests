@@ -56,7 +56,7 @@ else
             TestsFailed("For some reason 'Save As' dialog is not active anymore.")
         else
         {
-            ControlSend, Edit1, %A_Desktop%\new  1.txt, Save As ; Give full path to 'File Name'
+            ControlSetText, Edit1, %A_Desktop%\new  1.txt, Save As ; Give full path to 'File Name'. Dont use ControlSend!
             if ErrorLevel
                 TestsFailed("Unable to enter '" A_Desktop "\new  1.txt' in 'File name' field in 'Save As' window.")
             else
