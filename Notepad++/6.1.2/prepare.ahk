@@ -91,10 +91,7 @@ RunNotepad(PathToFile)
                             TestsFailed("Window 'new  1 - Notepad++' failed to appear. '" ProcessExe "' process detected.")
                     }
                     else
-                    {
                         TestsOK("")
-                        Sleep, 650
-                    }
                 }
                 else
                 {
@@ -114,10 +111,7 @@ RunNotepad(PathToFile)
                                 TestsFailed("Window '" PathToFile " - Notepad++' failed to appear. '" ProcessExe "' process detected.")
                         }
                         else
-                        {
                             TestsOK("")
-                            Sleep, 650 ; Sleep is a must. AHK finds window before user can see it
-                        }
                     }
                 }
             }

@@ -31,12 +31,32 @@ else
         TestsFailed("Window 'new  1 - Notepad++' is not active.")
     else
     {
-        SendInput, Line 1{ENTER}Line two with @{ENTER}Line 3 with question mark?{ENTER}{ENTER}This is line 5. Line 4 was empty.
-        IfWinNotActive, *new  1 - Notepad++
-            TestsFailed("The '*new  1 - Notepad++' window is not active anymore.")
-        else
+        iTimeOut = 150
+        bContinue := false
+        while iTimeOut > 0 
+        {
+            IfWinActive, new  1 - Notepad++
+            {
+                SendInput, Line 1{ENTER}Line two with @{ENTER}Line 3 with question mark?{ENTER}{ENTER}This is line 5. Line 4 was empty.
+                Sleep, 100
+                iTimeOut--
+            }
+            else
+            {
+                IfWinActive, *new  1 - Notepad++
+                {
+                    bContinue := true
+                    break
+                }
+                else
+                    TestsFailed("Unexpected window.")
+            }
+        }
+
+        if bContinue
         {
             SendInput, {CTRLDOWN}s{CTRLUP}
+            FileDelete, %A_Desktop%\new  1.txt ; Delete file before saving
             WinWaitActive, Save As,, 5
             if ErrorLevel
                 TestsFailed("'Save As' dialog failed to appear.")
@@ -61,20 +81,25 @@ else
                 TestsFailed("Unable to enter '" A_Desktop "\new  1.txt' in 'File name' field in 'Save As' window.")
             else
             {
-                FileDelete, %A_Desktop%\new  1.txt ; Delete file before saving
                 SendInput, !s ; Hit 'Save' in 'Save As' dialog
                 WinWaitClose, Save As,, 3
                 if ErrorLevel
                     TestsFailed("'Save As' dialog failed to close.")
                 else
                 {
-                    szDocumentPath = %A_Desktop%\new  1.txt
-                    IfNotExist, %szDocumentPath%
-                        TestsFailed("File '" szDocumentPath "' does not exist, but it should.")
+                    WinWaitActive, %A_Desktop%\new  1.txt - Notepad++,, 3
+                    if ErrorLevel
+                        TestsFailed("'" A_Desktop "\new  1.txt - Notepad++' window is not active window.")
                     else
                     {
-                        TestsInfo("'" szDocumentPath "' exist as it should.")
-                        bContinue := true
+                        szDocumentPath = %A_Desktop%\new  1.txt
+                        IfNotExist, %szDocumentPath%
+                            TestsFailed("File '" szDocumentPath "' does not exist, but it should.")
+                        else
+                        {
+                            TestsInfo("'" szDocumentPath "' exist as it should.")
+                            bContinue := true
+                        }
                     }
                 }
             }
