@@ -237,11 +237,24 @@ if bContinue
     else
     {
         TestsInfo("'Mozilla Firefox Setup (Installing)' window appeared, waiting for it to close.")
-        WinWaitClose, %WindowSpace%, Installing, 15 ; Setup requires all params here
+
+        iTimeOut := 15
+        while iTimeOut > 0
+        {
+            IfWinActive, %WindowSpace%, Installing
+            {
+                Sleep, 1000
+                iTimeOut--
+            }
+            else
+                break ; exit the loop if something poped-up
+        }
+
+        WinWaitClose, %WindowSpace%, Installing, 1 ; Setup requires all params here
         if ErrorLevel
-            TestsFailed("'Mozilla Firefox Setup (Installing)' window failed to dissapear.")
+            TestsFailed("'Mozilla Firefox Setup (Installing)' window failed to close (iTimeOut=" iTimeOut ").")
         else
-            TestsOK("'Mozilla Firefox Setup (Installing)' window went away.")
+            TestsOK("'Mozilla Firefox Setup (Installing)' window closed (iTimeOut=" iTimeOut ").")
     }
 }
 
