@@ -40,50 +40,68 @@ else
             ; That probably means we have not installed this app before.
             ; Check in default directory to be extra sure
             bHardcoded := true ; To know if we got path from registry or not
-            IfNotExist, %A_ProgramFiles%\GlideWrapper
-                bContinue := true ; No previous versions detected in hardcoded path
-            else
+            szDefaultDir = %A_ProgramFiles%\GlideWrapper
+            IfNotExist, %szDefaultDir%
             {
-                IfExist, %A_ProgramFiles%\GlideWrapper\uninstall.exe
+                TestsInfo("No previous versions detected in hardcoded path: '" szDefaultDir "'.")
+                bContinue := true
+            }
+            else
+            {   
+                UninstallerPath = %szDefaultDir%\uninstall.exe /S
+                WaitUninstallDone(UninstallerPath, 3)
+                if bContinue
                 {
-                    RunWait, %A_ProgramFiles%\GlideWrapper\uninstall.exe /S ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %A_ProgramFiles%\GlideWrapper ; Uninstaller might delete the dir
-                    bContinue := true
-                {
-                    FileRemoveDir, %A_ProgramFiles%\GlideWrapper, 1
-                    if ErrorLevel
-                        TestsFailed("Unable to delete hardcoded path '" A_ProgramFiles "\GlideWrapper' ('" MainAppFile "' process is reported as terminated).'")
-                    else
+                    IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
+                    {
+                        TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %szDefaultDir%, 1
+                        if ErrorLevel
+                            TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
         else
         {
-            StringReplace, UninstallerPath, UninstallerPath, `", , All
+            UninstallerPath := ExeFilePathNoParam(UninstallerPath)
             SplitPath, UninstallerPath,, InstalledDir
             IfNotExist, %InstalledDir%
+            {
+                TestsInfo("Got '" InstalledDir "' from registry and such path does not exist.")
                 bContinue := true
+            }
             else
             {
-                IfExist, %UninstallerPath%
+                UninstallerPath = %UninstallerPath% /S
+                WaitUninstallDone(UninstallerPath, 3) ; Reported child name is 'A~NSISu_.exe'
+                if bContinue
                 {
-                    RunWait, %UninstallerPath% /S ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %InstalledDir%
-                    bContinue := true
-                else
-                {
-                    FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
-                    else
+                    IfNotExist, %InstalledDir%
+                    {
+                        TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %InstalledDir%, 1 ; Uninstaller leaved the path for us to delete, so, do it
+                        if ErrorLevel
+                            TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
@@ -120,13 +138,12 @@ if bContinue
         TestsFailed("'zeckensack's Glide wrapper 0.84c Setup: Installation Options (This will install)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, zeckensack's Glide wrapper 0.84c Setup: Installation Options, This will install ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'zeckensack's Glide wrapper 0.84c Setup: Installation Options (This will install)' window.")
         else
         {
-            WinWaitClose, zeckensack's Glide wrapper 0.84c Setup: Installation Options, This will install, 5
+            WinWaitClose, zeckensack's Glide wrapper 0.84c Setup: Installation Options, This will install, 3
             if ErrorLevel
                 TestsFailed("'zeckensack's Glide wrapper 0.84c Setup: Installation Options (This will install)' window failed to close despite 'Next' button being clicked.")
             else
@@ -140,12 +157,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, zeckensack's Glide wrapper 0.84c Setup: Installation Folder, Choose a directory, 7
+    WinWaitActive, zeckensack's Glide wrapper 0.84c Setup: Installation Folder, Choose a directory, 3
     if ErrorLevel
         TestsFailed("'zeckensack's Glide wrapper 0.84c Setup: Installation Folder (Choose a directory)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, zeckensack's Glide wrapper 0.84c Setup: Installation Folder, Choose a directory ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'zeckensack's Glide wrapper 0.84c Setup: Installation Folder (Choose a directory)' window.")
@@ -159,12 +175,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, zeckensack's Glide wrapper 0.84c Setup: Start Menu Folder, Select the Start, 7
+    WinWaitActive, zeckensack's Glide wrapper 0.84c Setup: Start Menu Folder, Select the Start, 3
     if ErrorLevel
         TestsFailed("'zeckensack's Glide wrapper 0.84c Setup: Start Menu Folder (Select the Start)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, zeckensack's Glide wrapper 0.84c Setup: Start Menu Folder, Select the Start ; Hit 'Install' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Install' button in 'zeckensack's Glide wrapper 0.84c Setup: Start Menu Folder (Select the Start)' window.")
@@ -181,18 +196,17 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, zeckensack's Glide wrapper 0.84c Setup: Completed, Completed, 15 ; we skipped one window
+    WinWaitActive, zeckensack's Glide wrapper 0.84c Setup: Completed, Completed, 10 ; we skipped one window
     if ErrorLevel
         TestsFailed("'zeckensack's Glide wrapper 0.84c Setup: Completed (Completed)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, zeckensack's Glide wrapper 0.84c Setup: Completed, Completed ; Hit 'Close' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Close' button in 'zeckensack's Glide wrapper 0.84c Setup: Completed (Completed)' window.")
         else
         {
-            WinWaitClose, zeckensack's Glide wrapper 0.84c Setup: Completed, Completed, 5
+            WinWaitClose, zeckensack's Glide wrapper 0.84c Setup: Completed, Completed, 3
             if ErrorLevel
                 TestsFailed("'zeckensack's Glide wrapper 0.84c Setup: Completed (Completed)' window failed to close despite 'Close' button being clicked.")
             else
@@ -211,7 +225,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\GlidewrapZbag, UninstallString
     if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")
