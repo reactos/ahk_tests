@@ -32,11 +32,10 @@ else
         TestsFailed("Window 'K-Meleon 1.5.2 (K-Meleon)' failed to appear.")
     else
     {
-        SendInput, {ALTDOWN}f{ALTUP} ; WinMenuSelectItem doesn't work with K-Meleon
-        Sleep, 1500
-        SendInput, o
-        Sleep, 1500
-        WinWaitActive, Open, Look, 7
+        SendInput, {ALTDOWN}f{ALTUP} ; 'File' menu. WinMenuSelectItem doesn't work with K-Meleon
+        Sleep, 250
+        SendInput, o ; 'Open' from 'File' menu
+        WinWaitActive, Open, Look, 5
         if ErrorLevel
             TestsFailed("Window 'Open (Look)' failed to appear, bug 4779?")
         else
@@ -46,23 +45,21 @@ else
                 TestsFailed("Unable to enter '%szDocument%' in 'Open (Look)' window.")
             else
             {
-                Sleep, 1000
                 ControlClick, Button2, Open, Look
                 if ErrorLevel
                     TestsFailed("Unable to hit 'Open' button in 'Open (Look)' window.")
                 else
                 {
-                    WinWaitClose, Open, Look, 7
+                    WinWaitClose, Open, Look, 3
                     if ErrorLevel
                         TestsFailed("'Open (Look)' window failed to dissapear.")
                     else
                     {
-                        WinWaitActive, ReactOS HTML test (K-Meleon),,7
+                        WinWaitActive, ReactOS HTML test (K-Meleon),,5
                         if ErrorLevel
                             TestsFailed("Window 'ReactOS HTML test (K-Meleon)' failed to appear.")
                         else
                         {
-                            Sleep, 1500
                             SearchImg = %A_WorkingDir%\Media\BookPage29Img.jpg
                             IfNotExist, %SearchImg%
                                 TestsFailed("Can NOT find '" SearchImg "'.")
@@ -80,7 +77,10 @@ else
                                     if ErrorLevel
                                         TestsFailed("'ReactOS HTML test (K-Meleon)' window failed to close.")
                                     else
+                                    {
+                                        Process, WaitClose, %ProcessExe%
                                         TestsOK("Successfully opened '" szDocument "' and closed K-Meleon application.")
+                                    }
                                 }
                             }
                         }

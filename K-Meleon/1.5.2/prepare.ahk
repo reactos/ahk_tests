@@ -19,17 +19,18 @@
 
 TestName = prepare
 
+
+
+; Test if the app is installed
+TestsTotal++
 RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\K-Meleon, UninstallString
 if ErrorLevel
-{
-    ModuleExe = %A_ProgramFiles%\K-Meleon\k-meleon.exe
-    OutputDebug, %TestName%:%A_LineNumber%: Can NOT read data from registry. Key might not exist. Using hardcoded path.`n
-}
+    TestsFailed("Either registry key does not exist or we failed to read it.")
 else
 {
-    StringReplace, UninstallerPath, UninstallerPath, `",, All ; String contains quotes, replace em
     SplitPath, UninstallerPath,, InstalledDir
     ModuleExe = %InstalledDir%\k-meleon.exe
+    TestsOK("")
 }
 
 
@@ -67,71 +68,71 @@ RunApplication(PathToFile, Title)
     global ProcessExe
 
     TestsTotal++
-    IfNotExist, %ModuleExe%
-        TestsFailed("Can NOT find '" ModuleExe "'.")
-    else
+    if bContinue
     {
-        FileCreateDir, %A_AppData%\K-Meleon\ReactOS.default
-        if ErrorLevel
-            TestsFailed("Failed to create dir tree '" A_AppData "\K-Meleon\ReactOS.default'.")
+        IfNotExist, %ModuleExe%
+            TestsFailed("Can NOT find '" ModuleExe "'.")
         else
         {
-            FileAppend, [General]`nStartWithLastProfile=1`n`n[Profile0]`nName=default`nDefault=1`nIsRelative=1`nPath=ReactOS.default`n, %A_AppData%\K-Meleon\profiles.ini
+            FileCreateDir, %A_AppData%\K-Meleon\ReactOS.default
             if ErrorLevel
-                TestsFailed("Failed to create and edit '" A_AppData "\K-Meleon\profiles.ini'.")
+                TestsFailed("Failed to create dir tree '" A_AppData "\K-Meleon\ReactOS.default'.")
             else
             {
-                szNoUpdate := "user_pref(""kmeleon.plugins.update.load""`, false)`;" ; Don't check for updates
-                FileAppend, %szNoUpdate%`n, %A_AppData%\K-Meleon\ReactOS.default\prefs.js
+                FileAppend, [General]`nStartWithLastProfile=1`n`n[Profile0]`nName=default`nDefault=1`nIsRelative=1`nPath=ReactOS.default`n, %A_AppData%\K-Meleon\profiles.ini
                 if ErrorLevel
-                    TestsFailed("Failed to create and edit '" A_AppData "\K-Meleon\ReactOS.default\prefs.js'.")
+                    TestsFailed("Failed to create and edit '" A_AppData "\K-Meleon\profiles.ini'.")
                 else
                 {
-                    Sleep, 2500
-                    ; 'Title' param is ignored
-                    If PathToFile =
-                    {
-                        Run, %ModuleExe% ; 'Max' doesn't work here
-                        WinWaitActive, K-Meleon 1.5.2 (K-Meleon),, 12
-                        if ErrorLevel
-                        {
-                            Process, Exist, %ProcessExe%
-                            NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
-                            if NewPID = 0
-                                TestsFailed("'K-Meleon 1.5.2 (K-Meleon)' window failed to appear. No '" ProcessExe "' process detected.")
-                            else
-                                TestsFailed("'K-Meleon 1.5.2 (K-Meleon)' window failed to appear. '" ProcessExe "' process detected.")
-                        }
-                        else
-                        {
-                            WinMaximize, K-Meleon 1.5.2 (K-Meleon)
-                            TestsOK("")
-                            Sleep, 1500
-                        }
-                    }
+                    szNoUpdate := "user_pref(""kmeleon.plugins.update.load""`, false)`;" ; Don't check for updates
+                    FileAppend, %szNoUpdate%`n, %A_AppData%\K-Meleon\ReactOS.default\prefs.js
+                    if ErrorLevel
+                        TestsFailed("Failed to create and edit '" A_AppData "\K-Meleon\ReactOS.default\prefs.js'.")
                     else
                     {
-                        IfNotExist, %PathToFile%
-                            TestsFailed("Can NOT find '" PathToFile "'.")
-                        else
+                        ; 'Title' param is ignored
+                        If PathToFile =
                         {
-                            ; FIXME: read <title> from HTML instead of passing it as param2.
-                            Run, %ModuleExe%  %PathToFile% ; 'Max' doesn't work here
-                            WinWaitActive, %Title% (K-Meleon),, 12
+                            Run, %ModuleExe% ; 'Max' doesn't work here
+                            WinWaitActive, K-Meleon 1.5.2 (K-Meleon),, 12
                             if ErrorLevel
                             {
                                 Process, Exist, %ProcessExe%
                                 NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                                 if NewPID = 0
-                                    TestsFailed("'" Title " (K-Meleon)' window failed to appear. No '" ProcessExe "' process detected.")
+                                    TestsFailed("'K-Meleon 1.5.2 (K-Meleon)' window failed to appear. No '" ProcessExe "' process detected.")
                                 else
-                                    TestsFailed("'" Title " K-Meleon 1.5.2 (K-Meleon)' window failed to appear. '" ProcessExe "' process detected.")
+                                    TestsFailed("'K-Meleon 1.5.2 (K-Meleon)' window failed to appear. '" ProcessExe "' process detected.")
                             }
                             else
                             {
-                                WinMaximize, %Title% (K-Meleon)
+                                WinMaximize, K-Meleon 1.5.2 (K-Meleon)
                                 TestsOK("")
-                                Sleep, 1500
+                            }
+                        }
+                        else
+                        {
+                            IfNotExist, %PathToFile%
+                                TestsFailed("Can NOT find '" PathToFile "'.")
+                            else
+                            {
+                                ; FIXME: read <title> from HTML instead of passing it as param2.
+                                Run, %ModuleExe%  %PathToFile% ; 'Max' doesn't work here
+                                WinWaitActive, %Title% (K-Meleon),, 12
+                                if ErrorLevel
+                                {
+                                    Process, Exist, %ProcessExe%
+                                    NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                                    if NewPID = 0
+                                        TestsFailed("'" Title " (K-Meleon)' window failed to appear. No '" ProcessExe "' process detected.")
+                                    else
+                                        TestsFailed("'" Title " K-Meleon 1.5.2 (K-Meleon)' window failed to appear. '" ProcessExe "' process detected.")
+                                }
+                                else
+                                {
+                                    WinMaximize, %Title% (K-Meleon)
+                                    TestsOK("")
+                                }
                             }
                         }
                     }
