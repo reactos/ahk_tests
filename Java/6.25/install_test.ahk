@@ -40,49 +40,68 @@ else
             ; There was a problem (such as a nonexistent key or value). 
             ; That probably means we have not installed this app before.
             ; Check in default directory to be extra sure
-            IfNotExist, %A_ProgramFiles%\Java
-                bContinue := true ; No previous versions detected in hardcoded path
-            else
+            bHardcoded := true ; To know if we got path from registry or not
+            szDefaultDir = %A_ProgramFiles%\Java
+            IfNotExist, %szDefaultDir%
             {
-                bHardcoded := true ; To know if we got path from registry or not
-                IfExist, %A_ProgramFiles%\Java
+                TestsInfo("No previous versions detected in hardcoded path: '" szDefaultDir "'.")
+                bContinue := true
+            }
+            else
+            {   
+                UninstallerPath = %A_WinDir%\System32\MsiExec.exe /X{26A24AE4-039D-4CA4-87B4-2F83216025FF} /norestart /qb-!
+                WaitUninstallDone(UninstallerPath, 7)
+                if bContinue
                 {
-                    RunWait, MsiExec.exe /X{26A24AE4-039D-4CA4-87B4-2F83216025FF} /norestart /qb-! ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %A_ProgramFiles%\Java ; Uninstaller might delete the dir
-                    bContinue := true
-                {
-                    FileRemoveDir, %A_ProgramFiles%\Java, 1
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" A_ProgramFiles "\Java' ('" MainAppFile "' process is reported as terminated).'")
-                    else
+                    IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
+                    {
+                        TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %szDefaultDir%, 1
+                        if ErrorLevel
+                            TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
         else
         {
-            IfNotExist, %InstallLocation%
+            InstalledDir = %InstallLocation%
+            IfNotExist, %InstalledDir%
+            {
+                TestsInfo("Got '" InstalledDir "' from registry and such path does not exist.")
                 bContinue := true
+            }
             else
             {
-                IfExist, %InstallLocation%
+                UninstallerPath = %A_WinDir%\System32\MsiExec.exe /X{26A24AE4-039D-4CA4-87B4-2F83216025FF} /norestart /qb-!
+                WaitUninstallDone(UninstallerPath, 7)
+                if bContinue
                 {
-                    RunWait, MsiExec.exe /X{26A24AE4-039D-4CA4-87B4-2F83216025FF} /norestart /qb-! ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %InstallLocation%
-                    bContinue := true
-                else
-                {
-                    FileRemoveDir, %InstallLocation%, 1 ; Delete just in case
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" InstallLocation "' ('" MainAppFile "' process is reported as terminated).")
-                    else
+                    IfNotExist, %InstalledDir%
+                    {
+                        TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %InstalledDir%, 1 ; Uninstaller leaved the path for us to delete, so, do it
+                        if ErrorLevel
+                            TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
@@ -115,23 +134,62 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Java Setup - Welcome, Welcome to, 20
+    iTimeOut := 40
+    SplitPath, ModuleExe, ProcessExe 
+    while iTimeOut > 0
+    {
+        Process, Exist, %ProcessExe%
+        if ErrorLevel = 0
+        {
+            TestsFailed("Process '" ProcessExe "' does not exist (iTimeOut=" iTimeOut ").")
+            break ; exit the loop
+        }
+        else
+        {
+            IfWinNotActive, Java Setup - Welcome, Welcome to
+            {
+                WinWaitActive, Java Setup - Welcome, Welcome to, 1
+                iTimeOut--
+            }
+            else
+                break
+        }
+    }
+
+    WinWaitActive, Java Setup - Welcome, Welcome to, 1
     if ErrorLevel
-        TestsFailed("'Java Setup - Welcome (Welcome to)' window failed to appear.")
+        TestsFailed("'Java Setup - Welcome (Welcome to)' window failed to appear (iTimeOut=" iTimeOut ").")
     else
     {
-        Sleep, 700
         Control, Check, , Button1, Java Setup - Welcome, Welcome to ; Check 'Change Destination Folder' checkbox
         if ErrorLevel
             TestsFailed("Unable to check 'Change Destination Folder' checkbox in 'Java Setup - Welcome (Welcome to)' window.")
         else
         {
-            Sleep, 700
+            ; Java Setup haves wrong characters displayed, but ControlGetText returns right text, so, need better way to
+            ; check if correct characters are displayed.
+            ;szControlText := "Click Install to accept the"
+            ;ControlGetText, OutputVar, Static8, Java Setup - Welcome, Welcome to
+            ;if ErrorLevel
+            ;    TestsInfo("Unable to get control text in 'Java Setup - Welcome, Welcome to' window.")
+            ;else
+            ;{
+            ;    if OutputVar <> %szControlText%
+            ;        TestsInfo("FAILED: Control text is not the same as expected. (is '" OutputVar "', should be '" szControlText "').")
+            ;    else
+            ;        TestsInfo("OK: Control text is the same as expected, so, Java setup characters are all right.")
+            ;}
             ControlClick, Button3, Java Setup - Welcome, Welcome to ; Hit 'Install' button
             if ErrorLevel
                 TestsFailed("Unable to hit 'Install' button in 'Java Setup - Welcome (Welcome to)' window.")
             else
-                TestsOK("'Java Setup - Welcome (Welcome to)' window appeared, 'Change Destination Folder' checkbox checked and 'Install' button was clicked.")
+            {
+                WinWaitClose, Java Setup - Welcome, Welcome to, 3
+                if ErrorLevel
+                    TestsFailed("'Java Setup - Welcome (Welcome to)' window failed to close despite 'Install' button being clicked.")
+                else
+                    TestsOK("'Java Setup - Welcome (Welcome to)' window appeared, 'Change Destination Folder' checkbox checked and 'Install' button was clicked (iTimeOut=" iTimeOut ").")
+            }
         }
     }
 }
@@ -141,12 +199,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Java Setup - Destination Folder, Install to, 5
+    WinWaitActive, Java Setup - Destination Folder, Install to, 3
     if ErrorLevel
         TestsFailed("'Java Setup - Destination Folder (Install to)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button1, Java Setup - Destination Folder, Install to ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Java Setup - Destination Folder (Install to)' window.")
@@ -160,17 +217,30 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Java Setup - Progress, Status, 10
+    WinWaitActive, Java Setup - Progress, Status, 15 ; Takes some time
     if ErrorLevel
         TestsFailed("'Java Setup - Progress (Status)' window failed to appear.")
     else
     {
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Java Setup - Progress (Status)' window appeared, waiting for it to close.`n
-        WinWaitClose, Java Setup - Progress, Status, 25 ; Should be enough time to get it installed
+        TestsInfo("'Java Setup - Progress (Status)' window appeared, waiting for it to close.")
+        
+        iTimeOut := 65
+        while iTimeOut > 0
+        {
+            IfWinActive, Java Setup - Progress, Status
+            {
+                WinWaitClose, Java Setup - Progress, Status, 1
+                iTimeOut--
+            }
+            else
+                break ; exit the loop if something poped-up
+        }
+        
+        WinWaitClose, Java Setup - Progress, Status, 1
         if ErrorLevel
-            TestsFailed("'Java Setup - Progress (Status)' window failed to close.")
+            TestsFailed("'Java Setup - Progress (Status)' window failed to close (iTimeOut=" iTimeOut ").")
         else
-            TestsOK("'Java Setup - Progress (Status)' window went away.")
+            TestsOK("'Java Setup - Progress (Status)' window closed (iTimeOut=" iTimeOut ").")
     }
 }
 
@@ -179,22 +249,21 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Java Setup - Complete, You have, 5
+    WinWaitActive, Java Setup - Complete, You have, 3
     if ErrorLevel
         TestsFailed("'Java Setup - Complete (You have)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, Java Setup - Complete, You have ; Hit 'Close' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Close' button in 'Java Setup - Complete (You have)' window.")
         else
         {
-            WinWaitClose, Java Setup - Complete, You have, 5
+            WinWaitClose, Java Setup - Complete, You have, 3
             if ErrorLevel
                 TestsFailed("'Java Setup - Complete (You have)' window failed to close despite 'Close' button being clicked.")
             else
-                TestsOK("'Java Setup - Complete (You have)' window appeared and 'Close' button was clicked.")
+                TestsOK("'Java Setup - Complete (You have)' window appeared and 'Close' button clicked, window closed.")
         }
     }
 }
@@ -204,7 +273,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     RegRead, InstalledDir, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{26A24AE4-039D-4CA4-87B4-2F83216025FF}, InstallLocation
     if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")
