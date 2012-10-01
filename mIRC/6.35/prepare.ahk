@@ -21,17 +21,16 @@ TestName = prepare
 
 ; Disable some windows, configure, start mirc, connect to irc.freenode.net, #ReactOS_Test channel
 
-Process, Close, mirc.exe
-Sleep, 1500
-
+; Test if the app is installed
+TestsTotal++
 RegRead, InstallLocation, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\mIRC, InstallLocation
 if ErrorLevel
-{
-    ModuleExe = %A_ProgramFiles%\mIRC\mirc.exe
-    OutputDebug, %TestName%:%A_LineNumber%: Can NOT read data from registry. Key might not exist. Using hardcoded path.`n
-}
+    TestsFailed("Either registry key does not exist or we failed to read it.")
 else
+{
     ModuleExe = %InstallLocation%\mirc.exe
+    TestsOK("")
+}
 
 
 ; Terminate application
@@ -81,21 +80,26 @@ else
     Run, %ModuleExe%,, Max
     WinWaitActive, About mIRC,,10
     if ErrorLevel
-        TestsFailed("Window 'About mIRC' failed to appear.")
+    {
+        Process, Exist, %ProcessExe%
+        NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+        if NewPID = 0
+            TestsFailed("Window 'About mIRC' failed to appear. No '" ProcessExe "' process detected.")
+        else
+            TestsFailed("Window 'About mIRC' failed to appear. '" ProcessExe "' process detected.")
+    }
     else
     {
-        Sleep, 1000
         ControlClick, Button3, About mIRC ; Click 'Continue' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Continue' button in 'About mIRC' window.")
         else
         {
-            WinWaitActive, mIRC Options, Category, 7
+            WinWaitActive, mIRC Options, Category, 3
             if ErrorLevel
                 TestsFailed("Window 'mIRC Options (Category)' failed to appear.")
             else
             {
-                Sleep, 2000
                 ControlClick, Button6, mIRC Options, Category ; Hit 'Connect'
                 if ErrorLevel
                     TestsFailed("Unable to hit 'Connect' in 'mIRC Options (Category)' window.")

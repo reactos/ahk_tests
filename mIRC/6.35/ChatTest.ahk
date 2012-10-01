@@ -25,7 +25,7 @@ if not bContinue
     TestsFailed("We failed somwehere in 'prepare.ahk'.")
 else
 {
-    WinWaitActive, mIRC,,7
+    WinWaitActive, mIRC,,3
     if ErrorLevel
         TestsFailed("Window 'mIRC' failed to appear.")
     else
@@ -41,34 +41,30 @@ else
             if TimeOut > 35
             {
                 TestsFailed("Timed out.")
-                Sleep, 1500
                 Break ; exit loop
             }
         }
         
         if bContinue
         {
-            Sleep, 1500
             ControlSetText, RichEdit20A1, I confirm that mIRC 6.35 is working on ReactOS, mIRC
             if ErrorLevel
                 TestsFailed("Unable to set chat text in 'mIRC' window.")
             else
             {
                 SendInput, {ENTER} ; Send text to IRC channel
-                Sleep, 500
                 WinClose, mIRC
                 WinWaitActive, Confirm Exit, Are you sure,7
                 if ErrorLevel
                     TestsFailed("Window 'Confirm Exit (Are you sure)' failed to appear.")
                 else
                 {
-                    Sleep, 500
                     ControlClick, Button1, Confirm Exit, Are you sure ; Hit 'Yes' button
                     if ErrorLevel
                         TestsFailed("Unable to hit 'Yes' button in 'Confirm Exit (Are you sure)' window.")
                     else
                     {
-                        WinWaitClose, mIRC,,7
+                        WinWaitClose, mIRC,,3
                         if ErrorLevel
                             TestsFailed("'mIRC' window failed to disappear after exit was confirmed.")
                         else
