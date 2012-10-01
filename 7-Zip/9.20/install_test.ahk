@@ -204,11 +204,24 @@ if bContinue
         else
         {
             TestsInfo("'7-Zip 9.20 Setup (Installing)' window appeared, waiting for it to close.")
-            WinWaitClose, 7-Zip 9.20 Setup, Installing, 20
+            
+            iTimeOut := 20
+            while iTimeOut > 0
+            {
+                IfWinActive, 7-Zip 9.20 Setup, Installing
+                {
+                    WinWaitClose, 7-Zip 9.20 Setup, Installing, 1
+                    iTimeOut--
+                }
+                else
+                    break ; exit the loop if something poped-up
+            }
+            
+            WinWaitClose, 7-Zip 9.20 Setup, Installing, 1
             if ErrorLevel
-                TestsFailed("'7-Zip 9.20 Setup (Installing)' window failed to close.")
+                TestsFailed("'7-Zip 9.20 Setup (Installing)' window failed to close (iTimeOut=" iTimeOut ").")
             else
-                TestsOK("'7-Zip 9.20 Setup (Installing)' window appeared and closed.")
+                TestsOK("'7-Zip 9.20 Setup (Installing)' window closed (iTimeOut=" iTimeOut ").")
         }
     }
 }

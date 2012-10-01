@@ -232,13 +232,27 @@ if bContinue
     else
     {
         TestsInfo("'Installing' window appeared, waiting for it to close.")
-        WinWaitClose, Setup - MPC-HC, Installing, 10
+        
+        iTimeOut := 15
+        while iTimeOut > 0
+        {
+            IfWinActive, Setup - MPC-HC, Installing
+            {
+                WinWaitClose, Setup - MPC-HC, Installing, 1
+                iTimeOut--
+            }
+            else
+                break ; exit the loop if something poped-up
+        }
+        
+        WinWaitClose, Setup - MPC-HC, Installing, 1
         if ErrorLevel
-            TestsFailed("'Setup - MPC-HC (Installing)' window failed to dissapear.")
+            TestsFailed("'Setup - MPC-HC (Installing)' window failed to close (iTimeOut=" iTimeOut ").")
         else
-            TestsOK("'Setup - MPC-HC (Installing)' window went away.")
+            TestsOK("'Setup - MPC-HC (Installing)' window closed (iTimeOut=" iTimeOut ").")
     }
 }
+
 
 ; Test if 'Completing' window appeared
 TestsTotal++
@@ -258,6 +272,7 @@ if bContinue
     }
 }
 
+
 ; Check if program exists
 TestsTotal++
 if bContinue
@@ -275,4 +290,3 @@ if bContinue
             TestsOK("The application has been installed, because '" InstalledDir "\" MainAppFile "' was found.")
     }
 }
-
