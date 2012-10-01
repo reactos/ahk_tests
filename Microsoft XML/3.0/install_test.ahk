@@ -30,15 +30,9 @@ else
     ; The best way to make sure it is installed is to check for file existence, but Windows comes with it
     ; You can't simply delete it and there is no uninstall information in registry.
     ; Unregistering the dll will not help.
-    
-    ; Disable unti way to remove the dll is found
-    ;IfExist, %MainAppFile%
-    ;    TestsFailed("Can NOT continue, because '" MainAppFile "' was found.")
-    ;else
-    ;{
-        TestsOK("No previous versions detected. FIXME: some lines are commented.")
-        Run %ModuleExe%
-    ;}
+
+    TestsOK("")
+    Run %ModuleExe%
 }
 
 
@@ -47,22 +41,46 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Microsoft XML Parser Setup, Welcome, 30
-    if ErrorLevel
-        TestsFailed("'Microsoft XML Parser Setup (Welcome)' window failed to appear.")
-    else
+    iTimeOut := 25
+    while iTimeOut > 0
     {
-        Sleep, 700
-        ControlClick, Button1, Microsoft XML Parser Setup, Welcome ; Hit 'Next' button
-        if ErrorLevel
-            TestsFailed("Unable to hit 'Next' button in 'Microsoft XML Parser Setup (Welcome)' window.")
+        IfWinActive, Microsoft XML Parser Setup, Welcome
+            break
         else
         {
-            WinWaitClose, Microsoft XML Parser Setup, Welcome, 5
-            if ErrorLevel
-                TestsFailed("'Microsoft XML Parser Setup (Welcome)' window failed to close despite 'Next' button being clicked.")
+            Process, Exist, msiexec.exe
+            NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+            if NewPID = 0
+            {
+                break
+                TestsFailed("No 'msiexec.exe' process detected (iTimeOut=" iTimeOut ").")
+            }
             else
-                TestsOK("'Microsoft XML Parser Setup (Welcome)' window appeared, 'Next' button clicked and window closed.")
+            {
+                WinWaitActive, Microsoft XML Parser Setup, Welcome, 1
+                iTimeOut--
+            }
+        }
+    }
+
+    if bContinue
+    {
+        WinWaitActive, Microsoft XML Parser Setup, Welcome, 1
+        if ErrorLevel
+            TestsFailed("'Microsoft XML Parser Setup (Welcome)' window failed to appear (iTimeOut=" iTimeOut ").")
+        else
+        {
+            ControlClick, Button1, Microsoft XML Parser Setup, Welcome ; Hit 'Next' button
+            if ErrorLevel
+                TestsFailed("Unable to hit 'Next' button in 'Microsoft XML Parser Setup (Welcome)' window.")
+            else
+            {
+                WinWaitClose, Microsoft XML Parser Setup, Welcome, 3
+                if ErrorLevel
+                    TestsFailed("'Microsoft XML Parser Setup (Welcome)' window failed to close despite 'Next' button being clicked.")
+                else
+                    TestsOK("'Microsoft XML Parser Setup (Welcome)' window appeared, 'Next' button clicked and window closed (iTimeOut=" iTimeOut ").")
+            }
         }
     }
 }
@@ -72,12 +90,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Microsoft XML Parser License Agreement, Please read, 7
+    WinWaitActive, Microsoft XML Parser License Agreement, Please read, 3
     if ErrorLevel
         TestsFailed("'Microsoft XML Parser License Agreement (Please read)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, Microsoft XML Parser License Agreement, Please read ; Check 'I accept' radiobutton
         if ErrorLevel
             TestsFailed("Unable to check 'I accept' radiobutton in 'Microsoft XML Parser License Agreement (Please read)' window.")
@@ -110,12 +127,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Microsoft XML Parser Setup, Customer Information, 7
+    WinWaitActive, Microsoft XML Parser Setup, Customer Information, 3
     if ErrorLevel
         TestsFailed("'Microsoft XML Parser Setup (Customer Information)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, Microsoft XML Parser Setup, Customer Information ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Microsoft XML Parser Setup (Customer Information)' window.")
@@ -129,12 +145,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Microsoft XML Parser Setup, Ready to Install, 7
+    WinWaitActive, Microsoft XML Parser Setup, Ready to Install, 3
     if ErrorLevel
         TestsFailed("'Microsoft XML Parser Setup (Ready to Install)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button1, Microsoft XML Parser Setup, Ready to Install ; Hit 'Install' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Install' button in 'Microsoft XML Parser Setup (Ready to Install)' window.")
@@ -148,16 +163,30 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Microsoft XML Parser Setup, Installing, 7
+    WinWaitActive, Microsoft XML Parser Setup, Installing, 3
     if ErrorLevel
         TestsFailed("'Microsoft XML Parser Setup (Installing)' window failed to appear.")
     else
     {
-        WinWaitClose, Microsoft XML Parser Setup, Installing, 60
+        TestsInfo("'Microsoft XML Parser Setup (Installing)' window appeared, waiting for it to close.")
+
+        iTimeOut := 50
+        while iTimeOut > 0
+        {
+            IfWinActive, Microsoft XML Parser Setup, Installing
+            {
+                WinWaitClose, Microsoft XML Parser Setup, Installing, 1
+                iTimeOut--
+            }
+            else
+                break ; exit the loop if something poped-up
+        }
+
+        WinWaitClose, Microsoft XML Parser Setup, Installing, 1
         if ErrorLevel
-            TestsFailed("'Microsoft XML Parser Setup (Installing)' window failed to close.")
+            TestsFailed("'Microsoft XML Parser Setup (Installing)' window failed to close (iTimeOut=" iTimeOut ").")
         else
-            TestsOK("'Microsoft XML Parser Setup (Installing)' window appeared and closed.")
+            TestsOK("'Microsoft XML Parser Setup (Installing)' window appeared and closed (iTimeOut=" iTimeOut ").")
     }
 }
 
@@ -166,18 +195,17 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Microsoft XML Parser Setup, Completing, 7
+    WinWaitActive, Microsoft XML Parser Setup, Completing, 3
     if ErrorLevel
         TestsFailed("'Microsoft XML Parser Setup (Completing)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button1, Microsoft XML Parser Setup, Completing ; Hit 'Finish' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Finish' button in 'Microsoft XML Parser Setup (Completing)' window.")
         else
         {
-            WinWaitClose, Microsoft XML Parser Setup, Completing, 7
+            WinWaitClose, Microsoft XML Parser Setup, Completing, 3
             if ErrorLevel
                 TestsFailed("'Microsoft XML Parser Setup (Completing)' window failed to close despite 'Finish' button being clicked.")
             else
@@ -191,7 +219,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 7000
     IfNotExist, %MainAppFile%
         TestsFailed("Something went wrong, can't find '" MainAppFile "'.")
     else
