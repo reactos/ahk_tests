@@ -40,50 +40,68 @@ else
             ; That probably means we have not installed this app before.
             ; Check in default directory to be extra sure
             bHardcoded := true ; To know if we got path from registry or not
-            IfNotExist, %A_ProgramFiles%\Miranda IM
-                bContinue := true ; No previous versions detected in hardcoded path
-            else
+            szDefaultDir = %A_ProgramFiles%\Miranda IM
+            IfNotExist, %szDefaultDir%
             {
-                IfExist, %A_ProgramFiles%\Miranda IM\Uninstall.exe
+                TestsInfo("No previous versions detected in hardcoded path: '" szDefaultDir "'.")
+                bContinue := true
+            }
+            else
+            {   
+                UninstallerPath = %szDefaultDir%\Uninstall.exe /S
+                WaitUninstallDone(UninstallerPath, 3)
+                if bContinue
                 {
-                    RunWait, %A_ProgramFiles%\Miranda IM\Uninstall.exe /S ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %A_ProgramFiles%\Miranda IM ; Uninstaller might delete the dir
-                    bContinue := true
-                {
-                    FileRemoveDir, %A_ProgramFiles%\Miranda IM, 1
-                    if ErrorLevel
-                        TestsFailed("Unable to delete hardcoded path '" A_ProgramFiles "\Miranda IM' ('" MainAppFile "' process is reported as terminated).'")
-                    else
+                    IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
+                    {
+                        TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %szDefaultDir%, 1
+                        if ErrorLevel
+                            TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
         else
         {
-            StringReplace, UninstallerPath, UninstallerPath, `",, All ; Remove quotes in case some version quotes the path
+            UninstallerPath := ExeFilePathNoParam(UninstallerPath)
             SplitPath, UninstallerPath,, InstalledDir
             IfNotExist, %InstalledDir%
+            {
+                TestsInfo("Got '" InstalledDir "' from registry and such path does not exist.")
                 bContinue := true
+            }
             else
             {
-                IfExist, %UninstallerPath%
+                UninstallerPath = %UninstallerPath% /S
+                WaitUninstallDone(UninstallerPath, 3) ; Reported child name 'Au_.exe'
+                if bContinue
                 {
-                    RunWait, %UninstallerPath% /S ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %InstalledDir%
-                    bContinue := true
-                else
-                {
-                    FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
-                    else
+                    IfNotExist, %InstalledDir%
+                    {
+                        TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %InstalledDir%, 1 ; Uninstaller leaved the path for us to delete, so, do it
+                        if ErrorLevel
+                            TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
@@ -106,18 +124,17 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Miranda IM 0.10.0 Setup, License Agreement, 15
+    WinWaitActive, Miranda IM 0.10.0 Setup, License Agreement, 7
     if ErrorLevel
         TestsFailed("'Miranda IM 0.10.0 Setup (License Agreement)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, Miranda IM 0.10.0 Setup, License Agreement ; Hit 'I Agree' button
         if ErrorLevel
             TestsFailed("Unable to hit 'I Agree' button in 'Miranda IM 0.10.0 Setup (License Agreement)' window.")
         else
         {
-            WinWaitClose, Miranda IM 0.10.0 Setup, License Agreement, 5
+            WinWaitClose, Miranda IM 0.10.0 Setup, License Agreement, 3
             if ErrorLevel
                 TestsFailed("'Miranda IM 0.10.0 Setup (License Agreement)' window failed to close despite 'I Agree' button being clicked.")
             else
@@ -131,12 +148,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Miranda IM 0.10.0 Setup, Installation Mode, 7
+    WinWaitActive, Miranda IM 0.10.0 Setup, Installation Mode, 3
     if ErrorLevel
         TestsFailed("'Miranda IM 0.10.0 Setup (Installation Mode)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, Miranda IM 0.10.0 Setup, Installation Mode ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Miranda IM 0.10.0 Setup (Installation Mode)' window.")
@@ -150,12 +166,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Miranda IM 0.10.0 Setup, Choose Install Location, 7
+    WinWaitActive, Miranda IM 0.10.0 Setup, Choose Install Location, 3
     if ErrorLevel
         TestsFailed("'Miranda IM 0.10.0 Setup (Choose Install Location)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, Miranda IM 0.10.0 Setup, Choose Install Location ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Miranda IM 0.10.0 Setup (Choose Install Location)' window.")
@@ -169,12 +184,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Miranda IM 0.10.0 Setup, Choose Components, 7
+    WinWaitActive, Miranda IM 0.10.0 Setup, Choose Components, 3
     if ErrorLevel
         TestsFailed("'Miranda IM 0.10.0 Setup (Choose Components)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, Miranda IM 0.10.0 Setup, Choose Components ; Hit 'Install' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Install' button in 'Miranda IM 0.10.0 Setup (Choose Components)' window.")
@@ -191,36 +205,33 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Miranda IM 0.10.0 Setup, Click Finish, 15 ; We skipped one window
+    WinWaitActive, Miranda IM 0.10.0 Setup, Click Finish, 10 ; We skipped one window
     if ErrorLevel
         TestsFailed("'Miranda IM 0.10.0 Setup (Click Finish)' window failed to appear.")
     else
     {
-        Sleep, 700
         Control, Uncheck,, Button4, Miranda IM 0.10.0 Setup, Click Finish ; Uncheck 'Start Miranda IM' checkbox
         if ErrorLevel
             TestsFailed("Unable to uncheck 'Start Miranda IM' in 'Miranda IM 0.10.0 Setup (Click Finish)' window.")
         else
         {
-            Sleep, 700
-            ControlClick, Button2, Miranda IM 0.10.0 Setup, Click Finish ; Hit 'Finish' button
-            if ErrorLevel
-                TestsFailed("Unable to hit 'Finish' button in 'Miranda IM 0.10.0 Setup (Click Finish)' window.")
+            ControlGet, bChecked, Checked, Button4
+            if bChecked = 1
+                TestsFailed("'Start Miranda IM' checkbox in 'Miranda IM 0.10.0 Setup (Click Finish)' window reported as unchecked, but further inspection proves that it was still checked.")
             else
             {
-                WinWaitClose, Miranda IM 0.10.0 Setup, Click Finish, 7
+                ControlClick, Button2, Miranda IM 0.10.0 Setup, Click Finish ; Hit 'Finish' button
                 if ErrorLevel
-                    TestsFailed("'Miranda IM 0.10.0 Setup (Click Finish)' window failed to close despite the 'Finish' button being reported as clicked .")
+                    TestsFailed("Unable to hit 'Finish' button in 'Miranda IM 0.10.0 Setup (Click Finish)' window.")
                 else
                 {
-                    if not TerminateDefaultBrowser(10)
-                        TestsFailed("Either default browser process failed to appear of we failed to terminate it.")
+                    WinWaitClose, Miranda IM 0.10.0 Setup, Click Finish, 3
+                    if ErrorLevel
+                        TestsFailed("'Miranda IM 0.10.0 Setup (Click Finish)' window failed to close despite the 'Finish' button being reported as clicked .")
                     else
                     {
-                        Process, Wait, %MainAppFile%, 4
-                        NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
-                        if NewPID <> 0
-                            TestsFailed("'" MainAppFile "' process appeared despite 'Start Miranda IM' checkbox being unchecked.")
+                        if not TerminateDefaultBrowser(10)
+                            TestsFailed("Either default browser process failed to appear of we failed to terminate it.")
                         else
                             TestsOK("'Miranda IM 0.10.0 Setup (Click Finish)' window appeared, 'Start Miranda IM' unchecked, 'Finish' button clicked and window closed.")
                     }
@@ -235,7 +246,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    ; No need to sleep, because we already waited for process to appear
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Miranda IM, UninstallString
     if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")
