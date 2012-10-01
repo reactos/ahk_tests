@@ -40,50 +40,68 @@ else
             ; That probably means we have not installed this app before.
             ; Check in default directory to be extra sure
             bHardcoded := true ; To know if we got path from registry or not
-            IfNotExist, %A_ProgramFiles%\Mono-2.11.2
-                bContinue := true ; No previous versions detected in hardcoded path
-            else
+            szDefaultDir = %A_ProgramFiles%\Mono-2.11.2
+            IfNotExist, %szDefaultDir%
             {
-                IfExist, %A_ProgramFiles%\Mono-2.11.2\unins000.exe
+                TestsInfo("No previous versions detected in hardcoded path: '" szDefaultDir "'.")
+                bContinue := true
+            }
+            else
+            {   
+                UninstallerPath = %szDefaultDir%\unins000.exe /SILENT
+                WaitUninstallDone(UninstallerPath, 4)
+                if bContinue
                 {
-                    RunWait, %A_ProgramFiles%\Mono-2.11.2\unins000.exe /SILENT ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %A_ProgramFiles%\Mono-2.11.2 ; Uninstaller might delete the dir
-                    bContinue := true
-                {
-                    FileRemoveDir, %A_ProgramFiles%\Mono-2.11.2, 1
-                    if ErrorLevel
-                        TestsFailed("Unable to delete hardcoded path '" A_ProgramFiles "\Mono-2.11.2' ('" MainAppFile "' process is reported as terminated).'")
-                    else
+                    IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
+                    {
+                        TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %szDefaultDir%, 1
+                        if ErrorLevel
+                            TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
         else
         {
-            StringReplace, UninstallerPath, UninstallerPath, `",, All ; Remove quotes in case some version quotes the path
+            UninstallerPath := ExeFilePathNoParam(UninstallerPath)
             SplitPath, UninstallerPath,, InstalledDir
             IfNotExist, %InstalledDir%
+            {
+                TestsInfo("Got '" InstalledDir "' from registry and such path does not exist.")
                 bContinue := true
+            }
             else
             {
-                IfExist, %UninstallerPath%
+                UninstallerPath = %UninstallerPath% /SILENT
+                WaitUninstallDone(UninstallerPath, 4) ; reported child is '_iu14D2N.tmp'
+                if bContinue
                 {
-                    RunWait, %UninstallerPath% /SILENT ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %InstalledDir%
-                    bContinue := true
-                else
-                {
-                    FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
-                    else
+                    IfNotExist, %InstalledDir%
+                    {
+                        TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %InstalledDir%, 1 ; Uninstaller leaved the path for us to delete, so, do it
+                        if ErrorLevel
+                            TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
@@ -105,17 +123,22 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Mono 2.11.2 with GTK# 2.12.11, Welcome, 15
+    WinWaitActive, Setup - Mono 2.11.2 with GTK# 2.12.11, Welcome, 7
     if ErrorLevel
         TestsFailed("'Setup - Mono 2.11.2 with GTK# 2.12.11 (Welcome)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TNewButton1, Setup - Mono 2.11.2 with GTK# 2.12.11, Welcome ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Setup - Mono 2.11.2 with GTK# 2.12.11 (Welcome)' window.")
-        else ; WinWaitClose will not work with this setup on win2k3 sp2
-            TestsOK("'Setup - Mono 2.11.2 with GTK# 2.12.11 (Welcome)' window appeared and 'Next' button was clicked.")
+        else
+        {
+            WinWaitClose, Setup - Mono 2.11.2 with GTK# 2.12.11, Welcome, 3
+            if ErrorLevel
+                TestsFailed("'Setup - Mono 2.11.2 with GTK# 2.12.11 (Welcome)' window failed to close despite 'Next' button clicked.")
+            else
+                TestsOK("'Setup - Mono 2.11.2 with GTK# 2.12.11 (Welcome)' window appeared, 'Next' button clicked and window closed.")
+        }
     }
 }
 
@@ -124,12 +147,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Mono 2.11.2 with GTK# 2.12.11, License Agreement, 7
+    WinWaitActive, Setup - Mono 2.11.2 with GTK# 2.12.11, License Agreement, 3
     if ErrorLevel
         TestsFailed("'Setup - Mono 2.11.2 with GTK# 2.12.11 (License Agreement)' window failed to appear.")
     else
     {
-        Sleep, 700
         Control, Check,, TNewRadioButton1, Setup - Mono 2.11.2 with GTK# 2.12.11, License Agreement ; Check 'I accept the agreement' radiobutton
         if ErrorLevel
             TestsFailed("Unable to check 'I accept' radiobutton in 'Setup - Mono 2.11.2 with GTK# 2.12.11 (License Agreement)' window.")
@@ -147,7 +169,6 @@ if bContinue
                 TestsFailed("'Next' button did not get enabled in 'Setup - Mono 2.11.2 with GTK# 2.12.11 (License Agreement)' window after checking 'I accept' radiobutton.")
             else
             {
-                Sleep, 700
                 ControlClick, TNewButton2, Setup - Mono 2.11.2 with GTK# 2.12.11, License Agreement ; Hit 'Next' button
                 if ErrorLevel
                     TestsFailed("Unable to hit 'Next' button in 'Setup - Mono 2.11.2 with GTK# 2.12.11 (License Agreement)' window.")
@@ -163,12 +184,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Mono 2.11.2 with GTK# 2.12.11, Information, 7
+    WinWaitActive, Setup - Mono 2.11.2 with GTK# 2.12.11, Information, 3
     if ErrorLevel
         TestsFailed("'Setup - Mono 2.11.2 with GTK# 2.12.11 (Information)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TNewButton2, Setup - Mono 2.11.2 with GTK# 2.12.11, Information ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Setup - Mono 2.11.2 with GTK# 2.12.11 (Information)' window.")
@@ -182,12 +202,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Mono 2.11.2 with GTK# 2.12.11, Select Destination Location, 7
+    WinWaitActive, Setup - Mono 2.11.2 with GTK# 2.12.11, Select Destination Location, 3
     if ErrorLevel
         TestsFailed("'Setup - Mono 2.11.2 with GTK# 2.12.11 (Select Destination Location)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TNewButton3, Setup - Mono 2.11.2 with GTK# 2.12.11, Select Destination Location ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Setup - Mono 2.11.2 with GTK# 2.12.11 (Select Destination Location)' window.")
@@ -201,12 +220,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Mono 2.11.2 with GTK# 2.12.11, Select Components, 7
+    WinWaitActive, Setup - Mono 2.11.2 with GTK# 2.12.11, Select Components, 3
     if ErrorLevel
         TestsFailed("'Setup - Mono 2.11.2 with GTK# 2.12.11 (Select Components)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TNewButton3, Setup - Mono 2.11.2 with GTK# 2.12.11, Select Components ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Setup - Mono 2.11.2 with GTK# 2.12.11 (Select Components)' window.")
@@ -220,12 +238,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Mono 2.11.2 with GTK# 2.12.11, Select Start Menu Folder, 7
+    WinWaitActive, Setup - Mono 2.11.2 with GTK# 2.12.11, Select Start Menu Folder, 3
     if ErrorLevel
         TestsFailed("'Setup - Mono 2.11.2 with GTK# 2.12.11 (Select Start Menu Folder)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TNewButton4, Setup - Mono 2.11.2 with GTK# 2.12.11, Select Start Menu Folder ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Setup - Mono 2.11.2 with GTK# 2.12.11 (Select Start Menu Folder)' window.")
@@ -239,12 +256,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Mono 2.11.2 with GTK# 2.12.11, Port Selection, 7
+    WinWaitActive, Setup - Mono 2.11.2 with GTK# 2.12.11, Port Selection, 3
     if ErrorLevel
         TestsFailed("'Setup - Mono 2.11.2 with GTK# 2.12.11 (Port Selection)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TNewButton4, Setup - Mono 2.11.2 with GTK# 2.12.11, Port Selection ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Setup - Mono 2.11.2 with GTK# 2.12.11 (Port Selection)' window.")
@@ -258,12 +274,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Mono 2.11.2 with GTK# 2.12.11, Ready to Install, 7
+    WinWaitActive, Setup - Mono 2.11.2 with GTK# 2.12.11, Ready to Install, 3
     if ErrorLevel
         TestsFailed("'Setup - Mono 2.11.2 with GTK# 2.12.11 (Ready to Install)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TNewButton4, Setup - Mono 2.11.2 with GTK# 2.12.11, Ready to Install ; Hit 'Install' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Install' button in 'Setup - Mono 2.11.2 with GTK# 2.12.11 (Ready to Install)' window.")
@@ -277,17 +292,30 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Mono 2.11.2 with GTK# 2.12.11, Installing, 7
+    WinWaitActive, Setup - Mono 2.11.2 with GTK# 2.12.11, Installing, 3
     if ErrorLevel
         TestsFailed("'Setup - Mono 2.11.2 with GTK# 2.12.11 (Installing)' window failed to appear.")
     else
     {
-        OutputDebug, %TestName%:%A_LineNumber%: 'Setup - Mono 2.11.2 with GTK# 2.12.11 (Installing)' window appeared, waiting for it to close.`n
-        WinWaitClose, Setup - Mono 2.11.2 with GTK# 2.12.11, Installing, 60
+        TestsInfo("'Setup - Mono 2.11.2 with GTK# 2.12.11 (Installing)' window appeared, waiting for it to close.")
+        
+        iTimeOut := 240
+        while iTimeOut > 0
+        {
+            IfWinActive, Setup - Mono 2.11.2 with GTK# 2.12.11, Installing
+            {
+                WinWaitClose, Setup - Mono 2.11.2 with GTK# 2.12.11, Installing, 1
+                iTimeOut--
+            }
+            else
+                break ; exit the loop if something poped-up
+        }
+
+        WinWaitClose, Setup - Mono 2.11.2 with GTK# 2.12.11, Installing, 1
         if ErrorLevel
-            TestsFailed("'Setup - Mono 2.11.2 with GTK# 2.12.11 (Installing)' window failed to close.")
+            TestsFailed("'Setup - Mono 2.11.2 with GTK# 2.12.11 (Installing)' window failed to close (iTimeOut=" iTimeOut ").")
         else
-            TestsOK("'Setup - Mono 2.11.2 with GTK# 2.12.11 (Installing)' window closed.")
+            TestsOK("'Setup - Mono 2.11.2 with GTK# 2.12.11 (Installing)' window closed (iTimeOut=" iTimeOut ").")
     }
 }
 
@@ -296,18 +324,17 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - Mono 2.11.2 with GTK# 2.12.11, Completing, 7
+    WinWaitActive, Setup - Mono 2.11.2 with GTK# 2.12.11, Completing, 3
     if ErrorLevel
         TestsFailed("'Setup - Mono 2.11.2 with GTK# 2.12.11 (Completing)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TNewButton4, Setup - Mono 2.11.2 with GTK# 2.12.11, Completing ; Hit 'Finish' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Finish' button in 'Setup - Mono 2.11.2 with GTK# 2.12.11 (Completing)' window.")
         else
         {
-            WinWaitClose,  Setup - Mono 2.11.2 with GTK# 2.12.11, Completing, 7
+            WinWaitClose,  Setup - Mono 2.11.2 with GTK# 2.12.11, Completing, 3
             if ErrorLevel
                 TestsFailed("'Setup - Mono 2.11.2 with GTK# 2.12.11 (Completing)' window failed to close despite 'Finish' button being clicked.")
             else
@@ -321,7 +348,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    ; No need to sleep, because we already waited for process to appear
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{ef82ca75-1b51-47b9-9d18-3db1c6f271be}_is1, UninstallString
     if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")
