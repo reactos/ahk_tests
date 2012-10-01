@@ -21,14 +21,19 @@ ModuleExe = %A_WorkingDir%\Apps\Microsoft Visual Basic 6.0 Common Controls Setup
 TestName = 1.install
 MainAppFile = advpack.dll
 
-; Test if Setup file exists, if so, delete installed files, and run Setup
+; Test if Setup file exists, if so run Setup
 TestsTotal++
 IfNotExist, %ModuleExe%
     TestsFailed("'" ModuleExe "' not found.")
 else
 {
-    ; Delete MainAppFile before continuing
-    TestsOK("FIXME: Windows already comes with the files, can't delete anything.")
+    szAppFile = %A_WinDir%\System32\%MainAppFile% ; Clean Win2k3 SP2 already comes with the file
+    IfExist, %szAppFile%
+        bExist := true
+    else
+        bExist := false
+
+    TestsOK("")
     Run %ModuleExe%
 }
 
@@ -37,18 +42,17 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, VB6.0 Common Controls, Are you sure, 7
+    WinWaitActive, VB6.0 Common Controls, Are you sure, 5
     if ErrorLevel
         TestsFailed("'VB6.0 Common Controls (Are you sure)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button1, VB6.0 Common Controls, Are you sure ; Hit 'Yes' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Yes' button in 'VB6.0 Common Controls (Are you sure)' window.")
         else
         {
-            WinWaitClose, VB6.0 Common Controls, Are you sure, 5
+            WinWaitClose, VB6.0 Common Controls, Are you sure, 3
             if ErrorLevel
                 TestsFailed("'VB6.0 Common Controls (Are you sure)' window failed to close despite 'Yes' button being clicked.")
             else
@@ -62,18 +66,17 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, VB6.0 Common Controls, Please read, 7
+    WinWaitActive, VB6.0 Common Controls, Please read, 5
     if ErrorLevel
         TestsFailed("'VB6.0 Common Controls (Please read)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button1, VB6.0 Common Controls, Please read ; Hit 'Yes' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Yes' button in 'VB6.0 Common Controls (Please read)' window.")
         else
         {
-            WinWaitClose, VB6.0 Common Controls, Please read, 5
+            WinWaitClose, VB6.0 Common Controls, Please read, 3
             if ErrorLevel
                 TestsFailed("'VB6.0 Common Controls (Please read)' window failed to close despite 'Yes' button being clicked.")
             else
@@ -87,18 +90,17 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, VB6.0 Common Controls, The VB6.0 Common Controls were successfully, 20
+    WinWaitActive, VB6.0 Common Controls, The VB6.0 Common Controls were successfully, 7
     if ErrorLevel
         TestsFailed("'VB6.0 Common Controls (The VB6.0 Common Controls were successfully)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button1, VB6.0 Common Controls, The VB6.0 Common Controls were successfully ; Hit 'OK' button
         if ErrorLevel
             TestsFailed("Unable to hit 'OK' button in 'VB6.0 Common Controls (The VB6.0 Common Controls were successfully)' window.")
         else
         {
-            WinWaitClose, VB6.0 Common Controls, The VB6.0 Common Controls were successfully, 5
+            WinWaitClose, VB6.0 Common Controls, The VB6.0 Common Controls were successfully, 3
             if ErrorLevel
                 TestsFailed("'VB6.0 Common Controls (The VB6.0 Common Controls were successfully)' window failed to close despite 'OK' button being clicked.")
             else
@@ -112,10 +114,18 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
-    szAppFile = %A_WinDir%\System32\%MainAppFile%
-    IfNotExist, %szAppFile%
-        TestsFailed("Something went wrong, can't find '" szAppFile "'.")
+    If bExist
+    {
+        IfNotExist, %szAppFile%
+            TestsFailed("Something went wrong, can't find '" szAppFile "', but it was there before.")
+        else
+            TestsOK("The application has been installed, because '" szAppFile "' was found (it was there before too).")
+    }
     else
-        TestsOK("The application has been installed, because '" szAppFile "' was found.")
+    {
+        IfNotExist, %szAppFile%
+            TestsFailed("Something went wrong, can't find '" szAppFile "' and it was NOT there before.")
+        else
+            TestsOK("The application has been installed, because '" szAppFile "' was found (it was NOT there before).")
+    }
 }
