@@ -33,7 +33,7 @@ else
         TestsFailed("Unable to terminate '" MainAppFile "' process.") ; So, process still exists
     else
     {
-        RegRead, InstallLocation, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\mIRC, InstallLocation
+        RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\mIRC, UninstallString
         if ErrorLevel
         {
             ; There was a problem (such as a nonexistent key or value). 
@@ -73,7 +73,6 @@ else
         }
         else
         {
-            UninstallerPath = %InstallLocation%\uninstall.exe
             UninstallerPath := ExeFilePathNoParam(UninstallerPath)
             SplitPath, UninstallerPath,, InstalledDir
             IfNotExist, %InstalledDir%
@@ -83,9 +82,8 @@ else
             }
             else
             {
-                UninstallerPath = %UninstallerPath% /S ; There is one child process 'Au_.exe'
-                WaitUninstallDone(UninstallerPath, 3)
-
+                UninstallerPath = %UninstallerPath% /S
+                WaitUninstallDone(UninstallerPath, 3) ; Reported child name is 'Au_.exe'
                 if bContinue
                 {
                     IfNotExist, %InstalledDir%
@@ -137,13 +135,17 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, mIRC Setup, Welcome to the mIRC, 15
+    WinWaitActive, mIRC Setup, Welcome to the mIRC, 7
     if ErrorLevel
         TestsFailed("'mIRC Setup (Welcome to the mIRC)' window failed to appear.")
     else
     {
         SendInput, !n ; Hit 'Next' button
-        TestsOK("'mIRC Setup (Welcome to the mIRC)' window appeared, Alt+N was sent.")
+        WinWaitClose, mIRC Setup, Welcome to the mIRC, 3
+        if ErrorLevel
+            TestsFailed("'mIRC Setup (Welcome to the mIRC)' window failed to close despite Alt+N was sent.")
+        else
+            TestsOK("'mIRC Setup (Welcome to the mIRC)' window appeared, Alt+N sent and window closed.")
     }
 }
 
