@@ -40,50 +40,68 @@ else
             ; That probably means we have not installed this app before.
             ; Check in default directory to be extra sure
             bHardcoded := true ; To know if we got path from registry or not
-            IfNotExist, %A_ProgramFiles%\lbreakout2
-                bContinue := true ; No previous versions detected in hardcoded path
-            else
+            szDefaultDir = %A_ProgramFiles%\lbreakout2
+            IfNotExist, %szDefaultDir%
             {
-                IfExist, %A_ProgramFiles%\lbreakout2\unins000.exe
+                TestsInfo("No previous versions detected in hardcoded path: '" szDefaultDir "'.")
+                bContinue := true
+            }
+            else
+            {   
+                UninstallerPath = %szDefaultDir%\unins000.exe /silent
+                WaitUninstallDone(UninstallerPath, 3)
+                if bContinue
                 {
-                    RunWait, %A_ProgramFiles%\lbreakout2\unins000.exe /silent ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %A_ProgramFiles%\lbreakout2 ; Uninstaller might delete the dir
-                    bContinue := true
-                {
-                    FileRemoveDir, %A_ProgramFiles%\lbreakout2, 1
-                    if ErrorLevel
-                        TestsFailed("Unable to delete hardcoded path '" A_ProgramFiles "\lbreakout2' ('" MainAppFile "' process is reported as terminated).'")
-                    else
+                    IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
+                    {
+                        TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %szDefaultDir%, 1
+                        if ErrorLevel
+                            TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
         else
         {
-            StringReplace, UninstallerPath, UninstallerPath, `",, All
+            UninstallerPath := ExeFilePathNoParam(UninstallerPath)
             SplitPath, UninstallerPath,, InstalledDir
             IfNotExist, %InstalledDir%
+            {
+                TestsInfo("Got '" InstalledDir "' from registry and such path does not exist.")
                 bContinue := true
+            }
             else
             {
-                IfExist, %UninstallerPath%
+                UninstallerPath = %UninstallerPath% /silent
+                WaitUninstallDone(UninstallerPath, 3) ; Reported child name is '_iu14D2N.tmp'
+                if bContinue
                 {
-                    RunWait, %UninstallerPath% /silent ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %InstalledDir%
-                    bContinue := true
-                else
-                {
-                    FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
-                    else
+                    IfNotExist, %InstalledDir%
+                    {
+                        TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %InstalledDir%, 1 ; Uninstaller leaved the path for us to delete, so, do it
+                        if ErrorLevel
+                            TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
@@ -109,18 +127,17 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup, This will, 15
+    WinWaitActive, Setup, This will, 5
     if ErrorLevel
         TestsFailed("'Setup (This will)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button1, Setup, This will ; Hit 'Yes' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Yes' button in 'Setup (This will)' window.")
         else
         {
-            WinWaitClose, Setup, This will, 5
+            WinWaitClose, Setup, This will, 3
             if ErrorLevel
                 TestsFailed("'Setup (This will)' window failed to close despite 'Yes' button being clicked.")
             else
@@ -134,12 +151,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - LBreakout2, Welcome, 15
+    WinWaitActive, Setup - LBreakout2, Welcome, 5
     if ErrorLevel
         TestsFailed("'Setup - LBreakout2 (Welcome)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TButton2, Setup - LBreakout2, Welcome ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Setup - LBreakout2 (Welcome)' window.")
@@ -153,12 +169,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - LBreakout2, SelectDir, 7
+    WinWaitActive, Setup - LBreakout2, SelectDir, 3
     if ErrorLevel
         TestsFailed("'Setup - LBreakout2 (SelectDir)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TButton2, Setup - LBreakout2, SelectDir ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Setup - LBreakout2 (SelectDir)' window.")
@@ -172,12 +187,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - LBreakout2, SelectProgramGroup, 7
+    WinWaitActive, Setup - LBreakout2, SelectProgramGroup, 3
     if ErrorLevel
         TestsFailed("'Setup - LBreakout2 (SelectProgramGroup)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TButton2, Setup - LBreakout2, SelectProgramGroup ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Setup - LBreakout2 (SelectProgramGroup)' window.")
@@ -191,12 +205,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - LBreakout2, SelectTasks, 7
+    WinWaitActive, Setup - LBreakout2, SelectTasks, 3
     if ErrorLevel
         TestsFailed("'Setup - LBreakout2 (SelectTasks)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TButton2, Setup - LBreakout2, SelectTasks ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Setup - LBreakout2 (SelectTasks)' window.")
@@ -210,12 +223,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - LBreakout2, Ready, 7
+    WinWaitActive, Setup - LBreakout2, Ready, 3
     if ErrorLevel
         TestsFailed("'Setup - LBreakout2 (Ready)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TButton2, Setup - LBreakout2, Ready ; Hit 'Install' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Install' button in 'Setup - LBreakout2 (Ready)' window.")
@@ -232,32 +244,29 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - LBreakout2, Finished, 30 ; Wait longer, because we skipped one window
+    WinWaitActive, Setup - LBreakout2, Finished, 7 ; Wait longer, because we skipped one window
     if ErrorLevel
         TestsFailed("'Setup - LBreakout2 (Finished)' window failed to appear.")
     else
     {
-        Sleep, 700
         Control, Uncheck, , TCheckBox1, Setup - LBreakout2, Finished ; uncheck 'Launch LBreakout2' checkbox
         if ErrorLevel
             TestsFailed("Unable to uncheck 'Launch LBreakout2' checkbox in 'Setup - LBreakout2 (Finished)' window.")
         else
         {
-            Sleep, 700
-            ControlClick, TButton2, Setup - LBreakout2, Finished ; Hit 'Finish' button
-            if ErrorLevel
-                TestsFailed("Unable to hit 'Finish' button in 'Setup - LBreakout2 (Finished)' window.")
+            ControlGet, bChecked, Checked, TCheckBox1
+            if bChecked = 1
+                TestsFailed("'Launch LBreakout2' checkbox in 'Setup - LBreakout2 (Finished)' window reported as unchecked, but further inspection proves that it was still checked.")
             else
             {
-                WinWaitClose, Setup - LBreakout2, Finished, 7
+                ControlClick, TButton2, Setup - LBreakout2, Finished ; Hit 'Finish' button
                 if ErrorLevel
-                    TestsFailed("'Setup - LBreakout2 (Finished)' window failed to close despite 'Finish' button being clicked.")
+                    TestsFailed("Unable to hit 'Finish' button in 'Setup - LBreakout2 (Finished)' window.")
                 else
                 {
-                    Process, Wait, %MainAppFile%, 4
-                    NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
-                    if NewPID <> 0
-                        TestsFailed("'" MainAppFile "' process appeared despite 'Launch LBreakout2' checkbox being unchecked in 'Setup - LBreakout2 (Finished)' window.")
+                    WinWaitClose, Setup - LBreakout2, Finished, 3
+                    if ErrorLevel
+                        TestsFailed("'Setup - LBreakout2 (Finished)' window failed to close despite 'Finish' button being clicked.")
                     else
                         TestsOK("'Setup - LBreakout2 (Finished)' window appeared, 'Launch LBreakout2' checkbox unchecked, 'Finish' button clicked and window closed.")
                 }
