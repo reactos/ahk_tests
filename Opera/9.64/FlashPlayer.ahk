@@ -25,37 +25,41 @@ if not bContinue
     TestsFailed("We failed somewhere in prepare.ahk")
 else
 {
-    WinWaitActive, Welcome to Opera - Opera,, 5
-    if ErrorLevel
-        TestsFailed("Window 'Welcome to Opera - Opera' was NOT found.")
+    IfWinNotActive, Speed Dial - Opera
+        TestsFailed("Window 'Speed Dial - Opera' is not active window.")
     else
     {
-        SendInput, {CTRLDOWN}t{CTRLUP} ; Open new tab
-        WinWaitActive, Speed Dial - Opera,, 15
-        if ErrorLevel
-            TestsFailed("Window 'Speed Dial - Opera' failed to appear.")
+        IfNotExist, %A_WinDir%\System32\Macromed\Flash\*Plugin.exe ; Check if file pattern exist
+            TestsFailed("Can NOT find any file in '" A_WinDir "\System32\Macromed\Flash' that matches file pattern '*Plugin.exe'.")
         else
         {
-            IfNotExist, %A_WinDir%\System32\Macromed\Flash
-                TestsFailed("Can NOT find '" A_WinDir "\System32\Macromed\Flash'.")
+            SendInput, {CTRLDOWN}l{CTRLUP} ; Toggle address bar
+            SendInput, http://beastybombs.com/play.php{ENTER}
+
+            iTimeOut := 30
+            while iTimeOut > 0
+            {
+                IfWinActive, Blank page - Opera
+                {
+                    WinWaitActive, Beasty Bombs - Cats & Dogs Fights - Play - Opera,,1
+                    iTimeOut--
+                }
+                else
+                    break ; exit the loop if something poped-up
+            }
+
+            WinWaitActive, Beasty Bombs - Cats & Dogs Fights - Play - Opera,,1
+            if ErrorLevel
+                TestsFailed("Window 'Beasty Bombs - Cats & Dogs Fights - Play - Opera' failed to appear (iTimeOut=" iTimeOut ").")
             else
             {
-                SendInput, {CTRLDOWN}l{CTRLUP}
-                Sleep, 1500
-                SendInput, http://beastybombs.com/play.php{ENTER}
-                Sleep, 10000 ; Let it to fully load. Maybe it will crash
-                WinWaitActive, Beasty Bombs - Cats & Dogs Fights - Play - Opera,,20
+                Sleep, 3500 ; Let it to load more, maybe it will crash
+                Process, Close, %ProcessExe%
+                Process, WaitClose, %ProcessExe%, 4
                 if ErrorLevel
-                    TestsFailed("Window 'Beasty Bombs - Cats & Dogs Fights - Play - Opera' failed to appear.")
+                    TestsFailed("Process '" ProcessExe "' failed to close after opening website.")
                 else
-                {
-                    Process, Close, %ProcessExe%
-                    Process, WaitClose, %ProcessExe%, 4
-                    if ErrorLevel
-                        TestsFailed("Process '" ProcessExe "' failed to close after opening website.")
-                    else
-                        TestsOK("Window caption is 'Beasty Bombs - Cats & Dogs Fights - Play - Opera' that means no crash while opening Flash Game.")
-                }
+                    TestsOK("Window caption is 'Beasty Bombs - Cats & Dogs Fights - Play - Opera' that means no crash while opening Flash Game (iTimeOut=" iTimeOut ").")
             }
         }
     }

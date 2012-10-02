@@ -40,49 +40,68 @@ else
             ; There was a problem (such as a nonexistent key or value). 
             ; That probably means we have not installed this app before.
             ; Check in default directory to be extra sure
-            IfNotExist, %A_ProgramFiles%\Opera
-                bContinue := true ; No previous versions detected in hardcoded path
-            else
+            bHardcoded := true ; To know if we got path from registry or not
+            szDefaultDir = %A_ProgramFiles%\Opera
+            IfNotExist, %szDefaultDir%
             {
-                bHardcoded := true ; To know if we got path from registry or not
-                IfExist, %A_ProgramFiles%\Opera
+                TestsInfo("No previous versions detected in hardcoded path: '" szDefaultDir "'.")
+                bContinue := true
+            }
+            else
+            {   
+                UninstallerPath = %A_WinDir%\System32\MsiExec.exe /X{E1BBBAC5-2857-4155-82A6-54492CE88620} /qn
+                WaitUninstallDone(UninstallerPath, 5)
+                if bContinue
                 {
-                    RunWait, MsiExec.exe /X{E1BBBAC5-2857-4155-82A6-54492CE88620} /qn ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %A_ProgramFiles%\Opera ; Uninstaller might delete the dir
-                    bContinue := true
-                {
-                    FileRemoveDir, %A_ProgramFiles%\Opera, 1
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" A_ProgramFiles "\Opera' ('" MainAppFile "' process is reported as terminated).'")
-                    else
+                    IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
+                    {
+                        TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %szDefaultDir%, 1
+                        if ErrorLevel
+                            TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
         else
         {
-            IfNotExist, %InstallLocation%
+            InstalledDir = %InstallLocation%
+            IfNotExist, %InstalledDir%
+            {
+                TestsInfo("Got '" InstalledDir "' from registry and such path does not exist.")
                 bContinue := true
+            }
             else
             {
-                IfExist, %InstallLocation%
+                UninstallerPath = %A_WinDir%\System32\MsiExec.exe /X{E1BBBAC5-2857-4155-82A6-54492CE88620} /qn
+                WaitUninstallDone(UninstallerPath, 5)
+                if bContinue
                 {
-                    RunWait, MsiExec.exe /X{E1BBBAC5-2857-4155-82A6-54492CE88620} /qn ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %InstallLocation%
-                    bContinue := true
-                else
-                {
-                    FileRemoveDir, %InstallLocation%, 1 ; Delete just in case
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" InstallLocation "' ('" MainAppFile "' process is reported as terminated).")
-                    else
+                    IfNotExist, %InstalledDir%
+                    {
+                        TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %InstalledDir%, 1 ; Uninstaller leaved the path for us to delete, so, do it
+                        if ErrorLevel
+                            TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
@@ -114,14 +133,13 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Choose Setup Language, Select the language, 15 ; Wait 15 secs for window to appear
+    WinWaitActive, Choose Setup Language, Select the language, 7
     if ErrorLevel
         TestsFailed("'Choose Setup Language (Select the language)' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, {ENTER} ;Hit 'OK' button in 'Choose Setup Language' window
-        WinWaitClose, Choose Setup Language, Select the language, 5
+        WinWaitClose, Choose Setup Language, Select the language, 3
         if ErrorLevel
             TestsFailed("'Choose Setup Language (Select the language)' window failed to close despite 'ENTER' was sent to it.")
         else
@@ -130,21 +148,67 @@ if bContinue
 }
 
 
+; Test if 'InstallShield Wizard (Preparing to Install)' window appeared
+TestsTotal++
+if bContinue
+{
+    WinWaitActive, InstallShield Wizard, Preparing to Install, 7
+    if ErrorLevel
+    {
+        IfWinNotActive, Opera 9.64 - InstallShield Wizard, Start
+            TestsFailed("'InstallShield Wizard (Preparing to Install)' window failed to appear.")
+        else
+            TestsOK("'Opera 9.64 - InstallShield Wizard (Start)' window appeared.")
+    }
+    else
+    {
+        iTimeOut := 20
+        while iTimeOut > 0
+        {
+            IfWinActive, InstallShield Wizard, Preparing to Install
+            {
+                WinWaitClose, InstallShield Wizard, Preparing to Install, 1
+                iTimeOut--
+            }
+            else
+                break ; exit the loop if something poped-up
+        }
+        
+        WinWaitClose, InstallShield Wizard, Preparing to Install, 1
+        if ErrorLevel
+            TestsFailed("'InstallShield Wizard (Preparing to Install)' window failed to close (iTimeOut=" iTimeOut ").")
+        else
+            TestsOK("'InstallShield Wizard (Preparing to Install)' window closed (iTimeOut=" iTimeOut ").")
+    }
+}
+
+
 ; Test if window with 'Start Setup' button can appear
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Opera 9.64 - InstallShield Wizard, Start, 25 ; Same exe: 'Start set-up' in ROS, 'Start Setup' in Windows
+    WinWaitActive, Windows Installer, Preparing to install..., 4 ; ReactOD doesn't have such window
+    if not ErrorLevel
+    {
+        iTimeOut := 40
+        while iTimeOut > 0
+        {
+            IfWinActive, Windows Installer, Preparing to install...
+            {
+                WinWaitClose, Windows Installer, Preparing to install..., 1
+                iTimeOut--
+            }
+            else
+                break ; exit the loop if something poped-up
+        }
+    }
+        
+    WinWaitActive, Opera 9.64 - InstallShield Wizard, Start, 5 ; Same exe: 'Start set-up' in ROS, 'Start Setup' in Windows
     if ErrorLevel
         TestsFailed("'Opera 9.64 - InstallShield Wizard' window with 'Start Setup' button failed to appear.")
     else
     {
-        Sleep, 5000 ; window flashes, so let it to appear correctly
-        SendInput, {ALTDOWN)
-        Sleep, 500 ; Opera setup requires those sleeps
-        SendInput, s
-        Sleep, 500
-        SendInput, {ALTUP} ;Hit 'Start Setup' button in 'Opera 9.64 - InstallShield Wizard' window
+        SendInput, !s
         TestsOK("'Opera 9.64 - InstallShield Wizard' window with 'Start Setup' button appeared, Alt+S was sent.")
     }
 }
@@ -154,12 +218,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Opera 9.64 - InstallShield Wizard, Installation of Opera requires, 20
+    WinWaitActive, Opera 9.64 - InstallShield Wizard, Installation of Opera requires, 3
     if ErrorLevel
         TestsFailed("'Opera 9.64 - InstallShield Wizard (Installation of Opera requires)' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, {ALTDOWN}a{ALTUP} ;Hit 'I Accept' button in 'Opera Browser Licence Agreement' window
         TestsOK("'Opera 9.64 - InstallShield Wizard (Installation of Opera requires)' window appeared, Alt+A was sent.")
     }
@@ -170,7 +233,7 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Opera 9.64 - InstallShield Wizard, Welcome to the Opera, 15
+    WinWaitActive, Opera 9.64 - InstallShield Wizard, Welcome to the Opera, 3
     if ErrorLevel
         TestsFailed("'Opera 9.64 - InstallShield Wizard (Welcome to the Opera)' window failed to appear.")
     else
@@ -185,14 +248,43 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Opera 9.64 - InstallShield Wizard, Ready to install the program, 15
+    WinWaitActive, Opera 9.64 - InstallShield Wizard, Ready to install the program, 3
     if ErrorLevel
         TestsFailed("'Opera 9.64 - InstallShield Wizard (Ready to install the program)' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, {ALTDOWN}i{ALTUP} ;Hit 'Install' button in 'Ready to install the program' window
         TestsOK("'Opera 9.64 - InstallShield Wizard (Ready to install the program)' window appeared, Alt+I was sent.")
+    }
+}
+
+
+; Test if can get thru 'Opera 9.64 - InstallShield Wizard (Installing)' window
+TestsTotal++
+if bContinue
+{
+    WinWaitActive, Opera 9.64 - InstallShield Wizard, Installing, 3
+    if ErrorLevel
+        TestsFailed("'Opera 9.64 - InstallShield Wizard (Installing)' window failed to appear.")
+    else
+    {
+        iTimeOut := 45
+        while iTimeOut > 0
+        {
+            IfWinActive,  Opera 9.64 - InstallShield Wizard, Installing
+            {
+                WinWaitClose,  Opera 9.64 - InstallShield Wizard, Installing, 1
+                iTimeOut--
+            }
+            else
+                break ; exit the loop if something poped-up
+        }
+        
+        WinWaitClose,  Opera 9.64 - InstallShield Wizard, Installing, 1
+        if ErrorLevel
+            TestsFailed("'Opera 9.64 - InstallShield Wizard (Installing)' window failed to close (iTimeOut=" iTimeOut ").")
+        else
+            TestsOK("'Opera 9.64 - InstallShield Wizard (Installing)' window closed (iTimeOut=" iTimeOut ").")
     }
 }
 
@@ -201,26 +293,22 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Opera 9.64 - InstallShield Wizard, InstallShield Wizard Completed, 30
+    WinWaitActive, Opera 9.64 - InstallShield Wizard, InstallShield Wizard Completed, 3
     if ErrorLevel
         TestsFailed("'Opera 9.64 - InstallShield Wizard (InstallShield Wizard Completed)' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, {TAB} ; Focus 'Run Opera when I press Finish'
-        Sleep, 500
         SendInput, {SPACE}
-        Sleep, 500
-        SendInput, {ALTDOWN}f{ALTUP} ;Hit 'Finish' button in 'InstallShield Wizard Completed' window
-        WinWaitClose, Opera 9.64 - InstallShield Wizard, InstallShield Wizard Completed, 7
-        if ErrorLevel
-            TestsFailed("'Opera 9.64 - InstallShield Wizard (InstallShield Wizard Completed)' window failed to close after Alt+F was sent.")
+        ControlGet, bChecked, Checked, Button3
+        if bChecked = 1
+            TestsFailed("'Run Opera when I press Finish' checkbox in 'Opera 9.64 - InstallShield Wizard (InstallShield Wizard Completed)' window reported as unchecked, but further inspection proves that it was still checked.")
         else
         {
-            Process, wait, %MainAppFile%, 4
-            NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
-            if NewPID != 0
-                TestsFailed("'" MainAppFile "' process appeared despite 'Run Opera when I press Finish' checkbox unchecked in 'Opera 9.64 - InstallShield Wizard (InstallShield Wizard Completed)' window.")
+            SendInput, {ALTDOWN}f{ALTUP} ;Hit 'Finish' button in 'InstallShield Wizard Completed' window
+            WinWaitClose, Opera 9.64 - InstallShield Wizard, InstallShield Wizard Completed, 3
+            if ErrorLevel
+                TestsFailed("'Opera 9.64 - InstallShield Wizard (InstallShield Wizard Completed)' window failed to close after Alt+F was sent.")
             else
                 TestsOK("'Opera 9.64 - InstallShield Wizard (InstallShield Wizard Completed)' window appeared, TAB, SPACE, Alt+F were sent, window was closed.")
         }
@@ -232,7 +320,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     RegRead, InstallLocation, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{E1BBBAC5-2857-4155-82A6-54492CE88620}, InstallLocation
     if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")

@@ -25,22 +25,19 @@ if not bContinue
     TestsFailed("We failed somewhere in prepare.ahk")
 else
 {
-    WinWaitActive, Welcome to Opera - Opera,, 4 ; Window caption might change?
-    if ErrorLevel
-        TestsFailed("Window 'Welcome to Opera - Opera' was NOT found.")
+    IfWinNotActive, Speed Dial - Opera
+        TestsFailed("Window 'Speed Dial - Opera' is not active window.")
     else
     {
-        Sleep, 1000
         SendInput, {CTRLDOWN}l{CTRLUP} ; Toggle address bar
-        Sleep, 1000
         SendInput, http{:}//dsx86{.}patrickaalto{.}com{ENTER}
-        Sleep, 5000 ; Let it to sleep, maybe it will crash ;)
         
-        WinWaitActive, DSx86 by Patrick Aalto - Opera,,15
+        WinWaitActive, DSx86 by Patrick Aalto - Opera,,10
         if ErrorLevel
             TestsFailed("Window 'DSx86 by Patrick Aalto - Opera' was NOT found. Failed to open URL. Ctrl+L doesnt work?")
         else
         {
+            Sleep, 4000 ; Let it to sleep, maybe it will crash ;)
             Process, Close, %ProcessExe%
             Process, WaitClose, %ProcessExe%, 4
             if ErrorLevel
