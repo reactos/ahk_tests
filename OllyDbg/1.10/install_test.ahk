@@ -19,6 +19,7 @@
 
 ModuleExe = %A_WorkingDir%\Apps\OllyDbg 1.10 Setup.exe
 TestName = 1.install
+MainAppFile = OLLYDBG.exe
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
 TestsTotal++
@@ -26,10 +27,10 @@ IfNotExist, %ModuleExe%
     TestsFailed("Can NOT find '" ModuleExe "'")
 else
 {
-    Process, Close, OLLYDBG.exe
-    Process, WaitClose, OLLYDBG.exe, 4
+    Process, Close, %MainAppFile%
+    Process, WaitClose, %MainAppFile%, 4
     if ErrorLevel
-        TestsFailed("Process 'OLLYDBG.exe' failed to close.")
+        TestsFailed("Process '" MainAppFile "' failed to close.")
     else
     {
         InstallLocation = %A_ProgramFiles%\OllyDbg
@@ -39,12 +40,15 @@ else
         {
             FileRemoveDir, %InstallLocation%, 1
             if ErrorLevel
-                TestsFailed("Previous version detected and failed to delete '" InstallLocation "'. 'OLLYDBG.exe' process not detected.")
+                TestsFailed("Previous version detected and failed to delete '" InstallLocation "'. '" MainAppFile "' process not detected.")
             else
-            {
-                TestsOK("Either there was no previous versions or we succeeded removing it using hardcoded path.")
-                Run %ModuleExe%
-            }
+                bContinue := true
+        }
+        
+        if bContinue
+        {
+            TestsOK("Either there was no previous versions or we succeeded removing it using hardcoded path.")
+            Run %ModuleExe%
         }
     }
 }
@@ -54,24 +58,22 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, 7-Zip self-extracting archive, Extract, 15
+    WinWaitActive, 7-Zip self-extracting archive, Extract, 5
     if ErrorLevel
         TestsFailed("'7-Zip self-extracting archive' window with 'Extract' button failed to appear.")
     else
     {
-        Sleep, 250
-        ControlSetText, Edit1, %A_ProgramFiles%\OllyDbg, 7-Zip self-extracting archive, Extract ; Path
+        ControlSetText, Edit1, %InstallLocation%, 7-Zip self-extracting archive, Extract ; Path
         if ErrorLevel
-            TestsFailed("Unable to change 'Edit1' control text to '" A_ProgramFiles "\OllyDbg'.")
+            TestsFailed("Unable to change 'Edit1' control text to '" InstallLocation "'.")
         else
         {
-            Sleep, 700
             ControlClick, Button2, 7-Zip self-extracting archive, Extract ; Hit 'Extract' button
             if ErrorLevel
                 TestsFailed("Unable to click 'Extract' in '7-Zip self-extracting archive' window.")
             else
             {
-                WinWaitClose, 7-Zip self-extracting archive, Extract, 4
+                WinWaitClose, 7-Zip self-extracting archive, Extract, 3
                 if ErrorLevel
                     TestsFailed("'7-Zip self-extracting archive' window failed to close despite 'Extract' button being clicked.")
                 else
@@ -86,13 +88,19 @@ TestsTotal++
 if bContinue
 {
     SetTitleMatchMode, 2 ; A window's title can contain WinTitle anywhere inside it to be a match.
-    WinWaitActive, Extracting, Cancel, 10 ; Wait 10 secs for window to appear
+    WinWaitActive, Extracting, Cancel, 3
     if ErrorLevel
-        TestsFailed("'Extracting' window failed to appear.")
+    {
+        ; Sometimes files are extracted so fast that AHK doesn't detect the window
+        IfNotExist, %InstallLocation%\%MainAppFile%
+            TestsFailed("'Extracting' window failed to appear (SetTitleMatchMode=2) and '" InstallLocation "\" MainAppFile "' doesnt exist.")
+        else
+            TestsOK("AHK unabled to detect 'Extracting' window, but '" InstallLocation "\" MainAppFile "' exist.")
+    }
     else
     {
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Extracting' window appeared, waiting for it to close.`n
-        WinWaitClose, Extracting, Cancel, 15
+        TestsInfo("'Extracting' window appeared, waiting for it to close.")
+        WinWaitClose, Extracting, Cancel, 5
         if ErrorLevel
             TestsFailed("'Extracting' window failed to close.")
         else
@@ -105,9 +113,8 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
-    IfExist, %InstallLocation%\OLLYDBG.exe
-        TestsOK("The application has been installed, because '" InstallLocation "\OLLYDBG.exe' was found.")
+    IfExist, %InstallLocation%\%MainAppFile%
+        TestsOK("The application has been installed, because '" InstallLocation "\" MainAppFile "' was found.")
     else
-        TestsFailed("Something went wrong, can't find '" InstallLocation "\OLLYDBG.exe'.")
+        TestsFailed("Something went wrong, can't find '" InstallLocation "\" MainAppFile "'.")
 }

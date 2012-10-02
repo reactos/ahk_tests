@@ -47,7 +47,6 @@ if bContinue
     }
     FileDelete, %OllyDbgDir%\*.udd
     FileDelete, %OllyDbgDir%\*.bak
-    Sleep, 500
 }
 
 
@@ -62,57 +61,53 @@ RunApplication(PathToFile)
     global ProcessExe
 
     TestsTotal++
-    IfNotExist, %ModuleExe%
-        TestsFailed("Can NOT find '" ModuleExe "'.")
-    else
+    if bContinue
     {
-        FileAppend, [Settings]`nCheck DLL versions=0`n, %OllyDbgDir%\ollydbg.ini
-        if ErrorLevel
-            TestsFailed("Unable to create '" OllyDbgDir "\ollydbg.ini'.")
+        IfNotExist, %ModuleExe%
+            TestsFailed("Can NOT find '" ModuleExe "'.")
         else
         {
-            Sleep, 1000
-            if PathToFile =
-            {
-                Run, %ModuleExe%,, Max
-                WinWaitActive, OllyDbg,, 10
-                if ErrorLevel
-                {
-                    Process, Exist, %ProcessExe%
-                    NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
-                    if NewPID = 0
-                        TestsFailed("Window 'OllyDbg' failed to appear. No '" ProcessExe "' process detected.")
-                    else
-                        TestsFailed("Window 'OllyDbg' failed to appear. '" ProcessExe "' process detected.")
-                }
-                else
-                {
-                    TestsOK("")
-                    Sleep, 1000
-                }
-            }
+            FileAppend, [Settings]`nCheck DLL versions=0`n, %OllyDbgDir%\ollydbg.ini
+            if ErrorLevel
+                TestsFailed("Unable to create '" OllyDbgDir "\ollydbg.ini'.")
             else
             {
-                IfNotExist, %PathToFile%
-                    TestsFailed("Can NOT find '" PathToFile "'.")
-                else
+                if PathToFile =
                 {
-                    Run, %ModuleExe% "%PathToFile%",, Max
-                    SplitPath, PathToFile, NameExt
-                    WinWaitActive, OllyDbg - %NameExt%,,10
+                    Run, %ModuleExe%,, Max
+                    WinWaitActive, OllyDbg,, 7
                     if ErrorLevel
                     {
                         Process, Exist, %ProcessExe%
                         NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                         if NewPID = 0
-                            TestsFailed("Window 'OllyDbg - " NameExt "' failed to appear. No '" ProcessExe "' process detected.")
+                            TestsFailed("Window 'OllyDbg' failed to appear. No '" ProcessExe "' process detected.")
                         else
-                            TestsFailed("Window 'OllyDbg - " NameExt "' failed to appear. '" ProcessExe "' process detected.")
+                            TestsFailed("Window 'OllyDbg' failed to appear. '" ProcessExe "' process detected.")
                     }
                     else
-                    {
                         TestsOK("")
-                        Sleep, 1000
+                }
+                else
+                {
+                    IfNotExist, %PathToFile%
+                        TestsFailed("Can NOT find '" PathToFile "'.")
+                    else
+                    {
+                        Run, %ModuleExe% "%PathToFile%",, Max
+                        SplitPath, PathToFile, NameExt,,, name_no_ext
+                        WinWaitActive, OllyDbg - %NameExt%, CPU - main thread`, module %name_no_ext%,7
+                        if ErrorLevel
+                        {
+                            Process, Exist, %ProcessExe%
+                            NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                            if NewPID = 0
+                                TestsFailed("Window 'OllyDbg - " NameExt " (CPU - main thread, module " name_no_ext ")' failed to appear. No '" ProcessExe "' process detected.")
+                            else
+                                TestsFailed("Window 'OllyDbg - " NameExt " (CPU - main thread, module " name_no_ext ")' failed to appear. '" ProcessExe "' process detected.")
+                        }
+                        else
+                            TestsOK("")
                     }
                 }
             }

@@ -24,46 +24,55 @@ szDocument =  %A_WinDir%\System32\calc.exe ; File name is case sensitive!
 TestsTotal++
 SplitPath, szDocument, NameExt
 Process, Close, %NameExt% ; Terminate external app, because we don't want it running
-Sleep, 1000
-RunApplication(szDocument)
-if not bContinue
-    TestsFailed("We failed somewhere in prepare.ahk.")
+Process, WaitClose, %NameExt%, 4
+if ErrorLevel
+    TestsFailed("Unable to terminate '" NameExt "' process.")
 else
 {
-    IfWinNotActive, OllyDbg - %NameExt%
-        TestsFailed("Window 'OllyDbg - " NameExt "' is not active.")
+    RunApplication(szDocument)
+    if not bContinue
+        TestsFailed("We failed somewhere in prepare.ahk.")
     else
     {
-        Sleep, 1000
-        WinMenuSelectItem, OllyDbg - %NameExt%, , Debug, Run
-        if ErrorLevel
-            TestsFailed("Unable to hit 'Debug -> Run' in 'OllyDbg - " NameExt "' window.")
+        IfWinNotActive, OllyDbg - %NameExt%
+            TestsFailed("Window 'OllyDbg - " NameExt "' is not active.")
         else
         {
-            WinWaitActive, Calculator,,10
+            WinMenuSelectItem, OllyDbg - %NameExt%, , Debug, Run
             if ErrorLevel
-                TestsFailed("'Calculator' window failed to appear.")
+                TestsFailed("Unable to hit 'Debug -> Run' in 'OllyDbg - " NameExt "' window.")
             else
             {
-                Sleep, 2000
-                WinClose, Calculator
-                WinWaitClose, Calculator,, 5
+                WinWaitActive, Calculator,,5
                 if ErrorLevel
-                    TestsFailed("'Calculator' window failed to close.")
+                {
+                    Process, Exist, %NameExt%
+                    NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                    if NewPID = 0
+                        TestsFailed("Window 'Calculator' failed to appear. No '" NameExt "' process detected.")
+                    else
+                        TestsFailed("Window 'Calculator' failed to appear. '" NameExt "' process detected.")
+                }
                 else
                 {
-                    WinWaitActive, OllyDbg - %NameExt%,, 7
+                    WinClose, Calculator
+                    WinWaitClose, Calculator,, 3
                     if ErrorLevel
-                        TestsFailed("Window 'OllyDbg - " NameExt "' did not became active after closing 'Calculator' window.")
+                        TestsFailed("'Calculator' window failed to close.")
                     else
                     {
-                        Sleep, 1000
-                        WinClose, OllyDbg - %NameExt%
-                        WinWaitClose, OllyDbg - %NameExt%,,7
+                        WinWaitActive, OllyDbg - %NameExt%,, 5
                         if ErrorLevel
-                            TestsFailed("'OllyDbg - " NameExt "' window failed to close.")
+                            TestsFailed("Window 'OllyDbg - " NameExt "' did not became active after closing 'Calculator' window.")
                         else
-                            TestsOK("'" NameExt "' was opened via command line, ran it via 'Debug -> Run', closed its window and closed OllyDbg successfully.")
+                        {
+                            WinClose, OllyDbg - %NameExt%
+                            WinWaitClose, OllyDbg - %NameExt%,, 3
+                            if ErrorLevel
+                                TestsFailed("'OllyDbg - " NameExt "' window failed to close.")
+                            else
+                                TestsOK("'" NameExt "' was opened via command line, ran it via 'Debug -> Run', closed its window and closed OllyDbg successfully.")
+                        }
                     }
                 }
             }
