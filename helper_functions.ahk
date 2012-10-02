@@ -80,10 +80,16 @@ ExeFilePathNoParam(szPath)
     {
         StringLen, iLength, szPath
         StringTrimRight, szResult, szPath, iLength - iPos - 4
+        loop, %szResult%, 1
+            szResult = %A_LoopFileLongPath%
         return szResult
     }
     else
+    {
+        loop, %szResult%, 1
+            szResult = %A_LoopFileLongPath%
         return szPath
+    }
 }
 
 
