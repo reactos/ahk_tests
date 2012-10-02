@@ -71,6 +71,7 @@ else
 
                 IfNotExist, %InstallLocation% ; Uninstaller might delete the dir
                     bContinue := true
+                else
                 {
                     FileRemoveDir, %InstallLocation%, 1
                     if ErrorLevel
