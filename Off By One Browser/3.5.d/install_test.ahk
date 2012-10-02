@@ -40,30 +40,42 @@ else
             ; That probably means we have not installed this app before.
             ; Check in default directory to be extra sure
             bHardcoded := true ; To know if we got path from registry or not
-            IfNotExist, %A_ProgramFiles%\HPSW\OffByOne
-                bContinue := true ; No previous versions detected in hardcoded path
+            szDefaultDir = %A_ProgramFiles%\HPSW\OffByOne
+            IfNotExist, %szDefaultDir%
+            {
+                TestsInfo("No previous versions detected in hardcoded path: '" szDefaultDir "'.")
+                bContinue := true
+            }
             else
             {
-                IfExist, %A_ProgramFiles%\HPSW\OffByOne\UNWISE.exe
+                szShortPath = %szDefaultDir%\INSTALL.LOG
+                IfNotExist, %szShortPath%
+                    TestsFailed("Can NOT find '" szDefaultDir "\INSTALL.LOG'.")
+                else
                 {
-                    szShortPath = %A_ProgramFiles%\HPSW\OffByOne\INSTALL.LOG
-                    IfExist, %szShortPath%
+                    Loop, %szShortPath% ; Make 8.3 path
+                        szShortPath = %A_LoopFileShortPath%
+                    UninstallerPath = %szDefaultDir%\UNWISE.exe /S %szShortPath% ; Silently uninstall it (uninstaller wants 8.3)
+                    WaitUninstallDone(UninstallerPath, 5)
+                    if bContinue
                     {
-                        Loop, %szShortPath% ; Make 8.3 path
-                            szShortPath = %A_LoopFileShortPath%
-                        RunWait, %A_ProgramFiles%\HPSW\OffByOne\UNWISE.exe /S %szShortPath% ; Silently uninstall it (uninstaller wants 8.3)
-                        Sleep, 7000
+                        IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
+                        {
+                            TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
+                            bContinue := true
+                        }
+                        else
+                        {
+                            FileRemoveDir, %szDefaultDir%, 1
+                            if ErrorLevel
+                                TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
+                            else
+                            {
+                                TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
+                                bContinue := true
+                            }
+                        }
                     }
-                }
-
-                IfNotExist, %A_ProgramFiles%\HPSW\OffByOne ; Uninstaller might delete the dir
-                    bContinue := true
-                {
-                    FileRemoveDir, %A_ProgramFiles%\HPSW\OffByOne, 1
-                    if ErrorLevel
-                        TestsFailed("Unable to delete hardcoded path '" A_ProgramFiles "\HPSW\OffByOne' ('" MainAppFile "' process is reported as terminated).'")
-                    else
-                        bContinue := true
                 }
             }
         }
@@ -72,31 +84,40 @@ else
             UninstallerPath := ExeFilePathNoParam(UninstallerPath)
             SplitPath, UninstallerPath,, InstalledDir
             IfNotExist, %InstalledDir%
+            {
+                TestsInfo("Got '" InstalledDir "' from registry and such path does not exist.") ; We got 8.3 path, but we made it to be long path
                 bContinue := true
+            }
             else
             {
-                IfExist, %UninstallerPath%
-                {
-                    szShortPath = %InstalledDir%\INSTALL.LOG
-                    IfExist, %szShortPath%
-                    {
-                        Loop, %szShortPath% ; Make 8.3 path
-                            szShortPath = %A_LoopFileShortPath%
-                        RunWait, %UninstallerPath% /S %szShortPath% ; Silently uninstall it
-                        Sleep, 7000
-                    }
-                }
-
-                IfNotExist, %InstalledDir%
-                    bContinue := true
+                szShortPath = %InstalledDir%\INSTALL.LOG
+                IfNotExist, %szShortPath%
+                    TestsFailed("Can NOT find '" InstalledDir "\INSTALL.LOG'.")
                 else
                 {
-                    Msgbox, delete: %InstalledDir%
-                    FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
-                    else
-                        bContinue := true
+                    Loop, %szShortPath% ; Make 8.3 path
+                        szShortPath = %A_LoopFileShortPath%
+                    UninstallerPath = %UninstallerPath% /S %szShortPath% ; Silently uninstall it (uninstaller wants 8.3)
+                    WaitUninstallDone(UninstallerPath, 5) ; Reported child name is 'GLB1A2B.EXE'
+                    if bContinue
+                    {
+                        IfNotExist, %InstalledDir%
+                        {
+                            TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
+                            bContinue := true
+                        }
+                        else
+                        {
+                            FileRemoveDir, %InstalledDir%, 1 ; Uninstaller leaved the path for us to delete, so, do it
+                            if ErrorLevel
+                                TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                            else
+                            {
+                                TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
+                                bContinue := true
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -128,18 +149,17 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Welcome, Welcome to, 15
+    WinWaitActive, Welcome, Welcome to, 7
     if ErrorLevel
         TestsFailed("'Welcome (Welcome to)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button1, Welcome, Welcome to ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Welcome (Welcome to)' window.")
         else
         {
-            WinWaitClose, Welcome, Welcome to, 7
+            WinWaitClose, Welcome, Welcome to, 3
             if ErrorLevel
                 TestsFailed("'Welcome (Welcome to)' window failed to close despite 'Next' button being clicked.")
             else
@@ -153,12 +173,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Choose Destination Location, Destination Folder, 7
+    WinWaitActive, Choose Destination Location, Destination Folder, 3
     if ErrorLevel
         TestsFailed("'Choose Destination Location (Destination Folder)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button1, Choose Destination Location, Destination Folder ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Choose Destination Location (Destination Folder)' window.")
@@ -172,12 +191,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Select Program Manager Group, Enter the name, 7
+    WinWaitActive, Select Program Manager Group, Enter the name, 3
     if ErrorLevel
         TestsFailed("'Select Program Manager Group (Enter the name)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button1, Select Program Manager Group, Enter the name ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Select Program Manager Group (Enter the name)' window.")
@@ -191,12 +209,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Start Installation, You are, 7
+    WinWaitActive, Start Installation, You are, 3
     if ErrorLevel
         TestsFailed("'Start Installation (You are)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button1, Start Installation, You are ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Start Installation (You are)' window.")
@@ -210,15 +227,28 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Installing,, 7
+    WinWaitActive, Installing,, 3
     if ErrorLevel
         TestsFailed("'Installing' window failed to appear.")
     else
     {
-        OutputDebug, %TestName%:%A_LineNumber%: 'Installing' window appeared, waiting for it to close.`n
-        WinWaitClose, Installing,,20
+        TestsInfo("'Installing' window appeared, waiting for it to close.")
+        
+        iTimeOut := 30
+        while iTimeOut > 0
+        {
+            IfWinActive, Installing
+            {
+                WinWaitClose, Installing,, 1
+                iTimeOut--
+            }
+            else
+                break ; exit the loop if something poped-up
+        }
+        
+        WinWaitClose, Installing,,1
         if ErrorLevel
-            TestsFailed("'Installing' window failed to close.")
+            TestsFailed("'Installing' window failed to close (iTimeOut=" iTimeOut ").")
         else
         {
             SetTitleMatchMode, 2 ; A window's title can contain WinTitle anywhere inside it to be a match.
@@ -233,7 +263,7 @@ if bContinue
                 if ErrorLevel
                     TestsFailed("Unable to close explorer window 'Home Page Software' (SetTitleMatchMode=2).")
                 else
-                    TestsOK("'Installing' window closed, 'Home Page Software' window appeared and we closed it.")
+                    TestsOK("'Installing' window closed (iTimeOut=" iTimeOut "), 'Home Page Software' window appeared and we closed it.")
             }
         }
     }
@@ -245,19 +275,18 @@ TestsTotal++
 if bContinue
 {
     SetTitleMatchMode, 3 ; A window's title must exactly match WinTitle to be a match.
-    WinWait, Installation Complete, The Off, 7
+    WinWait, Installation Complete, The Off, 3
     if ErrorLevel
         TestsFailed("'Installation Complete (The Off)' window failed to appear.")
     else
     {
-        WinActivate, Installation Complete, The Off
-        Sleep, 700
+        WinActivate ; Installation Complete, The Off
         ControlClick, Button1, Installation Complete, The Off ; Hit 'Finish' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Finish' button in 'Installation Complete (The Off)' window.")
         else
         {
-            WinWaitClose, Installation Complete, The Off, 5
+            WinWaitClose, Installation Complete, The Off, 3
             if ErrorLevel
                 TestsFailed("'Installation Complete (The Off)' window failed to close despite 'Finish' button being clicked.")
             else
@@ -271,9 +300,17 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    InstalledDir = %A_ProgramFiles%\HPSW\OffByOne ; Hardcode path since registry contains more information than just path to uninstaller
-    IfNotExist, %InstalledDir%\%MainAppFile%
-        TestsFailed("Something went wrong, can't find '" InstalledDir "\" MainAppFile "'.")
+    ; No need to sleep, because we already waited for process to appear
+    RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\The Off By One Web Browser, UninstallString
+    if ErrorLevel
+        TestsFailed("Either we can't read from registry or data doesn't exist.")
     else
-        TestsOK("The application has been installed, because '" InstalledDir "\" MainAppFile "' was found.")
+    {
+        UninstallerPath := ExeFilePathNoParam(UninstallerPath)
+        SplitPath, UninstallerPath,, InstalledDir
+        IfNotExist, %InstalledDir%\%MainAppFile%
+            TestsFailed("Something went wrong, can't find '" InstalledDir "\" MainAppFile "'.")
+        else
+            TestsOK("The application has been installed, because '" InstalledDir "\" MainAppFile "' was found.")
+    }
 }
