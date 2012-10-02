@@ -33,12 +33,14 @@ else
         TestsFailed("Unable to terminate '" MainAppFile "' process.") ; So, process still exists
     else
     {
-        IfNotExist, %A_ProgramFiles%\Notepad Lite
+        InstallLocation = %A_ProgramFiles%\Notepad Lite
+        IfNotExist, %InstallLocation%
             bContinue := true
+        else
         {
-            FileRemoveDir, %A_ProgramFiles%\Notepad Lite, 1
+            FileRemoveDir, %InstallLocation%, 1
             if ErrorLevel
-                TestsFailed("Unable to delete existing '" A_ProgramFiles "\Notepad Lite' ('" MainAppFile "' process is reported as terminated).'")
+                TestsFailed("Unable to delete existing '" InstallLocation "' ('" MainAppFile "' process is reported as terminated).'")
             else
                 bContinue := true
         }
@@ -57,28 +59,26 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, 7-Zip self-extracting archive, Extract, 15
+    WinWaitActive, 7-Zip self-extracting archive, Extract, 5
     if ErrorLevel
         TestsFailed("'7-Zip self-extracting archive' window with 'Extract' button failed to appear.")
     else
     {
-        Sleep, 250
-        ControlSetText, Edit1, %A_ProgramFiles%\Notepad Lite, 7-Zip self-extracting archive, Extract ; Path
+        ControlSetText, Edit1, %InstallLocation%, 7-Zip self-extracting archive, Extract ; Path
         if ErrorLevel
-            TestsFailed("Unable to change path to '" A_ProgramFiles "\Notepad Lite'.")
+            TestsFailed("Unable to change 'Edit1' control text to '" InstallLocation "'.")
         else
         {
-            Sleep, 700
             ControlClick, Button2, 7-Zip self-extracting archive, Extract ; Hit 'Extract' button
             if ErrorLevel
                 TestsFailed("Unable to click 'Extract' in '7-Zip self-extracting archive' window.")
             else
             {
-                WinWaitClose, 7-Zip self-extracting archive, Extract, 5
+                WinWaitClose, 7-Zip self-extracting archive, Extract, 3
                 if ErrorLevel
                     TestsFailed("'7-Zip self-extracting archive' window failed to close despite 'Extract' button being clicked.")
                 else
-                    TestsOK("'7-Zip self-extracting archive' window appeared, path changed and 'Extract' was clicked.")
+                    TestsOK("'7-Zip self-extracting archive' window appeared, 'Extract' button clicked, window closed.")
             }
         }
     }
@@ -89,18 +89,24 @@ TestsTotal++
 if bContinue
 {
     SetTitleMatchMode, 2 ; A window's title can contain WinTitle anywhere inside it to be a match.
-    WinWaitActive, Extracting, Cancel, 7
-    if ErrorLevel ; Window is found and it is active
-        TestsFailed("'Extracting' window failed to appear.")
+    WinWaitActive, Extracting, Cancel, 3
+    if ErrorLevel
+    {
+        ; Sometimes files are extracted so fast that AHK doesn't detect the window
+        IfNotExist, %InstallLocation%\%MainAppFile%
+            TestsFailed("'Extracting' window failed to appear (SetTitleMatchMode=2) and '" InstallLocation "\" MainAppFile "' doesnt exist.")
+        else
+            TestsOK("AHK unabled to detect 'Extracting' window, but '" InstallLocation "\" MainAppFile "' exist.")
+    }
     else
     {
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Extracting' window appeared, waiting for it to close.`n
-        WinWaitClose, Extracting, Cancel, 10
+        TestsInfo("'Extracting' window appeared, waiting for it to close.")
+        WinWaitClose, Extracting, Cancel, 5
         if ErrorLevel
-            TestsFailed("'Extracting' window failed to dissapear.")
+            TestsFailed("'Extracting' window failed to close.")
         else
-            TestsOK("'Extracting' window appeared and went away.")
-    }      
+            TestsOK("'Extracting' window went away.")
+    }
 }
 
 
@@ -108,10 +114,8 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
-    ProgramFile = %A_ProgramFiles%\Notepad Lite\%MainAppFile%
-    IfExist, %ProgramFile%
-        TestsOK("The application has been installed, because '" ProgramFile "' was found.")
+    IfExist, %InstallLocation%\%MainAppFile%
+        TestsOK("The application has been installed, because '" InstallLocation "\" MainAppFile "' was found.")
     else
-        TestsFailed("Something went wrong, can't find '" ProgramFile "'.")
+        TestsFailed("Something went wrong, can't find '" InstallLocation "\" MainAppFile "'.")
 }

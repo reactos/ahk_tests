@@ -42,49 +42,51 @@ RunApplication(PathToFile)
     global TestName
     global TestsTotal
     global ProcessExe
+    global bContinue
 
     TestsTotal++
-    IfNotExist, %ModuleExe%
-        TestsFailed("Test failed: Can NOT find '" ModuleExe "'.")
-    else
+    if bContinue
     {
-        if PathToFile =
-        {
-            Run, %ModuleExe%,, Max
-            Sleep, 1000
-            WinWaitActive, GridinSoft Notepad Lite - [Untitled-1],, 10
-            if ErrorLevel
-            {
-                Process, Exist, %ProcessExe%
-                NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
-                if NewPID = 0
-                    TestsFailed("Window 'GridinSoft Notepad Lite - [Untitled-1]' failed to appear. No '" ProcessExe "' process detected.")
-                else
-                    TestsFailed("Window 'GridinSoft Notepad Lite - [Untitled-1]' failed to appear. '" ProcessExe "' process detected.")
-            }
-            else
-                TestsOK("")
-        }
+        IfNotExist, %ModuleExe%
+            TestsFailed("Test failed: Can NOT find '" ModuleExe "'.")
         else
         {
-            IfNotExist, %PathToFile%
-                TestsFailed("Can NOT find '" PathToFile "'.")
-            else
+            if PathToFile =
             {
-                Run, %ModuleExe% "%PathToFile%",, Max
-                Sleep, 1000
-                WinWaitActive, GridinSoft Notepad Lite - [%PathToFile%],,10
+                Run, %ModuleExe%,, Max
+                WinWaitActive, GridinSoft Notepad Lite - [Untitled-1],, 7
                 if ErrorLevel
                 {
                     Process, Exist, %ProcessExe%
                     NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                     if NewPID = 0
-                        TestsFailed("Window 'GridinSoft Notepad Lite - [" PathToFile "]' failed to appear. No '" ProcessExe "' process detected.")
+                        TestsFailed("Window 'GridinSoft Notepad Lite - [Untitled-1]' failed to appear. No '" ProcessExe "' process detected.")
                     else
-                        TestsFailed("Window 'GridinSoft Notepad Lite - [" PathToFile "]' failed to appear. '" ProcessExe "' process detected.")
+                        TestsFailed("Window 'GridinSoft Notepad Lite - [Untitled-1]' failed to appear. '" ProcessExe "' process detected.")
                 }
                 else
                     TestsOK("")
+            }
+            else
+            {
+                IfNotExist, %PathToFile%
+                    TestsFailed("Can NOT find '" PathToFile "'.")
+                else
+                {
+                    Run, %ModuleExe% "%PathToFile%",, Max
+                    WinWaitActive, GridinSoft Notepad Lite - [%PathToFile%],, 7
+                    if ErrorLevel
+                    {
+                        Process, Exist, %ProcessExe%
+                        NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                        if NewPID = 0
+                            TestsFailed("Window 'GridinSoft Notepad Lite - [" PathToFile "]' failed to appear. No '" ProcessExe "' process detected.")
+                        else
+                            TestsFailed("Window 'GridinSoft Notepad Lite - [" PathToFile "]' failed to appear. '" ProcessExe "' process detected.")
+                    }
+                    else
+                        TestsOK("")
+                }
             }
         }
     }
