@@ -44,37 +44,34 @@ RunApplication(PathToFile)
     global TestsTotal
 
     TestsTotal++
-    IfNotExist, %ModuleExe%
-        TestsFailed("Can NOT find '" ModuleExe "'.")
-    else
+    if bContinue
     {
-        if PathToFile =
-        {
-            Run, %ModuleExe%,, Max ; Start maximized
-            WinWaitActive, untitled - Paint,,7
-            if ErrorLevel
-                TestsFailed("Window 'untitled - paint' failed to appear.")
-            else
-            {
-                TestsOK("")
-                Sleep, 1000
-            }
-        }
+        IfNotExist, %ModuleExe%
+            TestsFailed("Can NOT find '" ModuleExe "'.")
         else
         {
-            IfNotExist, %PathToFile%
-                TestsFailed("Can NOT find '" PathToFile "'.")
+            if PathToFile =
+            {
+                Run, %ModuleExe%,, Max ; Start maximized
+                WinWaitActive, untitled - Paint,,7
+                if ErrorLevel
+                    TestsFailed("Window 'untitled - paint' failed to appear.")
+                else
+                    TestsOK("")
+            }
             else
             {
-                Run, %ModuleExe% "%PathToFile%",, Max
-                SplitPath, PathToFile, NameExt
-                WinWaitActive, %NameExt% - Paint,,7
-                if ErrorLevel
-                    TestsFailed("Window '" NameExt " - Paint' failed to appear.")
+                IfNotExist, %PathToFile%
+                    TestsFailed("Can NOT find '" PathToFile "'.")
                 else
                 {
-                    TestsOK("")
-                    Sleep, 1000
+                    Run, %ModuleExe% "%PathToFile%",, Max
+                    SplitPath, PathToFile, NameExt
+                    WinWaitActive, %NameExt% - Paint,,7
+                    if ErrorLevel
+                        TestsFailed("Window '" NameExt " - Paint' failed to appear.")
+                    else
+                        TestsOK("")
                 }
             }
         }

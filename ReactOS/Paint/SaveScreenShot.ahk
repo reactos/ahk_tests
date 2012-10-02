@@ -39,13 +39,11 @@ else
             TestsFailed("Window 'Calculator' failed to appear.")
         else
         {
-            OutputDebug, %TestName%:%A_LineNumber%: In a sec will send Alt+PrintScreen, if BSOD, then bug #6715?.`n
-            Sleep, 1500
+            clipboard = ; Empty the clipboard
+            TestsInfo("In a sec will send Alt+PrintScreen, if BSOD, then bug #6715?.")
             SendInput, !{PrintScreen} ; Send Alt+PrintScreen
-            Sleep, 1500
-            Process, Close, calc.exe ; We will run it again later
             WinRestore, untitled - Paint
-            WinWaitActive, untitled - Paint,,7
+            WinWaitActive, untitled - Paint,,3
             if ErrorLevel
                 TestsFailed("Unable to restore 'untitled - Paint' window")
             else
@@ -56,6 +54,7 @@ else
                     TestsFailed("Unable to hit 'Image -> Attributes' in 'untitled - Paint' window.")
                 else
                 {
+                    Process, Close, calc.exe ; We will run it again later
                     WinWaitActive, Attributes, File last, 7
                     if ErrorLevel
                         TestsFailed("Window 'Attributes (File last)' failed to appear.")
@@ -70,9 +69,7 @@ else
                             if ErrorLevel
                                 TestsFailed("Unable to set 'Height' to '10' in 'Attributes (File last)' window.")
                             else
-                            {
                                 bContinue := true
-                            }
                         }
                     }
                 }
@@ -83,7 +80,6 @@ else
 
 if bContinue ; no need to have else part, since we output failures above
 {
-    Sleep, 1000
     ControlClick, Button11, Attributes, File last ; Hit 'OK' button
     if ErrorLevel
         TestsFailed("Unable to hit 'OK' button in 'Attributes (File last)' window.")
@@ -94,32 +90,32 @@ if bContinue ; no need to have else part, since we output failures above
             TestsFailed("Window 'Attributes (File last)' failed to close.")
         else
         {
-            Sleep, 1500
-            SendInput, ^v ; Send Ctrl+V
-            Sleep, 1500
-            SendInput, ^s ; Send Ctrl+S
-            WinWaitActive, Save As, Save &in, 7
+            WinWaitActive, untitled - Paint,,3
             if ErrorLevel
-                TestsFailed("Window 'Save As (Save in)' failed to appear.")
+                TestsFailed("OS itselft was unable to focus 'untitled - Paint' window.")
             else
             {
-                Sleep, 700
-                ControlSetText, Edit1, %A_Desktop%\ActiveWnd.bmp, Save As, Save &in ; Enter path in 'File name'
+                SendInput, ^v ; Send Ctrl+V
+                SendInput, ^s ; Send Ctrl+S
+                WinWaitActive, Save As, Save &in, 7
                 if ErrorLevel
-                    TestsFailed("Unable to set 'File name' to '%A_Desktop%\ActiveWnd.bmp' in 'Save As (Save in)' window.")
+                    TestsFailed("Window 'Save As (Save in)' failed to appear.")
                 else
                 {
-                    Sleep, 700
-                    ControlClick, Button2, Save As, Save &in ; Hit 'Save' button
+                    ControlSetText, Edit1, %A_Desktop%\ActiveWnd.bmp, Save As, Save &in ; Enter path in 'File name'
                     if ErrorLevel
-                        TestsFailed("Unable to hit 'Save' button in 'Save As (Save in)' window.")
+                        TestsFailed("Unable to set 'File name' to '%A_Desktop%\ActiveWnd.bmp' in 'Save As (Save in)' window.")
                     else
                     {
-                        IfNotExist, %A_Desktop%\ActiveWnd.bmp
-                            TestsFailed("Can NOT find '" A_Desktop "\ActiveWnd.bmp'.")
+                        ControlClick, Button2, Save As, Save &in ; Hit 'Save' button
+                        if ErrorLevel
+                            TestsFailed("Unable to hit 'Save' button in 'Save As (Save in)' window.")
                         else
                         {
-                            bContinue := true
+                            IfNotExist, %A_Desktop%\ActiveWnd.bmp
+                                TestsFailed("Can NOT find '" A_Desktop "\ActiveWnd.bmp'.")
+                            else
+                                bContinue := true
                         }
                     }
                 }
@@ -132,21 +128,26 @@ if bContinue ; no need to have else part, since we output failures above
 if bContinue
 {
     Process, Close, mspaint.exe
-    Run, %A_WinDir%\System32\calc.exe
-    WinWaitActive, Calculator,,7
+    Process, WaitClose, mspaint.exe, 4
     if ErrorLevel
-        TestsFailed("Window 'Calculator' failed to appear, but it worked before.")
+        TestsFailed("Unable to terminate 'mspaint.exe' process.")
     else
     {
-        Sleep, 2500
-        ImageSearch, FoundX, FoundY, 0, 0, %A_ScreenWidth%, %A_ScreenHeight%, *15 %A_Desktop%\ActiveWnd.bmp
-        if ErrorLevel = 2
-            TestsFailed("Could not conduct the search ('" A_Desktop "\ActiveWnd.bmp' exist).")
-        else if ErrorLevel = 1
-            TestsFailed("'" A_Desktop "\ActiveWnd.bmp' could not be found on the screen.")
+        Run, %A_WinDir%\System32\calc.exe
+        WinWaitActive, Calculator,,7
+        if ErrorLevel
+            TestsFailed("Window 'Calculator' failed to appear, but it worked before.")
         else
         {
-            TestsOK("Seems like Alt+PrintScreen works well, so, no bug #6715.")
+            ImageSearch, FoundX, FoundY, 0, 0, %A_ScreenWidth%, %A_ScreenHeight%, *15 %A_Desktop%\ActiveWnd.bmp
+            if ErrorLevel = 2
+                TestsFailed("Could not conduct the search ('" A_Desktop "\ActiveWnd.bmp' exist).")
+            else if ErrorLevel = 1
+                TestsFailed("'" A_Desktop "\ActiveWnd.bmp' could not be found on the screen.")
+            else
+            {
+                TestsOK("Seems like Alt+PrintScreen works well, so, no bug #6715.")
+            }
         }
     }
 }
