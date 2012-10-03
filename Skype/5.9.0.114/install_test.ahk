@@ -40,48 +40,67 @@ else
             ; That probably means we have not installed this app before.
             ; Check in default directory to be extra sure
             bHardcoded := true ; To know if we got path from registry or not
-            IfNotExist, %A_ProgramFiles%\Skype
-                bContinue := true ; No previous versions detected in hardcoded path
-            else
+            szDefaultDir = %A_ProgramFiles%\Skype
+            IfNotExist, %szDefaultDir%
             {
-                IfExist, %A_ProgramFiles%\Skype
+                TestsInfo("No previous versions detected in hardcoded path: '" szDefaultDir "'.")
+                bContinue := true
+            }
+            else
+            {   
+                UninstallerPath = %A_WinDir%\System32\MsiExec.exe /qn /norestart /x {EE7257A2-39A2-4D2F-9DAC-F9F25B8AE1D8}
+                WaitUninstallDone(UninstallerPath, 3)
+                if bContinue
                 {
-                    RunWait, MsiExec.exe /qn /norestart /x {AC76BA86-7AD7-1033-7B44-A71000000002} ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %A_ProgramFiles%\Skype ; Uninstaller might delete the dir
-                    bContinue := true
-                {
-                    FileRemoveDir, %A_ProgramFiles%\Skype, 1
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" A_ProgramFiles "\Adobe\Acrobat 7.0' ('" MainAppFile "' process is reported as terminated).'")
-                    else
+                    IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
+                    {
+                        TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %szDefaultDir%, 1
+                        if ErrorLevel
+                            TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
         else
         {
-            IfNotExist, %InstallLocation%
+            InstalledDir = %InstallLocation%
+            IfNotExist, %InstalledDir%
+            {
+                TestsInfo("Got '" InstalledDir "' from registry and such path does not exist.")
                 bContinue := true
+            }
             else
             {
-                IfExist, %InstallLocation%
+                UninstallerPath = %A_WinDir%\System32\MsiExec.exe /qn /norestart /x {EE7257A2-39A2-4D2F-9DAC-F9F25B8AE1D8}
+                WaitUninstallDone(UninstallerPath, 3)
+                if bContinue
                 {
-                    RunWait, MsiExec.exe /qn /norestart /x {EE7257A2-39A2-4D2F-9DAC-F9F25B8AE1D8} ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %InstallLocation%
-                    bContinue := true
-                else
-                {
-                    FileRemoveDir, %InstallLocation%, 1 ; Delete just in case
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" InstallLocation "' ('" MainAppFile "' process is reported as terminated).")
-                    else
+                    IfNotExist, %InstalledDir%
+                    {
+                        TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %InstalledDir%, 1 ; Uninstaller leaved the path for us to delete, so, do it
+                        if ErrorLevel
+                            TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
@@ -93,6 +112,7 @@ else
         RegDelete, HKEY_CLASSES_ROOT, Installer\Products\7692FC6BE18C0C0489510C7547EF1F02
         RegDelete, HKEY_CLASSES_ROOT, Installer\Products\2A7527EE2A93F2D4D9CA9F2FB5A81E8D ; Delete this or 'Updating Skype' window will show up
         RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Skype
+        RegDelete, HKEY_CURRENT_USER, SOFTWARE\Skype ; Delete or 'Installing Skype (Install Skype Click to Call)' window will not show up
         RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\{EE7257A2-39A2-4D2F-9DAC-F9F25B8AE1D8}
         IfExist, %A_AppData%\Skype
         {
@@ -117,7 +137,7 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Installing Skype, More Options, 25
+    WinWaitActive, Installing Skype, More Options, 20
     if ErrorLevel
     {
         IfWinActive, Updating Skype
@@ -127,12 +147,17 @@ if bContinue
     }
     else
     {
-        Sleep, 700
         ControlClick, TButton1, Installing Skype, More Options ; Hit 'I agree - next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'I agree - next' button in 'Installing Skype (More Options)' window.")
-        else ; Do not use WinWaitClose here, because it fails on win2k3 sp2
-            TestsOK("'Installing Skype (More Options)' window appeared and 'I agree - next' button was clicked.")
+        else
+        {
+            WinWaitClose, Installing Skype, More Options, 3
+            if ErrorLevel
+                TestsFailed("'Installing Skype (More Options)' window failed to close despite 'I agree - next' button being clicked.")
+            else
+                TestsOK("'Installing Skype (More Options)' window appeared and 'I agree - next' button was clicked.")
+        }
     }
 }
 
@@ -141,18 +166,16 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Installing Skype, Install Skype Click to Call, 5
+    WinWaitActive, Installing Skype, Install Skype Click to Call, 3
     if ErrorLevel
-        TestsFailed("'Installing Skype (Install Skype Click to Call)' window failed to appear.")
+        TestsFailed("'Installing Skype (Install Skype Click to Call)' window failed to appear. Unable to delete HKCU\Software\Skype?.")
     else
     {
-        Sleep, 700
         Control, Uncheck,, TCheckBox1, Installing Skype, Install Skype Click to Call ; Uncheck 'Install Skype Click to Call' checkbox
         if ErrorLevel
             TestsFailed("Unable to uncheck 'Install Skype Click to Call' checkobx in 'Installing Skype (Install Skype Click to Call)' window.")
         else
         {
-            Sleep, 700
             ControlClick, TButton1, Installing Skype, Install Skype Click to Call ; Hit 'Continue' button
             if ErrorLevel
                 TestsFailed("Unable to hit 'Continue' button in 'Installing Skype (Install Skype Click to Call)' window.")
@@ -167,18 +190,16 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Installing Skype, Install the Bing Bar, 5
+    WinWaitActive, Installing Skype, Install the Bing Bar, 3
     if ErrorLevel
         TestsFailed("'Installing Skype (Install the Bing Bar)' window failed to appear.")
     else
     {
-        Sleep, 700
         Control, Uncheck,, TCheckBox2, Installing Skype, Install the Bing Bar ; Uncheck 'Install the Bing Bar' checkbox
         if ErrorLevel
             TestsFailed("Unable to uncheck 'Install the Bing Bar' checkobx in 'Installing Skype (Install the Bing Bar)' window.")
         else
         {
-            Sleep, 700
             ControlClick, TButton1, Installing Skype, Install the Bing Bar ; Hit 'Continue' button
             if ErrorLevel
                 TestsFailed("Unable to hit 'Continue' button in 'Installing Skype (Install the Bing Bar)' window.")
@@ -193,15 +214,27 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitClose, Installing Skype,,120
+    iTimeOut := 120
+    while iTimeOut > 0
+    {
+        IfWinActive, Installing Skype
+        {
+            WinWaitClose, Installing Skype,,1
+            iTimeOut--
+        }
+        else
+            break ; exit the loop if something poped-up
+    }
+
+    WinWaitClose, Installing Skype,,1
     if ErrorLevel
-        TestsFailed("'Installing Skype' window failed to close.")
+        TestsFailed("'Installing Skype' window failed to close (iTimeOut=" iTimeOut ").")
     else
     {
         Process, wait, %MainAppFile%, 7
         NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
         if NewPID = 0
-            TestsFailed("'Installing Skype' window closed, but '" MainAppFile "' process failed to appear.")
+            TestsFailed("'Installing Skype' window closed (iTimeOut=" iTimeOut "), but '" MainAppFile "' process failed to appear.")
         else
         {
             Process, Close, %MainAppFile%
@@ -209,7 +242,7 @@ if bContinue
             if ErrorLevel ; The PID still exists
                 TestsFailed("Unable to terminate '" MainAppFile "' process.")
             else
-                TestsOK("'Installing Skype' window closed, '" MainAppFile "' process appeared and we terminated it.")
+                TestsOK("'Installing Skype' window closed (iTimeOut=" iTimeOut "), '" MainAppFile "' process appeared and we terminated it.")
         }
     }
 }
@@ -219,7 +252,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     RegRead, InstallLocation, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{EE7257A2-39A2-4D2F-9DAC-F9F25B8AE1D8}, InstallLocation
     if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")
