@@ -40,26 +40,39 @@ if bContinue
         TestsFailed("Can NOT find '" ModuleExe "'.")
     else
     {
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Mozilla
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\mozilla.org
+        RegDelete, HKEY_CURRENT_USER, SOFTWARE\Mozilla
+        RegDelete, HKEY_CURRENT_USER, SOFTWARE\mozilla.org
         RegisterAsDefault := "C:\PROGRA~1\MOZILLA.ORG\SEAMON~1\SEAMON~1.EXE -osint -url ""%1"""
         RegWrite, REG_SZ, HKEY_LOCAL_MACHINE, SOFTWARE\Classes\http\shell\open\command,, %RegisterAsDefault% ; Register as default web browser
         if ErrorLevel
-            TestsFailed("Unable to set def browser")
+            TestsFailed("Unable to set SeaMonkey as default browser.")
         else
         {
-            FileRemoveDir, %A_AppData%\Mozilla, 1 ; Delete all saved settings. P.S. there is no way to create settings for it, because it uses protection
-            Sleep, 1500
-            IfExist, %A_AppData%\Mozilla
-                TestsFailed("Seems like we failed to delete '" A_AppData "\Mozilla'.")
+            RegWrite, REG_SZ, HKEY_LOCAL_MACHINE, SOFTWARE\Mozilla\Desktop, haveBeenSet, 1 ; Get rid of 'Do you want to set SeaMonkey as default browser' dialog
+            if ErrorLevel
+                TestsFailed("Unable to set HKLM\Software\Mozilla\Desktop, 'haveBeenSet' to '1'.")
             else
             {
-                Run, %ModuleExe%,, Max ; Start maximized
-                WinWaitActive, Welcome to SeaMonkey - SeaMonkey,,15
-                if ErrorLevel
-                    TestsFailed("Window 'Welcome to SeaMonkey - SeaMonkey' failed to appear.")
+                FileRemoveDir, %A_AppData%\Mozilla, 1 ; Delete all saved settings. P.S. there is no way to create settings for it, because it uses protection
+                IfExist, %A_AppData%\Mozilla
+                    TestsFailed("Seems like we failed to delete '" A_AppData "\Mozilla'.")
                 else
                 {
-                    TestsOK("")
-                    Sleep, 3500 ; Longer sleep is required
+                    Run, %ModuleExe%,, Max ; Start maximized
+                    WinWaitActive, Welcome to SeaMonkey - SeaMonkey,,20
+                    if ErrorLevel
+                    {
+                        Process, Exist, %ProcessExe%
+                        NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                        if NewPID = 0
+                            TestsFailed("Window 'Welcome to SeaMonkey - SeaMonkey' failed to appear. No '" ProcessExe "' process detected.")
+                        else
+                            TestsFailed("Window 'Welcome to SeaMonkey - SeaMonkey' failed to appear. '" ProcessExe "' process detected.")
+                    }
+                    else
+                        TestsOK("")
                 }
             }
         }

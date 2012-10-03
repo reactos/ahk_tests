@@ -32,7 +32,6 @@ else
     else
     {
         SendInput, {ALTDOWN}d{ALTUP} ; Go to address bar
-        Sleep, 500
         SendInput, %szFileURL%{ENTER} 
         SplitPath, szFileURL, NameExt
         FileDelete, %A_Desktop%\%NameExt%
@@ -42,7 +41,7 @@ else
         else
         {
             SendInput, {ALTDOWN}s{ALTUP} ; Check 'Save it to disk' radio button
-            Sleep, 3000 ; wait until 'OK' gets enabled
+            Sleep, 3000 ; wait until 'OK' gets enabled, AHK won't help
             SendInput, {ENTER} ; Hit 'OK' button
             WinWaitActive, Enter name of file to save to...,,5
             if ErrorLevel
@@ -54,7 +53,6 @@ else
                     TestsFailed("Unable to enter path in 'Enter name of file to save to...' window.")
                 else
                 {
-                    Sleep, 1000
                     ControlClick, Button2, Enter name of file to save to... ; Hit 'Save' button
                     if ErrorLevel
                         TestsFailed("Unable to hit 'Save' button in 'Enter name of file to save to...' window.")
@@ -65,40 +63,39 @@ else
                             TestsFailed("Window 'Download Manager' failed to appear.")
                         else
                         {
-                            Sleep, 1000
                             SendInput, {ALTDOWN}i{ALTUP} ; Hit 'Properties' in 'Download Manager'
                             SetTitleMatchMode, 2 ; A window's title can contain WinTitle anywhere inside it to be a match.
                             WinWaitActive, of %NameExt% Saved,,5
                             if ErrorLevel
                                 TestsFailed("Window 'of " NameExt " Saved' failed to appear (SetTitleMatchMode=2).")
                             else
-                            {
-                                Sleep, 1000
-                                TimeOut := 0
-                                bDone := false
-                                while TimeOut < 240
+                            {   
+                                iTimeOut := 240
+                                while iTimeOut > 0
                                 {
-                                    Sleep, 1000
-                                    TimeOut++
-                                    bDone := false
-                                    IfWinActive, 100`% of %NameExt% Saved ; Wait for 100%
+                                    IfWinActive, `% of %NameExt% Saved
                                     {
-                                        TimeOut := 240
-                                        bDone := true
+                                        WinWaitActive, 100`% of %NameExt% Saved,,1 ; Wait for 100
+                                        if ErrorLevel
+                                            iTimeOut--
+                                        else
+                                            break
                                     }
+                                    else
+                                        break ; exit the loop if something poped-up
                                 }
                                 
-                                if not bDone
-                                    TestsFailed("Timed out.")
+                                WinWaitActive, 100`% of %NameExt% Saved,,1
+                                if ErrorLevel
+                                    TestsFailed("'100% of " NameExt " Saved' window failed to appear (iTimeOut=" iTimeOut ").")
                                 else
                                 {
-                                    Sleep, 700
                                     Process, Close, %ProcessExe%
                                     Process, WaitClose, %ProcessExe%, 4
                                     if ErrorLevel
                                         TestsFailed("Unable to terminate '" ProcessExe "' process.")
                                     else
-                                        TestsOK("'" szFileURL "' downloaded, '" ProcessExe "' terminated.")
+                                        TestsOK("'" szFileURL "' downloaded (iTimeOut=" iTimeOut "), '" ProcessExe "' terminated.")
                                 }
                             }
                         }

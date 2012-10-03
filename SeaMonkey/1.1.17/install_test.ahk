@@ -20,6 +20,7 @@
 ModuleExe = %A_WorkingDir%\Apps\SeaMonkey 1.1.17 Setup.exe
 TestName = 1.install
 MainAppFile = seamonkey.exe ; Mostly this is going to be process we need to look for
+SetTitleMatchMode, 3 ; A window's title must exactly match WinTitle to be a match.
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
 TestsTotal++
@@ -38,21 +39,22 @@ else
                 bContinue := true ; No previous versions detected in hardcoded path
             else
             {
-                bHardcoded := true ; To know if we got path from registry or not
-                IfExist, %A_ProgramFiles%\mozilla.org\SeaMonkey\uninstall\SeaMonkeyUninstall.exe
+                UninstallerPath = %A_ProgramFiles%\mozilla.org\SeaMonkey\uninstall\SeaMonkeyUninstall.exe -ms -ira
+                ; running uninstaller manually you can see 'UNINSTALL.EXE' process appeared. Our helper
+                ; functions fails to detect parent process name (so, thats why we have '' as parent) and child process in win2k3 sp2
+                WaitUninstallDone(UninstallerPath, 3)
+                if bContinue
                 {
-                    RunWait, %A_ProgramFiles%\mozilla.org\SeaMonkey\uninstall\SeaMonkeyUninstall.exe -ms -ira ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %A_ProgramFiles%\mozilla.org\SeaMonkey ; Uninstaller might delete the dir
-                    bContinue := true
-                {
-                    FileRemoveDir, %A_ProgramFiles%\mozilla.org\SeaMonkey, 1
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" A_ProgramFiles "\mozilla.org\SeaMonkey' ('" MainAppFile "' process is reported as terminated).'")
-                    else
+                    IfNotExist, %A_ProgramFiles%\mozilla.org\SeaMonkey ; Uninstaller might delete the dir
                         bContinue := true
+                    else
+                    {
+                        FileRemoveDir, %A_ProgramFiles%\mozilla.org\SeaMonkey, 1
+                        if ErrorLevel
+                            TestsFailed("Unable to delete existing '" A_ProgramFiles "\mozilla.org\SeaMonkey' ('" MainAppFile "' process is reported as terminated).'")
+                        else
+                            bContinue := true
+                    }
                 }
             }
     }
@@ -88,12 +90,12 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Extracting...,, 7
+    WinWaitActive, Extracting...,, 5
     if ErrorLevel
         TestsFailed("'Extracting...' window failed to appear.")
     else
     {
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Extracting...' window appeared, waiting for it to close.`n
+        TestsInfo("'Extracting...' window appeared, waiting for it to close.")
         WinWaitClose, Extracting...,,10
         if ErrorLevel
             TestsFailed("'Extracting...' window failed to close.")
@@ -112,12 +114,17 @@ if bContinue
         TestsFailed("'SeaMonkey Setup - Welcome' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button1, SeaMonkey Setup - Welcome ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'SeaMonkey Setup - Welcome' window.")
         else
-            TestsOK("'SeaMonkey Setup - Welcome' window appeared and 'Next' was clicked.")
+        {
+            WinWaitClose, SeaMonkey Setup - Welcome,, 3
+            if ErrorLevel
+                TestsFailed("'SeaMonkey Setup - Welcome' window failed to close despite 'Next' button being clicked.")
+            else
+                TestsOK("'SeaMonkey Setup - Welcome' window appeared and 'Next' was clicked.")
+        }
     }
 }
 
@@ -126,12 +133,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, SeaMonkey Setup - Software License Agreement,, 7
+    WinWaitActive, SeaMonkey Setup - Software License Agreement,, 3
     if ErrorLevel
         TestsFailed("'SeaMonkey Setup - Software License Agreement' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button1, SeaMonkey Setup - Software License Agreement ; Hit 'Accept' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Accept' button in 'SeaMonkey Setup - Software License Agreement' window.")
@@ -145,12 +151,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, SeaMonkey Setup - Setup Type,, 7
+    WinWaitActive, SeaMonkey Setup - Setup Type,, 3
     if ErrorLevel
         TestsFailed("'SeaMonkey Setup - Setup Type' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button9, SeaMonkey Setup - Setup Type ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'SeaMonkey Setup - Setup Type' window.")
@@ -164,12 +169,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, SeaMonkey Setup - Quick Launch,, 7
+    WinWaitActive, SeaMonkey Setup - Quick Launch,, 3
     if ErrorLevel
         TestsFailed("'SeaMonkey Setup - Quick Launch' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button3, SeaMonkey Setup - Quick Launch ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'SeaMonkey Setup - Quick Launch' window.")
@@ -183,12 +187,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, SeaMonkey Setup - Start Install,, 7
+    WinWaitActive, SeaMonkey Setup - Start Install,, 3
     if ErrorLevel
         TestsFailed("'SeaMonkey Setup - Start Install' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button1, SeaMonkey Setup - Start Install ; Hit 'Install' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Install' button in 'SeaMonkey Setup - Start Install' window.")
@@ -202,17 +205,30 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, SeaMonkey Setup,, 15
+    WinWaitActive, SeaMonkey Setup,, 7
     if ErrorLevel
         TestsFailed("'SeaMonkey Setup' window failed to appear.")
     else
     {
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'SeaMonkey Setup' window appeared, waiting for it to close.`n
-        WinWaitClose, SeaMonkey Setup,,35
+        TestsInfo("'SeaMonkey Setup' window appeared, waiting for it to close.")
+        
+        iTimeOut := 45
+        while iTimeOut > 0
+        {
+            IfWinActive, SeaMonkey Setup
+            {
+                WinWaitClose, SeaMonkey Setup,, 1
+                iTimeOut--
+            }
+            else
+                break ; exit the loop if something poped-up
+        }
+
+        WinWaitClose, SeaMonkey Setup,, 1
         if ErrorLevel
-            TestsFailed("'SeaMonkey Setup' window failed to disappear.")
+            TestsFailed("'SeaMonkey Setup' window failed to close (iTimeOut=" iTimeOut ").")
         else
-            TestsOK("'SeaMonkey Setup' window went away.")
+            TestsOK("'SeaMonkey Setup' window went away (iTimeOut=" iTimeOut ").")
     }
 }
 
@@ -226,10 +242,23 @@ if bContinue
         TestsFailed("'SeaMonkey Setup - Install Progress' window failed to appear.")
     else
     {
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'SeaMonkey Setup - Install Progress' window appeared, waiting for it to close.`n
-        WinWaitClose, SeaMonkey Setup,,25
+        TestsInfo("'SeaMonkey Setup - Install Progress' window appeared, waiting for it to close.")
+        
+        iTimeOut := 45
+        while iTimeOut > 0
+        {
+            IfWinActive, SeaMonkey Setup - Install Progress
+            {
+                WinWaitClose, SeaMonkey Setup - Install Progress,, 1
+                iTimeOut--
+            }
+            else
+                break ; exit the loop if something poped-up
+        }
+        
+        WinWaitClose, SeaMonkey Setup - Install Progress,, 1
         if ErrorLevel
-            TestsFailed("'SeaMonkey Setup - Install Progress' window failed to disappear.")
+            TestsFailed("'SeaMonkey Setup - Install Progress' window failed to close (iTimeOut=" iTimeOut ").")
         else
         {
             Process, Wait, %MainAppFile%, 5
@@ -241,10 +270,10 @@ if bContinue
                 Sleep, 500 ; Sleep or Windows will throw an error on file access
                 Process, Close, %MainAppFile%
                 Process, WaitClose, %MainAppFile%, 5
-                if ErrorLevel ; The PID still exists.
+                if ErrorLevel ; The PID still exists
                     TestsFailed("Unable to terminate '" MainAppFile "' process.")
                 else
-                    TestsOK("'SeaMonkey Setup - Install Progress' window went away, '" MainAppFile "' terminated.")
+                    TestsOK("'SeaMonkey Setup - Install Progress' window went away (iTimeOut=" iTimeOut "), '" MainAppFile "' terminated.")
             }
         }
     }
@@ -255,7 +284,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     IfNotExist, %A_ProgramFiles%\mozilla.org\SeaMonkey\%MainAppFile% ; Hardcode, because there are not much info in registry
         TestsFailed("Can NOT find '" A_ProgramFiles "\mozilla.org\SeaMonkey\" MainAppFile "'.")
     else
