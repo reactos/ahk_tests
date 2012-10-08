@@ -108,7 +108,6 @@ if bContinue
         TestsFailed("'µTorrent Setup (This wizard)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, µTorrent Setup, This wizard ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'µTorrent Setup (This wizard)' window.")
@@ -122,12 +121,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, µTorrent Setup, Beware, 5
+    WinWaitActive, µTorrent Setup, Beware, 3
     if ErrorLevel
         TestsFailed("'µTorrent Setup (Beware)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, µTorrent Setup, Beware ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'µTorrent Setup (Beware)' window.")
@@ -141,12 +139,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, µTorrent Setup, Scroll, 5
+    WinWaitActive, µTorrent Setup, Scroll, 3
     if ErrorLevel
         TestsFailed("'µTorrent Setup (Scroll)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, µTorrent Setup, Scroll ; Hit 'I Agree' button
         if ErrorLevel
             TestsFailed("Unable to hit 'I Agree' button in 'µTorrent Setup (Scroll)' window.")
@@ -160,12 +157,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, µTorrent Setup, Program Location, 5
+    WinWaitActive, µTorrent Setup, Program Location, 3
     if ErrorLevel
         TestsFailed("'µTorrent Setup (Program Location)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button9, µTorrent Setup, Program Location ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'µTorrent Setup (Program Location)' window.")
@@ -179,12 +175,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, µTorrent Setup, The following, 5
+    WinWaitActive, µTorrent Setup, The following, 3
     if ErrorLevel
         TestsFailed("'µTorrent Setup (The following)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button16, µTorrent Setup, The following ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'µTorrent Setup (The following)' window.")
@@ -198,18 +193,16 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, µTorrent Setup, Check out, 5
+    WinWaitActive, µTorrent Setup, Check out, 3
     if ErrorLevel
         TestsFailed("'µTorrent Setup (Check out)' window failed to appear.")
     else
     {
-        Sleep, 700
         Control, Uncheck,, Button1, µTorrent Setup, Check out ; Uncheck 'Yes, Id love to check out this free download' checkbox
         if ErrorLevel
             TestsFailed("Unable to uncheck 'Yes, Id love to check out this free download' checkbox in 'µTorrent Setup (Check out)' window.")
         else
         {
-            Sleep, 500
             ControlClick, Button17, µTorrent Setup, Check out ; Hit 'Next' button
             if ErrorLevel
                 TestsFailed("Unable to hit 'Next' button in 'µTorrent Setup (Check out)' window.")
@@ -228,12 +221,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, µTorrent Setup, &Install, 5
+    WinWaitActive, µTorrent Setup, &Install, 3
     if ErrorLevel
         TestsFailed("'µTorrent Setup (Install)' window failed to appear.")
     else
     {
-        Sleep, 700
         Control, Uncheck,, Button1, µTorrent Setup, &Install ; Uncheck 'Set my homepage to µTorrent Web Search' checkbox
         if ErrorLevel
             TestsFailed("Unable to uncheck 'Set my homepage to µTorrent Web Search' checkbox in 'µTorrent Setup (Install)' window.")
@@ -249,7 +241,6 @@ if bContinue
                     TestsFailed("Unable to uncheck 'I accept...and want to install µTorrent Browser Bar' checkbox in 'µTorrent Setup (Install)' window.")
                 else
                 {
-                    Sleep, 700
                     ControlClick, Button20, µTorrent Setup, &Install ; Hit 'Install' button
                     if ErrorLevel
                         TestsFailed("Unable to hit 'Install' button in 'µTorrent Setup (Install)' window.")
@@ -286,7 +277,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\uTorrent, UninstallString
     if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")
