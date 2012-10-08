@@ -39,50 +39,69 @@ else
             ; There was a problem (such as a nonexistent key or value). 
             ; That probably means we have not installed this app before.
             ; Check in default directory to be extra sure
-            IfNotExist, %A_ProgramFiles%\SMPlayer
-                bContinue := true ; No previous versions detected in hardcoded path
-            else
+            bHardcoded := true ; To know if we got path from registry or not
+            szDefaultDir = %A_ProgramFiles%\SMPlayer
+            IfNotExist, %szDefaultDir%
             {
-                bHardcoded := true ; To know if we got path from registry or not
-                IfExist, %A_ProgramFiles%\SMPlayer\uninst.exe
+                TestsInfo("No previous versions detected in hardcoded path: '" szDefaultDir "'.")
+                bContinue := true
+            }
+            else
+            {   
+                UninstallerPath = %szDefaultDir%\uninst.exe /S
+                WaitUninstallDone(UninstallerPath, 7)
+                if bContinue
                 {
-                    RunWait, %A_ProgramFiles%\SMPlayer\uninst.exe /S ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %A_ProgramFiles%\SMPlayer ; Uninstaller might delete the dir
-                    bContinue := true
-                {
-                    FileRemoveDir, %A_ProgramFiles%\SMPlayer, 1
-                    if ErrorLevel
-                        TestsFailed("Unable to delete hardcoded path '" A_ProgramFiles "\SMPlayer' ('" MainAppFile "' process is reported as terminated).'")
-                    else
+                    IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
+                    {
+                        TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %szDefaultDir%, 1
+                        if ErrorLevel
+                            TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
         else
         {
+            UninstallerPath := ExeFilePathNoParam(UninstallerPath)
             SplitPath, UninstallerPath,, InstalledDir
             IfNotExist, %InstalledDir%
+            {
+                TestsInfo("Got '" InstalledDir "' from registry and such path does not exist.")
                 bContinue := true
+            }
             else
             {
-                IfExist, %UninstallerPath%
+                UninstallerPath = %UninstallerPath% /S
+                WaitUninstallDone(UninstallerPath, 7) ; Reported child name is 'Au_.exe'
+                if bContinue
                 {
-                    RunWait, %UninstallerPath% /S ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %InstalledDir%
-                    bContinue := true
-                else
-                {
-                    FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
-                    else
+                    IfNotExist, %InstalledDir%
+                    {
+                        TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %InstalledDir%, 1 ; Uninstaller leaved the path for us to delete, so, do it
+                        if ErrorLevel
+                            TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
@@ -109,18 +128,17 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Installer Language, Please select, 15
+    WinWaitActive, Installer Language, Please select, 7
     if ErrorLevel
         TestsFailed("'Installer Language (Please select)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button1, Installer Language, Please select ; Hit 'OK' button
         if ErrorLevel
             TestsFailed("Unable to hit 'OK' button in 'Installer Language (Please select)' window.")
         else
         {
-            WinWaitClose, Installer Language, Please select, 5
+            WinWaitClose, Installer Language, Please select, 3
             if ErrorLevel
                 TestsFailed("'Installer Language (Please select)' window failed to close despite 'OK' button being clicked.")
             else
@@ -134,12 +152,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, SMPlayer 0.6.9 Setup, Welcome, 10
+    WinWaitActive, SMPlayer 0.6.9 Setup, Welcome, 7
     if ErrorLevel
         TestsFailed("'SMPlayer 0.6.9 Setup (Welcome)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, SMPlayer 0.6.9 Setup, Welcome ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'SMPlayer 0.6.9 Setup (Welcome)' window.")
@@ -153,24 +170,21 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, SMPlayer 0.6.9 Setup, License Agreement, 7
+    WinWaitActive, SMPlayer 0.6.9 Setup, License Agreement, 3
     if ErrorLevel
         TestsFailed("'SMPlayer 0.6.9 Setup (License Agreement)' window failed to appear.")
     else
     {
-        Sleep, 500
         Control, Check, , Button4, SMPlayer 0.6.9 Setup, License Agreement ; Check 'I accept the terms of the License Agreement' radiobutton
         if ErrorLevel
             TestsFailed("Unable to check 'I accept the terms of the License Agreement' checkbox in 'SMPlayer 0.6.9 Setup (License Agreement)' window.")
         else
         {
-            Sleep, 300
-
             TimeOut := 0
             while (not %bNextEnabled%) and (TimeOut < 6) ; Sleep while 'Next' button is disabled
             {
                 ControlGet, bNextEnabled, Enabled,, Button4, SMPlayer 0.6.9 Setup, License Agreement
-                Sleep, 700
+                Sleep, 300
                 TimeOut++
             }
             
@@ -193,12 +207,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, SMPlayer 0.6.9 Setup, Choose Components, 7
+    WinWaitActive, SMPlayer 0.6.9 Setup, Choose Components, 3
     if ErrorLevel
         TestsFailed("'SMPlayer 0.6.9 Setup (Choose Components)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, SMPlayer 0.6.9 Setup, Choose Components ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'SMPlayer 0.6.9 Setup (Choose Components)' window.")
@@ -217,7 +230,6 @@ if bContinue
         TestsFailed("'SMPlayer 0.6.9 Setup (Choose Install Location)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, SMPlayer 0.6.9 Setup, Choose Install Location ; Hit 'Install' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Install' button in 'SMPlayer 0.6.9 Setup (Choose Install Location)' window.")
@@ -231,17 +243,30 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, SMPlayer 0.6.9 Setup, Installing, 5
+    WinWaitActive, SMPlayer 0.6.9 Setup, Installing, 3
     if ErrorLevel
         TestsFailed("'SMPlayer 0.6.9 Setup (Installing)' window failed to appear.")
     else
     {
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'SMPlayer 0.6.9 Setup (Installing)' window appeared, waiting for it to close.`n
-        WinWaitClose, SMPlayer 0.6.9 Setup, Installing, 25
+        TestsInfo("'SMPlayer 0.6.9 Setup (Installing)' window appeared, waiting for it to close.")
+		
+		iTimeOut := 25
+        while iTimeOut > 0
+        {
+            IfWinActive, SMPlayer 0.6.9 Setup, Installing
+            {
+                WinWaitClose, SMPlayer 0.6.9 Setup, Installing, 1
+                iTimeOut--
+            }
+            else
+                break ; exit the loop if something poped-up
+        }
+
+        WinWaitClose, SMPlayer 0.6.9 Setup, Installing, 1
         if ErrorLevel
-            TestsFailed("'SMPlayer 0.6.9 Setup (Installing)' window failed to go away.")
+            TestsFailed("'SMPlayer 0.6.9 Setup (Installing)' window failed to go away (iTimeOut=" iTimeOut ").")
         else
-            TestsOK("'SMPlayer 0.6.9 Setup (Installing)' window appeared, went away.")
+            TestsOK("'SMPlayer 0.6.9 Setup (Installing)' window appeared and went away (iTimeOut=" iTimeOut ").")
     }
 }
 
@@ -250,19 +275,18 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, SMPlayer 0.6.9 Setup, Completing, 5
+    WinWaitActive, SMPlayer 0.6.9 Setup, Completing, 3
     if ErrorLevel
         TestsFailed("'SMPlayer 0.6.9 Setup (Completing)' window failed to appear.")
     else
     {
         ; There are 2 checkboxes, but unchecked by default
-        Sleep, 700
         ControlClick, Button2, SMPlayer 0.6.9 Setup, Completing ; Hit 'Finish' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Finish' button in 'SMPlayer 0.6.9 Setup (Completing)' window.")
         else
         {
-            WinWaitClose, SMPlayer 0.6.9 Setup, Completing, 5
+            WinWaitClose, SMPlayer 0.6.9 Setup, Completing, 3
             if ErrorLevel
                 TestsFailed("'SMPlayer 0.6.9 Setup (Completing)' window failed to close after hitting 'Finish' button.")
             else
@@ -276,7 +300,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\SMPlayer, UninstallString
     if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")
