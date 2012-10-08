@@ -41,23 +41,24 @@ else
             IfExist, %A_ProgramFiles%\WinBoard-4.2.7\UnInstall.exe
             {
                 FileDelete, %A_ProgramFiles%\WinBoard-4.2.7\*.ini ; Delete configuration files first or uninstaller will complain
-                Sleep, 1000
-                RunWait, %A_ProgramFiles%\WinBoard-4.2.7\UnInstall.exe /S ; Silently uninstall it
-                Sleep, 2500
-                Process, Close, A~NSISu_.exe ; In case it still complains
+                UninstallerPath = %A_ProgramFiles%\WinBoard-4.2.7\UnInstall.exe /S 
+                WaitUninstallDone(UninstallerPath, 3) ; Reported child name is 'A~NSISu_.exe'. We will have to terminate it.
+                if bContinue
+                {
+                    IfNotExist, %A_ProgramFiles%\WinBoard-4.2.7
+                        bContinue := true ; Uninstaller deleted the dir
+                    else
+                    {
+                        FileRemoveDir, %A_ProgramFiles%\WinBoard-4.2.7, 1
+                        if ErrorLevel
+                            TestsFailed("Unable to delete hardcoded path '" A_ProgramFiles "\WinBoard-4.2.7' ('" MainAppFile "' process is reported as terminated).'")
+                        else
+                            bContinue := true
+                    }
+                }
             }
         }
-        
-        IfNotExist, %A_ProgramFiles%\WinBoard-4.2.7
-            bContinue := true ; Uninstaller deleted the dir
-        else
-        {
-            FileRemoveDir, %A_ProgramFiles%\WinBoard-4.2.7, 1
-            if ErrorLevel
-                TestsFailed("Unable to delete hardcoded path '" A_ProgramFiles "\WinBoard-4.2.7' ('" MainAppFile "' process is reported as terminated).'")
-            else
-                bContinue := true
-        }
+
         RegDelete, HKEY_CURRENT_USER, SOFTWARE\WinBoard
         if bContinue
             Run %ModuleExe%
@@ -69,12 +70,11 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, WinBoard - Chessboard For Windows, This wizard, 15
+    WinWaitActive, WinBoard - Chessboard For Windows, This wizard, 7
     if ErrorLevel
         TestsFailed("'WinBoard - Chessboard For Windows (This wizard)' window failed to appear.")
     else
     {
-        Sleep, 1000
         ControlClick, Button2, WinBoard - Chessboard For Windows, This wizard
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'WinBoard - Chessboard For Windows (This wizard)' window.")
@@ -88,12 +88,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, WinBoard - Chessboard For Windows, License Agreement, 5
+    WinWaitActive, WinBoard - Chessboard For Windows, License Agreement, 3
     if ErrorLevel
         TestsFailed("'WinBoard - Chessboard For Windows (License Agreement)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, WinBoard - Chessboard For Windows, License Agreement
         if ErrorLevel
             TestsFailed("Unable to hit 'Continue' button in 'WinBoard - Chessboard For Windows (License Agreement)' window.")
@@ -107,12 +106,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, WinBoard - Chessboard For Windows, Choose Components, 5
+    WinWaitActive, WinBoard - Chessboard For Windows, Choose Components, 3
     if ErrorLevel
         TestsFailed("'WinBoard - Chessboard For Windows (Choose Components)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, WinBoard - Chessboard For Windows, Choose Components
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'WinBoard - Chessboard For Windows (License Agreement)' window.")
@@ -129,12 +127,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, WinBoard - Chessboard For Windows, Windows File Associations, 5
+    WinWaitActive, WinBoard - Chessboard For Windows, Windows File Associations, 3
     if ErrorLevel
         TestsFailed("'WinBoard - Chessboard For Windows (Windows File Associations)' window failed to appear.")
     else
     {
-        Sleep, 700
         Control, Uncheck, , Button4, WinBoard - Chessboard For Windows, Windows File Associations ; Uncheck '.PNG' checkbox
         if ErrorLevel
             TestsFailed("Unable to uncheck '.PNG' checkbox in 'WinBoard - Chessboard For Windows (Windows File Associations)' window.")
@@ -145,7 +142,6 @@ if bContinue
                 TestsFailed("Unable to uncheck '.FEN' checkbox in 'WinBoard - Chessboard For Windows (Windows File Associations)' window.")
             else
             {
-                Sleep, 700
                 ControlClick, Button2, WinBoard - Chessboard For Windows, Windows File Associations
                 if ErrorLevel
                     TestsFailed("Unable to hit 'Next' button in 'WinBoard - Chessboard For Windows (Windows File Associations)' window.")
@@ -161,12 +157,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, WinBoard - Chessboard For Windows, Choose Install Location, 5
+    WinWaitActive, WinBoard - Chessboard For Windows, Choose Install Location, 3
     if ErrorLevel
         TestsFailed("'WinBoard - Chessboard For Windows (Choose Install Location)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, WinBoard - Chessboard For Windows, Choose Install Location
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'WinBoard - Chessboard For Windows (Choose Install Location)' window.")
@@ -180,12 +175,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, WinBoard - Chessboard For Windows, Choose Start Menu Folder, 5
+    WinWaitActive, WinBoard - Chessboard For Windows, Choose Start Menu Folder, 3
     if ErrorLevel
         TestsFailed("'WinBoard - Chessboard For Windows (Choose Start Menu Folder)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, WinBoard - Chessboard For Windows, Choose Start Menu Folder
         if ErrorLevel
             TestsFailed("Unable to hit 'Install' button in 'WinBoard - Chessboard For Windows (Choose Start Menu Folder)' window.")
@@ -199,17 +193,30 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, WinBoard - Chessboard For Windows, Installing, 5
+    WinWaitActive, WinBoard - Chessboard For Windows, Installing, 3
     if ErrorLevel
         TestsFailed("'WinBoard - Chessboard For Windows (Installing)' window failed to appear.")
     else
     {
-        OutputDebug, OK: %TestName%: 'WinBoard - Chessboard For Windows (Installing)' window appeared, waiting for it to close.`n
-        WinWaitClose, WinBoard - Chessboard For Windows, Installing, 25
+        TestsInfo("'WinBoard - Chessboard For Windows (Installing)' window appeared, waiting for it to close.")
+        
+        iTimeOut := 25
+        while iTimeOut > 0
+        {
+            IfWinActive, WinBoard - Chessboard For Windows, Installing
+            {
+                WinWaitClose, WinBoard - Chessboard For Windows, Installing, 1
+                iTimeOut--
+            }
+            else
+                break ; exit the loop if something poped-up
+        }
+
+        WinWaitClose, WinBoard - Chessboard For Windows, Installing, 1
         if ErrorLevel
-            TestsFailed("'WinBoard - Chessboard For Windows (Installing)' window failed to close.")
+            TestsFailed("'WinBoard - Chessboard For Windows (Installing)' window failed to close (iTimeOut=" iTimeOut ").")
         else
-            TestsOK("'WinBoard - Chessboard For Windows (Installing)' window went away")
+            TestsOK("'WinBoard - Chessboard For Windows (Installing)' window went away (iTimeOut=" iTimeOut ").")
     }
 }
 
@@ -218,12 +225,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, WinBoard - Chessboard For Windows, Click Finish, 5
+    WinWaitActive, WinBoard - Chessboard For Windows, Click Finish, 3
     if ErrorLevel
         TestsFailed("'WinBoard - Chessboard For Windows (Click Finish)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, WinBoard - Chessboard For Windows, Click Finish
         if ErrorLevel
             TestsFailed("Unable to hit 'Finish' button in 'WinBoard - Chessboard For Windows (Click Finish)' window.")
@@ -237,7 +243,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 1000
     AppFile = %A_ProgramFiles%\WinBoard-4.2.7\%MainAppFile%
     IfExist, %AppFile%
         TestsOK("The application has been installed, because '" AppFile "' was found.")
