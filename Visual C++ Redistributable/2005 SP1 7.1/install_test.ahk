@@ -27,16 +27,15 @@ IfNotExist, %ModuleExe%
     TestsFailed("'" ModuleExe "' not found.")
 else
 {
-    IfExist, %MainAppFile%
+    UninstallerPath = %A_WinDir%\System32\MsiExec.exe /qn /norestart /X{7299052b-02a4-4627-81f2-1818da5d550d} 
+    WaitUninstallDone(UninstallerPath, 3)
+    if bContinue
     {
-        RunWait, MsiExec.exe /qn /norestart /X{7299052b-02a4-4627-81f2-1818da5d550d} ; Silently uninstall it
-        Sleep, 7000
+        IfNotExist, %MainAppFile% ; Uninstaller might fail
+            bContinue := true
+        else
+            TestsFailed("Uninstaller failed to get rid of '" MainAppFile "'.")
     }
-
-    IfNotExist, %MainAppFile% ; Uninstaller might fail
-        bContinue := true
-    else
-        TestsFailed("Uninstaller failed to get rid of '" MainAppFile "'.")
 
     if bContinue
     {
@@ -56,13 +55,12 @@ if bContinue
         TestsFailed("Window 'Microsoft Visual C++ 2005 SP1 Redistributable Package (x86) (Please read)' failed to appear.")
     else
     {
-        Sleep, 1000
         ControlClick, Button1, Microsoft Visual C++ 2005 SP1 Redistributable Package (x86), Please read ; Hit 'Yes' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Yes' button in 'Microsoft Visual C++ 2005 SP1 Redistributable Package (x86) (Please read)' window.")
         else
         {
-            WinWaitClose, Microsoft Visual C++ 2005 SP1 Redistributable Package (x86), Please read, 4
+            WinWaitClose, Microsoft Visual C++ 2005 SP1 Redistributable Package (x86), Please read, 3
             if ErrorLevel
                 TestsFailed("'Microsoft Visual C++ 2005 SP1 Redistributable Package (x86) (Please read)' window failed to close despite 'Yes' button being clicked.")
             else
@@ -75,7 +73,7 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Microsoft Visual C++ 2005 Redistributable,, 15
+    WinWaitActive, Microsoft Visual C++ 2005 Redistributable,, 10
     if ErrorLevel
         TestsFailed("'Microsoft Visual C++ 2005 Redistributable' window failed to appear.")
     else
@@ -93,7 +91,18 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 7000
+    iTimeOut := 7
+    while iTimeOut > 0
+    {
+        IfExist, %MainAppFile%
+            break
+        else
+        {
+            iTimeOut--
+            Sleep, 1000
+        }
+    }
+
     IfNotExist, %MainAppFile%
         TestsFailed("Something went wrong, can't find '" MainAppFile "'.")
     else
