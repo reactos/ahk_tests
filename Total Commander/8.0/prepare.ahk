@@ -71,42 +71,39 @@ RunApplication()
     global TestsTotal
     
     TestsTotal++
-    IfNotExist, %ModuleExe%
-        TestsFailed("Can NOT find 'ModuleExe'.")
-    else
+    if bContinue
     {
-        Run, %ModuleExe%,, Max ; Start maximized
-        WinWaitActive, Total Commander, Program &information, 10
-        if ErrorLevel
-            TestsFailed("'Total Commander (Program information)' window failed to appear.")
+        IfNotExist, %ModuleExe%
+            TestsFailed("Can NOT find 'ModuleExe'.")
         else
         {
-            Sleep, 700
-            ControlGetText, BtnNumber, TPanel2, Total Commander, Program &information
+            Run, %ModuleExe%,, Max ; Start maximized
+            WinWaitActive, Total Commander, Program &information, 10
             if ErrorLevel
-                TestsFailed("Unable to get button number needed to hit in 'Total Commander (Program information)' window.")
+                TestsFailed("'Total Commander (Program information)' window failed to appear.")
             else
             {
-                Sleep, 700
-                SendInput, %BtnNumber% ; Click button to start program
-                WinWaitActive, Configuration, Layout, 5
+                ControlGetText, BtnNumber, TPanel2, Total Commander, Program &information
                 if ErrorLevel
-                    TestsFailed("'Configuration (Layout)' window failed to appear.")
+                    TestsFailed("Unable to get button number needed to hit in 'Total Commander (Program information)' window.")
                 else
                 {
-                    Sleep, 700
-                    ControlClick, TButton30, Configuration, Layout ; Hit 'OK' button
+                    SendInput, %BtnNumber% ; Click button to start program
+                    WinWaitActive, Configuration, Layout, 5
                     if ErrorLevel
-                        TestsFailed("Unable to hit 'OK' button in 'Configuration (Layout)' window.")
+                        TestsFailed("'Configuration (Layout)' window failed to appear.")
                     else
                     {
-                        WinWaitActive, Total Commander 8.0 - NOT REGISTERED,,5
+                        ControlClick, TButton30, Configuration, Layout ; Hit 'OK' button
                         if ErrorLevel
-                            TestsFailed("'Total Commander 8.0 - NOT REGISTERED' window failed to appear.")
+                            TestsFailed("Unable to hit 'OK' button in 'Configuration (Layout)' window.")
                         else
                         {
-                            TestsOK("")
-                            Sleep, 700
+                            WinWaitActive, Total Commander 8.0 - NOT REGISTERED,,5
+                            if ErrorLevel
+                                TestsFailed("'Total Commander 8.0 - NOT REGISTERED' window failed to appear.")
+                            else
+                                TestsOK("")
                         }
                     }
                 }

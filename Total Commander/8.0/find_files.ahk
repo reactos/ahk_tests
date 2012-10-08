@@ -47,7 +47,6 @@ else
                 {
                     SendInput, {ALTDOWN}i{ALTUP} ;  Focus 'Search in' field, ControlSetText will cause problems
                     SendInput, %A_WinDir%
-                    Sleep, 1000
                     ControlClick, TButton16, Find Files, &Start search ; Hit 'Start search' button
                     if ErrorLevel
                         TestsFailed("Unable to hit 'Start search' button in 'Find Files (Start search)' window.")

@@ -40,50 +40,69 @@ else
             ; There was a problem (such as a nonexistent key or value). 
             ; That probably means we have not installed this app before.
             ; Check in default directory to be extra sure
-            IfNotExist, %InstallToDir%
-                bContinue := true ; No previous versions detected in hardcoded path
-            else
+            bHardcoded := true ; To know if we got path from registry or not
+            szDefaultDir = %InstallToDir%
+            IfNotExist, %szDefaultDir%
             {
-                bHardcoded := true ; To know if we got path from registry or not
-                IfExist, %InstallToDir%\tcuninst.exe
+                TestsInfo("No previous versions detected in hardcoded path: '" szDefaultDir "'.")
+                bContinue := true
+            }
+            else
+            {   
+                UninstallerPath = %szDefaultDir%\tcuninst.exe /7
+                WaitUninstallDone(UninstallerPath, 3)
+                if bContinue
                 {
-                    RunWait, %InstallToDir%\tcuninst.exe /7 ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %InstallToDir% ; Uninstaller might delete the dir
-                    bContinue := true
-                {
-                    FileRemoveDir, %InstallToDir%, 1
-                    if ErrorLevel
-                        TestsFailed("Unable to delete hardcoded path '" InstallToDir "' ('" MainAppFile "' process is reported as terminated).'")
-                    else
+                    IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
+                    {
+                        TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %szDefaultDir%, 1
+                        if ErrorLevel
+                            TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
         else
         {
+            UninstallerPath := ExeFilePathNoParam(UninstallerPath)
             SplitPath, UninstallerPath,, InstalledDir
             IfNotExist, %InstalledDir%
+            {
+                TestsInfo("Got '" InstalledDir "' from registry and such path does not exist.")
                 bContinue := true
+            }
             else
             {
-                IfExist, %UninstallerPath%
+                UninstallerPath = %UninstallerPath% /7
+                WaitUninstallDone(UninstallerPath, 3) ; Reported child name is 'cmd.exe'
+                if bContinue
                 {
-                    RunWait, %UninstallerPath% /7 ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %InstalledDir%
-                    bContinue := true
-                else
-                {
-                    FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
-                    else
+                    IfNotExist, %InstalledDir%
+                    {
+                        TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %InstalledDir%, 1 ; Uninstaller leaved the path for us to delete, so, do it
+                        if ErrorLevel
+                            TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
@@ -116,18 +135,23 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Installation Total Commander 32+64bit 8.0, Please select a language, 15
+    WinWaitActive, Installation Total Commander 32+64bit 8.0, Please select a language, 7
     if ErrorLevel
         TestsFailed("'Installation Total Commander 32+64bit 8.0 (Please select a language)' window failed to appear.")
     else
     {
-        Sleep, 700
         ; Hit 'Next' button. Specify all params in case some other window will pop up
         ControlClick, Button3, Installation Total Commander 32+64bit 8.0, Please select a language 
         if ErrorLevel
             TestsFailed("Unable to click 'Next' in 'Installation Total Commander 32+64bit 8.0 (Please select a language)' window.")
         else
-            TestsOK("'Installation Total Commander 32+64bit 8.0 (Please select a language)' window appeared and 'Next' button was clicked.")
+        {
+            WinWaitClose, Installation Total Commander 32+64bit 8.0, Please select a language, 3
+            if ErrorLevel
+                TestsFailed("")
+            else
+                TestsOK("'Installation Total Commander 32+64bit 8.0 (Please select a language)' window appeared, 'Next' button clicked and window closed.")
+        }
     }
 }
 
@@ -141,7 +165,6 @@ if bContinue
         TestsFailed("'Installation Total Commander 32+64bit 8.0 (Do you also)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button3, Installation Total Commander 32+64bit 8.0, Do you also
         if ErrorLevel
             TestsFailed("Unable to click 'Next' in 'Installation Total Commander 32+64bit 8.0 (Do you also)' window.")
@@ -155,7 +178,7 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Installation Total Commander 32+64bit 8.0, Please enter target directory, 5
+    WinWaitActive, Installation Total Commander 32+64bit 8.0, Please enter target directory, 3
     if ErrorLevel
         TestsFailed("'Installation Total Commander 32+64bit 8.0 (Please enter target directory)' window failed to appear.")
     else
@@ -165,7 +188,6 @@ if bContinue
             TestsFailed("Unable to enter '" InstallToDir "' in 'Installation Total Commander 32+64bit 8.0 (Please enter target directory)' window.")
         else
         {
-            Sleep, 700
             ControlClick, Button2, Installation Total Commander 32+64bit 8.0, Please enter target directory
             if ErrorLevel
                 TestsFailed("Unable to click 'Next' in 'Installation Total Commander 32+64bit 8.0 (Please enter target directory)' window.")
@@ -180,12 +202,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Installation Total Commander 32+64bit 8.0, You can define, 5
+    WinWaitActive, Installation Total Commander 32+64bit 8.0, You can define, 3
     if ErrorLevel
         TestsFailed("'Installation Total Commander 32+64bit 8.0 (You can define)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button1, Installation Total Commander 32+64bit 8.0, You can define
         if ErrorLevel
             TestsFailed("Unable to click 'Next' in 'Installation Total Commander 32+64bit 8.0 (You can define)' window.")
@@ -204,7 +225,6 @@ if bContinue
         TestsFailed("'Installation Total Commander 32+64bit 8.0 (Create shortcut)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button1, Installation Total Commander 32+64bit 8.0, Create shortcut
         if ErrorLevel
             TestsFailed("Unable to click 'Next' in 'Installation Total Commander 32+64bit 8.0 (Create shortcut)' window.")
@@ -218,18 +238,17 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Installation Total Commander 32+64bit 8.0, Installation successful, 5
+    WinWaitActive, Installation Total Commander 32+64bit 8.0, Installation successful, 3
     if ErrorLevel
         TestsFailed("'Installation Total Commander 32+64bit 8.0 (Installation successful)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button1, Installation Total Commander 32+64bit 8.0, Installation successful
         if ErrorLevel
             TestsFailed("Unable to click 'OK' in 'Installation Total Commander 32+64bit 8.0 (Installation successful)' window. ")
         else
         {
-            WinWaitClose, Installation Total Commander 32+64bit 8.0,, 5
+            WinWaitClose, Installation Total Commander 32+64bit 8.0,, 3
             if ErrorLevel
                 TestsFailed("'Installation Total Commander 32+64bit 8.0' window failed to close.")
             else
@@ -243,7 +262,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Totalcmd, UninstallString
     if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")
