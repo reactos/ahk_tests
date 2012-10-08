@@ -39,50 +39,94 @@ else
             ; There was a problem (such as a nonexistent key or value). 
             ; That probably means we have not installed this app before.
             ; Check in default directory to be extra sure
-            IfNotExist, %A_ProgramFiles%\Mozilla Sunbird
-                bContinue := true ; No previous versions detected in hardcoded path
-            else
+            bHardcoded := true ; To know if we got path from registry or not
+            szDefaultDir = %A_ProgramFiles%\Mozilla Sunbird
+            IfNotExist, %szDefaultDir%
             {
-                bHardcoded := true ; To know if we got path from registry or not
-                IfExist, %A_ProgramFiles%\Mozilla Sunbird\uninstall\helper.exe
+                TestsInfo("No previous versions detected in hardcoded path: '" szDefaultDir "'.")
+                bContinue := true
+            }
+            else
+            {   
+                UninstallerPath = %szDefaultDir%\uninstall\uninst.exe /S
+                ; There is child process, but seems we can not detect it
+                WaitUninstallDone(UninstallerPath, 3)
+                if bContinue
                 {
-                    RunWait, %A_ProgramFiles%\Mozilla Sunbird\uninstall\helper.exe /S ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %A_ProgramFiles%\Mozilla Sunbird ; Uninstaller might delete the dir
-                    bContinue := true
-                {
-                    FileRemoveDir, %A_ProgramFiles%\Mozilla Sunbird, 1
-                    if ErrorLevel
-                        TestsFailed("Unable to delete hardcoded path '" A_ProgramFiles "\Mozilla Sunbird' ('" MainAppFile "' process is reported as terminated).'")
+                    Process, WaitClose, Au_.exe, 7
+                    if ErrorLevel ; The PID still exists
+                    {
+                        TestsInfo("'Au_.exe' process failed to close.")
+                        Process, Close, Au_.exe
+                        Process, WaitClose, Au_.exe, 3
+                        if ErrorLevel ; The PID still exists
+                            TestsFailed("Unable to terminate 'Au_.exe' process.")
+                    }
                     else
-                        bContinue := true
+                    {
+                        IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
+                        {
+                            TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
+                            bContinue := true
+                        }
+                        else
+                        {
+                            FileRemoveDir, %szDefaultDir%, 1
+                            if ErrorLevel
+                                TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
+                            else
+                            {
+                                TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
+                                bContinue := true
+                            }
+                        }
+                    }
                 }
             }
         }
         else
         {
             SplitPath, UninstallerPath,, InstalledDir
+            SplitPath, InstalledDir,, InstalledDir ; Split once more, since installer was in subdir (v12.0 specific)
             IfNotExist, %InstalledDir%
+            {
+                TestsInfo("Got '" InstalledDir "' from registry and such path does not exist.")
                 bContinue := true
+            }
             else
             {
-                IfExist, %UninstallerPath%
+                UninstallerPath = %UninstallerPath% /S
+                WaitUninstallDone(UninstallerPath, 3)
+                if bContinue
                 {
-                    RunWait, %UninstallerPath% /S ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %InstalledDir%
-                    bContinue := true
-                else
-                {
-                    FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                    Process, WaitClose, Au_.exe, 7
+                    if ErrorLevel ; The PID still exists
+                    {
+                        TestsInfo("'Au_.exe' process failed to close.")
+                        Process, Close, Au_.exe
+                        Process, WaitClose, Au_.exe, 3
+                        if ErrorLevel ; The PID still exists
+                            TestsFailed("Unable to terminate 'Au_.exe' process.")
+                    }
                     else
-                        bContinue := true
+                    {
+                        IfNotExist, %InstalledDir%
+                        {
+                            TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
+                            bContinue := true
+                        }
+                        else
+                        {
+                            FileRemoveDir, %InstalledDir%, 1 ; Uninstaller leaved the path for us to delete, so, do it
+                            if ErrorLevel
+                                TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                            else
+                            {
+                                TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
+                                bContinue := true
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -122,12 +166,25 @@ if bContinue
         TestsFailed("'Extracting' window failed to appear.")
     else
     {
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Extracting' window appeared, waiting for it to close.`n
-        WinWaitClose, Extracting, Cancel, 20
+        TestsInfo("'Extracting' window appeared, waiting for it to close.")
+		
+		iTimeOut := 20
+        while iTimeOut > 0
+        {
+            IfWinActive, Extracting, Cancel
+            {
+                WinWaitClose, Extracting, Cancel, 1
+                iTimeOut--
+            }
+            else
+                break ; exit the loop if something poped-up
+        }
+
+        WinWaitClose, Extracting, Cancel, 1
         if ErrorLevel 
-            TestsFailed("'Extracting' window failed to dissapear.")
+            TestsFailed("'Extracting' window failed to dissapear (iTimeOut=" iTimeOut ").")
         else
-            TestsOK("'Extracting' window appeared and went away.")
+            TestsOK("'Extracting' window appeared and went away (iTimeOut=" iTimeOut ").")
     }
 }
 
@@ -136,12 +193,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Mozilla Sunbird Setup, This wizard, 20
+    WinWaitActive, Mozilla Sunbird Setup, This wizard, 7
     if ErrorLevel
         TestsFailed("'Mozilla Sunbird Setup (This wizard)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, Mozilla Sunbird Setup, This wizard
         if ErrorLevel
             TestsFailed("Unable to click 'Next' in 'Mozilla Sunbird Setup (This wizard)' window.")
@@ -155,18 +211,16 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Mozilla Sunbird Setup, License Agreement, 5
+    WinWaitActive, Mozilla Sunbird Setup, License Agreement, 3
     if ErrorLevel
         TestsFailed("'Mozilla Sunbird Setup' window with 'Mozilla Sunbird Setup (License Agreement)' failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button4, Mozilla Sunbird Setup, License Agreement ; check 'I accept' radio button
         if ErrorLevel
             TestsFailed("Unable to check 'I agree' radio button in 'Mozilla Sunbird Setup (License Agreement)' window.")
         else
         {
-            Sleep, 1500 ; Give some time for 'Next' to get enabled
             ControlGet, OutputVar, Enabled,, Button2, Mozilla Sunbird Setup, License Agreement
             if not %OutputVar%
                 TestsFailed("'I agree' radio button is checked in 'Mozilla Sunbird Setup (License Agreement)', but 'Next' button is disabled.")
@@ -188,12 +242,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Mozilla Sunbird Setup, Setup Type, 7
+    WinWaitActive, Mozilla Sunbird Setup, Setup Type, 3
     if ErrorLevel
         TestsFailed("'Mozilla Sunbird Setup (Setup Type)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button2, Mozilla Sunbird Setup, Setup Type
         if ErrorLevel
             TestsFailed("Unable to click 'Next' in 'Mozilla Sunbird Setup (Setup Type)' window.")
@@ -207,18 +260,30 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Mozilla Sunbird Setup, Installing, 7
+    WinWaitActive, Mozilla Sunbird Setup, Installing, 3
     if ErrorLevel
         TestsFailed("'Mozilla Sunbird Setup (Installing)' window failed to appear.")
     else
     {
-        Sleep, 700
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'Mozilla Sunbird Setup (Installing)' window appeared, waiting for it to close.`n
-        WinWaitClose, Mozilla Sunbird Setup, Installing, 35
+        TestsInfo("'Mozilla Sunbird Setup (Installing)' window appeared, waiting for it to close.")
+		
+		iTimeOut := 25
+        while iTimeOut > 0
+        {
+            IfWinActive, Mozilla Sunbird Setup, Installing
+            {
+                WinWaitClose, Mozilla Sunbird Setup, Installing, 1
+                iTimeOut--
+            }
+            else
+                break ; exit the loop if something poped-up
+        }
+		
+        WinWaitClose, Mozilla Sunbird Setup, Installing, 1
         if ErrorLevel
-            TestsFailed("'Mozilla Sunbird Setup (Installing)' window failed to dissapear.")
+            TestsFailed("'Mozilla Sunbird Setup (Installing)' window failed to dissapear (iTimeOut=" iTimeOut ").")
         else
-            TestsOK("'Mozilla Sunbird Setup (Installing)' window went away.")
+            TestsOK("'Mozilla Sunbird Setup (Installing)' window went away (iTimeOut=" iTimeOut ").")
     }
 }
 
@@ -227,12 +292,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Mozilla Sunbird Setup, Completing, 7
+    WinWaitActive, Mozilla Sunbird Setup, Completing, 3
     if ErrorLevel
         TestsFailed("'Mozilla Sunbird Setup (Completing)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, Button4, Mozilla Sunbird Setup, Completing ; Uncheck 'Launch Mozilla Sunbird now'
         if ErrorLevel
         {
@@ -242,13 +306,12 @@ if bContinue
         }
         else
         {
-            Sleep, 700
             ControlClick, Button2, Mozilla Sunbird Setup, Completing ; Hit 'Finish'
             if ErrorLevel
                 TestsFailed("Unable to click 'Finish' in 'Mozilla Sunbird Setup (Completing)' window.")
             else
             {
-                WinWaitClose, Mozilla Sunbird Setup, Completing, 5
+                WinWaitClose, Mozilla Sunbird Setup, Completing, 3
                 if ErrorLevel
                     TestsFailed("'Mozilla Sunbird Setup (Completing)' window failed to close despite 'Finish' button was clicked.")
                 else
@@ -263,7 +326,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Mozilla Sunbird (0.9), UninstallString
     if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")

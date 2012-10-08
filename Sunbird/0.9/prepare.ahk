@@ -55,7 +55,6 @@ if bContinue
     else
     {
         FileRemoveDir, %A_AppData%\Mozilla, 1 ; Delete all saved settings
-        Sleep, 1500
         IfExist, %A_AppData%\Mozilla
             TestsFailed("Seems like we failed to delete '" A_AppData "\Mozilla'.")
         else
@@ -88,7 +87,6 @@ if bContinue
                         {
                             TestsOK("")
                             WinMaximize, %TimeString% - Sunbird
-                            Sleep, 1000
                         }
                     }
                 }

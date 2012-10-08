@@ -37,7 +37,6 @@ else
             TestsFailed("Window 'New Event: New Event' failed to appear.")
         else
         {
-            Sleep, 1500
             SendInput, {ALTDOWN}t{ALTUP} ; Focus 'Title' field, ControlClick does not work here
             SendInput, Edijus birthday ; Set event title
             WinWaitActive, New Event: Edijus birthday,,5
@@ -49,19 +48,16 @@ else
                 SendInput, Lithuania
                 SendInput, {ALTDOWN}y{ALTUP} ; Focus 'Category' field
                 SendInput, b ; Select 'Birthday'
-                Sleep, 1000
                 SendInput, {ALTDOWN}d{ALTUP} ; Check 'All day Event' checkbox
                 SendInput, {ALTDOWN}s{ALTUP}{TAB} ; Focus 'Start' field
-                SendInput, 10/6/2012 ; Write the date
+                SendInput, 10/6/2013 ; Write the date
                 SendInput, {ALTDOWN}n{ALTUP} ; Focus 'End' field
                 SendInput, {ALTDOWN}r{ALTUP} ; Focus 'Repeat' field
                 SendInput, y ; Select 'Yearly'
                 SendInput, {ALTDOWN}m{ALTUP} ; Focus 'Reminder' field
                 SendInput, 22 ; Select '2 days before'
-                Sleep, 1000
                 SendInput, {ALTDOWN}p{ALTUP} ; Focus 'Description' field
                 SendInput, October 6th is Edijus birthday, don't forget to get something for him.
-                Sleep, 1000
                 SendInput, {CTRLDOWN}s{CTRLUP} ; Save event
                 SendInput, {CTRLDOWN}w{CTRLUP} ; Close window
                 WinWaitClose, New Event: Edijus birthday,,5
