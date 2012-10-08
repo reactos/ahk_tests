@@ -27,16 +27,15 @@ IfNotExist, %ModuleExe%
     TestsFailed("'" ModuleExe "' not found.")
 else
 {
-    IfExist, %MainAppFile%
+    UninstallerPath = %A_WinDir%\System32\MsiExec.exe /qn /norestart /X{9A25302D-30C0-39D9-BD6F-21E6EC160475}
+    WaitUninstallDone(UninstallerPath, 3)
+    if bContinue
     {
-        RunWait, MsiExec.exe /qn /norestart /X{9A25302D-30C0-39D9-BD6F-21E6EC160475} ; Silently uninstall it
-        Sleep, 7000
+        IfNotExist, %MainAppFile% ; Uninstaller might fail
+            bContinue := true
+        else
+            TestsFailed("Uninstaller failed to get rid of '" MainAppFile "'.")
     }
-
-    IfNotExist, %MainAppFile% ; Uninstaller might fail
-        bContinue := true
-    else
-        TestsFailed("Uninstaller failed to get rid of '" MainAppFile "'.")
 
     if bContinue
     {
@@ -51,16 +50,17 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Microsoft Visual C++ 2008 Redistributable Setup, This wizard, 15
+    WinWaitActive, Microsoft Visual C++ 2008 Redistributable Setup, This wizard, 7
     if ErrorLevel
         TestsFailed("'Microsoft Visual C++ 2008 Redistributable Setup (This wizard)' window failed to appear.")
     else
     {
-        Sleep, 700
-        ; Alt+N here is as good as ControlClick (no way to know for 100% if it failed or not until 'Setup (Setup is configuring)' window appears).
         SendInput, !n ; Hit 'Next' button
-        ; WinWaitClose does not work for this install (win2k3 sp2)
-        TestsOK("'Microsoft Visual C++ 2008 Redistributable Setup (This wizard)' window appeared and 'Alt+N' was sent.")
+        WinWaitClose, Microsoft Visual C++ 2008 Redistributable Setup, This wizard, 3
+        if ErrorLevel
+            TestsFailed("'Microsoft Visual C++ 2008 Redistributable Setup (This wizard)' window failed to close despite Alt+N was sent.")
+        else
+            TestsOK("'Microsoft Visual C++ 2008 Redistributable Setup (This wizard)' window appeared and 'Alt+N' was sent.")
     }
 }
 
@@ -69,14 +69,12 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Microsoft Visual C++ 2008 Redistributable Setup, License Terms, 7
+    WinWaitActive, Microsoft Visual C++ 2008 Redistributable Setup, License Terms, 3
     if ErrorLevel
         TestsFailed("'Microsoft Visual C++ 2008 Redistributable Setup (License Terms)' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, !a ; Hit 'I have read and accept the license terms' checkbox
-        Sleep, 1200
         SendInput, !i ; Hit 'Install' button
         TestsOK("'Microsoft Visual C++ 2008 Redistributable Setup (License Terms)' window appeared, 'Alt+A' and 'Alt+I' was sent.")
     }
@@ -87,13 +85,12 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    ; Until this window shows up, we have no idea if we really succeeded
-    WinWaitActive, Setup, Setup is configuring, 10
+    WinWaitActive, Setup, Setup is configuring, 7
     if ErrorLevel
         TestsFailed("'Setup (Setup is configuring)' window failed to appear.")
     else
     {
-        WinWaitClose, Setup,Setup is configuring, 20
+        WinWaitClose, Setup,Setup is configuring, 10
         if ErrorLevel
             TestsFailed("'Setup (Setup is configuring)' window failed to close.")
         else
@@ -111,7 +108,6 @@ if bContinue
         TestsFailed("'Microsoft Visual C++ 2008 Redistributable Setup (Setup Complete)' window failed to appear.")
     else
     {
-        Sleep, 1500
         SearchImg = %A_WorkingDir%\Media\Finish_Button.jpg
         IfNotExist, %SearchImg%
             TestsFailed("Can NOT find '" SearchImg "'.")
@@ -125,7 +121,7 @@ if bContinue
             else
             {
                 SendInput, !f ; Hit 'Finish' button
-                WinWaitClose, Microsoft Visual C++ 2008 Redistributable Setup, Setup Complete, 7
+                WinWaitClose, Microsoft Visual C++ 2008 Redistributable Setup, Setup Complete, 3
                 if ErrorLevel
                     TestsFailed("'Microsoft Visual C++ 2008 Redistributable Setup (Setup Complete)' window failed to close despite 'Alt+F' was sent.")
                 else
@@ -140,7 +136,18 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 7000
+    iTimeOut := 7
+    while iTimeOut > 0
+    {
+        IfExist, %MainAppFile%
+            break
+        else
+        {
+            iTimeOut--
+            Sleep, 1000
+        }
+    }
+
     IfNotExist, %MainAppFile%
         TestsFailed("Something went wrong, can't find '" MainAppFile "'.")
     else
