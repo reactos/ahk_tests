@@ -69,12 +69,11 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, VCRedist Installation, Please read, 10
+    WinWaitActive, VCRedist Installation, Please read, 7
     if ErrorLevel
         TestsFailed("Window 'VCRedist Installation (Please read)' failed to appear.")
     else
     {
-        Sleep, 1000
         ControlClick, Button1, VCRedist Installation, Please read ; Hit 'Yes' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Yes' button in 'VCRedist Installation (Please read)' window.")
@@ -94,7 +93,7 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, VCRedist Installation, Please type, 10
+    WinWaitActive, VCRedist Installation, Please type, 3
     if ErrorLevel
         TestsFailed("Window 'VCRedist Installation (Please type)' failed to appear.")
     else
@@ -104,7 +103,6 @@ if bContinue
             TestsFailed("Unable to set path to '" InstallDir "' in 'VCRedist Installation (Please type)' window.")
         else
         {
-            Sleep, 1000
             ControlClick, Button2, VCRedist Installation, Please type ; Hit 'OK' button
             if ErrorLevel
                 TestsFailed("Unable to hit 'OK' button in 'VCRedist Installation (Please type)' window.")
@@ -119,7 +117,7 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitClose, VCRedist Installation,,10
+    WinWaitClose, VCRedist Installation,,7
     if ErrorLevel
         TestsFailed("Window 'VCRedist Installation' failed to close.")
     else
@@ -131,7 +129,18 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 7000 ; longer sleep is required
+    iTimeOut := 7
+    while iTimeOut > 0
+    {
+        IfExist, %InstallDir%\mfc42.dll
+            break
+        else
+        {
+            iTimeOut--
+            Sleep, 1000
+        }
+    }
+    
     ProgramFile = %InstallDir%\mfc42.dll
     IfNotExist, %ProgramFile%
         TestsFailed("Something went wrong, can't find '" ProgramFile "'.")
