@@ -110,11 +110,11 @@ else
     {
         RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\{1E85458A-9B00-443F-A187-2E06DBB15E43}
         RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\LibreOffice
-        IfExist, %A_AppData%\IrfanView
+        IfExist, %A_AppData%\LibreOffice
         {
-            FileRemoveDir, %A_AppData%\IrfanView, 1
+            FileRemoveDir, %A_AppData%\LibreOffice, 1
             if ErrorLevel
-                TestsFailed("Unable to delete '" A_AppData "\IrfanView'.")
+                TestsFailed("Unable to delete '" A_AppData "\LibreOffice'.")
         }
 
         if bContinue
