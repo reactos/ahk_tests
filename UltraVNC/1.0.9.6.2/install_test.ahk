@@ -48,7 +48,7 @@ else
             }
             else
             {   
-                UninstallerPath = %szDefaultDir%\Uninstall.exe /NORESTART /VERYSILENT
+                UninstallerPath = %szDefaultDir%\unins000.exe /NORESTART /VERYSILENT
                 WaitUninstallDone(UninstallerPath, 3)
                 if bContinue
                 {
