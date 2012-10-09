@@ -96,11 +96,24 @@ else
                                 TestsFailed("Window 'Transfers - Opera' failed to appear (iTimeOut=" iTimeOut ").")
                             else
                             {
-                                Sleep, 2000 ; Extra sleep is required, because download is not actually done
-                                FileGetSize, DFileSize, %A_MyDocuments%\livecd-56407-dbg.7z
+                                ; Extra sleep is required, because download is not actually done
                                 ExpectedSize := 23030114
+                                iTimeOut := 6
+                                while iTimeOut > 0
+                                {
+                                    FileGetSize, DFileSize, %A_MyDocuments%\livecd-56407-dbg.7z
+                                    if DFileSize <> %ExpectedSize%
+                                    {
+                                        Sleep, 1000
+                                        iTimeOut--
+                                    }
+                                    else
+                                        break
+                                }
+                                
+                                FileGetSize, DFileSize, %A_MyDocuments%\livecd-56407-dbg.7z
                                 if DFileSize <> %ExpectedSize%
-                                    TestsFailed("Downloaded file size is NOT the same as expected [is " DFileSize " and should be " ExpectedSize "].")
+                                    TestsFailed("Downloaded file size is NOT the same as expected [is " DFileSize " and should be " ExpectedSize "] (iTimeOut=" iTimeOut ").")
                                 else
                                 {
                                     Process, Close, %ProcessExe%
@@ -108,7 +121,7 @@ else
                                     if ErrorLevel
                                         TestsFailed("Unable to terminate '" ProcessExe "' process.")
                                     else
-                                        TestsOK("File downloaded. Size the same as expected.")
+                                        TestsOK("File downloaded. Size the same as expected (iTimeOut=" iTimeOut ").")
                                 }
                             }
                         }
