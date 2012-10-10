@@ -18,6 +18,7 @@
  */
 
 TestName = 2.AddressBar
+szURL = http://dsx86.patrickaalto.com
 
 ; Test if we can enter URL
 TestsTotal++
@@ -30,20 +31,35 @@ else
     else
     {
         SendInput, {CTRLDOWN}l{CTRLUP} ; Toggle address bar
-        SendInput, http{:}//dsx86{.}patrickaalto{.}com{ENTER}
-        
-        WinWaitActive, DSx86 by Patrick Aalto - Opera,,10
+        SendInput, %szURL% ; Enter address
+        clipboard = ; Empty the clipboard
+        Send, ^a ; Ctrl+A
+        Send, ^c ; Ctrl+C
+        ClipWait, 2
         if ErrorLevel
-            TestsFailed("Window 'DSx86 by Patrick Aalto - Opera' was NOT found. Failed to open URL. Ctrl+L doesnt work?")
+            TestsFailed(" The attempt to copy text onto the clipboard failed.")
         else
         {
-            Sleep, 4000 ; Let it to sleep, maybe it will crash ;)
-            Process, Close, %ProcessExe%
-            Process, WaitClose, %ProcessExe%, 4
-            if ErrorLevel
-                TestsFailed("Unable to terminate '" ProcessExe "' process.")
+            if clipboard <> %szURL%
+                TestsFailed("Clipboard and URL contents are not the same (expected '" szURL "', got '" clipboard "'). Ctrl+L doesnt work?")
             else
-                TestsOK("Window caption is 'DSx86 by Patrick Aalto - Opera' that means we opened URL by sending Ctrl+L.")
+            {
+                SendInput, {ENTER} ; go to specified address
+                TestsInfo("Successfully typed '" szURL "' to addressbar using Ctrl+L.")
+                WinWaitActive, DSx86 by Patrick Aalto - Opera,,10
+                if ErrorLevel
+                    TestsFailed("Window 'DSx86 by Patrick Aalto - Opera' was NOT found. Failed to open URL.")
+                else
+                {
+                    Sleep, 4000 ; Let it to sleep, maybe it will crash ;)
+                    Process, Close, %ProcessExe%
+                    Process, WaitClose, %ProcessExe%, 4
+                    if ErrorLevel
+                        TestsFailed("Unable to terminate '" ProcessExe "' process.")
+                    else
+                        TestsOK("Window caption is 'DSx86 by Patrick Aalto - Opera' that means we opened URL by sending Ctrl+L.")
+                }
+            }
         }
     }
 }
