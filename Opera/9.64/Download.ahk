@@ -18,6 +18,7 @@
  */
 
 TestName = 3.Download
+szURL = http://iso.reactos.org/livecd/livecd-56407-dbg.7z
 
 ; Test if we can download some file
 TestsTotal++
@@ -31,97 +32,111 @@ else
     {
         IfExist, %A_MyDocuments%\livecd-56407-dbg.7z
             FileDelete, %A_MyDocuments%\livecd-56407-dbg.7z
-        SendInput, {CTRLDOWN}l{CTRLUP}
-        SendInput, http://iso.reactos.org/livecd/livecd-56407-dbg.7z{ENTER} ;Download some file
-        
-        iTimeOut := 45
-        while iTimeOut > 0
-        {
-            IfWinActive, Blank page - Opera
-            {
-                WinWaitActive, Downloading file livecd-56407-dbg.7z,,1
-                iTimeOut--
-            }
-            else
-                break ; exit the loop if something poped-up
-        }
-
-        WinWaitActive, Downloading file livecd-56407-dbg.7z,, 1
+        SendInput, {CTRLDOWN}l{CTRLUP} ; Toggle address bar
+        SendInput, %szURL% ; Enter address
+        clipboard = ; Empty the clipboard
+        Send, ^a ; Ctrl+A
+        Send, ^c ; Ctrl+C
+        ClipWait, 2
         if ErrorLevel
-            TestsFailed("Window 'Downloading file livecd-56407-dbg.7z' failed to appear (iTimeOut=" iTimeOut ").")
+            TestsFailed(" The attempt to copy text onto the clipboard failed.")
         else
         {
-            TestsInfo("'Downloading file livecd-56407-dbg.7z' window appeared (iTimeOut=" iTimeOut ").")
-            SendInput, {ENTER} ; Default option is 'Save' and Alt+S doesn't work here. :/
-            SetTitleMatchMode, 1 ; ReactOS 'Save as', WinXP 'Save As', so match if wnd starts with 'Save'
-            WinWaitActive, Save,, 7
-            if ErrorLevel
-                TestsFailed("'Save as' dialog failed to appear.")
+            if clipboard <> %szURL%
+                TestsFailed("Clipboard and URL contents are not the same (expected '" szURL "', got '" clipboard "'). Ctrl+L doesnt work?")
             else
             {
-                SendInput, !n ; Focus 'File name' field
-                SendInput, %A_MyDocuments%\livecd-56407-dbg.7z
-                SendInput, {ALTDOWN}s{ALTUP} ; Hit 'Save'
-                WinWaitClose, Save,,3
+                SendInput, {ENTER} ; go to specified address
+                iTimeOut := 45
+                while iTimeOut > 0
+                {
+                    IfWinActive, Blank page - Opera
+                    {
+                        WinWaitActive, Downloading file livecd-56407-dbg.7z,,1
+                        iTimeOut--
+                    }
+                    else
+                        break ; exit the loop if something poped-up
+                }
+
+                WinWaitActive, Downloading file livecd-56407-dbg.7z,, 1
                 if ErrorLevel
-                    TestsFailed("'Save' dialog failed to close.")
+                    TestsFailed("Window 'Downloading file livecd-56407-dbg.7z' failed to appear (iTimeOut=" iTimeOut ").")
                 else
                 {
-                    WinWaitActive, Blank page - Opera,, 3
+                    TestsInfo("'Downloading file livecd-56407-dbg.7z' window appeared (iTimeOut=" iTimeOut ").")
+                    SendInput, {ENTER} ; Default option is 'Save' and Alt+S doesn't work here. :/
+                    SetTitleMatchMode, 1 ; ReactOS 'Save as', WinXP 'Save As', so match if wnd starts with 'Save'
+                    WinWaitActive, Save,, 7
                     if ErrorLevel
-                        TestsFailed("'Blank page - Opera' window failed to appear.")
+                        TestsFailed("'Save as' dialog failed to appear.")
                     else
                     {
-                        SendInput, {CTRLDOWN}{TAB}{CTRLUP} ; Navigate thru tabs to 'Transfers' tab
-                        SetTitleMatchMode, 1 ; A window's title must start with the specified WinTitle to be a match.
-                        WinWaitActive, Transfers 0,, 5 ; Expected window title is something like 'Transfers 03:12 - Opera'
+                        SendInput, !n ; Focus 'File name' field
+                        SendInput, %A_MyDocuments%\livecd-56407-dbg.7z
+                        SendInput, {ALTDOWN}s{ALTUP} ; Hit 'Save'
+                        WinWaitClose, Save,,3
                         if ErrorLevel
-                            TestsFailed("Window 'Transfers 0' failed to appear ( SetTitleMatchMode=1).")
+                            TestsFailed("'Save' dialog failed to close.")
                         else
                         {
-                            iTimeOut := 120
-                            while iTimeOut > 0
-                            {
-                                IfWinActive, Transfers 0
-                                {
-                                    WinWaitActive, Transfers - Opera,,1
-                                    iTimeOut--
-                                }
-                                else
-                                    break ; exit the loop if something poped-up
-                            }
-
-                            WinWaitActive, Transfers - Opera,,1
+                            WinWaitActive, Blank page - Opera,, 3
                             if ErrorLevel
-                                TestsFailed("Window 'Transfers - Opera' failed to appear (iTimeOut=" iTimeOut ").")
+                                TestsFailed("'Blank page - Opera' window failed to appear.")
                             else
                             {
-                                ; Extra sleep is required, because download is not actually done
-                                ExpectedSize := 23030114
-                                iTimeOut := 6
-                                while iTimeOut > 0
-                                {
-                                    FileGetSize, DFileSize, %A_MyDocuments%\livecd-56407-dbg.7z
-                                    if DFileSize <> %ExpectedSize%
-                                    {
-                                        Sleep, 1000
-                                        iTimeOut--
-                                    }
-                                    else
-                                        break
-                                }
-                                
-                                FileGetSize, DFileSize, %A_MyDocuments%\livecd-56407-dbg.7z
-                                if DFileSize <> %ExpectedSize%
-                                    TestsFailed("Downloaded file size is NOT the same as expected [is " DFileSize " and should be " ExpectedSize "] (iTimeOut=" iTimeOut ").")
+                                SendInput, {CTRLDOWN}{TAB}{CTRLUP} ; Navigate thru tabs to 'Transfers' tab
+                                SetTitleMatchMode, 1 ; A window's title must start with the specified WinTitle to be a match.
+                                WinWaitActive, Transfers 0,, 5 ; Expected window title is something like 'Transfers 03:12 - Opera'
+                                if ErrorLevel
+                                    TestsFailed("Window 'Transfers 0' failed to appear ( SetTitleMatchMode=1).")
                                 else
                                 {
-                                    Process, Close, %ProcessExe%
-                                    Process, WaitClose, %ProcessExe%, 4
+                                    iTimeOut := 120
+                                    while iTimeOut > 0
+                                    {
+                                        IfWinActive, Transfers 0
+                                        {
+                                            WinWaitActive, Transfers - Opera,,1
+                                            iTimeOut--
+                                        }
+                                        else
+                                            break ; exit the loop if something poped-up
+                                    }
+
+                                    WinWaitActive, Transfers - Opera,,1
                                     if ErrorLevel
-                                        TestsFailed("Unable to terminate '" ProcessExe "' process.")
+                                        TestsFailed("Window 'Transfers - Opera' failed to appear (iTimeOut=" iTimeOut ").")
                                     else
-                                        TestsOK("File downloaded. Size the same as expected (iTimeOut=" iTimeOut ").")
+                                    {
+                                        ; Extra sleep is required, because download is not actually done
+                                        ExpectedSize := 23030114
+                                        iTimeOut := 6
+                                        while iTimeOut > 0
+                                        {
+                                            FileGetSize, DFileSize, %A_MyDocuments%\livecd-56407-dbg.7z
+                                            if DFileSize <> %ExpectedSize%
+                                            {
+                                                Sleep, 1000
+                                                iTimeOut--
+                                            }
+                                            else
+                                                break
+                                        }
+                                        
+                                        FileGetSize, DFileSize, %A_MyDocuments%\livecd-56407-dbg.7z
+                                        if DFileSize <> %ExpectedSize%
+                                            TestsFailed("Downloaded file size is NOT the same as expected [is " DFileSize " and should be " ExpectedSize "] (iTimeOut=" iTimeOut ").")
+                                        else
+                                        {
+                                            Process, Close, %ProcessExe%
+                                            Process, WaitClose, %ProcessExe%, 4
+                                            if ErrorLevel
+                                                TestsFailed("Unable to terminate '" ProcessExe "' process.")
+                                            else
+                                                TestsOK("File downloaded. Size the same as expected (iTimeOut=" iTimeOut ").")
+                                        }
+                                    }
                                 }
                             }
                         }

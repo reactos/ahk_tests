@@ -18,6 +18,7 @@
  */
 
 TestName = 5.CloseDownload
+szURL = http://iso.reactos.org/bootcd/bootcd-54727-dbgwin.7z
 
 ; Test if we can exit properly when download in progress. Bug #5651
 TestsTotal++
@@ -32,49 +33,63 @@ else
         IfExist, %A_MyDocuments%\bootcd-54727-dbgwin.7z
             FileDelete, %A_MyDocuments%\bootcd-54727-dbgwin.7z
         SendInput, {CTRLDOWN}l{CTRLUP} ; Toggle address bar
-        SendInput, http://iso.reactos.org/bootcd/bootcd-54727-dbgwin.7z{ENTER}
-        
-        iTimeOut := 45
-        while iTimeOut > 0
-        {
-            IfWinActive, Blank page - Opera
-            {
-                WinWaitActive, Downloading file bootcd-54727-dbgwin.7z,,1
-                iTimeOut--
-            }
-            else
-                break ; exit the loop if something poped-up
-        }
-
-        WinWaitActive, Downloading file bootcd-54727-dbgwin.7z,, 1
+        SendInput, %szURL% ; Enter address
+        clipboard = ; Empty the clipboard
+        Send, ^a ; Ctrl+A
+        Send, ^c ; Ctrl+C
+        ClipWait, 2
         if ErrorLevel
-            TestsFailed("Window 'Downloading file bootcd-54727-dbgwin.7z' failed to appear (iTimeOut=" iTimeOut ").")
+            TestsFailed(" The attempt to copy text onto the clipboard failed.")
         else
         {
-            TestsInfo("'Downloading file bootcd-54727-dbgwin.7z' window appeared (iTimeOut=" iTimeOut ").")
-            SendInput, !n ; Focus 'File name' field
-            SendInput, %A_MyDocuments%\bootcd-54727-dbgwin.7z
-            SendInput, {ENTER} ; Hit 'Save'
-            SetTitleMatchMode, 1 ; A window's title must start with the specified WinTitle to be a match.
-            WinWaitActive, Save,, 7
-            if ErrorLevel
-                TestsFailed("'Save as' dialog failed to appear (SetTitleMatchMode=1).")
+            if clipboard <> %szURL%
+                TestsFailed("Clipboard and URL contents are not the same (expected '" szURL "', got '" clipboard "'). Ctrl+L doesnt work?")
             else
             {
-                SendInput, {ALTDOWN}s{ALTUP} ; Hit 'Save' in 'Save as'
-                Sleep, 3500 ; Download for 3.5 sec before closing Opera
-                WinClose, Blank page - Opera,,5
-                WinWaitActive, Active,,7 ; ROS 'Active transfers', WinXP 'Active Transfers'
+                SendInput, {ENTER} ; go to specified address
+                iTimeOut := 45
+                while iTimeOut > 0
+                {
+                    IfWinActive, Blank page - Opera
+                    {
+                        WinWaitActive, Downloading file bootcd-54727-dbgwin.7z,,1
+                        iTimeOut--
+                    }
+                    else
+                        break ; exit the loop if something poped-up
+                }
+
+                WinWaitActive, Downloading file bootcd-54727-dbgwin.7z,, 1
                 if ErrorLevel
-                    TestsFailed("'Active' dialog failed to appear(SetTitleMatchMode=1).")
+                    TestsFailed("Window 'Downloading file bootcd-54727-dbgwin.7z' failed to appear (iTimeOut=" iTimeOut ").")
                 else
                 {
-                    SendInput, {ENTER} ; Hit 'OK'
-                    WinWaitClose, Blank page - Opera,,10
+                    TestsInfo("'Downloading file bootcd-54727-dbgwin.7z' window appeared (iTimeOut=" iTimeOut ").")
+                    SendInput, !n ; Focus 'File name' field
+                    SendInput, %A_MyDocuments%\bootcd-54727-dbgwin.7z
+                    SendInput, {ENTER} ; Hit 'Save'
+                    SetTitleMatchMode, 1 ; A window's title must start with the specified WinTitle to be a match.
+                    WinWaitActive, Save,, 7
                     if ErrorLevel
-                        TestsFailed("Window 'Blank page - Opera' failed to close.")
+                        TestsFailed("'Save as' dialog failed to appear (SetTitleMatchMode=1).")
                     else
-                        TestsOK("Closing Opera while download is in progress works.")
+                    {
+                        SendInput, {ALTDOWN}s{ALTUP} ; Hit 'Save' in 'Save as'
+                        Sleep, 3500 ; Download for 3.5 sec before closing Opera
+                        WinClose, Blank page - Opera,,5
+                        WinWaitActive, Active,,7 ; ROS 'Active transfers', WinXP 'Active Transfers'
+                        if ErrorLevel
+                            TestsFailed("'Active' dialog failed to appear(SetTitleMatchMode=1).")
+                        else
+                        {
+                            SendInput, {ENTER} ; Hit 'OK'
+                            WinWaitClose, Blank page - Opera,,10
+                            if ErrorLevel
+                                TestsFailed("Window 'Blank page - Opera' failed to close.")
+                            else
+                                TestsOK("Closing Opera while download is in progress works.")
+                        }
+                    }
                 }
             }
         }

@@ -18,6 +18,7 @@
  */
 
 TestName = 4.FlashPlayer
+szURL = http://beastybombs.com/play.php
 
 ; Test if can open flash
 TestsTotal++
@@ -34,32 +35,46 @@ else
         else
         {
             SendInput, {CTRLDOWN}l{CTRLUP} ; Toggle address bar
-            SendInput, http://beastybombs.com/play.php{ENTER}
-
-            iTimeOut := 30
-            while iTimeOut > 0
-            {
-                IfWinActive, Blank page - Opera
-                {
-                    WinWaitActive, Beasty Bombs - Cats & Dogs Fights - Play - Opera,,1
-                    iTimeOut--
-                }
-                else
-                    break ; exit the loop if something poped-up
-            }
-
-            WinWaitActive, Beasty Bombs - Cats & Dogs Fights - Play - Opera,,1
+            SendInput, %szURL% ; Enter address
+            clipboard = ; Empty the clipboard
+            Send, ^a ; Ctrl+A
+            Send, ^c ; Ctrl+C
+            ClipWait, 2
             if ErrorLevel
-                TestsFailed("Window 'Beasty Bombs - Cats & Dogs Fights - Play - Opera' failed to appear (iTimeOut=" iTimeOut ").")
+                TestsFailed(" The attempt to copy text onto the clipboard failed.")
             else
             {
-                Sleep, 3500 ; Let it to load more, maybe it will crash
-                Process, Close, %ProcessExe%
-                Process, WaitClose, %ProcessExe%, 4
-                if ErrorLevel
-                    TestsFailed("Process '" ProcessExe "' failed to close after opening website.")
+                if clipboard <> %szURL%
+                    TestsFailed("Clipboard and URL contents are not the same (expected '" szURL "', got '" clipboard "'). Ctrl+L doesnt work?")
                 else
-                    TestsOK("Window caption is 'Beasty Bombs - Cats & Dogs Fights - Play - Opera' that means no crash while opening Flash Game (iTimeOut=" iTimeOut ").")
+                {
+                    SendInput, {ENTER} ; go to specified address
+                    iTimeOut := 30
+                    while iTimeOut > 0
+                    {
+                        IfWinActive, Blank page - Opera
+                        {
+                            WinWaitActive, Beasty Bombs - Cats & Dogs Fights - Play - Opera,,1
+                            iTimeOut--
+                        }
+                        else
+                            break ; exit the loop if something poped-up
+                    }
+
+                    WinWaitActive, Beasty Bombs - Cats & Dogs Fights - Play - Opera,,1
+                    if ErrorLevel
+                        TestsFailed("Window 'Beasty Bombs - Cats & Dogs Fights - Play - Opera' failed to appear (iTimeOut=" iTimeOut ").")
+                    else
+                    {
+                        Sleep, 3500 ; Let it to load more, maybe it will crash
+                        Process, Close, %ProcessExe%
+                        Process, WaitClose, %ProcessExe%, 4
+                        if ErrorLevel
+                            TestsFailed("Process '" ProcessExe "' failed to close after opening website.")
+                        else
+                            TestsOK("Window caption is 'Beasty Bombs - Cats & Dogs Fights - Play - Opera' that means no crash while opening Flash Game (iTimeOut=" iTimeOut ").")
+                    }
+                }
             }
         }
     }
