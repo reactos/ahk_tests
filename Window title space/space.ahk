@@ -17,7 +17,7 @@
  */
 
 ModuleExe = %A_WorkingDir%\Apps\HelloWorldSpace.exe
-TestName = 1.space
+TestName = 1.Space
 
 ; Terminate application
 TestsTotal++

@@ -23,21 +23,16 @@ InitalizeCounters()
 params =
 (
 
-    1.space
-    2.space_lite
+    1.Space
 
 )
 
 if CheckParam()
 {
     ; Those brackets are required!
-    if 1 = 1.space
+    if 1 = 1.Space
     {
-        #include space.ahk
-    }
-    else if 1 = 2.space_lite
-    {
-        #include space_lite.ahk
+        #include Space.ahk
     }
 }
 
