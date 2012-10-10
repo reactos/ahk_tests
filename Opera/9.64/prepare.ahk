@@ -31,15 +31,29 @@ else
 }
 
 
+; Test if connected to the Internet
+TestsTotal++
+if bContinue
+{
+    if not bIsConnectedToInternet()
+        TestsFailed("No internet connection detected.")
+    else
+        TestsOK("Internet connection detected.")
+}
+
+
 ; Terminate application
 TestsTotal++
-SplitPath, ModuleExe, ProcessExe
-Process, Close, %ProcessExe%
-Process, WaitClose, %ProcessExe%, 4
-if ErrorLevel
-    TestsFailed("Process '" ProcessExe "' failed to close.")
-else
-    TestsOK("")
+if bContinue
+{
+    SplitPath, ModuleExe, ProcessExe
+    Process, Close, %ProcessExe%
+    Process, WaitClose, %ProcessExe%, 4
+    if ErrorLevel
+        TestsFailed("Process '" ProcessExe "' failed to close.")
+    else
+        TestsOK("")
+}
 
 
 ; Delete settings separately
