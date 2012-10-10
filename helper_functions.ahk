@@ -27,6 +27,14 @@ SetWorkingDir %A_ScriptDir% ; Ensures a consistent starting directory.
 DetectHiddenText, Off ; Hidden text is not detected
 
 
+bIsConnectedToInternet()
+{
+    szResult := false
+    szResult := DllCall("Wininet.dll\InternetGetConnectedState", "Str", 0x40, "Int", 0)
+    return szResult
+}
+
+
 WaitUninstallDone(szUninstallerPath, SecondsToWait)
 {
     ; Usage:
