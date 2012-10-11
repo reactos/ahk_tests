@@ -27,6 +27,7 @@ params =
     2.SaveAsDesktop
     3.OpenDocument
     4.Ctrl-F.FindDialog
+    5.Send_Input
 
 )
 
@@ -52,6 +53,10 @@ if CheckParam()
         else if 1 = 4.Ctrl-F.FindDialog
         {
             #include Ctrl-F.FindDialog.ahk
+        }
+        else if 1 = 5.Send_Input
+        {
+            #include Send_Input.ahk
         }
     }
 }
