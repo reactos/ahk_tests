@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-ModuleExe = %A_WorkingDir%\Apps\HelloWorldSpace.exe
-TestName = 1.space
+ModuleExe = %A_WorkingDir%\Apps\HelloWorldSpaceLite.exe
+TestName = 2.space_lite
 
 ; Terminate application
 TestsTotal++
@@ -38,7 +38,7 @@ if bContinue
     else
     {
         Run, %ModuleExe%
-        WndCaption := "Hello, World "
+        WndCaption := "Hello, World | this is a space -> "
         SetTitleMatchMode, 3 ; A window's title must exactly match WinTitle to be a match.
         WinWaitActive, %WndCaption%,,5
         if ErrorLevel
