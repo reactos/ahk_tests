@@ -162,8 +162,16 @@ if bContinue
         TestsFailed("'Adobe® Flash® Player 10.3 Installer' window with 'Install' button failed to appear.")
     else
     {
-        SendInput, {TAB}{SPACE} ; Focus and check 'I have read and agree' checkbox
-        SendInput, {TAB}{TAB}{ENTER} ; Focus and hit 'INSTALL' button
+        sleep, 200 ; FIXME: added hardcoded sleep calls due to CORE-6737
+        SendInput, {TAB}
+        sleep, 200
+        SendInput, {SPACE} ; Focus and check 'I have read and agree' checkbox
+        sleep, 200
+        SendInput, {TAB}
+        Sleep, 200
+        SendInput, {TAB}
+        Sleep, 200
+        SendInput, {ENTER} ; Focus and hit 'INSTALL' button
     }
 }
 
@@ -182,7 +190,9 @@ if bContinue
             TestsFailed("'Adobe® Flash® Player 10.3 Installer' window is not active anymore.")
         else
         {
-            SendInput, {TAB}{ENTER} ; Focus and hit 'DONE' button
+            SendInput, {TAB}
+            Sleep, 200
+            SendInput, {ENTER} ; Focus and hit 'DONE' button
             WinWaitClose, Adobe® Flash® Player 10.3 Installer,,3
             if ErrorLevel
                 TestsFailed("Unable to close 'Adobe® Flash® Player 10.3 Installer' window.")
