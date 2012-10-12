@@ -172,7 +172,7 @@ if bContinue
         TestsFailed("'Setup - Tux Paint (License Agreement)' window failed to appear.")
     else
     {
-        SendInput, !a ; Check 'I accept' radiobutton (Fails to check? Bug 7215)
+        SendInput, !a ; Check 'I accept' radiobutton (Fails to check? CORE-6542)
         SendInput, !n ; Hit 'Next' button
         TestsOK("'Setup - Tux Paint (License Agreement)' window appeared, Alt+A and Alt+N were sent.")
     }
@@ -185,7 +185,7 @@ if bContinue
 {
     WinWaitActive, Setup - Tux Paint, Choose Installation Type, 3
     if ErrorLevel
-        TestsFailed("'Setup - Tux Paint (Choose Installation Type)' window failed to appear (bug 7215?).")
+        TestsFailed("'Setup - Tux Paint (Choose Installation Type)' window failed to appear (CORE-6542?).")
     else
     {
         SendInput, !n ; Hit 'Next' button
