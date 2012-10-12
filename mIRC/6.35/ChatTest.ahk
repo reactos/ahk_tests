@@ -29,23 +29,28 @@ else
     if ErrorLevel
         TestsFailed("Window 'mIRC' failed to appear.")
     else
-    {
-        TimeOut := 0
-        ControlGet, OutputVar, Visible,, Static2, mIRC ; Wait until chat window appears
-        while OutputVar <> 1
+    {   
+        iTimeOut := 45
+        while iTimeOut > 0
         {
-            ControlGet, OutputVar, Visible,, Static2, mIRC
-            TimeOut++
-            Sleep, 1000
-            bContinue := true
-            if TimeOut > 35
+            IfWinActive, mIRC
             {
-                TestsFailed("Timed out.")
-                Break ; exit loop
+                ControlGet, OutputVar, Visible,, Static2, mIRC ; Wait until chat window appears
+                if OutputVar = 1
+                    break
+                else
+                {
+                    Sleep, 1000
+                    iTimeOut--
+                }
             }
+            else
+                break ; exit the loop if something poped-up
         }
-        
-        if bContinue
+
+        if OutputVar <> 1
+            TestsFailed("Chat window failed to appear. (iTimeOut=" iTimeOut ")")
+        else
         {
             ControlSetText, RichEdit20A1, I confirm that mIRC 6.35 is working on ReactOS, mIRC
             if ErrorLevel
