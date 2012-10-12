@@ -23,7 +23,7 @@ TestName = 5.Send_Input
 szDocument =  ; Case sensitive! [No file to open]
 CharList1 = 0123456789
 CharList2 = abcdefghijklmnopqrstuvwxyz
-CharList3 := "|\,.~£$%&*()_[];:'@?/<>"
+CharList3 := "|\,.~$%&*()_[];:'@?/<>"
 
 RunNotepad(szDocument)
 if not bContinue
