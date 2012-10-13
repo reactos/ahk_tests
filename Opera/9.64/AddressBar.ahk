@@ -31,7 +31,7 @@ else
     else
     {
         SendInput, {CTRLDOWN}l{CTRLUP} ; Toggle address bar
-        SendInput, %szURL% ; Enter address
+        Send, %szURL% ; Enter address ; FIXME: use SendInput instead of Send
         clipboard = ; Empty the clipboard
         Send, ^a ; Ctrl+A
         Send, ^c ; Ctrl+C
