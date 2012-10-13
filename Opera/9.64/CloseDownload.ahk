@@ -32,6 +32,7 @@ else
     {
         IfExist, %A_MyDocuments%\bootcd-54727-dbgwin.7z
             FileDelete, %A_MyDocuments%\bootcd-54727-dbgwin.7z
+        SetKeyDelay, 250, 150 ; FIXME: remove this line
         SendInput, {CTRLDOWN}l{CTRLUP} ; Toggle address bar
         SendInput, %szURL% ; Enter address
         clipboard = ; Empty the clipboard

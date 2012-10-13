@@ -34,6 +34,7 @@ else
             FileDelete, %A_MyDocuments%\livecd-56407-dbg.7z
         SendInput, {CTRLDOWN}l{CTRLUP} ; Toggle address bar
         SendInput, %szURL% ; Enter address
+        Sleep, 3500 ; FIXME: remove hardcoded sleep call
         clipboard = ; Empty the clipboard
         Send, ^a ; Ctrl+A
         Send, ^c ; Ctrl+C
