@@ -110,6 +110,7 @@ else
                                         TestsFailed("Window 'Transfers - Opera' failed to appear (iTimeOut=" iTimeOut ").")
                                     else
                                     {
+                                        TestsInfo("Active window is 'Transfers - Opera', download is almost done (iTimeOut=" iTimeOut ").")
                                         ; Extra sleep is required, because download is not actually done
                                         ExpectedSize := 23030114
                                         iTimeOut := 6
