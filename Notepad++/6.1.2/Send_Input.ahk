@@ -52,7 +52,10 @@ else
                     break
                 }
                 else
+                {
                     TestsFailed("Unexpected window.")
+                    break
+                }
             }
         }
         
