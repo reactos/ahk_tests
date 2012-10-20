@@ -156,7 +156,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    DetectHiddenText, Off ; Hidden text is not detected
     WinWaitActive, IrfanView Setup, Welcome, 7
     if ErrorLevel
         TestsFailed("'IrfanView Setup (Welcome)' window failed to appear.")
