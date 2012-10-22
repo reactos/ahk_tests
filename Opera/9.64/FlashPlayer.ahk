@@ -66,13 +66,24 @@ else
                         TestsFailed("Window 'Beasty Bombs - Cats & Dogs Fights - Play - Opera' failed to appear (iTimeOut=" iTimeOut ").")
                     else
                     {
-                        Sleep, 3500 ; Let it to load more, maybe it will crash
-                        Process, Close, %ProcessExe%
-                        Process, WaitClose, %ProcessExe%, 4
-                        if ErrorLevel
-                            TestsFailed("Process '" ProcessExe "' failed to close after opening website.")
+                        iLoadTime := 4 ; Let it to load more, maybe it will crash
+                        while iLoadTime > 0
+                        {
+                            Sleep, 1000
+                            iLoadTime--
+                        }
+
+                        IfWinNotActive, Beasty Bombs - Cats & Dogs Fights - Play - Opera
+                            TestsFailed("We loaded 'Beasty Bombs - Cats & Dogs Fights - Play - Opera' window, slept for a while and window is not active anymore.")
                         else
-                            TestsOK("Window caption is 'Beasty Bombs - Cats & Dogs Fights - Play - Opera' that means no crash while opening Flash Game (iTimeOut=" iTimeOut ").")
+                        {
+                            Process, Close, %ProcessExe%
+                            Process, WaitClose, %ProcessExe%, 4
+                            if ErrorLevel
+                                TestsFailed("Process '" ProcessExe "' failed to close after opening website.")
+                            else
+                                TestsOK("Window caption is 'Beasty Bombs - Cats & Dogs Fights - Play - Opera' that means no crash while opening Flash Game (iTimeOut=" iTimeOut ").")
+                        }
                     }
                 }
             }

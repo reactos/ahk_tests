@@ -51,13 +51,24 @@ else
                     TestsFailed("Window 'DSx86 by Patrick Aalto - Opera' was NOT found. Failed to open URL.")
                 else
                 {
-                    Sleep, 4000 ; Let it to sleep, maybe it will crash ;)
-                    Process, Close, %ProcessExe%
-                    Process, WaitClose, %ProcessExe%, 4
-                    if ErrorLevel
-                        TestsFailed("Unable to terminate '" ProcessExe "' process.")
+                    iLoadTime := 4 ; Let it to sleep, maybe it will crash
+                    while iLoadTime > 0
+                    {
+                        Sleep, 1000
+                        iLoadTime--
+                    }
+
+                    IfWinNotActive, DSx86 by Patrick Aalto - Opera
+                        TestsFailed("Loaded 'DSx86 by Patrick Aalto - Opera' window, slept for a while and window is not active anymore.")
                     else
-                        TestsOK("Window caption is 'DSx86 by Patrick Aalto - Opera' that means we opened URL by sending Ctrl+L.")
+                    {
+                        Process, Close, %ProcessExe%
+                        Process, WaitClose, %ProcessExe%, 4
+                        if ErrorLevel
+                            TestsFailed("Unable to terminate '" ProcessExe "' process.")
+                        else
+                            TestsOK("Window caption is 'DSx86 by Patrick Aalto - Opera' that means we opened URL by sending Ctrl+L.")
+                    }
                 }
             }
         }
