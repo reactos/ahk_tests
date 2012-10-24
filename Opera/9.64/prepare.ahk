@@ -83,23 +83,34 @@ if bContinue
     else
     {
         IfNotExist, %A_WorkingDir%\Media\opera6.ini
-            TestsFailed("Can NOT find '" A_WorkingDir "\\Media\opera6.ini'.")
+            TestsFailed("Can NOT find '" A_WorkingDir "\Media\opera6.ini'.")
         else
         {
             FileCopy, %A_WorkingDir%\Media\opera6.ini, %A_AppData%\Opera\Opera\profile\opera6.ini
             if ErrorLevel
-                TestsFailed("Can NOT copy existing '" A_WorkingDir "\\Media\opera6.ini' to '" A_AppData "\Opera\Opera\profile\opera6.ini'")
+                TestsFailed("Can NOT copy existing '" A_WorkingDir "\Media\opera6.ini' to '" A_AppData "\Opera\Opera\profile\opera6.ini'")
             else
             {
                 IfNotExist, %A_WorkingDir%\Media\autosave.win
-                    TestsFailed("Can NOT find '" A_WorkingDir "\\Media\autosave.win'.")
+                    TestsFailed("Can NOT find '" A_WorkingDir "\Media\autosave.win'.")
                 else
                 {
                     FileCopy, %A_WorkingDir%\Media\autosave.win, %A_AppData%\Opera\Opera\profile\sessions\autosave.win
                     if ErrorLevel
-                        TestsFailed("Can NOT copy existing '" A_WorkingDir "\\Media\autosave.win' to '" A_AppData "\Opera\Opera\profile\sessions\autosave.win'")
+                        TestsFailed("Can NOT copy existing '" A_WorkingDir "\Media\autosave.win' to '" A_AppData "\Opera\Opera\profile\sessions\autosave.win'")
                     else
-                        TestsOK("")
+                    {
+                        IfNotExist, %A_WorkingDir%\Media\optrust.dat
+                            TestsFailed("Can NOT find '" A_WorkingDir "\Media\optrust.dat'.")
+                        else
+                        {
+                            FileCopy, %A_WorkingDir%\Media\optrust.dat, %A_AppData%\Opera\Opera\profile\optrust.dat
+                            if ErrorLevel
+                                TestsFailed("Can NOT copy existing '" A_WorkingDir "\Media\optrust.dat' to '" A_AppData "\Opera\Opera\profile\optrust.dat'")
+                            else
+                                TestsOK("")
+                        }
+                    }
                 }
             }
         }
