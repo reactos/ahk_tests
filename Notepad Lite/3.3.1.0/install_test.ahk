@@ -94,7 +94,7 @@ if bContinue
     {
         ; Sometimes files are extracted so fast that AHK doesn't detect the window
         IfNotExist, %InstallLocation%\%MainAppFile%
-            TestsFailed("'Extracting' window failed to appear (SetTitleMatchMode=2) and '" InstallLocation "\" MainAppFile "' doesnt exist.")
+            TestsFailed("'Extracting' window failed to appear (SetTitleMatchMode=" A_TitleMatchMode ") and '" InstallLocation "\" MainAppFile "' doesnt exist.")
         else
             TestsOK("AHK unabled to detect 'Extracting' window, but '" InstallLocation "\" MainAppFile "' exist.")
     }

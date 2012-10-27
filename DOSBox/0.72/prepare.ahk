@@ -48,9 +48,9 @@ RunApplication()
                 Process, Exist, dosbox.exe
                 NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                 if NewPID = 0
-                    TestsFailed("Window 'DOSBox 0.72' failed to appear (SetTitleMatchMode=1). No 'dosbox.exe' process detected.")
+                    TestsFailed("Window 'DOSBox 0.72' failed to appear (SetTitleMatchMode=" A_TitleMatchMode "). No 'dosbox.exe' process detected.")
                 else
-                    TestsFailed("Window 'DOSBox 0.72' failed to appear (SetTitleMatchMode=1). 'dosbox.exe' process detected.")
+                    TestsFailed("Window 'DOSBox 0.72' failed to appear (SetTitleMatchMode=" A_TitleMatchMode "). 'dosbox.exe' process detected.")
             }
             else
             {

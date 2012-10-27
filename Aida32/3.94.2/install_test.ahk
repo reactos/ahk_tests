@@ -100,7 +100,7 @@ if bContinue
     {
         ; Sometimes files are extracted so fast that AHK doesn't detect the window
         IfNotExist, %InstallLocation%\aida32.exe
-            TestsFailed("'Extracting' window failed to appear (SetTitleMatchMode=2) and '" InstallLocation "\aida32.exe' doesnt exist.")
+            TestsFailed("'Extracting' window failed to appear (SetTitleMatchMode=" A_TitleMatchMode ") and '" InstallLocation "\aida32.exe' doesnt exist.")
         else
             TestsOK("AHK unabled to detect 'Extracting' window, but '" InstallLocation "\aida32.exe' exist.")
     }

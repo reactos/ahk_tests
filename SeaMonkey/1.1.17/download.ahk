@@ -67,7 +67,7 @@ else
                             SetTitleMatchMode, 2 ; A window's title can contain WinTitle anywhere inside it to be a match.
                             WinWaitActive, of %NameExt% Saved,,5
                             if ErrorLevel
-                                TestsFailed("Window 'of " NameExt " Saved' failed to appear (SetTitleMatchMode=2).")
+                                TestsFailed("Window 'of " NameExt " Saved' failed to appear (SetTitleMatchMode=" A_TitleMatchMode ").")
                             else
                             {   
                                 iTimeOut := 240

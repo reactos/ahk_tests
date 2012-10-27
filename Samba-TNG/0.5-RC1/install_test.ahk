@@ -85,7 +85,7 @@ if bContinue
     {
         ; Sometimes files are extracted so fast that AHK doesn't detect the window
         IfNotExist, C:\ReactOS\Samba-TNG
-            TestsFailed("'Extracting' window failed to appear (SetTitleMatchMode=2) and 'C:\ReactOS\Samba-TNG' doesnt exist.")
+            TestsFailed("'Extracting' window failed to appear (SetTitleMatchMode=" A_TitleMatchMode ") and 'C:\ReactOS\Samba-TNG' doesnt exist.")
         else
             TestsOK("AHK unabled to detect 'Extracting' window, but 'C:\ReactOS\Samba-TNG' exist.")
     }

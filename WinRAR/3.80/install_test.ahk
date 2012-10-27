@@ -223,13 +223,13 @@ if bContinue
                     ; WinRAR will open explorer window, close it
                     WinWait, WinRAR ahk_class CabinetWClass,, 22
                     if ErrorLevel
-                        TestsFailed("Explorer window 'WinRAR' (SetTitleMatchMode=2) failed to appear.")
+                        TestsFailed("Explorer window 'WinRAR' (SetTitleMatchMode=" A_TitleMatchMode ") failed to appear.")
                     else
                     {
                         WinClose, WinRAR ahk_class CabinetWClass
                         WinWaitClose, WinRAR ahk_class CabinetWClass,, 5
                         if ErrorLevel
-                            TestsFailed("Unable to close explorer window 'WinRAR' (SetTitleMatchMode=2).")
+                            TestsFailed("Unable to close explorer window 'WinRAR' (SetTitleMatchMode=" A_TitleMatchMode ").")
                         else
                             TestsOK("'WinRAR Setup (WinRAR has been successfully)' window appeared, 'Done' button clicked and window closed.")
                     }

@@ -255,13 +255,13 @@ if bContinue
             ; Installer will open explorer window, close it
             WinWait, Home Page Software ahk_class CabinetWClass,, 22
             if ErrorLevel
-                TestsFailed("Explorer window 'Home Page Software' (SetTitleMatchMode=2) failed to appear.")
+                TestsFailed("Explorer window 'Home Page Software' (SetTitleMatchMode=" A_TitleMatchMode ") failed to appear.")
             else
             {
                 WinClose, Home Page Software ahk_class CabinetWClass
                 WinWaitClose, Home Page Software ahk_class CabinetWClass,, 5
                 if ErrorLevel
-                    TestsFailed("Unable to close explorer window 'Home Page Software' (SetTitleMatchMode=2).")
+                    TestsFailed("Unable to close explorer window 'Home Page Software' (SetTitleMatchMode=" A_TitleMatchMode ").")
                 else
                     TestsOK("'Installing' window closed (iTimeOut=" iTimeOut "), 'Home Page Software' window appeared and we closed it.")
             }

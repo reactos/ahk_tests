@@ -55,7 +55,7 @@ else
                     SetTitleMatchMode, 2 ; A window's title can contain WinTitle anywhere inside it to be a match.
                     WinWaitActive, of 1 file - Downloads,,10
                     if ErrorLevel
-                        TestsFailed("Window 'of 1 file - Downloads' failed to appear (SetTitleMatchMode=2).")
+                        TestsFailed("Window 'of 1 file - Downloads' failed to appear (SetTitleMatchMode=" A_TitleMatchMode ").")
                     else
                     {
                         SetTitleMatchMode, 3 ; A window's title must exactly match WinTitle to be a match.

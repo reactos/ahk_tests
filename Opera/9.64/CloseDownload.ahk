@@ -72,7 +72,7 @@ else
                     SetTitleMatchMode, 1 ; A window's title must start with the specified WinTitle to be a match.
                     WinWaitActive, Save,, 7
                     if ErrorLevel
-                        TestsFailed("'Save as' dialog failed to appear (SetTitleMatchMode=1).")
+                        TestsFailed("'Save as' dialog failed to appear (SetTitleMatchMode=" A_TitleMatchMode ").")
                     else
                     {
                         SendInput, {ALTDOWN}s{ALTUP} ; Hit 'Save' in 'Save as'
@@ -80,7 +80,7 @@ else
                         WinClose, Blank page - Opera,,5
                         WinWaitActive, Active,,7 ; ROS 'Active transfers', WinXP 'Active Transfers'
                         if ErrorLevel
-                            TestsFailed("'Active' dialog failed to appear(SetTitleMatchMode=1).")
+                            TestsFailed("'Active' dialog failed to appear(SetTitleMatchMode=" A_TitleMatchMode ").")
                         else
                         {
                             SendInput, {ENTER} ; Hit 'OK'

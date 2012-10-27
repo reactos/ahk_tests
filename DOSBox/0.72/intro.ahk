@@ -28,7 +28,7 @@ else
 {
     SetTitleMatchMode, 1 ; A window's title must start with the specified WinTitle to be a match
     IfWinNotActive, DOSBox 0.72
-        TestsFailed("Window 'DOSBox 0.72' is not active (SetTitleMatchMode=1).")
+        TestsFailed("Window 'DOSBox 0.72' is not active (SetTitleMatchMode=" A_TitleMatchMode ").")
     else
     {
         SendInput, intro
@@ -36,7 +36,7 @@ else
         SetTitleMatchMode, 2 ; A window's title can contain WinTitle anywhere inside it to be a match
         WinWaitActive, Program:    INTRO,,5
         if ErrorLevel
-            TestsFailed("Window 'Program:    INTRO' is not active (SetTitleMatchMode=2).")
+            TestsFailed("Window 'Program:    INTRO' is not active (SetTitleMatchMode=" A_TitleMatchMode ").")
         else
         {
             SendInput, {ENTER}{ENTER}{ENTER} ; Read the intro
@@ -44,7 +44,7 @@ else
             SendInput, {ENTER}
             WinWaitClose, Program:    INTRO,,5
             if ErrorLevel
-                TestsFailed("Window 'Program:    INTRO' failed to close (SetTitleMatchMode=2).")
+                TestsFailed("Window 'Program:    INTRO' failed to close (SetTitleMatchMode=" A_TitleMatchMode ").")
             else
             {
                 Process, WaitClose, dosbox.exe, 4

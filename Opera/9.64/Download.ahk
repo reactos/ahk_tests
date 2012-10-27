@@ -90,7 +90,7 @@ else
                                 SetTitleMatchMode, 1 ; A window's title must start with the specified WinTitle to be a match.
                                 WinWaitActive, Transfers 0,, 5 ; Expected window title is something like 'Transfers 03:12 - Opera'
                                 if ErrorLevel
-                                    TestsFailed("Window 'Transfers 0' failed to appear ( SetTitleMatchMode=1).")
+                                    TestsFailed("Window 'Transfers 0' failed to appear ( SetTitleMatchMode=" A_TitleMatchMode ").")
                                 else
                                 {
                                     iTimeOut := 120
