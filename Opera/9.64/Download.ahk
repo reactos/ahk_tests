@@ -18,7 +18,8 @@
  */
 
 TestName = 3.Download
-szURL = http://iso.reactos.org/livecd/livecd-56407-dbg.7z
+szURL = http://iso.reactos.org/livecd/livecd-57637-rel.7z
+ExpectedSize := 22672499 ; File size of szURL in bytes
 
 ; Test if we can download some file
 TestsTotal++
@@ -30,8 +31,10 @@ else
         TestsFailed("Window 'Speed Dial - Opera' is not active window.")
     else
     {
-        IfExist, %A_MyDocuments%\livecd-56407-dbg.7z
-            FileDelete, %A_MyDocuments%\livecd-56407-dbg.7z
+        SplitPath, szURL, szFileName
+        szLocalCopy = %A_MyDocuments%\%szFileName%
+        IfExist, %szLocalCopy%
+            FileDelete, %szLocalCopy%
         SendInput, {CTRLDOWN}l{CTRLUP} ; Toggle address bar
         SendInput, %szURL% ; Enter address
         Sleep, 3500 ; FIXME: remove hardcoded sleep call
@@ -53,19 +56,19 @@ else
                 {
                     IfWinActive, Blank page - Opera
                     {
-                        WinWaitActive, Downloading file livecd-56407-dbg.7z,,1
+                        WinWaitActive, Downloading file %szFileName%,,1
                         iTimeOut--
                     }
                     else
                         break ; exit the loop if something poped-up
                 }
 
-                WinWaitActive, Downloading file livecd-56407-dbg.7z,, 1
+                WinWaitActive, Downloading file %szFileName%,, 1
                 if ErrorLevel
-                    TestsFailed("Window 'Downloading file livecd-56407-dbg.7z' failed to appear (iTimeOut=" iTimeOut ").")
+                    TestsFailed("Window 'Downloading file " szFileName "' failed to appear (iTimeOut=" iTimeOut ").")
                 else
                 {
-                    TestsInfo("'Downloading file livecd-56407-dbg.7z' window appeared (iTimeOut=" iTimeOut ").")
+                    TestsInfo("'Downloading file " szFileName "' window appeared (iTimeOut=" iTimeOut ").")
                     SendInput, {ENTER} ; Default option is 'Save' and Alt+S doesn't work here. :/
                     SetTitleMatchMode, 1 ; ReactOS 'Save as', WinXP 'Save As', so match if wnd starts with 'Save'
                     WinWaitActive, Save,, 7
@@ -74,7 +77,7 @@ else
                     else
                     {
                         SendInput, !n ; Focus 'File name' field
-                        SendInput, %A_MyDocuments%\livecd-56407-dbg.7z
+                        SendInput, %szLocalCopy%
                         SendInput, {ALTDOWN}s{ALTUP} ; Hit 'Save'
                         WinWaitClose, Save,,3
                         if ErrorLevel
@@ -96,13 +99,21 @@ else
                                     iTimeOut := 120
                                     while iTimeOut > 0
                                     {
-                                        IfWinActive, Transfers 0
+                                        IfNotExist, %szLocalCopy%
                                         {
-                                            WinWaitActive, Transfers - Opera,,1
-                                            iTimeOut--
+                                            TestsFailed("'" szLocalCopy "' does not exist, but we saved it there.")
+                                            break
                                         }
                                         else
-                                            break ; exit the loop if something poped-up
+                                        {
+                                            IfWinActive, Transfers 0
+                                            {
+                                                WinWaitActive, Transfers - Opera,,1
+                                                iTimeOut--
+                                            }
+                                            else
+                                                break ; exit the loop if something poped-up
+                                        }
                                     }
 
                                     WinWaitActive, Transfers - Opera,,1
@@ -112,11 +123,10 @@ else
                                     {
                                         TestsInfo("Active window is 'Transfers - Opera', download is almost done (iTimeOut=" iTimeOut ").")
                                         ; Extra sleep is required, because download is not actually done
-                                        ExpectedSize := 23030114
                                         iTimeOut := 6
                                         while iTimeOut > 0
                                         {
-                                            FileGetSize, DFileSize, %A_MyDocuments%\livecd-56407-dbg.7z
+                                            FileGetSize, DFileSize, %szLocalCopy%
                                             if DFileSize <> %ExpectedSize%
                                             {
                                                 Sleep, 1000
@@ -126,7 +136,7 @@ else
                                                 break
                                         }
                                         
-                                        FileGetSize, DFileSize, %A_MyDocuments%\livecd-56407-dbg.7z
+                                        FileGetSize, DFileSize, %szLocalCopy%
                                         if DFileSize <> %ExpectedSize%
                                             TestsFailed("Downloaded file size is NOT the same as expected [is " DFileSize " and should be " ExpectedSize "] (iTimeOut=" iTimeOut ").")
                                         else
