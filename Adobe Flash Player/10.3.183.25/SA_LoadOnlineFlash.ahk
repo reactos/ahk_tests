@@ -31,7 +31,11 @@ else
     else
     {
         ; FIXME: check if online file %szDocument% exist
-        SendInput, ^o ; Ctrl+O aka File->Open
+        TestsInfo("FIXME: use one line when CORE-6737 is fixed.")
+        SendInput, !f ; Alt+f aka File
+        Sleep, 2
+        SendInput, o ; Open
+        ; SendInput, ^o ; Ctrl+O aka File->Open ; Disabled due CORE-6737
         WinWaitActive, Open, Enter the, 3
         if ErrorLevel
             TestsFailed("'Open (Enter the)' window failed to appear despite Ctrl+O was sent.")
