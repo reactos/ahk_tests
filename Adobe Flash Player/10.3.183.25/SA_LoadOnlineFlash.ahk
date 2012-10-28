@@ -58,6 +58,7 @@ else
                         TestsFailed("Can NOT find '" SearchImg "'.")
                     else
                     {
+                        TestsInfo("Typed URL. Waiting for ImageSearch to return results.")
                         TimeOut = 1600
                         while TimeOut > 0
                         {
