@@ -34,6 +34,7 @@ else
             TestsFailed("Can NOT find any file in '" A_WinDir "\System32\Macromed\Flash' that matches file pattern '*Plugin.exe'.")
         else
         {
+            TestsInfo("Found file that maches '*Plugin.exe' file pattern in '" A_WinDir "\System32\Macromed\Flash\'.")
             SendInput, {CTRLDOWN}l{CTRLUP} ; Toggle address bar
             SendInput, %szURL% ; Enter address
             clipboard = ; Empty the clipboard
