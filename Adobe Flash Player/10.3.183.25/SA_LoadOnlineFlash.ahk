@@ -59,7 +59,7 @@ else
                     else
                     {
                         TestsInfo("Typed URL. Waiting for ImageSearch to return results.")
-                        TimeOut = 1600
+                        TimeOut = 430
                         while TimeOut > 0
                         {
                             IfWinActive, Adobe Flash Player 10
