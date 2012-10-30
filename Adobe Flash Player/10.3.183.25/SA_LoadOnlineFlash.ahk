@@ -75,8 +75,8 @@ else
                                     bFound := false
                                     TimeOut--
                                     Sleep, 10
-                                    if TimeOut = 120
-                                        TestsInfo("TimeOut=120, continuing...")
+                                    if TimeOut = 330
+                                        TestsInfo("TimeOut=330, continuing...")
                                 }
                                 else
                                 {
