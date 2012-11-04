@@ -1,5 +1,5 @@
 /*
- * Designed for Foxit IrfanView 4.23
+ * Designed for IrfanView 4.23
  * Copyright (C) 2012 Edijs Kolesnikovics
  *
  * This library is free software; you can redistribute it and/or

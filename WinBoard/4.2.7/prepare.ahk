@@ -1,5 +1,5 @@
 /*
- * Designed for Foxit IrfanView 4.23
+ * Designed for WinBoard 4.2.7
  * Copyright (C) 2012 Edijs Kolesnikovics
  *
  * This library is free software; you can redistribute it and/or
