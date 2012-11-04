@@ -24,6 +24,7 @@ params =
 (
 
     1.install
+    2.play_file
 
 )
 
@@ -33,6 +34,15 @@ if CheckParam()
     if 1 = 1.install
     {
         #include install_test.ahk
+    }
+    else 
+    {
+        #include prepare.ahk
+
+        if 1 = 2.play_file
+        {
+            #include play_file.ahk
+        }
     }
 }
 
