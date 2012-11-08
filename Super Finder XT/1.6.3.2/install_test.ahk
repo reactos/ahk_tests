@@ -297,17 +297,21 @@ if bContinue
         TestsFailed("'Setup - Super Finder XT (Completing)' window failed to appear.")
     else
     {
-        SendInput, {SPACE} ; Uncheck 'Launch Super Finder XT' checkbox ; FIXME: uncheck TNewCheckListBox1
-        ControlClick, TNewButton4 ; Hit 'Finish' button
-        if ErrorLevel
-            TestsFailed("Unable to hit 'Finish' button in 'Setup - Super Finder XT (Completing)' window.")
+        if (LeftClickControl("TNewCheckListBox1") != 1) ; Helper function
+            TestsFailed("Unable to uncheck 'Launch Super Finder XT' in 'Setup - Super Finder XT (Completing)' window.")
         else
         {
-            WinWaitClose, Setup - Super Finder XT, Completing, 3
+            ControlClick, TNewButton4 ; Hit 'Finish' button
             if ErrorLevel
-                TestsFailed("'Setup - Super Finder XT (Completing)' window failed to close despite 'Finish' button being clicked.")
+                TestsFailed("Unable to hit 'Finish' button in 'Setup - Super Finder XT (Completing)' window.")
             else
-                TestsOK("'Setup - Super Finder XT (Completing)' window appeared and 'Finish' button was clicked.")
+            {
+                WinWaitClose, Setup - Super Finder XT, Completing, 3
+                if ErrorLevel
+                    TestsFailed("'Setup - Super Finder XT (Completing)' window failed to close despite 'Finish' button being clicked.")
+                else
+                    TestsOK("'Setup - Super Finder XT (Completing)' window appeared and 'Finish' button was clicked.")
+            }
         }
     }
 }
