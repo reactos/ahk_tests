@@ -236,8 +236,18 @@ TestsFailed(DebugText)
     TestsFailed++
     bContinue := false
     WinGetActiveTitle, WndTitle
-    if DebugText <>
-        OutputDebug, %TestName%: Test failed: %DebugText% Active Wnd: '%WndTitle%'.`n ; Include some window text and active control caption?
+    if DebugText =
+        OutputDebug, %TestName%: Debug message text is not an optional, please add it.`n
+    else
+    {
+        if (WndTitle = ) ; Window haves no title, print its class instead
+            OutputDebug, %TestName%: Test failed: %DebugText% Active Wnd: '%WndTitle%'.`n ; Include some window text and active control caption?
+        else
+        {
+            WinGetClass, WndClass, A
+            OutputDebug, %TestName%: Test failed: %DebugText% Active Wnd class: '%WndClass%'.`n
+        }
+    }
 }
 
 
