@@ -119,17 +119,22 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - DosBlaster, Welcome, 15
+    WinWaitActive, Setup - DosBlaster, Welcome, 7
     if ErrorLevel
         TestsFailed("'Setup - DosBlaster (Welcome)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TButton1, Setup - DosBlaster, Welcome ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Setup - DosBlaster (Welcome)' window.")
-        else ; WinWaitClose fails on win2k3 sp2
-            TestsOK("'Setup - DosBlaster (Welcome)' window appeared and 'Next' button was clicked.")
+        else
+        {
+            WinWaitClose, Setup - DosBlaster, Welcome, 3
+            if ErrorLevel
+                TestsFailed("'Setup - DosBlaster (Welcome)' window failed to close despite 'Next' button being clicked.")
+            else
+                TestsOK("'Setup - DosBlaster (Welcome)' window appeared and 'Next' button was clicked.")
+        }
     }
 }
 
@@ -138,12 +143,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - DosBlaster, Select Destination Location, 7
+    WinWaitActive, Setup - DosBlaster, Select Destination Location, 3
     if ErrorLevel
         TestsFailed("'Setup - DosBlaster (Select Destination Location)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TButton3, Setup - DosBlaster, Select Destination Location ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Setup - DosBlaster (Select Destination Location)' window.")
@@ -157,12 +161,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - DosBlaster, Select Start Menu Folder, 7
+    WinWaitActive, Setup - DosBlaster, Select Start Menu Folder, 3
     if ErrorLevel
         TestsFailed("'Setup - DosBlaster (Select Start Menu Folder)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TButton4, Setup - DosBlaster, Select Start Menu Folder ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Setup - DosBlaster (Select Start Menu Folder)' window.")
@@ -176,12 +179,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - DosBlaster, Select Additional Tasks, 7
+    WinWaitActive, Setup - DosBlaster, Select Additional Tasks, 3
     if ErrorLevel
         TestsFailed("'Setup - DosBlaster (Select Additional Tasks)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TButton4, Setup - DosBlaster, Select Additional Tasks ; Hit 'Next' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Next' button in 'Setup - DosBlaster (Select Additional Tasks)' window.")
@@ -195,12 +197,11 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - DosBlaster, Ready to Install, 7
+    WinWaitActive, Setup - DosBlaster, Ready to Install, 3
     if ErrorLevel
         TestsFailed("'Setup - DosBlaster (Ready to Install)' window failed to appear.")
     else
     {
-        Sleep, 700
         ControlClick, TButton4, Setup - DosBlaster, Ready to Install ; Hit 'Install' button
         if ErrorLevel
             TestsFailed("Unable to hit 'Install' button in 'Setup - DosBlaster (Ready to Install)' window.")
@@ -217,24 +218,26 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Setup - DosBlaster, Completing, 15 ; We skipped one window
+    WinWaitActive, Setup - DosBlaster, Completing, 10 ; We skipped one window
     if ErrorLevel
         TestsFailed("'Setup - DosBlaster (Completing)' window failed to appear.")
     else
     {
-        Sleep, 700
-        SendInput, {SPACE} ; Uncheck 'Launch DosBlaster'. 'Control, Uncheck' fails
-        Sleep, 700
-        ControlClick, TButton4, Setup - DosBlaster, Completing ; Hit 'Finish' button
-        if ErrorLevel
-            TestsFailed("Unable to hit 'Finish' button in 'Setup - DosBlaster (Completing)' window.")
+        if (LeftClickControl("TNewCheckListBox1") != 1) ; Helper function
+            TestsFailed("Unable to uncheck 'Launch DosBlaster' checkbox in 'Setup - DosBlaster, Completing' window.")
         else
         {
-            WinWaitClose, Setup - DosBlaster, Completing, 7
+            ControlClick, TButton4, Setup - DosBlaster, Completing ; Hit 'Finish' button
             if ErrorLevel
-                TestsFailed("'Setup - DosBlaster (Completing)' window failed to close despite 'Finish' button being clicked.")
+                TestsFailed("Unable to hit 'Finish' button in 'Setup - DosBlaster (Completing)' window.")
             else
-                TestsOK("'Setup - DosBlaster (Completing)' window appeared, 'Finish' button clicked and window closed.")
+            {
+                WinWaitClose, Setup - DosBlaster, Completing, 3
+                if ErrorLevel
+                    TestsFailed("'Setup - DosBlaster (Completing)' window failed to close despite 'Finish' button being clicked.")
+                else
+                    TestsOK("'Setup - DosBlaster (Completing)' window appeared, 'Finish' button clicked and window closed.")
+            }
         }
     }
 }
@@ -244,7 +247,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\DosBlaster_is1, UninstallString
     if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")
