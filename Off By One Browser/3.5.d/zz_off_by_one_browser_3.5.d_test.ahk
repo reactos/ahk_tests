@@ -24,7 +24,7 @@ params =
 (
 
     1.install
-    2.OpenDocument
+    2.address_bar
 
 )
 
@@ -34,6 +34,15 @@ if CheckParam()
     if 1 = 1.install
     {
         #include install_test.ahk
+    }
+    else 
+    {
+        #include prepare.ahk
+
+        if 1 = 2.address_bar
+        {
+            #include address_bar.ahk
+        }
     }
 }
 
