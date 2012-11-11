@@ -30,9 +30,11 @@ else
 {
     SplitPath, szDocument, NameExt
     WinWaitActive, %NameExt% - VLC media player,,7
+    WndW = 439
+    WndH = 359
     WinGetPos, X, Y, Width, Height, %NameExt% - VLC media player
-    if not (Width > 439 AND Height > 359) ; Video is 440x360
-        TestsFailed("Size of '" NameExt " - VLC media player' window is not as expected when playing '" szDocument "' (is " Width "x" Height ").")
+    if not ((Width > WndW) AND Height > WndH) ; Video is 440x360
+        TestsFailed("Size of '" NameExt " - VLC media player' window is not as expected when playing '" szDocument "' (is '" Width "x" Height "', should be at least '" WndW "x" WndH "').")
     else
     {
         WinClose, %NameExt% - VLC media player

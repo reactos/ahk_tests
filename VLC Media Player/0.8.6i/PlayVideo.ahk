@@ -64,9 +64,11 @@ else
                             {
                                 Sleep, 2500 ; Let it to load the video
                                 ; ImageSeach does not work with videos in XP!
+                                WndW = 439
+                                WndH = 359
                                 WinGetPos, X, Y, Width, Height, VLC media player
-                                if not (Width > 439 AND Height > 359) ; Video is 440x360
-                                    TestsFailed("Size of 'VLC media player' is not as expected when playing '" szDocument "'.")
+                                if not ((Width > WndW) AND (Height > WndH)) ; Video is 440x360
+                                    TestsFailed("Size of 'VLC media player' differs when playing '" szDocument "' (is '" Width "x" Height "', should be at least '" WndW "x" WndH "').")
                                 else
                                 {
                                     WinClose, VLC media player
