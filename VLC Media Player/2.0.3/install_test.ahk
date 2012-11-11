@@ -33,56 +33,75 @@ else
         TestsFailed("Unable to terminate '" MainAppFile "' process.") ; So, process still exists
     else
     {
+        szDefaultDir = %A_ProgramFiles%\VideoLAN ; Do not move this line
         RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\VLC media player, UninstallString
         if ErrorLevel
         {
             ; There was a problem (such as a nonexistent key or value). 
             ; That probably means we have not installed this app before.
             ; Check in default directory to be extra sure
-            IfNotExist, %A_ProgramFiles%\VideoLAN
-                bContinue := true ; No previous versions detected in hardcoded path
-            else
+            bHardcoded := true ; To know if we got path from registry or not
+            IfNotExist, %szDefaultDir%
             {
-                bHardcoded := true ; To know if we got path from registry or not
-                IfExist, %A_ProgramFiles%\VideoLAN\VLC\uninstall.exe
+                TestsInfo("No previous versions detected in hardcoded path: '" szDefaultDir "'.")
+                bContinue := true
+            }
+            else
+            {   
+                UninstallerPath = %szDefaultDir%\uninstall.exe /S
+                WaitUninstallDone(UninstallerPath, 3)
+                if bContinue
                 {
-                    RunWait, %A_ProgramFiles%\VideoLAN\VLC\uninstall.exe /S ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %A_ProgramFiles%\VideoLAN ; Uninstaller might delete the dir
-                    bContinue := true
-                {
-                    FileRemoveDir, %A_ProgramFiles%\VideoLAN, 1
-                    if ErrorLevel
-                        TestsFailed("Unable to delete hardcoded path '" A_ProgramFiles "\VideoLAN' ('" MainAppFile "' process is reported as terminated).'")
-                    else
+                    IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
+                    {
+                        TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %szDefaultDir%, 1
+                        if ErrorLevel
+                            TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
         else
         {
+            UninstallerPath := ExeFilePathNoParam(UninstallerPath)
             SplitPath, UninstallerPath,, InstalledDir
             IfNotExist, %InstalledDir%
+            {
+                TestsInfo("Got '" InstalledDir "' from registry and such path does not exist.")
                 bContinue := true
+            }
             else
             {
-                IfExist, %UninstallerPath%
+                UninstallerPath = %UninstallerPath% /S
+                WaitUninstallDone(UninstallerPath, 3) ; Reported child name is 'Au_.exe'
+                if bContinue
                 {
-                    RunWait, %UninstallerPath% /S ; Silently uninstall it
-                    Sleep, 7000
-                }
-
-                IfNotExist, %InstalledDir%
-                    bContinue := true
-                else
-                {
-                    FileRemoveDir, %InstalledDir%, 1 ; Delete just in case
-                    if ErrorLevel
-                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
-                    else
+                    IfNotExist, %InstalledDir%
+                    {
+                        TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
                         bContinue := true
+                    }
+                    else
+                    {
+                        FileRemoveDir, %InstalledDir%, 1 ; Uninstaller leaved the path for us to delete, so, do it
+                        if ErrorLevel
+                            TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                        else
+                        {
+                            TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
+                            bContinue := true
+                        }
+                    }
                 }
             }
         }
@@ -115,14 +134,13 @@ else
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, Installer Language, Please select a language, 15 ; Wait 15 secs for window to appear
+    WinWaitActive, Installer Language, Please select a language, 7
     if ErrorLevel
         TestsFailed("'Installer Language (Please select a language)' window failed to appear.")
     else
     {
-        Sleep, 700
         SendInput, {ENTER}
-        WinWaitClose, Installer Language, Please select a language, 5
+        WinWaitClose, Installer Language, Please select a language, 3
         if ErrorLevel
             TestsFailed("Failed to hit 'OK' button in 'Installer Language (Please select a language)' window.")
         else
@@ -135,13 +153,12 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, VLC media player 2.0.3 Setup, Welcome to the VLC, 15
+    WinWaitActive, VLC media player 2.0.3 Setup, Welcome to the VLC, 7
     if ErrorLevel
         TestsFailed("'VLC media player 2.0.3 Setup (Welcome to the VLC)' failed to appear.")
     else
     {
-        Sleep, 700
-        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
+        SendInput, !n ; Hit 'Next' button
         TestsOK("'VLC media player 2.0.3 Setup (Welcome to the VLC)' window appeared and Alt+N was sent.")
     }
 }
@@ -151,13 +168,12 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, VLC media player 2.0.3 Setup, License Agreement, 7
+    WinWaitActive, VLC media player 2.0.3 Setup, License Agreement, 3
     if ErrorLevel
         TestsFailed("'VLC media player 2.0.3 Setup (License Agreement)' window failed to appear.")
     else
     {
-        Sleep, 700
-        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'I Agree' button
+        SendInput, !n ; Hit 'Next' button
         TestsOK("'VLC media player 2.0.3 Setup (License Agreement)' window appeared and Alt+N was sent.")
     }
 }
@@ -167,13 +183,12 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, VLC media player 2.0.3 Setup, Choose Components, 7
+    WinWaitActive, VLC media player 2.0.3 Setup, Choose Components, 3
     if ErrorLevel
         TestsFailed("'VLC media player 2.0.3 Setup (Choose Components)' window failed to appear.")
     else
     {
-        Sleep, 700
-        SendInput, {ALTDOWN}n{ALTUP} ; Hit 'Next' button
+        SendInput, !n ; Hit 'Next' button
         TestsOK("'VLC media player 2.0.3 Setup (Choose Components)' window appeared and Alt+N was sent.")
     }
 }
@@ -183,13 +198,12 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, VLC media player 2.0.3 Setup, Choose Install Location, 7
+    WinWaitActive, VLC media player 2.0.3 Setup, Choose Install Location, 3
     if ErrorLevel
         TestsFailed("'VLC media player 2.0.3 Setup (Choose Install Location)' window failed to appear.")
     else
     {
-        Sleep, 700
-        SendInput, {ALTDOWN}i{ALTUP} ; Hit 'Install' button
+        SendInput, !i ; Hit 'Install' button
         TestsOK("'VLC media player 2.0.3 Setup (Choose Install Location)' window appeared and Alt+I was sent.")
     }
 }
@@ -199,18 +213,41 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, VLC media player 2.0.3 Setup, Installing, 7
+    WinWaitActive, VLC media player 2.0.3 Setup, Installing, 3
     if ErrorLevel
         TestsFailed("'VLC media player 2.0.3 Setup (Installing)' failed to appear.")
     else
     {
-        OutputDebug, OK: %TestName%:%A_LineNumber%: 'VLC media player 2.0.3 Setup (Installing)' appeared, waiting for it to dissapear.`n
+        TestsInfo("'VLC media player 2.0.3 Setup (Installing)' appeared, waiting for it to dissapear.")
         
-        WinWaitClose, VLC media player 2.0.3 Setup, Installing, 150
+        iTimeOut := 150
+        while iTimeOut > 0
+        {
+            IfWinActive, VLC media player 2.0.3 Setup, Installing
+            {
+                WinWaitClose, VLC media player 2.0.3 Setup, Installing, 1
+                iTimeOut--
+            }
+            else
+            {
+                ; Command line window pops out
+                szCmdPopupWnd = %szDefaultDir%\VLC\vlc-cache-gen.exe
+                IfWinActive, %szCmdPopupWnd%
+                {
+                    WinWaitClose, %szCmdPopupWnd%,,5
+                    if ErrorLevel
+                        break ; Window failed to close for some time
+                }
+                else
+                    break ; Something else poped out
+            }
+        }
+
+        WinWaitClose, VLC media player 2.0.3 Setup, Installing, 1
         if ErrorLevel
-            TestsFailed("'VLC media player 2.0.3 Setup (Installing)' window failed to close.")
+            TestsFailed("'VLC media player 2.0.3 Setup (Installing)' window failed to close (iTimeOut=" iTimeOut ").")
         else
-            TestsOK("'VLC media player 2.0.3 Setup (Installing)' window went away.")
+            TestsOK("'VLC media player 2.0.3 Setup (Installing)' window went away (iTimeOut=" iTimeOut ").")
     }
 }
 
@@ -219,31 +256,22 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, VLC media player 2.0.3 Setup, Completing, 7
+    WinWaitActive, VLC media player 2.0.3 Setup, Completing, 3
     if ErrorLevel
         TestsFailed("'VLC media player 2.0.3 Setup (Completing)' window failed to appear.")
     else
     {
-        Sleep, 700
-        SendInput, {ALTDOWN}r{ALTUP} ; Uncheck 'Run VLC'
-        Sleep, 700
-        SendInput, {ALTDOWN}f{ALTUP} ; Hit 'Finish' button
-        WinWaitClose, VLC media player 2.0.3 Setup, Completing, 5
-        if ErrorLevel
-            TestsFailed("'VLC media player 2.0.3 Setup (Completing)' window failed to close.")
+        SendInput, !r ; Uncheck 'Run VLC'
+        ControlGet, bChecked, Checked, Button4, VLC media player 2.0.3 Setup, Completing
+        if bChecked = 1
+            TestsFailed("'Run VLC' checkbox should be unchecked because Alt+R was sent, but further inspection proves that it was still checked.")
         else
         {
-            Process, wait, %MainAppFile%, 4
-            NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
-            if NewPID <> 0
-            {
-                Process, Close, %MainAppFile%
-                Process, WaitClose, %MainAppFile%, 4
-                if ErrorLevel
-                    TestsFailed("'" MainAppFile "' process appeared (and unable to terminate it) despite 'Run VLC' checkbox being unchecked in 'VLC media player 2.0.3 Setup (Completing)' window.")
-                else
-                    TestsFailed("'" MainAppFile "' process appeared despite 'Run VLC' checkbox being unchecked in 'VLC media player 2.0.3 Setup (Completing)' window.")
-            }
+            Sleep, 20 ; FIXME: sleep delay added because of CORE-6737
+            SendInput, !f ; Hit 'Finish' button
+            WinWaitClose, VLC media player 2.0.3 Setup, Completing, 3
+            if ErrorLevel
+                TestsFailed("'VLC media player 2.0.3 Setup (Completing)' window failed to close.")
             else
                 TestsOK("'Run VLC' checkbox unchecked in 'VLC media player 2.0.3 Setup (Completing)' window and the window closed.")
         }
@@ -255,7 +283,6 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    Sleep, 2000
     RegRead, UninstallerPath, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\VLC media player, UninstallString
     if ErrorLevel
         TestsFailed("Either we can't read from registry or data doesn't exist.")
