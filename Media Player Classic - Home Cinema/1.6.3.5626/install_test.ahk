@@ -77,11 +77,11 @@ else
     if bContinue
     {
         RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\{2624B969-7135-4EB1-B0F6-2D8C397B45F7}_is1
-        IfExist, %A_AppData%\MPC-HC
+        IfExist, %A_AppData%\Media Player Classic
         {
-            FileRemoveDir, %A_AppData%\MPC-HC, 1
+            FileRemoveDir, %A_AppData%\Media Player Classic, 1
             if ErrorLevel
-                TestsFailed("Unable to delete '" A_AppData "\MPC-HC'.")
+                TestsFailed("Unable to delete '" A_AppData "\Media Player Classic'.")
         }
 
         if bContinue
