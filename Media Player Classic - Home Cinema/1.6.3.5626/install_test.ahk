@@ -77,6 +77,7 @@ else
     if bContinue
     {
         RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\{2624B969-7135-4EB1-B0F6-2D8C397B45F7}_is1
+        RegDelete, HKEY_CURRENT_USER, SOFTWARE\Gabest
         IfExist, %A_AppData%\Media Player Classic
         {
             FileRemoveDir, %A_AppData%\Media Player Classic, 1
