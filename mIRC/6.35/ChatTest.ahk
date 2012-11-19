@@ -58,6 +58,8 @@ else
             else
             {
                 SendInput, {ENTER} ; Send text to IRC channel
+                ; It would be best to check if text is really sent before closing window
+                ; to make sure the test works, but seems there is no way to get text from chat window.
                 WinClose, mIRC
                 WinWaitActive, Confirm Exit, Are you sure,7
                 if ErrorLevel
