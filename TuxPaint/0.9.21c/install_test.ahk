@@ -110,6 +110,7 @@ else
     if bContinue
     {
         RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Tux Paint_is1
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\TuxPaint
         IfExist, %A_AppData%\TuxPaint
         {
             FileRemoveDir, %A_AppData%\TuxPaint, 1
