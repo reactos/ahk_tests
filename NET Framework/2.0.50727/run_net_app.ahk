@@ -17,33 +17,30 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#Include ..\..\helper_functions.ahk
-InitalizeCounters()
+TestName = 2.run_net_app
 
-params =
-(
-
-    1.install
-    2.run_net_app
-
-)
-
-if CheckParam()
+; Test if can run NET application and then close it.
+TestsTotal++
+RunApplication()
+if not bContinue
+    TestsFailed("We failed somwehere in 'prepare.ahk'.")
+else
 {
-    ; Those brackets are required!
-    if 1 = 1.install
+    IfWinNotActive, Hello from .NET, .NET apps work
+        TestsFailed("'Hello from .NET (.NET apps work)' window is not active.")
+    else
     {
-        #include install_test.ahk
-    }
-    else 
-    {
-        #include prepare.ahk
-
-        if 1 = 2.run_net_app
+        WinClose
+        WinWaitClose,,,3
+        if ErrorLevel
+            TestsFailed("Unable to close 'Hello from .NET (.NET apps work)' window.")
+        else
         {
-            #include run_net_app.ahk
+            Process, WaitClose, %ProcessExe%, 4
+            if ErrorLevel
+                TestsFailed("'" ProcessExe "' process failed to close despite 'Hello from .NET (.NET apps work)' window being closed.")
+            else
+                TestsOK("Closed 'Hello from .NET (.NET apps work)' window, then '" ProcessExe "' process closed too.")
         }
     }
 }
-
-ShowTestResults()
