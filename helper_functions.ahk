@@ -384,11 +384,23 @@ WindowCleanup(ProcessName)
     WinGetActiveTitle, ErrorWinTitle
     if not ErrorLevel
     {
-        ControlFocus, OK, %ErrorWinTitle%
-        if not ErrorLevel
+        IfWinExist, %ErrorWinTitle%, OK ; Check if window really haves 'OK'
         {
-            SendInput, {ENTER} ; Hit 'OK' button
-            OutputDebug, Helper Functions: Sent ENTER to '%ErrorWinTitle%' window to hit 'OK' button.`n
+            ControlFocus, OK, %ErrorWinTitle%
+            if ErrorLevel
+            {
+                WinClose, %ErrorWinTitle%, OK
+                WinWaitClose,,,3
+                if ErrorLevel
+                    OutputDebug, Helper Functions: Unable to focus 'OK' in '%ErrorWinTitle%' window. Tried to close, failed too.`n
+                else
+                    OutputDebug, Helper Functions: Unable to focus 'OK' in '%ErrorWinTitle%' window. Tried to close and succeeded.`n
+            }
+            else
+            {
+                SendInput, {ENTER} ; Hit 'OK'
+                OutputDebug, Helper Functions: Sent ENTER to '%ErrorWinTitle%' window to hit 'OK'.`n
+            }
         }
     }
 }
