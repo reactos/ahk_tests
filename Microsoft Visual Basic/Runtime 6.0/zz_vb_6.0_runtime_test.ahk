@@ -24,6 +24,7 @@ params =
 (
 
     1.install
+    2.run_vb6_app
 
 )
 
@@ -33,6 +34,10 @@ if CheckParam()
     if 1 = 1.install
     {
         #include install_test.ahk
+    }
+    else if 1 = 2.run_vb6_app
+    {
+        #include run_vb6_app.ahk
     }
 }
 
