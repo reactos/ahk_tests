@@ -32,15 +32,24 @@ bTerminateProcess(szProcess)
     Process, Exist, %szProcess%
     NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
     if NewPID = 0
-        TestsInfo("'" szProcess "' process does not exist.")
+        bExist := false
     else
-        TestsInfo("'" szProcess "' process detected.")
+        bExist := true
     Process, Close, %szProcess%
     Process, WaitClose, %szProcess%, 4
     if ErrorLevel
+    {
+        TestsFailed("Unable to terminate '" szProcess "' process.")
         return false
+    }
     else
+    {
+        if bExist
+            TestsOK("Terminated '" szProcess "' process.")
+        else
+            TestsOK("We did not need to terminate '" szProcess "' process because it did not exist.")
         return true
+    }
 }
 
 
