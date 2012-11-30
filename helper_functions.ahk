@@ -29,6 +29,9 @@ DetectHiddenText, Off ; Hidden text is not detected
 
 bTerminateProcess(szProcess)
 {
+    global TestsTotal
+
+    TestsTotal++
     Process, Exist, %szProcess%
     NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
     if NewPID = 0
