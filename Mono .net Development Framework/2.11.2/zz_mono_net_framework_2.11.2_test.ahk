@@ -25,6 +25,7 @@ params =
 
     1.install
     2.run_net_app
+    3.compile_winforms
 
 )
 
@@ -42,6 +43,10 @@ if CheckParam()
         if 1 = 2.run_net_app
         {
             #include run_net_app.ahk
+        }
+        else if 1 = 3.compile_winforms
+        {
+            #include compile_winforms.ahk
         }
     }
 }
