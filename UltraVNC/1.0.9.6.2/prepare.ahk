@@ -40,15 +40,9 @@ else
 TestsTotal++
 if bContinue
 {
-    if not bTerminateProcess(VNCViewerExe)
-        TestsFailed("Unable to terminate '" VNCViewerExe "' process.")
-    else
-    {
-        if not bTerminateProcess(VNCServerExe)
-            TestsFailed("Unable to terminate '" VNCServerExe "' process.")
-        else
-            TestsOK("Neither '" VNCViewerExe "' neither '" VNCServerExe "' process is running.")
-    }
+    bTerminateProcess(VNCViewerExe)
+    if bContinue
+        bTerminateProcess(VNCServerExe)
 }
 
 
