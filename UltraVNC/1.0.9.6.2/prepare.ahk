@@ -37,7 +37,6 @@ else
 
 
 ; Terminate application
-TestsTotal++
 if bContinue
 {
     bTerminateProcess(VNCViewerExe)
