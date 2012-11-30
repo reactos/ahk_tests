@@ -27,6 +27,23 @@ SetWorkingDir %A_ScriptDir% ; Ensures a consistent starting directory.
 DetectHiddenText, Off ; Hidden text is not detected
 
 
+bTerminateProcess(szProcess)
+{
+    Process, Exist, %szProcess%
+    NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+    if NewPID = 0
+        TestsInfo("'" szProcess "' process does not exist.")
+    else
+        TestsInfo("'" szProcess "' process detected.")
+    Process, Close, %szProcess%
+    Process, WaitClose, %szProcess%, 4
+    if ErrorLevel
+        return false
+    else
+        return true
+}
+
+
 bIsConnectedToInternet()
 {
     szResult := false
