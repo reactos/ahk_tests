@@ -24,6 +24,7 @@ params =
 (
 
     1.install
+    2.run_java_gui_app
 
 )
 
@@ -32,6 +33,15 @@ if CheckParam()
     if 1 = 1.install
     {
         #include install_test.ahk
+    }
+    else 
+    {
+        #include prepare.ahk
+
+        if 1 = 2.run_java_gui_app
+        {
+            #include run_java_gui_app.ahk
+        }
     }
 }
 
