@@ -18,6 +18,10 @@
  */
 
 TestName = 3.download
+szURL = http://iso.reactos.org/livecd/livecd-58112-dbg.7z
+SplitPath, szURL, szFileName
+szDownloadTo = %A_Desktop%\%szFileName% ; Desktop is our download dir. See prepare.ahk
+
  
 ; Check if can download some file
 TestsTotal++
@@ -29,16 +33,16 @@ else
         TestsFailed("'Mozilla Firefox Start Page - Mozilla Firefox' is not active window.")
     else
     {
-        FileDelete, %A_Desktop%\livecd-56407-dbg.7z ; Make sure it doesn't exist before continuing
-        IfExist, %A_Desktop%\livecd-56407-dbg.7z
-            TestsFailed("Failed to delete '" A_Desktop "\livecd-56407-dbg.7z'.")
+        FileDelete, %szDownloadTo% ; Make sure it doesn't exist before continuing
+        IfExist, %szDownloadTo%
+            TestsFailed("Failed to delete '" szDownloadTo "'.")
         else
         {
-            SendInput, {CTRLDOWN}l{CTRLUP}http://iso.reactos.org/livecd/livecd-56407-dbg.7z{ENTER} ;Download some file
+            SendInput, {CTRLDOWN}l{CTRLUP}%szURL%{ENTER} ;Download some file
             
-            WinWaitActive, Opening livecd-56407-dbg.7z,,10
+            WinWaitActive, Opening %szFileName%,,10
             if ErrorLevel
-                TestsFailed("'Opening livecd-56407-dbg.7z' window failed to appear, so, downloading failed.")
+                TestsFailed("'Opening " szFileName "' window failed to appear, so, downloading failed.")
             else
             {
                 ; 'ControlClick' won't work here
@@ -49,7 +53,7 @@ else
                 SendInput, {ENTER} ; Save file by hitting 'OK'. The button is focused by default
                 WinWaitClose,,,5
                 if ErrorLevel
-                    TestsFailed("'Opening livecd-56407-dbg.7z' window failed to close despite 'ENTER' was sent.")
+                    TestsFailed("'Opening " szFileName "' window failed to close despite 'ENTER' was sent.")
                 else
                 {
                     SetTitleMatchMode, 2 ; A window's title can contain WinTitle anywhere inside it to be a match.
@@ -58,14 +62,31 @@ else
                         TestsFailed("Window 'of 1 file - Downloads' failed to appear (SetTitleMatchMode=" A_TitleMatchMode ").")
                     else
                     {
+                        TestsInfo("Window 'of 1 file - Downloads' appeared, waiting for it to close. (SetTitleMatchMode=" A_TitleMatchMode ").")
+                        iTimeOut := 95
+                        while iTimeOut > 0
+                        {
+                            IfWinActive, of 1 file - Downloads
+                            {
+                                WinWaitClose, of 1 file - Downloads,, 1
+                                iTimeOut--
+                            }
+                            else
+                            {
+                                WinGetActiveTitle, ActiveWndTitle
+                                TestsInfo("'" ActiveWndTitle "' window poped-up.")
+                                break ; exit the loop if something poped-up
+                            }
+                        }
+
                         SetTitleMatchMode, 3 ; A window's title must exactly match WinTitle to be a match.
-                        WinWaitActive, Downloads,,95 ; Should be enought time to download the file?
+                        WinWaitActive, Downloads,,1 ; Should be enought time to download the file?
                         if ErrorLevel
-                            TestsFailed("'Downloads' window failed to appear, so, downloading failed. Wasn't enough time?")
+                            TestsFailed("'Downloads' window failed to appear, so, downloading failed. Wasn't enough time? (SetTitleMatchMode=" A_TitleMatchMode ")")
                         else
                         {
-                            FileGetSize, DFileSize, %A_Desktop%\livecd-56407-dbg.7z ; Desktop is our download dir. See prepare.ahk
-                            ExpectedSize := 23030114
+                            FileGetSize, DFileSize, %szDownloadTo% ; Desktop is our download dir. See prepare.ahk
+                            ExpectedSize := 29064910 ; 27.8 MB (29,064,910 bytes)
                             if DFileSize <> %ExpectedSize%
                                 TestsFailed("Downloaded file size is NOT the same as expected [is " DFileSize " and should be " ExpectedSize "].")
                             else
