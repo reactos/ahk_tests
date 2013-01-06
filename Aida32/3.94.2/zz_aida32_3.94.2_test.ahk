@@ -37,11 +37,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.ViewLicense
+        if 1 != --list
         {
-            #include ViewLicense.ahk
+            #include prepare.ahk
+
+            if 1 = 2.ViewLicense
+            {
+                #include ViewLicense.ahk
+            }
         }
     }
 }

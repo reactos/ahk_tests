@@ -37,11 +37,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.new_event
+        if 1 != --list
         {
-            #include new_event.ahk
+            #include prepare.ahk
+
+            if 1 = 2.new_event
+            {
+                #include new_event.ahk
+            }
         }
     }
 }

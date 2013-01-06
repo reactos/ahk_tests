@@ -37,11 +37,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.SaveAsDesktop
+        if 1 != --list
         {
-            #include SaveAsDesktop.ahk
+            #include prepare.ahk
+
+            if 1 = 2.SaveAsDesktop
+            {
+                #include SaveAsDesktop.ahk
+            }
         }
     }
 }

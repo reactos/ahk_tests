@@ -40,23 +40,26 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
+        if 1 != --list
+        {
+            #include prepare.ahk
 
-        if 1 = 2.AddressBar
-        {
-            #include AddressBar.ahk
-        }
-        else if 1 = 3.Download
-        {
-            #include Download.ahk
-        }
-        else if 1 = 4.FlashPlayer
-        {
-            #include FlashPlayer.ahk
-        }
-        else if 1 = 5.CloseDownload
-        {
-            #include CloseDownload.ahk
+            if 1 = 2.AddressBar
+            {
+                #include AddressBar.ahk
+            }
+            else if 1 = 3.Download
+            {
+                #include Download.ahk
+            }
+            else if 1 = 4.FlashPlayer
+            {
+                #include FlashPlayer.ahk
+            }
+            else if 1 = 5.CloseDownload
+            {
+                #include CloseDownload.ahk
+            }
         }
     }
 }

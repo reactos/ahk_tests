@@ -38,15 +38,18 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
+        if 1 != --list
+        {
+            #include prepare.ahk
 
-        if 1 = 2.SA_LoadLocalFlash
-        {
-            #include SA_LoadLocalFlash.ahk ; StandAlone Flash Player: play locally located SWF
-        }
-        else if 1 = 3.SA_LoadOnlineFlash ; StandAlone Flash Player: play online located SWF
-        {
-            #include SA_LoadOnlineFlash.ahk
+            if 1 = 2.SA_LoadLocalFlash
+            {
+                #include SA_LoadLocalFlash.ahk ; StandAlone Flash Player: play locally located SWF
+            }
+            else if 1 = 3.SA_LoadOnlineFlash ; StandAlone Flash Player: play online located SWF
+            {
+                #include SA_LoadOnlineFlash.ahk
+            }
         }
     }
 }

@@ -37,11 +37,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.debug_run
+        if 1 != --list
         {
-            #include debug_run.ahk
+            #include prepare.ahk
+
+            if 1 = 2.debug_run
+            {
+                #include debug_run.ahk
+            }
         }
     }
 }

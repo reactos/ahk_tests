@@ -37,11 +37,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.OpenDocument
+        if 1 != --list
         {
-            #include OpenDocument.ahk
+            #include prepare.ahk
+
+            if 1 = 2.OpenDocument
+            {
+                #include OpenDocument.ahk
+            }
         }
     }
 }

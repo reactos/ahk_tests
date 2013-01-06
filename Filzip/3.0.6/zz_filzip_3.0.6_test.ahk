@@ -36,11 +36,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.ExtractArchive
+        if 1 != --list
         {
-            #include ExtractArchive.ahk
+            #include prepare.ahk
+
+            if 1 = 2.ExtractArchive
+            {
+                #include ExtractArchive.ahk
+            }
         }
     }
 }

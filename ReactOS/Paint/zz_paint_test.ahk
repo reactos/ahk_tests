@@ -29,12 +29,15 @@ params =
 
 if CheckParam()
 {
-    #include prepare.ahk
-
-    ; Those brackets are required!
-    if 1 = 1.SaveScreenShot
+    if 1 != --list
     {
-        #include SaveScreenShot.ahk
+        #include prepare.ahk
+
+        ; Those brackets are required!
+        if 1 = 1.SaveScreenShot
+        {
+            #include SaveScreenShot.ahk
+        }
     }
 }
 

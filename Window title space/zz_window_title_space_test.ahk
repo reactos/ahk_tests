@@ -31,13 +31,16 @@ params =
 if CheckParam()
 {
     ; Those brackets are required!
-    if 1 = 1.space
+    if 1 != --list
     {
-        #include space.ahk
-    }
-    else if 1 = 2.space_lite
-    {
-        #include space_lite.ahk
+        if 1 = 1.space
+        {
+            #include space.ahk
+        }
+        else if 1 = 2.space_lite
+        {
+            #include space_lite.ahk
+        }
     }
 }
 

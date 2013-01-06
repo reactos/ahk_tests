@@ -38,15 +38,18 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
+        if 1 != --list
+        {
+            #include prepare.ahk
 
-        if 1 = 2.run_net_app
-        {
-            #include run_net_app.ahk
-        }
-        else if 1 = 3.compile_winforms
-        {
-            #include compile_winforms.ahk
+            if 1 = 2.run_net_app
+            {
+                #include run_net_app.ahk
+            }
+            else if 1 = 3.compile_winforms
+            {
+                #include compile_winforms.ahk
+            }
         }
     }
 }

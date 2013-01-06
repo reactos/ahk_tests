@@ -37,11 +37,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.compile_code
+        if 1 != --list
         {
-            #include compile_code.ahk
+            #include prepare.ahk
+
+            if 1 = 2.compile_code
+            {
+                #include compile_code.ahk
+            }
         }
     }
 }

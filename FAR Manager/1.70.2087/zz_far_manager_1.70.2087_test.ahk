@@ -36,11 +36,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.open_folder
+        if 1 != --list
         {
-            #include open_folder.ahk
+            #include prepare.ahk
+
+            if 1 = 2.open_folder
+            {
+                #include open_folder.ahk
+            }
         }
     }
 }

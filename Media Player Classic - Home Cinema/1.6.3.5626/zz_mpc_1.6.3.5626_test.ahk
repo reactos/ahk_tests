@@ -37,11 +37,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.play_video
+        if 1 != --list
         {
-            #include play_video.ahk
+            #include prepare.ahk
+
+            if 1 = 2.play_video
+            {
+                #include play_video.ahk
+            }
         }
     }
 }

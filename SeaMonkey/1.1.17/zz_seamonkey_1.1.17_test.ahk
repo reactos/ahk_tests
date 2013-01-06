@@ -37,11 +37,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.download
+        if 1 != --list
         {
-            #include download.ahk
+            #include prepare.ahk
+
+            if 1 = 2.download
+            {
+                #include download.ahk
+            }
         }
     }
 }

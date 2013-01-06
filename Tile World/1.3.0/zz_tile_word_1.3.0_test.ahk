@@ -37,11 +37,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.move_tanks
+        if 1 != --list
         {
-            #include move_tanks.ahk
+            #include prepare.ahk
+
+            if 1 = 2.move_tanks
+            {
+                #include move_tanks.ahk
+            }
         }
     }
 }

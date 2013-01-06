@@ -37,11 +37,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.paint
+        if 1 != --list
         {
-            #include paint.ahk
+            #include prepare.ahk
+
+            if 1 = 2.paint
+            {
+                #include paint.ahk
+            }
         }
     }
 }

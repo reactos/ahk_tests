@@ -37,11 +37,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.SendMail
+        if 1 != --list
         {
-            #include SendMail.ahk
+            #include prepare.ahk
+
+            if 1 = 2.SendMail
+            {
+                #include SendMail.ahk
+            }
         }
     }
 }

@@ -40,23 +40,26 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
+        if 1 != --list
+        {
+            #include prepare.ahk
 
-        if 1 = 2.SaveAsDesktop
-        {
-            #include SaveAsDesktop.ahk
-        }
-        else if 1 = 3.OpenDocument
-        {
-            #include OpenDocument.ahk
-        }
-        else if 1 = 4.Ctrl-F.FindDialog
-        {
-            #include Ctrl-F.FindDialog.ahk
-        }
-        else if 1 = 5.Send_Input
-        {
-            #include Send_Input.ahk
+            if 1 = 2.SaveAsDesktop
+            {
+                #include SaveAsDesktop.ahk
+            }
+            else if 1 = 3.OpenDocument
+            {
+                #include OpenDocument.ahk
+            }
+            else if 1 = 4.Ctrl-F.FindDialog
+            {
+                #include Ctrl-F.FindDialog.ahk
+            }
+            else if 1 = 5.Send_Input
+            {
+                #include Send_Input.ahk
+            }
         }
     }
 }

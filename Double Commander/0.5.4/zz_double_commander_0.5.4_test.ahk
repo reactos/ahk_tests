@@ -37,11 +37,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.multi_rename
+        if 1 != --list
         {
-            #include multi_rename.ahk
+            #include prepare.ahk
+
+            if 1 = 2.multi_rename
+            {
+                #include multi_rename.ahk
+            }
         }
     }
 }

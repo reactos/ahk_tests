@@ -37,11 +37,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.play_wav
+        if 1 != --list
         {
-            #include play_wav.ahk
+            #include prepare.ahk
+
+            if 1 = 2.play_wav
+            {
+                #include play_wav.ahk
+            }
         }
     }
 }

@@ -37,11 +37,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.telnet
+        if 1 != --list
         {
-            #include telnet.ahk
+            #include prepare.ahk
+
+            if 1 = 2.telnet
+            {
+                #include telnet.ahk
+            }
         }
     }
 }

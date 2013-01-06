@@ -37,11 +37,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.SearchCurrentDoc
+        if 1 != --list
         {
-            #include SearchCurrentDoc.ahk
+            #include prepare.ahk
+
+            if 1 = 2.SearchCurrentDoc
+            {
+                #include SearchCurrentDoc.ahk
+            }
         }
     }
 }

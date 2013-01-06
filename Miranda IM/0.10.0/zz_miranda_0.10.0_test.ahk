@@ -37,11 +37,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.irc_chat_test
+        if 1 != --list
         {
-            #include irc_chat_test.ahk
+            #include prepare.ahk
+
+            if 1 = 2.irc_chat_test
+            {
+                #include irc_chat_test.ahk
+            }
         }
     }
 }

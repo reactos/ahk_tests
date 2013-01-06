@@ -37,11 +37,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.replace
+        if 1 != --list
         {
-            #include replace.ahk
+            #include prepare.ahk
+
+            if 1 = 2.replace
+            {
+                #include replace.ahk
+            }
         }
     }
 }

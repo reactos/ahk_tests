@@ -38,15 +38,18 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
+        if 1 != --list
+        {
+            #include prepare.ahk
 
-        if 1 = 2.ExtractArchive
-        {
-            #include ExtractArchive.ahk
-        }
-        else if 1 = 3.Benchmark
-        {
-            #include Benchmark.ahk
+            if 1 = 2.ExtractArchive
+            {
+                #include ExtractArchive.ahk
+            }
+            else if 1 = 3.Benchmark
+            {
+                #include Benchmark.ahk
+            }
         }
     }
 }

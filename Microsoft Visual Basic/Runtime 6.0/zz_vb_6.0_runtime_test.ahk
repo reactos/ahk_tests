@@ -31,13 +31,16 @@ params =
 if CheckParam()
 {
     ; Those brackets are required!
-    if 1 = 1.install
+    if 1 != --list
     {
-        #include install_test.ahk
-    }
-    else if 1 = 2.run_vb6_app
-    {
-        #include run_vb6_app.ahk
+        if 1 = 1.install
+        {
+            #include install_test.ahk
+        }
+        else if 1 = 2.run_vb6_app
+        {
+            #include run_vb6_app.ahk
+        }
     }
 }
 

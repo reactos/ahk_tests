@@ -37,11 +37,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.local_game
+        if 1 != --list
         {
-            #include local_game.ahk
+            #include prepare.ahk
+
+            if 1 = 2.local_game
+            {
+                #include local_game.ahk
+            }
         }
     }
 }

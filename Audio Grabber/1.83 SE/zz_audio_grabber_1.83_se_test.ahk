@@ -37,11 +37,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.calculate_checksum
+        if 1 != --list
         {
-            #include calculate_checksum.ahk
+            #include prepare.ahk
+
+            if 1 = 2.calculate_checksum
+            {
+                #include calculate_checksum.ahk
+            }
         }
     }
 }

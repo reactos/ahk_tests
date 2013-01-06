@@ -37,11 +37,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.view_vnc
+        if 1 != --list
         {
-            #include view_vnc.ahk
+            #include prepare.ahk
+
+            if 1 = 2.view_vnc
+            {
+                #include view_vnc.ahk
+            }
         }
     }
 }

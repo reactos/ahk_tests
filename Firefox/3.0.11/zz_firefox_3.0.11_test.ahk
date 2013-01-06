@@ -38,19 +38,22 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
+        if 1 != --list
+        {
+            #include prepare.ahk
 
-        if 1 = 2.address_bar
-        {
-            #include address_bar.ahk
-        }
-        else if 1 = 3.download
-        {
-            #include download.ahk
-        }
-        else if 1 = 4.search_bar
-        {
-            #include search_bar.ahk
+            if 1 = 2.address_bar
+            {
+                #include address_bar.ahk
+            }
+            else if 1 = 3.download
+            {
+                #include download.ahk
+            }
+            else if 1 = 4.search_bar
+            {
+                #include search_bar.ahk
+            }
         }
     }
 }

@@ -37,11 +37,14 @@ if CheckParam()
     }
         else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.find_text
+        if 1 != --list
         {
-            #include find_text.ahk
+            #include prepare.ahk
+
+            if 1 = 2.find_text
+            {
+                #include find_text.ahk
+            }
         }
     }
 }

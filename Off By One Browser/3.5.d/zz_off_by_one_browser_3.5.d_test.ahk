@@ -37,11 +37,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.address_bar
+        if 1 != --list
         {
-            #include address_bar.ahk
+            #include prepare.ahk
+
+            if 1 = 2.address_bar
+            {
+                #include address_bar.ahk
+            }
         }
     }
 }

@@ -37,11 +37,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.tkinter_gui
+        if 1 != --list
         {
-            #include tkinter_gui.ahk
+            #include prepare.ahk
+
+            if 1 = 2.tkinter_gui
+            {
+                #include tkinter_gui.ahk
+            }
         }
     }
 }

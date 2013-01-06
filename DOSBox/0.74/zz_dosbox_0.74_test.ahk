@@ -37,11 +37,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.intro
+        if 1 != --list
         {
-            #include intro.ahk
+            #include prepare.ahk
+
+            if 1 = 2.intro
+            {
+                #include intro.ahk
+            }
         }
     }
 }

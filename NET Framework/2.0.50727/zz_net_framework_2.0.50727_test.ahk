@@ -37,11 +37,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.run_net_app
+        if 1 != --list
         {
-            #include run_net_app.ahk
+            #include prepare.ahk
+
+            if 1 = 2.run_net_app
+            {
+                #include run_net_app.ahk
+            }
         }
     }
 }

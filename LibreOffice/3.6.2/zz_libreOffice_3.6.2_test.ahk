@@ -37,11 +37,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.writer_replace
+        if 1 != --list
         {
-            #include writer_replace.ahk
+            #include prepare.ahk
+
+            if 1 = 2.writer_replace
+            {
+                #include writer_replace.ahk
+            }
         }
     }
 }

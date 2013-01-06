@@ -37,11 +37,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.load_document
+        if 1 != --list
         {
-            #include load_document.ahk
+            #include prepare.ahk
+
+            if 1 = 2.load_document
+            {
+                #include load_document.ahk
+            }
         }
     }
 }

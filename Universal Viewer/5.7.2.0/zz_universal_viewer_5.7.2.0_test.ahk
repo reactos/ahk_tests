@@ -37,11 +37,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.GoToPage
+        if 1 != --list
         {
-            #include GoToPage.ahk
+            #include prepare.ahk
+
+            if 1 = 2.GoToPage
+            {
+                #include GoToPage.ahk
+            }
         }
     }
 }

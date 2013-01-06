@@ -37,11 +37,14 @@ if CheckParam()
     }
     else 
     {
-        #include prepare.ahk
-
-        if 1 = 2.ExtractPwdProtected
+        if 1 != --list
         {
-            #include ExtractPwdProtected.ahk
+            #include prepare.ahk
+
+            if 1 = 2.ExtractPwdProtected
+            {
+                #include ExtractPwdProtected.ahk
+            }
         }
     }
 }
