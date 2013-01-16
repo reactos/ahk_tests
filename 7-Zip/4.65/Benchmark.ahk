@@ -19,7 +19,7 @@
 
 TestName = 3.Benchmark
 
-; Test if can run benchmark (bug 5906)
+; Test if can run benchmark (#CORE-5354)
 TestsTotal++
 Process, Close, 7zG.exe ; Close Benchmark
 RunApplication("")
@@ -71,7 +71,7 @@ else
                             if ErrorLevel
                                 TestsFailed("Unable to terminate '7zG.exe' process.")
                             else
-                                TestsOK("Amount of percent in 'Total Rating' changed, so there is no bug #5906. '7zFM.exe' and '7zG.exe' terminated successfully.")
+                                TestsOK("Amount of percent in 'Total Rating' changed, so there is no bug #CORE-5354. '7zFM.exe' and '7zG.exe' terminated successfully.")
                         }
                     }
                 }

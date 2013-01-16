@@ -53,7 +53,7 @@ else
                     Sleep, 50
                 }
                 
-                TestsInfo("In 1sec will close 'License Agreement - AIDA32' window, if BSOD then bug #6355?.")
+                TestsInfo("In 1sec will close 'License Agreement - AIDA32' window, if BSOD then bug #CORE-6435?.")
                 ControlClick, TButton2, License Agreement - AIDA32 ; Click 'Close' button
                 if ErrorLevel
                     TestsFailed("Unable to hit 'Close' button in 'License Agreement - AIDA32 (Registration Request)' window.")
@@ -70,7 +70,7 @@ else
                         {
                             WinWait, aida32.bin - Application Error,,2
                             if not ErrorLevel
-                                TestsFailed("'aida32.bin - Application Error (The exception)' window appeared, bug 7090?")
+                                TestsFailed("'aida32.bin - Application Error (The exception)' window appeared, bug #CORE-6730?")
                             else
                                 TestsOK("License was read, application closed correctly.")
                         }

@@ -50,7 +50,7 @@ else
                     Sleep, 1500
                     ControlSetText, Edit1, %szDocument%, Open, Look &in
                     if ErrorLevel
-                        TestsFailed("Unable to change 'File name' control text to '" szDocument "' in 'Open (Look in)' window, bug 7089?")
+                        TestsFailed("Unable to change 'File name' control text to '" szDocument "' in 'Open (Look in)' window, bug #CORE-6434?")
                     else
                     {
                         Sleep, 1500

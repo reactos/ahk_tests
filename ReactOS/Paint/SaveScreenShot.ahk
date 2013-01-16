@@ -19,7 +19,7 @@
 
 TestName = 2.SaveScreenShot
 
-; Test if can take screenshot and save it to desktop (bug 6715)
+; Test if can take screenshot and save it to desktop (bug #CORE-6093)
 TestsTotal++
 RunApplication("")
 if not bContinue
@@ -40,7 +40,7 @@ else
         else
         {
             clipboard = ; Empty the clipboard
-            TestsInfo("In a sec will send Alt+PrintScreen, if BSOD, then bug #6715?.")
+            TestsInfo("In a sec will send Alt+PrintScreen, if BSOD, then bug #CORE-6093?.")
             SendInput, !{PrintScreen} ; Send Alt+PrintScreen
             WinRestore, untitled - Paint
             WinWaitActive, untitled - Paint,,3
@@ -146,7 +146,7 @@ if bContinue
                 TestsFailed("'" A_Desktop "\ActiveWnd.bmp' could not be found on the screen.")
             else
             {
-                TestsOK("Seems like Alt+PrintScreen works well, so, no bug #6715.")
+                TestsOK("Seems like Alt+PrintScreen works well, so, no bug #CORE-6093.")
             }
         }
     }

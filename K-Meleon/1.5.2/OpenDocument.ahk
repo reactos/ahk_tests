@@ -37,7 +37,7 @@ else
         SendInput, o ; 'Open' from 'File' menu
         WinWaitActive, Open, Look, 5
         if ErrorLevel
-            TestsFailed("Window 'Open (Look)' failed to appear, bug 4779?")
+            TestsFailed("Window 'Open (Look)' failed to appear, bug #CORE-4415?")
         else
         {
             ControlSetText, Edit1, %szDocument%, Open, Look

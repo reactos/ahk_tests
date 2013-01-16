@@ -37,7 +37,7 @@ else
         SendInput, {CTRLDOWN}f{CTRLUP} ; Call dialog using Ctrl+F
         WinWaitActive, Find,, 3
         if ErrorLevel
-            TestsFailed("Window 'Find' failed to appear, so Ctrl+F doesn't work, bug #6734.")
+            TestsFailed("Window 'Find' failed to appear, so Ctrl+F doesn't work, bug #CORE-6112.")
         else
         {
             TestFindDialog()

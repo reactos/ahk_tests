@@ -50,7 +50,7 @@ else
                 {
                     ControlText = Save changes to document Untitled1 before closing? ; 
                     if OutputVar != %ControlText% ; Check if text matches
-                        TestsFailed("Control text is not the same as expected in 'AbiWord (Save changes)' window (is '" OutputVar "', should be '" ControlText "', bug 6035?).")
+                        TestsFailed("Control text is not the same as expected in 'AbiWord (Save changes)' window (is '" OutputVar "', should be '" ControlText "', bug #CORE-5466?).")
                     else
                     {
                         ControlClick, Button1, AbiWord, Save changes ; Click 'Yes' button

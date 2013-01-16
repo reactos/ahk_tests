@@ -61,7 +61,7 @@ else
                         SendInput, {ENTER}
                         WinWaitActive, edijus - Yahoo! Search Results - Mozilla Firefox,,15 ; Time depends on connection speed
                         if ErrorLevel
-                            TestsFailed("'edijus - Yahoo! Search Results - Mozilla Firefox' window failed to appear, so, search bar do not work. Bugs 5574, 5930, 6990?")
+                            TestsFailed("'edijus - Yahoo! Search Results - Mozilla Firefox' window failed to appear, so, search bar do not work. Bug #CORE-6342?")
                         else
                         {
                             Sleep, 5500 ; Let the URL to load, maybe something will fail
