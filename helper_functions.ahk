@@ -364,7 +364,7 @@ WindowCleanup(ProcessName)
     }
 
     TerminateTmpProcesses()
-    SplitPath, ProcessName,,, name_no_ext 
+    SplitPath, ProcessName,,,, name_no_ext 
     Process, Exist, %name_no_ext%.tmp ; Will kill some setups
     if ErrorLevel != 0
     {
