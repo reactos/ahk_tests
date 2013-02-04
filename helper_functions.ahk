@@ -470,8 +470,30 @@ TerminateTmpProcesses()
         id := NumGet(a, A_Index * 4)
         ; Open process with: PROCESS_VM_READ (0x0010) | PROCESS_QUERY_INFORMATION (0x0400)
         h := DllCall("OpenProcess", "UInt", 0x0010 | 0x0400, "Int", false, "UInt", id)
+        if ErrorLevel = -1
+            TestsInfo("The [DllFile\]Function parameter is a floating point number. A string or positive integer is required.")
+        else if ErrorLevel = -2
+            TestsInfo("The return type or one of the specified arg types is invalid. This error can also be caused by passing an expression that evaluates to a number to a string (str)  argument.")
+        else if ErrorLevel = -3
+            TestsInfo("The specified DllFile could not be accessed. If no explicit path was specified for DllFile, the file must exist in the system's PATH or A_WorkingDir. This error might also occur if the user lacks permission to access the file.")
+        else if ErrorLevel = -4
+            TestsInfo("The specified function could not be found inside the DLL.")
+
+        TestsInfo("DllCall('OpenProcess'...) last error: '" A_LastError "'")
+
         VarSetCapacity(n, s, 0)  ; a buffer that receives the base name of the module:
         e := DllCall("Psapi.dll\GetModuleBaseNameA", "UInt", h, "UInt", 0, "Str", n, "UInt", s)
+        if ErrorLevel = -1
+            TestsInfo("The [DllFile\]Function parameter is a floating point number. A string or positive integer is required.")
+        else if ErrorLevel = -2
+            TestsInfo("The return type or one of the specified arg types is invalid. This error can also be caused by passing an expression that evaluates to a number to a string (str)  argument.")
+        else if ErrorLevel = -3
+            TestsInfo("The specified DllFile could not be accessed. If no explicit path was specified for DllFile, the file must exist in the system's PATH or A_WorkingDir. This error might also occur if the user lacks permission to access the file.")
+        else if ErrorLevel = -4
+            TestsInfo("The specified function could not be found inside the DLL.")
+
+        TestsInfo("DllCall('Psapi.dll\GetModuleBaseNameA'...) last error: '" A_LastError "'")
+
         DllCall("CloseHandle", "UInt", h)  ; close process handle to save memory
         if (n && e)  ; if image is not null add to list:
         {

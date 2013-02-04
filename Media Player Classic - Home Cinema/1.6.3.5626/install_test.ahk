@@ -140,7 +140,7 @@ if bContinue
         TestsFailed("'Setup - MPC-HC (License Agreement)' window failed to appear.")
     else
     {
-        SendInput, !a ; Check 'I accept' radiobutton
+        SendInput, !b ; Check 'I accept' radiobutton
         SendInput, !n ; Hit 'Next' button
         WinWaitClose,,,3
         if ErrorLevel
