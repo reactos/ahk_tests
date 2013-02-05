@@ -289,7 +289,13 @@ if bContinue
             if ErrorLevel
                 TestsFailed("'Mozilla Firefox Setup (Completing)' window failed to close despite Alt+F was sent.")
             else
-                TestsOK("'Mozilla Firefox Setup (Completing)' window appeared, Alt+L, Alt+F sent, window closed.")
+            {
+                Process, Exist, %MainAppFile%
+                if ErrorLevel != 0
+                    TestsFailed("Process '" MainAppFile "' appeared despite Alt+L and Alt+F were sent to 'Mozilla Firefox Setup (Completing)' window.")
+                else
+                    TestsOK("'Mozilla Firefox Setup (Completing)' window appeared, Alt+L, Alt+F sent, window closed, no '" MainAppFile "' process appeared.")
+            }
         }
     }
 }
