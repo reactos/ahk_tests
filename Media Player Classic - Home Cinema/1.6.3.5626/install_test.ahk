@@ -140,13 +140,13 @@ if bContinue
         TestsFailed("'Setup - MPC-HC (License Agreement)' window failed to appear.")
     else
     {
-        SendInput, !b ; Check 'I accept' radiobutton
+        SendInput, !a ; Check 'I accept' radiobutton
         SendInput, !n ; Hit 'Next' button
         WinWaitClose,,,3
         if ErrorLevel
             TestsFailed("'Setup - MPC-HC (License Agreement)' window failed to close despite Alt+A and Alt+N was sent. CORE-6542?")
         else
-          TestsOK("'Setup - MPC-HC (License Agreement)' window appeared, Alt+A and Alt+N was sent.")
+            TestsOK("'Setup - MPC-HC (License Agreement)' window appeared, Alt+A and Alt+N was sent.")
     }
 }
 
