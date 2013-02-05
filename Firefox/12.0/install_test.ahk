@@ -52,35 +52,32 @@ else
                 ; There is child process, but seems we can not detect it
                 ; Process Explorer shows that 'Au_.exe' was started by 'uninstaller.exe' and we start 'helper.exe'
                 WaitUninstallDone(UninstallerPath, 3)
-                if bContinue
+                ; 2.0.0.20, 3.0.11, 12.0 starts 'Au_.exe' process
+                Process, WaitClose, Au_.exe, 7
+                if ErrorLevel ; The PID still exists
                 {
-                    ; 2.0.0.20, 3.0.11, 12.0 starts 'Au_.exe' process
-                    Process, WaitClose, Au_.exe, 7
+                    TestsInfo("'Au_.exe' process failed to close.")
+                    Process, Close, Au_.exe
+                    Process, WaitClose, Au_.exe, 3
                     if ErrorLevel ; The PID still exists
+                        TestsFailed("Unable to terminate 'Au_.exe' process.")
+                }
+                else
+                {
+                    IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
                     {
-                        TestsInfo("'Au_.exe' process failed to close.")
-                        Process, Close, Au_.exe
-                        Process, WaitClose, Au_.exe, 3
-                        if ErrorLevel ; The PID still exists
-                            TestsFailed("Unable to terminate 'Au_.exe' process.")
+                        TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
+                        bContinue := true
                     }
                     else
                     {
-                        IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
-                        {
-                            TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
-                            bContinue := true
-                        }
+                        FileRemoveDir, %szDefaultDir%, 1
+                        if ErrorLevel
+                            TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
                         else
                         {
-                            FileRemoveDir, %szDefaultDir%, 1
-                            if ErrorLevel
-                                TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
-                            else
-                            {
-                                TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
-                                bContinue := true
-                            }
+                            TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
+                            bContinue := true
                         }
                     }
                 }
@@ -247,7 +244,20 @@ if bContinue
                 iTimeOut--
             }
             else
-                break ; exit the loop if something poped-up
+            {
+                IfWinActive, Microsoft Visual C++ Runtime Library
+                {
+                    TestsTotal++
+                    SendInput, {ENTER}
+                    WinWaitClose, Microsoft Visual C++ Runtime Library,,3
+                    if ErrorLevel
+                        TestsFailed("'Microsoft Visual C++ Runtime Library' window poped-up (#CORE-6354) and failed to close it.")
+                    else
+                        TestsFailed("'Microsoft Visual C++ Runtime Library' window poped-up (#CORE-6354), but we succeeded closing it.")
+                }
+                else
+                    break ; exit the loop if something poped-up
+            }
         }
 
         WinWaitClose, %WindowSpace%, Installing, 1 ; Setup requires all params here
