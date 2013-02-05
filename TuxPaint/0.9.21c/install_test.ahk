@@ -175,7 +175,11 @@ if bContinue
     {
         SendInput, !a ; Check 'I accept' radiobutton (Fails to check? CORE-6542)
         SendInput, !n ; Hit 'Next' button
-        TestsOK("'Setup - Tux Paint (License Agreement)' window appeared, Alt+A and Alt+N were sent.")
+        WinWaitClose, Setup - Tux Paint, License Agreement, 3
+        if ErrorLevel
+            TestsFailed("'Setup - Tux Paint (License Agreement)' window failed to close despite Alt+A and Alt+N were sent. #CORE-6542?")
+        else
+            TestsOK("'Setup - Tux Paint (License Agreement)' window appeared, Alt+A and Alt+N were sent and window closed.")
     }
 }
 
