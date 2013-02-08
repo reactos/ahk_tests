@@ -278,6 +278,55 @@ TestsFailed(DebugText)
             OutputDebug, %TestName%: Test failed: %DebugText% Active Wnd class: '%WndClass%'.`n
         }
     }
+
+    szApp = %A_WorkingDir%\Apps\Cap.exe ; Screenshot capture utility by Mysoft (Grégori Macário Harbs)
+    IfNotExist, %szApp%
+        TestsInfo("Can NOT find '" szApp "'.")
+    else
+    {
+        clipboard = ; emptry clipboard
+        szFileName := SubStr(A_ScriptName, 1, -4) ; remove '.exe' part from our executable name
+        szUploadURL = mysoft.zapto.org:8000/Uploads/Captures/%szFileName%_%TestName%.jpg
+        Run, %szApp% /full /jpg 40 /silent /revision /nobelt /clipboard /hfs %szUploadURL%
+        SplitPath, szApp, ProcessName
+        Process, wait, %ProcessName%, 3
+        NewPID = %ErrorLevel%
+        if NewPID = 0
+            TestsInfo("Process '" ProcessName "' failed to appear.")
+        else
+        {
+            iTimeOut := 30
+            while iTimeOut > 0
+            {
+                Process, Exist, %ProcessName%
+                NewPID = %ErrorLevel%
+                if NewPID = 0
+                    break ; process is closed
+                else
+                {
+                    Sleep, 1000
+                    iTimeOut--
+                }
+            }
+
+            Process, Exist, %ProcessName%
+            NewPID = %ErrorLevel%
+            if NewPID != 0
+            {
+                Process, Close, %ProcessName%
+                Process, WaitClose, %ProcessName%, 5
+                if ErrorLevel
+                    TestsInfo("Unable to terminate '" ProcessName "' process.")
+            }
+            else
+            {
+                if A_LastError = 0 ; szApp returns 0 in case of success and puts URL in clipboard
+                    TestsInfo("Successfully uploaded to: '" clipboard "'.")
+                else
+                    TestsInfo("There were something wrong while running '" szApp "'.")
+            }
+        }
+    }
 }
 
 
