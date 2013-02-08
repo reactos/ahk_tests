@@ -23,11 +23,9 @@ szDocument =  %A_WorkingDir%\Media\Book.pdf ; Case sensitive!
 ; Test if can open PDF document, go to page 29, close document, exit Universal Viewer.
 TestsTotal++
 RunApplication(szDocument)
-SplitPath, szDocument, NameExt
-if not bContinue
-    TestsFailed("We failed somewhere in prepare.ahk.")
-else
+if bContinue
 {
+    SplitPath, szDocument, NameExt
     IfWinNotActive, %NameExt% - Universal Viewer (slister)
         TestsFailed("Window '" NameExt " - Universal Viewer (slister)' failed to appear.")
     else
