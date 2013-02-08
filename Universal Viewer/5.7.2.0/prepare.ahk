@@ -75,17 +75,17 @@ RunApplication(PathToFile)
 
     TestsTotal++
     IfNotExist, %ModuleExe%
-        TestsFailed("Can NOT find '" ModuleExe "'.")
+        TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
     else
     {
         FileCreateDir, %A_AppData%\ATViewer
         if ErrorLevel
-            TestsFailed("Can NOT create '" A_AppData "\ATViewer'.")
+            TestsFailed("RunApplication(): Can NOT create '" A_AppData "\ATViewer'.")
         else
         {
             FileAppend, [Options]`nSingle=1`n, %A_AppData%\ATViewer\Viewer.ini ; Allow only one instance running
             if ErrorLevel
-                TestsFailed("Can NOT create and edit '" A_AppData "\ATViewer\Viewer.ini'.")
+                TestsFailed("RunApplication(): Can NOT create and edit '" A_AppData "\ATViewer\Viewer.ini'.")
             else
             {
                 if PathToFile =
@@ -93,7 +93,7 @@ RunApplication(PathToFile)
                     Run, %ModuleExe%,, Max ; Start maximized
                     WinWaitActive, Universal Viewer, File not loaded, 10
                     if ErrorLevel
-                        TestsFailed("Window 'Universal Viewer (File not loaded)' failed to appear.")
+                        TestsFailed("RunApplication(): Window 'Universal Viewer (File not loaded)' failed to appear.")
                     else
                     {
                         Sleep, 500 ; Sleep is a must
@@ -103,7 +103,7 @@ RunApplication(PathToFile)
                 else
                 {
                     IfNotExist, %PathToFile%
-                        TestsFailed("Can NOT find '" PathToFile "'.")
+                        TestsFailed("RunApplication(): Can NOT find '" PathToFile "'.")
                     else
                     {
                         Run, %ModuleExe% "%PathToFile%",, Max
@@ -111,7 +111,7 @@ RunApplication(PathToFile)
                         SetTitleMatchMode, 1 ; A window's title must start with the specified WinTitle to be a match.
                         WinWaitActive, %NameExt% - Universal Viewer,, 10
                         if ErrorLevel
-                            TestsFailed("Window '" NameExt " - Universal Viewer' failed to appear (AHK TitleMachMode=1).")
+                            TestsFailed("RunApplication(): Window '" NameExt " - Universal Viewer' failed to appear (AHK TitleMachMode=1).")
                         else
                         {
                             Sleep, 500 ; Sleep is a must
