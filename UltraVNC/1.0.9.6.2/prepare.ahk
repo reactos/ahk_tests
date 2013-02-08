@@ -83,7 +83,7 @@ RunVNCViewer()
     if bContinue
     {
         IfNotExist, %ModuleExe%
-            TestsFailed("Can NOT find '" ModuleExe "'.")
+            TestsFailed("RunVNCViewer(): Can NOT find '" ModuleExe "'.")
         else
         {
             Run, %ModuleExe%
@@ -93,9 +93,9 @@ RunVNCViewer()
                 Process, Exist, %VNCViewerExe%
                 NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                 if NewPID = 0
-                    TestsFailed("Window 'UltraVNC Viewer - Win32 1.0.9.6.2 (Quick Options)' failed to appear. No '" VNCViewerExe "' process detected.")
+                    TestsFailed("RunVNCViewer(): Window 'UltraVNC Viewer - Win32 1.0.9.6.2 (Quick Options)' failed to appear. No '" VNCViewerExe "' process detected.")
                 else
-                    TestsFailed("Window 'UltraVNC Viewer - Win32 1.0.9.6.2 (Quick Options)' failed to appear. '" VNCViewerExe "' process detected.")
+                    TestsFailed("RunVNCViewer(): Window 'UltraVNC Viewer - Win32 1.0.9.6.2 (Quick Options)' failed to appear. '" VNCViewerExe "' process detected.")
             }
             else
                 TestsOK("")

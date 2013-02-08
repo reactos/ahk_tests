@@ -79,34 +79,34 @@ RunApplication()
     if bContinue
     {
         IfNotExist, %ModuleExe%
-            TestsFailed("Can NOT find 'ModuleExe'.")
+            TestsFailed("RunApplication(): Can NOT find 'ModuleExe'.")
         else
         {
             Run, %ModuleExe%,, Max ; Start maximized
             WinWaitActive, Total Commander, Program &information, 10
             if ErrorLevel
-                TestsFailed("'Total Commander (Program information)' window failed to appear.")
+                TestsFailed("RunApplication(): 'Total Commander (Program information)' window failed to appear.")
             else
             {
                 ControlGetText, BtnNumber, TPanel2, Total Commander, Program &information
                 if ErrorLevel
-                    TestsFailed("Unable to get button number needed to hit in 'Total Commander (Program information)' window.")
+                    TestsFailed("RunApplication(): Unable to get button number needed to hit in 'Total Commander (Program information)' window.")
                 else
                 {
                     SendInput, %BtnNumber% ; Click button to start program
                     WinWaitActive, Configuration, Layout, 5
                     if ErrorLevel
-                        TestsFailed("'Configuration (Layout)' window failed to appear.")
+                        TestsFailed("RunApplication(): 'Configuration (Layout)' window failed to appear.")
                     else
                     {
                         ControlClick, TButton30, Configuration, Layout ; Hit 'OK' button
                         if ErrorLevel
-                            TestsFailed("Unable to hit 'OK' button in 'Configuration (Layout)' window.")
+                            TestsFailed("RunApplication(): Unable to hit 'OK' button in 'Configuration (Layout)' window.")
                         else
                         {
                             WinWaitActive, Total Commander 8.0 - NOT REGISTERED,,5
                             if ErrorLevel
-                                TestsFailed("'Total Commander 8.0 - NOT REGISTERED' window failed to appear.")
+                                TestsFailed("RunApplication(): 'Total Commander 8.0 - NOT REGISTERED' window failed to appear.")
                             else
                                 TestsOK("")
                         }

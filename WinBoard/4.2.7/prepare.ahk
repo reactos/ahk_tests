@@ -79,20 +79,20 @@ RunApplication()
             Process, Exist, %ProcessExe%
             NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
             if NewPID = 0
-                TestsFailed("Window 'WinBoard Startup (Play against)' failed to appear. No '" ProcessExe "' process detected.")
+                TestsFailed("RunApplication(): Window 'WinBoard Startup (Play against)' failed to appear. No '" ProcessExe "' process detected.")
             else
-                TestsFailed("Window 'WinBoard Startup (Play against)' failed to appear. '" ProcessExe "' process detected.")
+                TestsFailed("RunApplication(): Window 'WinBoard Startup (Play against)' failed to appear. '" ProcessExe "' process detected.")
         }
         else
         {
             Control, Check,, Button1 ; Check 'Play against a chess engine or match two engines' radiobutton
             if ErrorLevel
-                TestsFailed("Unable to check 'Play against...' radiobutton in 'WinBoard Startup (Play against)' window.")
+                TestsFailed("RunApplication(): Unable to check 'Play against...' radiobutton in 'WinBoard Startup (Play against)' window.")
             else
             {
                 ControlGet, OutputVar, Enabled,, Button5 ; Check if 'OK' button is enabled
                 if not %OutputVar%
-                    TestsFailed("'Play against...' radiobutton is checked in 'WinBoard Startup (Play against)', but 'OK' button is disabled.")
+                    TestsFailed("RunApplication(): 'Play against...' radiobutton is checked in 'WinBoard Startup (Play against)', but 'OK' button is disabled.")
                 else
                     TestsOK("")
             }

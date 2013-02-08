@@ -81,7 +81,7 @@ RunApplication()
     if bContinue
     {
         IfNotExist, %ModuleExe%
-            TestsFailed("Can NOT find '" ModuleExe "'.")
+            TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
         else
         {
             Run, %ModuleExe%
@@ -91,41 +91,39 @@ RunApplication()
                 Process, Exist, %ProcessExe%
                 NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                 if NewPID = 0
-                    TestsFailed("Window 'Miranda IM Profile Manager (Please complete)' failed to appear. No '" ProcessExe "' process detected.")
+                    TestsFailed("RunApplication(): Window 'Miranda IM Profile Manager (Please complete)' failed to appear. No '" ProcessExe "' process detected.")
                 else
-                    TestsFailed("Window 'Miranda IM Profile Manager (Please complete)' failed to appear. '" ProcessExe "' process detected.")
+                    TestsFailed("RunApplication(): Window 'Miranda IM Profile Manager (Please complete)' failed to appear. '" ProcessExe "' process detected.")
             }
             else
             {
                 SendInput, TestProfile ; 'Profile' field is focused by default
                 ControlGetText, ProfileName, Edit1, Miranda IM Profile Manager, Please complete
                 if ErrorLevel
-                    TestsFailed("Unable to get profile name in 'Miranda IM Profile Manager (Please complete)' window.")
+                    TestsFailed("RunApplication(): Unable to get profile name in 'Miranda IM Profile Manager (Please complete)' window.")
                 else
                 {
                     if (ProfileName != "TestProfile")
-                        TestsFailed("Profile name is not the same as expected (is '" ProfileName "', should be 'TestProfile').")
+                        TestsFailed("RunApplication(): Profile name is not the same as expected (is '" ProfileName "', should be 'TestProfile').")
                     else
                     {
                         SendInput, !c ; Alt+C aka hit 'Create' button
                         WinWaitClose,,,3
                         if ErrorLevel
-                            TestsFailed("'Miranda IM Profile Manager (Please complete)' window failed to close despite Alt+C was sent.")
+                            TestsFailed("RunApplication(): 'Miranda IM Profile Manager (Please complete)' window failed to close despite Alt+C was sent.")
                         else
                         {
                             WinWaitActive, Accounts, Configure, 3
                             if ErrorLevel
-                                TestsFailed("'Accounts (Configure)' window failed to appear.")
+                                TestsFailed("RunApplication(): 'Accounts (Configure)' window failed to appear.")
                             else
                             {
                                 SendInput, !a ; Alt+A aka hit '+' (Add) button
                                 WinWaitActive, Create new account, Enter, 3
                                 if ErrorLevel
-                                    TestsFailed("'Create new account (Enter)' window failed to appear despite Alt+A was sent.")
+                                    TestsFailed("RunApplication(): 'Create new account (Enter)' window failed to appear despite Alt+A was sent.")
                                 else
-                                {
-                                    TestsOK("'Create new account (Enter)' window is an active window.")
-                                }
+                                    TestsOK("RunApplication(): 'Create new account (Enter)' window is an active window.")
                             }
                         }
                     }

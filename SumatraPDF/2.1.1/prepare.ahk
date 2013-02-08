@@ -81,7 +81,7 @@ RunApplication(PathToFile)
     if bContinue
     {
         IfNotExist, %ModuleExe%
-            TestsFailed("Can NOT find '" ModuleExe "'.")
+            TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
         else
         {
             if PathToFile =
@@ -93,9 +93,9 @@ RunApplication(PathToFile)
                     Process, Exist, %ProcessExe%
                     NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                     if NewPID = 0
-                        TestsFailed("Window 'SumatraPDF' failed to appear. No '" ProcessExe "' process detected.")
+                        TestsFailed("RunApplication(): Window 'SumatraPDF' failed to appear. No '" ProcessExe "' process detected.")
                     else
-                        TestsFailed("Window 'SumatraPDF' failed to appear. '" ProcessExe "' process detected.")
+                        TestsFailed("RunApplication(): Window 'SumatraPDF' failed to appear. '" ProcessExe "' process detected.")
                 }
                 else
                     TestsOK("")
@@ -115,9 +115,9 @@ RunApplication(PathToFile)
                         Process, Exist, %ProcessExe%
                         NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                         if NewPID = 0
-                            TestsFailed("Window '" NameExt "' failed to appear (SetTitleMatchMode=" A_TitleMatchMode "). No '" ProcessExe "' process detected.")
+                            TestsFailed("RunApplication(): Window '" NameExt "' failed to appear (SetTitleMatchMode=" A_TitleMatchMode "). No '" ProcessExe "' process detected.")
                         else
-                            TestsFailed("Window '" NameExt "' failed to appear (SetTitleMatchMode=" A_TitleMatchMode "). '" ProcessExe "' process detected.")
+                            TestsFailed("RunApplication(): Window '" NameExt "' failed to appear (SetTitleMatchMode=" A_TitleMatchMode "). '" ProcessExe "' process detected.")
                     }
                     else
                         TestsOK("")

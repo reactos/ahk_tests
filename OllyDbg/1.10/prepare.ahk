@@ -64,12 +64,12 @@ RunApplication(PathToFile)
     if bContinue
     {
         IfNotExist, %ModuleExe%
-            TestsFailed("Can NOT find '" ModuleExe "'.")
+            TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
         else
         {
             FileAppend, [Settings]`nCheck DLL versions=0`n, %OllyDbgDir%\ollydbg.ini
             if ErrorLevel
-                TestsFailed("Unable to create '" OllyDbgDir "\ollydbg.ini'.")
+                TestsFailed("RunApplication(): Unable to create '" OllyDbgDir "\ollydbg.ini'.")
             else
             {
                 if PathToFile =
@@ -81,9 +81,9 @@ RunApplication(PathToFile)
                         Process, Exist, %ProcessExe%
                         NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                         if NewPID = 0
-                            TestsFailed("Window 'OllyDbg' failed to appear. No '" ProcessExe "' process detected.")
+                            TestsFailed("RunApplication(): Window 'OllyDbg' failed to appear. No '" ProcessExe "' process detected.")
                         else
-                            TestsFailed("Window 'OllyDbg' failed to appear. '" ProcessExe "' process detected.")
+                            TestsFailed("RunApplication(): Window 'OllyDbg' failed to appear. '" ProcessExe "' process detected.")
                     }
                     else
                         TestsOK("")
@@ -91,7 +91,7 @@ RunApplication(PathToFile)
                 else
                 {
                     IfNotExist, %PathToFile%
-                        TestsFailed("Can NOT find '" PathToFile "'.")
+                        TestsFailed("RunApplication(): Can NOT find '" PathToFile "'.")
                     else
                     {
                         Run, %ModuleExe% "%PathToFile%",, Max
@@ -102,9 +102,9 @@ RunApplication(PathToFile)
                             Process, Exist, %ProcessExe%
                             NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                             if NewPID = 0
-                                TestsFailed("Window 'OllyDbg - " NameExt " (CPU - main thread, module " name_no_ext ")' failed to appear. No '" ProcessExe "' process detected.")
+                                TestsFailed("RunApplication(): Window 'OllyDbg - " NameExt " (CPU - main thread, module " name_no_ext ")' failed to appear. No '" ProcessExe "' process detected.")
                             else
-                                TestsFailed("Window 'OllyDbg - " NameExt " (CPU - main thread, module " name_no_ext ")' failed to appear. '" ProcessExe "' process detected.")
+                                TestsFailed("RunApplication(): Window 'OllyDbg - " NameExt " (CPU - main thread, module " name_no_ext ")' failed to appear. '" ProcessExe "' process detected.")
                         }
                         else
                             TestsOK("")

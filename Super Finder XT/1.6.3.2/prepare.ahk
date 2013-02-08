@@ -69,7 +69,7 @@ RunApplication(PathToFile)
     if bContinue
     {
         IfNotExist, %ModuleExe%
-            TestsFailed("Can NOT find '" ModuleExe "'.")
+            TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
         else
         {
             Run, %ModuleExe%
@@ -79,32 +79,32 @@ RunApplication(PathToFile)
                 Process, Exist, %ProcessExe%
                 NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                 if NewPID = 0
-                    TestsFailed("Window class 'TLangForm' (select your language) failed to appear. No '" ProcessExe "' process detected.")
+                    TestsFailed("RunApplication(): Window class 'TLangForm' (select your language) failed to appear. No '" ProcessExe "' process detected.")
                 else
-                    TestsFailed("Window class 'TLangForm' (select your language) failed to appear. '" ProcessExe "' process detected.")
+                    TestsFailed("RunApplication(): Window class 'TLangForm' (select your language) failed to appear. '" ProcessExe "' process detected.")
             }
             else
             {
                 SendInput, {ENTER} ; Choose language and hit 'OK' button.
                 WinWaitClose, ahk_class TLangForm,,3
                 if ErrorLevel
-                    TestsFailed("Window class 'TLangForm' (select your language) failed to close despite ENTER was sent.")
+                    TestsFailed("RunApplication(): Window class 'TLangForm' (select your language) failed to close despite ENTER was sent.")
                 else
                 {
                     WinWaitActive, ahk_class TWizardForm,,3 ; 'New Features Wizard' window
                     if ErrorLevel
-                        TestsFailed("Window class 'TWizardForm' (New Features Wizard) failed to appear.")
+                        TestsFailed("RunApplication(): Window class 'TWizardForm' (New Features Wizard) failed to appear.")
                     else
                     {
                         SendInput, !c ; Alt+C aka hit 'Cancel' button in 'New Features Wizard' window
                         WinWaitClose, ahk_class TWizardForm,,3
                         if ErrorLevel
-                            TestsFailed("Window class 'TWizardForm' (New Features Wizard) failed to close despite Alt+C was sent.")
+                            TestsFailed("RunApplication(): Window class 'TWizardForm' (New Features Wizard) failed to close despite Alt+C was sent.")
                         else
                         {
                             WinWaitActive, ahk_class TMainForm,,3 ; 'Super Finder XT' is up and running
                             if ErrorLevel
-                                TestsFailed("Window class 'TMainForm' (Super Finder XT) failed to appear.")
+                                TestsFailed("RunApplication(): Window class 'TMainForm' (Super Finder XT) failed to appear.")
                             else
                             {
                                 WinMaximize, ahk_class TMainForm

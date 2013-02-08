@@ -53,7 +53,7 @@ RunApplication()
     else
     {
         IfNotExist, %ModuleExe%
-            TestsFailed("Can NOT find '" ModuleExe "'.")
+            TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
         else
         {
             Run, %ModuleExe%
@@ -63,9 +63,9 @@ RunApplication()
                 Process, Exist, Far.exe
                 NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                 if NewPID = 0
-                    TestsFailed("Window '{" A_ProgramFiles "\Far} - Far' failed to appear. No 'Far.exe' process detected.")
+                    TestsFailed("RunApplication(): Window '{" A_ProgramFiles "\Far} - Far' failed to appear. No 'Far.exe' process detected.")
                 else
-                    TestsFailed("Window '{" A_ProgramFiles "\Far} - Far' failed to appear. 'Far.exe' process detected.")
+                    TestsFailed("RunApplication(): Window '{" A_ProgramFiles "\Far} - Far' failed to appear. 'Far.exe' process detected.")
             }
             else
                 TestsOK("")

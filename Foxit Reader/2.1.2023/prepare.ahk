@@ -70,7 +70,7 @@ RunApplication(PathToFile)
         RegWrite, REG_SZ, HKEY_CURRENT_USER, Software\Foxit Software\Foxit Reader\MainFrame, CheckRegister, 0
         
         IfNotExist, %ModuleExe%
-            TestsFailed("Can NOT find '" ModuleExe "'.")
+            TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
         else
         {
             if PathToFile =
@@ -82,9 +82,9 @@ RunApplication(PathToFile)
                     Process, Exist, %ProcessExe%
                     NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                     if NewPID = 0
-                        TestsFailed("Window 'Foxit Reader 2.1' failed to appear. No '" ProcessExe "' process detected.")
+                        TestsFailed("RunApplication(): Window 'Foxit Reader 2.1' failed to appear. No '" ProcessExe "' process detected.")
                     else
-                        TestsFailed("Window 'Foxit Reader 2.1' failed to appear. '" ProcessExe "' process detected.")
+                        TestsFailed("RunApplication(): Window 'Foxit Reader 2.1' failed to appear. '" ProcessExe "' process detected.")
                 }
                 else
                     TestsOK("")
@@ -103,9 +103,9 @@ RunApplication(PathToFile)
                         Process, Exist, %ProcessExe%
                         NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                         if NewPID = 0
-                            TestsFailed("Window '" NameExt " - Foxit Reader 2.1 - [" NameExt "]' failed to appear. No '" ProcessExe "' process detected.")
+                            TestsFailed("RunApplication(): Window '" NameExt " - Foxit Reader 2.1 - [" NameExt "]' failed to appear. No '" ProcessExe "' process detected.")
                         else
-                            TestsFailed("Window '" NameExt " - Foxit Reader 2.1 - [" NameExt "]' failed to appear. '" ProcessExe "' process detected.")
+                            TestsFailed("RunApplication(): Window '" NameExt " - Foxit Reader 2.1 - [" NameExt "]' failed to appear. '" ProcessExe "' process detected.")
                     }
                     else
                         TestsOK("")

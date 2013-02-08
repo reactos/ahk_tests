@@ -79,17 +79,17 @@ RunApplication(PathToFile)
     
     TestsTotal++
     IfNotExist, %ModuleExe%
-        TestsFailed("Can NOT find '" ModuleExe "'.")
+        TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
     else
     {
         FileCreateDir, %A_AppData%\vlc
         if ErrorLevel
-            TestsFailed("Failed to create '%A_AppData%\vlc'.")
+            TestsFailed("RunApplication(): Failed to create '%A_AppData%\vlc'.")
         else
         {
             FileAppend, [General]`nIsFirstRun=0`n, %A_AppData%\vlc\vlc-qt-interface.ini ; Overcome 'Privacy and Network Access Policy' dialog
             if ErrorLevel
-                TestsFailed("Failed to create and edit '%A_AppData%\vlc\vlc-qt-interface.ini'.")
+                TestsFailed("RunApplication(): Failed to create and edit '%A_AppData%\vlc\vlc-qt-interface.ini'.")
             else
             {
                 if PathToFile =
@@ -102,9 +102,9 @@ RunApplication(PathToFile)
                         Process, Exist, %ProcessExe%
                         NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                         if NewPID = 0
-                            TestsFailed("Window 'VLC media player' failed to appear. No '" ProcessExe "' process detected.")
+                            TestsFailed("RunApplication(): Window 'VLC media player' failed to appear. No '" ProcessExe "' process detected.")
                         else
-                            TestsFailed("Window 'VLC media player' failed to appear. '" ProcessExe "' process detected.")
+                            TestsFailed("RunApplication(): Window 'VLC media player' failed to appear. '" ProcessExe "' process detected.")
                     }
                     else
                     {
@@ -115,7 +115,7 @@ RunApplication(PathToFile)
                 else
                 {
                     IfNotExist, %PathToFile%
-                        TestsFailed("Can NOT find '" PathToFile "'.")
+                        TestsFailed("RunApplication(): Can NOT find '" PathToFile "'.")
                     else
                     {
                         Run, %ModuleExe% "%PathToFile%" ; Don't run it maximized
@@ -127,9 +127,9 @@ RunApplication(PathToFile)
                             Process, Exist, %ProcessExe%
                             NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                             if NewPID = 0
-                                TestsFailed("Window '" NameExt " - VLC media player' failed to appear when opening '" PathToFile "'. No '" ProcessExe "' process detected.")
+                                TestsFailed("RunApplication(): Window '" NameExt " - VLC media player' failed to appear when opening '" PathToFile "'. No '" ProcessExe "' process detected.")
                             else
-                                TestsFailed("Window '" NameExt " - VLC media player' failed to appear when opening '" PathToFile "'. '" ProcessExe "' process detected.")
+                                TestsFailed("RunApplication(): Window '" NameExt " - VLC media player' failed to appear when opening '" PathToFile "'. '" ProcessExe "' process detected.")
                         }
                         else
                         {

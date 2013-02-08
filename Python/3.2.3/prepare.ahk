@@ -58,7 +58,7 @@ RunApplication(PathToFile)
     if bContinue
     {
         IfNotExist, %ModuleExe%
-            TestsFailed("Can NOT find '" ModuleExe "'.")
+            TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
         else
         {
             if PathToFile =
@@ -70,9 +70,9 @@ RunApplication(PathToFile)
                     Process, Exist, %ProcessExe%
                     NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                     if NewPID = 0
-                        TestsFailed("Window 'Python Shell' failed to appear. No '" ProcessExe "' process detected.")
+                        TestsFailed("RunApplication(): Window 'Python Shell' failed to appear. No '" ProcessExe "' process detected.")
                     else
-                        TestsFailed("Window 'Python Shell' failed to appear. '" ProcessExe "' process detected.")
+                        TestsFailed("RunApplication(): Window 'Python Shell' failed to appear. '" ProcessExe "' process detected.")
                 }
                 else
                     TestsOK("")
@@ -80,14 +80,14 @@ RunApplication(PathToFile)
             else
             {
                 IfNotExist, %PathToFile%
-                    TestsFailed("Can NOT find '" PathToFile "'.")
+                    TestsFailed("RunApplication(): Can NOT find '" PathToFile "'.")
                 else
                 {
                     Run, %ModuleExe% %PathToFile% ; Open file
                     Process, Wait, %ProcessExe%, 4
                     NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                     if NewPID = 0
-                        TestsFailed("'" ProcessExe "' process NOT detected.")
+                        TestsFailed("RunApplication(): '" ProcessExe "' process NOT detected.")
                     else
                         TestsOK("")
                 }

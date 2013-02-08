@@ -81,7 +81,7 @@ RunApplication(PathToFile)
 
     TestsTotal++
     IfNotExist, %ModuleExe%
-        TestsFailed("Can NOT find '" ModuleExe "'.")
+        TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
     else
     {
         if PathToFile =
@@ -94,9 +94,9 @@ RunApplication(PathToFile)
                 Process, Exist, %ProcessExe%
                 NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                 if NewPID = 0
-                    TestsFailed("Window 'WinRAR - WinRAR (evaluation copy)' failed to appear. No '" ProcessExe "' process detected.")
+                    TestsFailed("RunApplication(): Window 'WinRAR - WinRAR (evaluation copy)' failed to appear. No '" ProcessExe "' process detected.")
                 else
-                    TestsFailed("Window 'WinRAR - WinRAR (evaluation copy)' failed to appear. '" ProcessExe "' process detected.")
+                    TestsFailed("RunApplication(): Window 'WinRAR - WinRAR (evaluation copy)' failed to appear. '" ProcessExe "' process detected.")
             }
             else
                 TestsOK("")
@@ -104,7 +104,7 @@ RunApplication(PathToFile)
         else
         {
             IfNotExist, %PathToFile%
-                TestsFailed("Can NOT find '" PathToFile "'.")
+                TestsFailed("RunApplication(): Can NOT find '" PathToFile "'.")
             else
             {
                 Run, %ModuleExe% "%PathToFile%",, Max
@@ -116,9 +116,9 @@ RunApplication(PathToFile)
                     Process, Exist, %ProcessExe%
                     NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                     if NewPID = 0
-                        TestsFailed("Window '%NameExt% - WinRAR (evaluation copy)' failed to appear. No '" ProcessExe "' process detected.")
+                        TestsFailed("RunApplication(): Window '%NameExt% - WinRAR (evaluation copy)' failed to appear. No '" ProcessExe "' process detected.")
                     else
-                        TestsFailed("Window '%NameExt% - WinRAR (evaluation copy)' failed to appear. '" ProcessExe "' process detected.")
+                        TestsFailed("RunApplication(): Window '%NameExt% - WinRAR (evaluation copy)' failed to appear. '" ProcessExe "' process detected.")
                 }
                 else
                     TestsOK("")
@@ -136,12 +136,12 @@ WinRARIntegration()
     TestsTotal++
     WinWaitActive, Settings, Integration,7
     if ErrorLevel
-        TestsFailed("Window 'Settings (Integration)' failed to appear.")
+        TestsFailed("WinRARIntegration(): Window 'Settings (Integration)' failed to appear.")
     else
     {
         ControlClick, Button27, Settings, Integration ; Hit 'OK' button
         if ErrorLevel
-            TestsFailed("Unable to hit 'OK' button in 'Settings (Integration)' window.")
+            TestsFailed("WinRARIntegration(): Unable to hit 'OK' button in 'Settings (Integration)' window.")
         else
             TestsOK("")
     }

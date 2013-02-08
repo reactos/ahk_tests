@@ -80,7 +80,7 @@ RunApplication(PathToFile)
     {
         RegWrite, REG_DWORD, HKEY_LOCAL_MACHINE, SOFTWARE\Adobe\Acrobat Reader\7.0\AdobeViewer, EULA, 1 ; Accept EULA
         IfNotExist, %ModuleExe%
-            TestsFailed("Can NOT find '" ModuleExe "'.")
+            TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
         else
         {
             if PathToFile =
@@ -92,9 +92,9 @@ RunApplication(PathToFile)
                     Process, Exist, AcroRd32.exe
                     NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                     if NewPID = 0
-                        TestsFailed("Window 'Adobe Reader' failed to appear. No 'AcroRd32.exe' process detected.")
+                        TestsFailed("RunApplication(): Window 'Adobe Reader' failed to appear. No 'AcroRd32.exe' process detected.")
                     else
-                        TestsFailed("Window 'Adobe Reader' failed to appear. 'AcroRd32.exe' process detected.")
+                        TestsFailed("RunApplication(): Window 'Adobe Reader' failed to appear. 'AcroRd32.exe' process detected.")
                 }
                 else
                     TestsOK("")
@@ -113,9 +113,9 @@ RunApplication(PathToFile)
                         Process, Exist, AcroRd32.exe.exe
                         NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                         if NewPID = 0
-                            TestsFailed("Window 'Adobe Reader - [" NameExt "]' failed to appear. No 'AcroRd32.exe.exe' process detected.")
+                            TestsFailed("RunApplication(): Window 'Adobe Reader - [" NameExt "]' failed to appear. No 'AcroRd32.exe.exe' process detected.")
                         else
-                            TestsFailed("Window 'Adobe Reader - [" NameExt "]' failed to appear. 'AcroRd32.exe.exe' process detected.")
+                            TestsFailed("RunApplication(): Window 'Adobe Reader - [" NameExt "]' failed to appear. 'AcroRd32.exe.exe' process detected.")
                     }
                     else
                         TestsOK("")

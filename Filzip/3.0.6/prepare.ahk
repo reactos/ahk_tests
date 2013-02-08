@@ -71,7 +71,7 @@ RunApplication(PathToFile)
         RegWrite, REG_DWORD, HKEY_CURRENT_USER, Software\Filzip\Config\AutoUpd, AutoUpd, 0
         RegWrite, REG_DWORD, HKEY_CURRENT_USER, Software\Filzip\Config\Settings, RegDialog, 0 ; Disable registration dialog
         IfNotExist, %ModuleExe%
-            TestsFailed("Can NOT find '" ModuleExe "'.")
+            TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
         else
         {
             if PathToFile =
@@ -84,9 +84,9 @@ RunApplication(PathToFile)
                     Process, Exist, %ProcessExe%
                     NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                     if NewPID = 0
-                        TestsFailed("Window 'Filzip' failed to appear. No '" ProcessExe "' process detected.")
+                        TestsFailed("RunApplication(): Window 'Filzip' failed to appear. No '" ProcessExe "' process detected.")
                     else
-                        TestsFailed("Window 'Filzip' failed to appear. '" ProcessExe "' process detected.")
+                        TestsFailed("RunApplication(): Window 'Filzip' failed to appear. '" ProcessExe "' process detected.")
                 }
                 else
                     TestsOK("")
@@ -94,7 +94,7 @@ RunApplication(PathToFile)
             else
             {
                 IfNotExist, %PathToFile%
-                    TestsFailed("Can NOT find '" PathToFile "'.")
+                    TestsFailed("RunApplication(): Can NOT find '" PathToFile "'.")
                 else
                 {
                     Run, %ModuleExe% "%PathToFile%",, Max
@@ -106,9 +106,9 @@ RunApplication(PathToFile)
                         Process, Exist, %ProcessExe%
                         NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                         if NewPID = 0
-                            TestsFailed("Window 'Filzip - " NameExt "' failed to appear. No '" ProcessExe "' process detected.")
+                            TestsFailed("RunApplication(): Window 'Filzip - " NameExt "' failed to appear. No '" ProcessExe "' process detected.")
                         else
-                            TestsFailed("Window 'Filzip - " NameExt "' failed to appear. '" ProcessExe "' process detected.")
+                            TestsFailed("RunApplication(): Window 'Filzip - " NameExt "' failed to appear. '" ProcessExe "' process detected.")
                     }
                     else
                         TestsOK("")
@@ -126,17 +126,17 @@ AssociateWithFilzip()
     TestsTotal++
     WinWaitActive, Associate with Filzip, Never ask again,7
     if ErrorLevel
-        TestsFailed("Window 'Associate with Filzip (Never ask again)' failed to appear.")
+        TestsFailed("AssociateWithFilzip(): Window 'Associate with Filzip (Never ask again)' failed to appear.")
     else
     {
         ControlClick, TButton2, Associate with Filzip ; Hit 'Associate' button
         if ErrorLevel
-            TestsFailed("Unable to hit 'Associate' button in 'Associate with Filzip (Never ask again)' window.")
+            TestsFailed("AssociateWithFilzip(): Unable to hit 'Associate' button in 'Associate with Filzip (Never ask again)' window.")
         else
         {
             WinWaitClose, Associate with Filzip, Never ask again, 5
             if ErrorLevel
-                TestsFailed("'Associate with Filzip (Never ask again)' window failed to close despite 'Associate' button being clicked.")
+                TestsFailed("AssociateWithFilzip(): 'Associate with Filzip (Never ask again)' window failed to close despite 'Associate' button being clicked.")
             else
                 TestsOK("")
         }

@@ -68,7 +68,7 @@ RunApplication(PathToFile)
     if bContinue
     {
         IfNotExist, %ModuleExe%
-            TestsFailed("Can NOT find '" ModuleExe "'.")
+            TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
         else
         {
             if PathToFile =
@@ -80,9 +80,9 @@ RunApplication(PathToFile)
                     Process, Exist, %ProcessExe%
                     NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                     if NewPID = 0
-                        TestsFailed("Window 'SMPlayer' failed to appear. No '" ProcessExe "' process detected.")
+                        TestsFailed("RunApplication(): Window 'SMPlayer' failed to appear. No '" ProcessExe "' process detected.")
                     else
-                        TestsFailed("Window 'SMPlayer' failed to appear. '" ProcessExe "' process detected.")
+                        TestsFailed("RunApplication(): Window 'SMPlayer' failed to appear. '" ProcessExe "' process detected.")
                 }
                 else
                     TestsOK("")
@@ -90,7 +90,7 @@ RunApplication(PathToFile)
             else
             {
                 IfNotExist, %PathToFile%
-                    TestsFailed("Can NOT find '" PathToFile "'.")
+                    TestsFailed("RunApplication(): Can NOT find '" PathToFile "'.")
                 else
                 {
                     Run, %ModuleExe% "%PathToFile%"
@@ -101,9 +101,9 @@ RunApplication(PathToFile)
                         Process, Exist, %ProcessExe%
                         NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                         if NewPID = 0
-                            TestsFailed("Window '" NameExt " - SMPlayer' failed to appear. No '" ProcessExe "' process detected.")
+                            TestsFailed("RunApplication(): Window '" NameExt " - SMPlayer' failed to appear. No '" ProcessExe "' process detected.")
                         else
-                            TestsFailed("Window '" NameExt " - SMPlayer' failed to appear. '" ProcessExe "' process detected.")
+                            TestsFailed("RunApplication(): Window '" NameExt " - SMPlayer' failed to appear. '" ProcessExe "' process detected.")
                     }
                     else
                         TestsOK("")

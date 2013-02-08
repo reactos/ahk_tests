@@ -47,7 +47,7 @@ RunApplication(PathToFile)
     if bContinue
     {
         IfNotExist, %ModuleExe%
-            TestsFailed("Can NOT find '" ModuleExe "'.")
+            TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
         else
         {
             if PathToFile =
@@ -55,21 +55,21 @@ RunApplication(PathToFile)
                 Run, %ModuleExe%,, Max ; Start maximized
                 WinWaitActive, untitled - Paint,,7
                 if ErrorLevel
-                    TestsFailed("Window 'untitled - paint' failed to appear.")
+                    TestsFailed("RunApplication(): Window 'untitled - paint' failed to appear.")
                 else
                     TestsOK("")
             }
             else
             {
                 IfNotExist, %PathToFile%
-                    TestsFailed("Can NOT find '" PathToFile "'.")
+                    TestsFailed("RunApplication(): Can NOT find '" PathToFile "'.")
                 else
                 {
                     Run, %ModuleExe% "%PathToFile%",, Max
                     SplitPath, PathToFile, NameExt
                     WinWaitActive, %NameExt% - Paint,,7
                     if ErrorLevel
-                        TestsFailed("Window '" NameExt " - Paint' failed to appear.")
+                        TestsFailed("RunApplication(): Window '" NameExt " - Paint' failed to appear.")
                     else
                         TestsOK("")
                 }

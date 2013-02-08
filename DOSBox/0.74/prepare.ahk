@@ -33,11 +33,11 @@ RunApplication()
     Process, Close, dosbox.exe
     Process, WaitClose, dosbox.exe, 4
     if ErrorLevel
-        TestsFailed("Process 'dosbox.exe' failed to close.")
+        TestsFailed("RunApplication(): Process 'dosbox.exe' failed to close.")
     else
     {
         IfNotExist, %ModuleExe%
-            TestsFailed("Can NOT find '" ModuleExe "'.")
+            TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
         else
         {
             Run, %ModuleExe%
@@ -48,9 +48,9 @@ RunApplication()
                 Process, Exist, dosbox.exe
                 NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                 if NewPID = 0
-                    TestsFailed("Window 'DOSBox 0.74' failed to appear (SetTitleMatchMode=" A_TitleMatchMode "). No 'dosbox.exe' process detected.")
+                    TestsFailed("RunApplication(): Window 'DOSBox 0.74' failed to appear (SetTitleMatchMode=" A_TitleMatchMode "). No 'dosbox.exe' process detected.")
                 else
-                    TestsFailed("Window 'DOSBox 0.74' failed to appear (SetTitleMatchMode=" A_TitleMatchMode "). 'dosbox.exe' process detected.")
+                    TestsFailed("RunApplication(): Window 'DOSBox 0.74' failed to appear (SetTitleMatchMode=" A_TitleMatchMode "). 'dosbox.exe' process detected.")
             }
             else
             {

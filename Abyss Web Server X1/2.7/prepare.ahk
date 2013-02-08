@@ -59,7 +59,7 @@ TerminateAbyss() ; Terminate application function
         Process, Close, %ProcessExe%
         Process, WaitClose, %ProcessExe%, 4
         if ErrorLevel
-            TestsFailed("Unable to terminate '" ProcessExe "' process.")
+            TestsFailed("TerminateAbyss(): Unable to terminate '" ProcessExe "' process.")
         else
             TestsOK("")
     }
@@ -96,7 +96,7 @@ RunApplication(PathToFile)
     if bContinue
     {
         IfNotExist, %ModuleExe%
-            TestsFailed("Can NOT find '" ModuleExe "'.")
+            TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
         else
         {
             Run, %ModuleExe%
@@ -106,9 +106,9 @@ RunApplication(PathToFile)
                 Process, Exist, %ProcessExe%
                 NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                 if NewPID = 0
-                    TestsFailed("Window 'Abyss Web Server (A configuration file was created)' failed to appear. No '" ProcessExe "' process detected.")
+                    TestsFailed("RunApplication(): Window 'Abyss Web Server (A configuration file was created)' failed to appear. No '" ProcessExe "' process detected.")
                 else
-                    TestsFailed("Window 'Abyss Web Server (A configuration file was created)' failed to appear. '" ProcessExe "' process detected.")
+                    TestsFailed("RunApplication(): Window 'Abyss Web Server (A configuration file was created)' failed to appear. '" ProcessExe "' process detected.")
             }
             else
                 TestsOK("")

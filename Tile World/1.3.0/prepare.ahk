@@ -52,7 +52,7 @@ RunApplication()
     if bContinue
     {
         IfNotExist, %ModuleExe%
-            TestsFailed("Can NOT find '" ModuleExe "'.")
+            TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
         else
         {
             Run, %ModuleExe%, %InstallLocation% ; The game wants WorkingDir param
@@ -62,9 +62,9 @@ RunApplication()
                 Process, Exist, %ProcessExe%
                 NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                 if NewPID = 0
-                    TestsFailed("Window 'Tile World' failed to appear. No '" ProcessExe "' process detected.")
+                    TestsFailed("RunApplication(): Window 'Tile World' failed to appear. No '" ProcessExe "' process detected.")
                 else
-                    TestsFailed("Window 'Tile World' failed to appear. '" ProcessExe "' process detected.")
+                    TestsFailed("RunApplication(): Window 'Tile World' failed to appear. '" ProcessExe "' process detected.")
             }
             else
             {
@@ -83,17 +83,17 @@ RunApplication()
                 {
                     PixelGetColor, color, %CoordX%, %CoordY%
                     if ErrorLevel
-                        TestsFailed("Unable to get " CoordX "x" CoordY " pixel color.")
+                        TestsFailed("RunApplication(): Unable to get " CoordX "x" CoordY " pixel color.")
                     else
                     {
                         if (color != szColorHard)
-                            TestsFailed("Colors of '" CoordX "x" CoordY "' pixel doesn't match (is '" color "', should be '" szColorHard "').")
+                            TestsFailed("RunApplication(): Colors of '" CoordX "x" CoordY "' pixel doesn't match (is '" color "', should be '" szColorHard "').")
                         else
                         {
                             SendInput, {ENTER}
                             WinWaitActive, Tile World - A Fleeting Memory,,3
                             if ErrorLevel
-                                TestsFailed("'Tile World - A Fleeting Memory' window failed to appear.")
+                                TestsFailed("RunApplication(): 'Tile World - A Fleeting Memory' window failed to appear.")
                             else
                             {
                                 szBorderHard = 0x707070 ; Border color
@@ -119,9 +119,9 @@ RunApplication()
                                 
                                 PixelGetColor, szBorderColor, %BorderX%, %BorderY%
                                 if ErrorLevel
-                                    TestsFailed("Unable to get " BorderX "x" BorderY " pixel color (iTimeOut=" iTimeOut ").")
+                                    TestsFailed("RunApplication(): Unable to get " BorderX "x" BorderY " pixel color (iTimeOut=" iTimeOut ").")
                                 else
-                                    TestsOK("Window size is '" Width "x" Height "', '" BorderX "x" BorderY "' (border) pixel color is '" szBorderColor "'. Game is up and running.")
+                                    TestsOK("RunApplication(): Window size is '" Width "x" Height "', '" BorderX "x" BorderY "' (border) pixel color is '" szBorderColor "'. Game is up and running.")
                             }
                         }
                     }

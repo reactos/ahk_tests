@@ -76,23 +76,23 @@ RunApplication(PathToFile, Title)
     if bContinue
     {
         IfNotExist, %ModuleExe%
-            TestsFailed("Can NOT find '" ModuleExe "'.")
+            TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
         else
         {
             FileCreateDir, %A_AppData%\K-Meleon\ReactOS.default
             if ErrorLevel
-                TestsFailed("Failed to create dir tree '" A_AppData "\K-Meleon\ReactOS.default'.")
+                TestsFailed("RunApplication(): Failed to create dir tree '" A_AppData "\K-Meleon\ReactOS.default'.")
             else
             {
                 FileAppend, [General]`nStartWithLastProfile=1`n`n[Profile0]`nName=default`nDefault=1`nIsRelative=1`nPath=ReactOS.default`n, %A_AppData%\K-Meleon\profiles.ini
                 if ErrorLevel
-                    TestsFailed("Failed to create and edit '" A_AppData "\K-Meleon\profiles.ini'.")
+                    TestsFailed("RunApplication(): Failed to create and edit '" A_AppData "\K-Meleon\profiles.ini'.")
                 else
                 {
                     szNoUpdate := "user_pref(""kmeleon.plugins.update.load""`, false)`;" ; Don't check for updates
                     FileAppend, %szNoUpdate%`n, %A_AppData%\K-Meleon\ReactOS.default\prefs.js
                     if ErrorLevel
-                        TestsFailed("Failed to create and edit '" A_AppData "\K-Meleon\ReactOS.default\prefs.js'.")
+                        TestsFailed("RunApplication(): Failed to create and edit '" A_AppData "\K-Meleon\ReactOS.default\prefs.js'.")
                     else
                     {
                         ; 'Title' param is ignored
@@ -105,9 +105,9 @@ RunApplication(PathToFile, Title)
                                 Process, Exist, %ProcessExe%
                                 NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                                 if NewPID = 0
-                                    TestsFailed("'K-Meleon 1.5.2 (K-Meleon)' window failed to appear. No '" ProcessExe "' process detected.")
+                                    TestsFailed("RunApplication(): 'K-Meleon 1.5.2 (K-Meleon)' window failed to appear. No '" ProcessExe "' process detected.")
                                 else
-                                    TestsFailed("'K-Meleon 1.5.2 (K-Meleon)' window failed to appear. '" ProcessExe "' process detected.")
+                                    TestsFailed("RunApplication(): 'K-Meleon 1.5.2 (K-Meleon)' window failed to appear. '" ProcessExe "' process detected.")
                             }
                             else
                             {
@@ -118,7 +118,7 @@ RunApplication(PathToFile, Title)
                         else
                         {
                             IfNotExist, %PathToFile%
-                                TestsFailed("Can NOT find '" PathToFile "'.")
+                                TestsFailed("RunApplication(): Can NOT find '" PathToFile "'.")
                             else
                             {
                                 ; FIXME: read <title> from HTML instead of passing it as param2.
@@ -129,9 +129,9 @@ RunApplication(PathToFile, Title)
                                     Process, Exist, %ProcessExe%
                                     NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                                     if NewPID = 0
-                                        TestsFailed("'" Title " (K-Meleon)' window failed to appear. No '" ProcessExe "' process detected.")
+                                        TestsFailed("RunApplication(): '" Title " (K-Meleon)' window failed to appear. No '" ProcessExe "' process detected.")
                                     else
-                                        TestsFailed("'" Title " K-Meleon 1.5.2 (K-Meleon)' window failed to appear. '" ProcessExe "' process detected.")
+                                        TestsFailed("RunApplication(): '" Title " K-Meleon 1.5.2 (K-Meleon)' window failed to appear. '" ProcessExe "' process detected.")
                                 }
                                 else
                                 {

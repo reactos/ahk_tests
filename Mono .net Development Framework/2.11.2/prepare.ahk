@@ -65,16 +65,16 @@ RunApplication(PathToFile)
     if bContinue
     {
         IfNotExist, %ModuleExe%
-            TestsFailed("Can NOT find '" ModuleExe "'.")
+            TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
         else
         {
             Run, %ModuleExe% "%PathToFile%"
             Process, wait, %ProcessExe%, 3
             NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
             if NewPID = 0
-                TestsFailed("'" ProcessExe "' process failed to appear.")
+                TestsFailed("RunApplication(): '" ProcessExe "' process failed to appear.")
             else
-                TestsOK("'" ProcessExe "' process appeared.")
+                TestsOK("RunApplication(): '" ProcessExe "' process appeared.")
         }
     }
 }

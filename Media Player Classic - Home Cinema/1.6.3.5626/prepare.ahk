@@ -83,7 +83,7 @@ RunApplication(PathToFile)
     if bContinue
     {
         IfNotExist, %ModuleExe%
-            TestsFailed("Can NOT find '" ModuleExe "'.")
+            TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
         else
         {
             if PathToFile =
@@ -94,7 +94,7 @@ RunApplication(PathToFile)
                 {
                     WinWaitActive, Media Player Classic Home Cinema,,3
                     if ErrorLevel
-                        TestsFailed("Window 'Media Player Classic Home Cinema' failed to appear.")
+                        TestsFailed("RunApplication(): Window 'Media Player Classic Home Cinema' failed to appear.")
                     else
                         TestsOK("")
                 }
@@ -102,7 +102,7 @@ RunApplication(PathToFile)
             else
             {
                 IfNotExist, %PathToFile%
-                    TestsFailed("Can NOT find '" PathToFile "'.")
+                    TestsFailed("RunApplication(): Can NOT find '" PathToFile "'.")
                 else
                 {
                     Run, %ModuleExe% "%PathToFile%",, Max
@@ -116,9 +116,9 @@ RunApplication(PathToFile)
                             Process, Exist, %ProcessExe%
                             NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                             if NewPID = 0
-                                TestsFailed("Window '" NameExt "' failed to appear. No '" ProcessExe "' process detected.")
+                                TestsFailed("RunApplication(): Window '" NameExt "' failed to appear. No '" ProcessExe "' process detected.")
                             else
-                                TestsFailed("Window '" NameExt "' failed to appear. '" ProcessExe "' process detected.")
+                                TestsFailed("RunApplication(): Window '" NameExt "' failed to appear. '" ProcessExe "' process detected.")
                         }
                         else
                             TestsOK("")
@@ -145,22 +145,22 @@ CloseUpdateWnd() ; Waits for update window to appear, then hits 'No' button
         Process, Exist, %ProcessExe%
         NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
         if NewPID = 0
-            TestsFailed("Window 'Media Player Classic (Do you want to check periodically)' failed to appear. No '" ProcessExe "' process detected.")
+            TestsFailed("CloseUpdateWnd(): Window 'Media Player Classic (Do you want to check periodically)' failed to appear. No '" ProcessExe "' process detected.")
         else
-            TestsFailed("Window 'Media Player Classic (Do you want to check periodically)' failed to appear. '" ProcessExe "' process detected. Unable to delete HKCU\Software\Gabest?.")
+            TestsFailed("CloseUpdateWnd(): Window 'Media Player Classic (Do you want to check periodically)' failed to appear. '" ProcessExe "' process detected. Unable to delete HKCU\Software\Gabest?.")
     }
     else
     {
         ControlClick, Button2 ; Hit 'No' button
         if ErrorLevel
-            TestsFailed("Unable to hit 'No' button in 'Media Player Classic (Do you want to check periodically)' window.")
+            TestsFailed("CloseUpdateWnd(): Unable to hit 'No' button in 'Media Player Classic (Do you want to check periodically)' window.")
         else
         {
             WinWaitClose,,,3
             if ErrorLevel
-                TestsFailed("'Media Player Classic (Do you want to check periodically)' window failed to close despite 'No' button being reported as clicked.")
+                TestsFailed("CloseUpdateWnd(): 'Media Player Classic (Do you want to check periodically)' window failed to close despite 'No' button being reported as clicked.")
             else
-                TestsOK("Said NO to updates.")
+                TestsOK("CloseUpdateWnd(): Said NO to updates.")
         }
     }
 }

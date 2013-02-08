@@ -83,7 +83,7 @@ RunApplication()
     if bContinue
     {
         IfNotExist, %ModuleExe%
-            TestsFailed("Can NOT find '" ModuleExe "'.")
+            TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
         else
         {
             Run, %ModuleExe% ; Maximize button is disabled
@@ -93,9 +93,9 @@ RunApplication()
                 Process, Exist, %ProcessExe%
                 NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                 if NewPID = 0
-                    TestsFailed("Window 'Tux Paint' failed to appear. No '" ProcessExe "' process detected.")
+                    TestsFailed("RunApplication(): Window 'Tux Paint' failed to appear. No '" ProcessExe "' process detected.")
                 else
-                    TestsFailed("Window 'Tux Paint' failed to appear. '" ProcessExe "' process detected.")
+                    TestsFailed("RunApplication(): Window 'Tux Paint' failed to appear. '" ProcessExe "' process detected.")
             }
             else
             {
@@ -128,13 +128,13 @@ RunApplication()
                 
                 PixelGetColor, SplashColor, %CoordX%, %CoordY% ; Tux skin color (black)
                 if ErrorLevel
-                    TestsFailed("Unable to get " CoordX "x" CoordY " pixel color (iTimeOut=" iTimeOut ").")
+                    TestsFailed("RunApplication(): Unable to get " CoordX "x" CoordY " pixel color (iTimeOut=" iTimeOut ").")
                 else
                 {
                     if (SplashColor = szSkinColor)
-                        TestsFailed("Unable to get thru splash screen (iTimeOut=" iTimeOut ").")
+                        TestsFailed("RunApplication(): Unable to get thru splash screen (iTimeOut=" iTimeOut ").")
                     else
-                        TestsOK("Splash screen closed (iTimeOut=" iTimeOut ").")
+                        TestsOK("RunApplication(): Splash screen closed (iTimeOut=" iTimeOut ").")
                 }
             }
         }

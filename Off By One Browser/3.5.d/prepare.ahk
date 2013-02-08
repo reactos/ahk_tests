@@ -95,12 +95,12 @@ RunApplication(PathToFile)
     if bContinue
     {
         IfNotExist, %ModuleExe%
-            TestsFailed("Can NOT find '" ModuleExe "'.")
+            TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
         else
         {
             FileAppend, [Properties]`nStartPage=, %szSettingsFile% ; Write settings (open blank page on start)
             if ErrorLevel
-                TestsFailed("Unable to create '" szSettingsFile "'.")
+                TestsFailed("RunApplication(): Unable to create '" szSettingsFile "'.")
             else
             {
                 Run, %ModuleExe%,, Max ; Start maximized
@@ -110,9 +110,9 @@ RunApplication(PathToFile)
                     Process, Exist, %ProcessExe%
                     NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                     if NewPID = 0
-                        TestsFailed("Window 'The OffByOne Browser' failed to appear. No '" ProcessExe "' process detected.")
+                        TestsFailed("RunApplication(): Window 'The OffByOne Browser' failed to appear. No '" ProcessExe "' process detected.")
                     else
-                        TestsFailed("Window 'The OffByOne Browser' failed to appear. '" ProcessExe "' process detected.")
+                        TestsFailed("RunApplication(): Window 'The OffByOne Browser' failed to appear. '" ProcessExe "' process detected.")
                 }
                 else
                     TestsOK("")

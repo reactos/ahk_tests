@@ -66,7 +66,7 @@ RunApplication()
     if bContinue
     {
         IfNotExist, %ModuleExe%
-            TestsFailed("Can NOT find '" ModuleExe "'.")
+            TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
         else
         {
             Run, %ModuleExe%, %InstalledDir% ; The game wants WorkingDir param
@@ -76,9 +76,9 @@ RunApplication()
                 Process, Exist, %ProcessExe%
                 NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                 if NewPID = 0
-                    TestsFailed("Window 'LBreakout2' failed to appear. No '" ProcessExe "' process detected.")
+                    TestsFailed("RunApplication(): Window 'LBreakout2' failed to appear. No '" ProcessExe "' process detected.")
                 else
-                    TestsFailed("Window 'LBreakout2' failed to appear. '" ProcessExe "' process detected.")
+                    TestsFailed("RunApplication(): Window 'LBreakout2' failed to appear. '" ProcessExe "' process detected.")
             }
             else
             {
@@ -87,7 +87,7 @@ RunApplication()
                 WinGetPos, X, Y, Width, Height, LBreakout2
                 szWndHeight := 450 ; Game window height in Win2k3 SP2 is 505, specify less to be safe
                 if (Height < szWndHeight)
-                    TestsFailed("'LBreakout2' window height should be at least '" szWndHeight "', but got '" Height "'. This is not game window, is it?")
+                    TestsFailed("RunApplication(): 'LBreakout2' window height should be at least '" szWndHeight "', but got '" Height "'. This is not game window, is it?")
                 else
                 {
                     LocalGameCoordX := 189 ; Position of "Local Game" in "Menu"
@@ -117,11 +117,11 @@ RunApplication()
                     
                     PixelGetColor, szHintColor, %HintCoordX%, %HintCoordY%, LBreakout2 ; Get pixel color of hint window
                     if ErrorLevel
-                        TestsFailed("Unable to get '" HintCoordX "x" HintCoordY "' ('A local game with up...' hint) pixel color of 'LBreakout2' window.")
+                        TestsFailed("RunApplication(): Unable to get '" HintCoordX "x" HintCoordY "' ('A local game with up...' hint) pixel color of 'LBreakout2' window.")
                     else
                     {
                         if (szHintColor != szHintColorHard)
-                            TestsFailed("Color of '" HintCoordX "x" HintCoordY "' ('A local game with up...' hint) pixel doesn't match to hardcoded one (is '" szHintColor "', should be '" szHintColorHard "' iTimeOut=" iTimeOut ").")
+                            TestsFailed("RunApplication(): Color of '" HintCoordX "x" HintCoordY "' ('A local game with up...' hint) pixel doesn't match to hardcoded one (is '" szHintColor "', should be '" szHintColorHard "' iTimeOut=" iTimeOut ").")
                         else
                         {
                             MouseClick ; Hardcoded color and the one we got matches, so, we are at 'Local Game', so, click it
@@ -149,11 +149,11 @@ RunApplication()
                             
                             PixelGetColor, szHintColor, %HintCoordX%, %HintCoordY%, LBreakout2 ; Get pixel color of hint window
                             if ErrorLevel
-                                TestsFailed("Unable to get '" HintCoordX "x" HintCoordY "' ('Lets get in on!' hint) pixel color of 'LBreakout2' window.")
+                                TestsFailed("RunApplication(): Unable to get '" HintCoordX "x" HintCoordY "' ('Lets get in on!' hint) pixel color of 'LBreakout2' window.")
                             else
                             {
                                 if (szHintColor != szHintColorHard)
-                                    TestsFailed("Color of '" HintCoordX "x" HintCoordY "' ('Lets get in on!' hint) pixel doesn't match to hardcoded one (is '" szHintColor "', should be '" szHintColorHard "' iTimeOut=" iTimeOut ").")
+                                    TestsFailed("RunApplication(): Color of '" HintCoordX "x" HintCoordY "' ('Lets get in on!' hint) pixel doesn't match to hardcoded one (is '" szHintColor "', should be '" szHintColorHard "' iTimeOut=" iTimeOut ").")
                                 else
                                 {
                                     MouseClick ; We are at 'Start Game', so, click it
@@ -182,13 +182,13 @@ RunApplication()
                                     
                                     PixelGetColor, szLiveSideColor, %LiveSideX%, %LiveSideY%, LBreakout2
                                     if ErrorLevel
-                                        TestsFailed("Unable to get '" LiveSideX "x" LiveSideY "' pixel color of 'LBreakout2' window.")
+                                        TestsFailed("RunApplication(): Unable to get '" LiveSideX "x" LiveSideY "' pixel color of 'LBreakout2' window.")
                                     else
                                     {
                                         if (szLiveSideColor != szLeftSideColorHard)
-                                            TestsFailed("Color of '" LiveSideX "x" LiveSidey "' (left side) pixel doesn't match to hardcoded one (is '" szLiveSideColor "', should be '" szLeftSideColorHard "' iTimeOut=" iTimeOut ").")
+                                            TestsFailed("RunApplication(): Color of '" LiveSideX "x" LiveSidey "' (left side) pixel doesn't match to hardcoded one (is '" szLiveSideColor "', should be '" szLeftSideColorHard "' iTimeOut=" iTimeOut ").")
                                         else
-                                            TestsOK("Started, hit 'Local Game' then 'Start Game' and game appeared.")
+                                            TestsOK("RunApplication(): Started, hit 'Local Game' then 'Start Game' and game appeared.")
                                     }
                                 }
                             }

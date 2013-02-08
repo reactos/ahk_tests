@@ -96,7 +96,7 @@ RunApplication()
     if bContinue
     {
         IfNotExist, %ModuleExe%
-            TestsFailed("Can NOT find '" ModuleExe "'.")
+            TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
         else
         {
             Run, %ModuleExe%
@@ -106,9 +106,9 @@ RunApplication()
                 Process, Exist, %ProcessExe%
                 NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                 if NewPID = 0
-                    TestsFailed("Window 'Audiograbber' failed to appear. No '" ProcessExe "' process detected.")
+                    TestsFailed("RunApplication(): Window 'Audiograbber' failed to appear. No '" ProcessExe "' process detected.")
                 else
-                    TestsFailed("Window 'Audiograbber' failed to appear. '" ProcessExe "' process detected.")
+                    TestsFailed("RunApplication(): Window 'Audiograbber' failed to appear. '" ProcessExe "' process detected.")
             }
             else
                 TestsOK("")

@@ -48,7 +48,7 @@ RunApplication(PathToFile)
     if bContinue
     {
         IfNotExist, %ModuleExe%
-            TestsFailed("Test failed: Can NOT find '" ModuleExe "'.")
+            TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
         else
         {
             if PathToFile =
@@ -60,9 +60,9 @@ RunApplication(PathToFile)
                     Process, Exist, %ProcessExe%
                     NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                     if NewPID = 0
-                        TestsFailed("Window 'GridinSoft Notepad Lite - [Untitled-1]' failed to appear. No '" ProcessExe "' process detected.")
+                        TestsFailed("RunApplication(): Window 'GridinSoft Notepad Lite - [Untitled-1]' failed to appear. No '" ProcessExe "' process detected.")
                     else
-                        TestsFailed("Window 'GridinSoft Notepad Lite - [Untitled-1]' failed to appear. '" ProcessExe "' process detected.")
+                        TestsFailed("RunApplication(): Window 'GridinSoft Notepad Lite - [Untitled-1]' failed to appear. '" ProcessExe "' process detected.")
                 }
                 else
                     TestsOK("")
@@ -80,9 +80,9 @@ RunApplication(PathToFile)
                         Process, Exist, %ProcessExe%
                         NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                         if NewPID = 0
-                            TestsFailed("Window 'GridinSoft Notepad Lite - [" PathToFile "]' failed to appear. No '" ProcessExe "' process detected.")
+                            TestsFailed("RunApplication(): Window 'GridinSoft Notepad Lite - [" PathToFile "]' failed to appear. No '" ProcessExe "' process detected.")
                         else
-                            TestsFailed("Window 'GridinSoft Notepad Lite - [" PathToFile "]' failed to appear. '" ProcessExe "' process detected.")
+                            TestsFailed("RunApplication(): Window 'GridinSoft Notepad Lite - [" PathToFile "]' failed to appear. '" ProcessExe "' process detected.")
                     }
                     else
                         TestsOK("")

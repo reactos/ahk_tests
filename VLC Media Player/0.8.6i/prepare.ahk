@@ -78,7 +78,7 @@ RunApplication(PathToFile)
     
     TestsTotal++
     IfNotExist, %ModuleExe%
-        TestsFailed("Can NOT find '" ModuleExe "'.")
+        TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
     else
     {
         if PathToFile =
@@ -90,9 +90,9 @@ RunApplication(PathToFile)
                 Process, Exist, %ProcessExe%
                 NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                 if NewPID = 0
-                    TestsFailed("Window 'VLC media player' failed to appear. No '" ProcessExe "' process detected.")
+                    TestsFailed("RunApplication(): Window 'VLC media player' failed to appear. No '" ProcessExe "' process detected.")
                 else
-                    TestsFailed("Window 'VLC media player' failed to appear. '" ProcessExe "' process detected.")
+                    TestsFailed("RunApplication(): Window 'VLC media player' failed to appear. '" ProcessExe "' process detected.")
             }
             else
                 TestsOK("")
@@ -100,7 +100,7 @@ RunApplication(PathToFile)
         else
         {
             IfNotExist, %PathToFile%
-                TestsFailed("Can NOT find '" PathToFile "'.")
+                TestsFailed("RunApplication(): Can NOT find '" PathToFile "'.")
             else
             {
                 Run, %ModuleExe% "%PathToFile%" ; Don't run it maximized
@@ -110,9 +110,9 @@ RunApplication(PathToFile)
                     Process, Exist, %ProcessExe%
                     NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                     if NewPID = 0
-                        TestsFailed("Window 'VLC media player' failed to appear when opening '" PathToFile "'. No '" ProcessExe "' process detected.")
+                        TestsFailed("RunApplication(): Window 'VLC media player' failed to appear when opening '" PathToFile "'. No '" ProcessExe "' process detected.")
                     else
-                        TestsFailed("Window 'VLC media player' failed to appear when opening '" PathToFile "'. '" ProcessExe "' process detected.")
+                        TestsFailed("RunApplication(): Window 'VLC media player' failed to appear when opening '" PathToFile "'. '" ProcessExe "' process detected.")
                 }
                 else
                     TestsOK("")

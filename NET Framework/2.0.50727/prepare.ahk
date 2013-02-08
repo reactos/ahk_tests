@@ -50,7 +50,7 @@ RunApplication()
     if bContinue
     {
         IfNotExist, %ModuleExe%
-            TestsFailed("Can NOT find '" ModuleExe "'.")
+            TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
         else
         {
             Run, %ModuleExe%
@@ -68,20 +68,20 @@ RunApplication()
                 if NewPID = 0
                 {
                     if bNETinstalled
-                        TestsFailed("Window 'Hello from .NET (.NET apps work)' failed to appear, despite '" szNETfile "' exists. Different NET version? No '" ProcessExe "' process detected.")
+                        TestsFailed("RunApplication(): Window 'Hello from .NET (.NET apps work)' failed to appear, despite '" szNETfile "' exists. Different NET version? No '" ProcessExe "' process detected.")
                     else
-                        TestsFailed("Window 'Hello from .NET (.NET apps work)' failed to appear. '" szNETfile "' does not exist. No '" ProcessExe "' process detected.")
+                        TestsFailed("RunApplication(): Window 'Hello from .NET (.NET apps work)' failed to appear. '" szNETfile "' does not exist. No '" ProcessExe "' process detected.")
                 }
                 else
                 {
                     if bNETinstalled
-                        TestsFailed("Window 'Hello from .NET (.NET apps work)' failed to appear, despite '" szNETfile "' exists. Different NET version? '" ProcessExe "' process detected.")
+                        TestsFailed("RunApplication(): Window 'Hello from .NET (.NET apps work)' failed to appear, despite '" szNETfile "' exists. Different NET version? '" ProcessExe "' process detected.")
                     else
-                        TestsFailed("Window 'Hello from .NET (.NET apps work)' failed to appear. '" szNETfile "' does not exist. '" ProcessExe "' process detected.")
+                        TestsFailed("RunApplication(): Window 'Hello from .NET (.NET apps work)' failed to appear. '" szNETfile "' does not exist. '" ProcessExe "' process detected.")
                 }
             }
             else
-                TestsOK("'Hello from .NET (.NET apps work)' window appeared.")
+                TestsOK("RunApplication(): 'Hello from .NET (.NET apps work)' window appeared.")
         }
     }
 }

@@ -83,7 +83,7 @@ WriteSettings()
         szPathLeft = %A_AppData%\doublecmd\TestPath ; The path we gonna see in left side of app window
         FileCreateDir, %szPathLeft%
         if ErrorLevel
-            TestsFailed("Unable to create '" szPathLeft "' directory.")
+            TestsFailed("WriteSettings(): Unable to create '" szPathLeft "' directory.")
         else
         {
             szSettingsFile = %A_AppData%\doublecmd\doublecmd.xml
@@ -117,7 +117,7 @@ WriteSettings()
             </doublecmd>
             ), %szSettingsFile%
             if ErrorLevel
-                TestsFailed("Unable to create '" szSettingsFile "'.")
+                TestsFailed("WriteSettings(): Unable to create '" szSettingsFile "'.")
             else
                 TestsOK("")
         }
@@ -138,7 +138,7 @@ RunApplication()
     if bContinue
     {
         IfNotExist, %ModuleExe%
-            TestsFailed("Can NOT find '" ModuleExe "'.")
+            TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
         else
         {
             Run, %ModuleExe% ; Max doesn't work here
@@ -148,9 +148,9 @@ RunApplication()
                 Process, Exist, %ProcessExe%
                 NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                 if NewPID = 0
-                    TestsFailed("Window 'Double Commander' failed to appear. No '" ProcessExe "' process detected.")
+                    TestsFailed("RunApplication(): Window 'Double Commander' failed to appear. No '" ProcessExe "' process detected.")
                 else
-                    TestsFailed("Window 'Double Commander' failed to appear. '" ProcessExe "' process detected.")
+                    TestsFailed("RunApplication(): Window 'Double Commander' failed to appear. '" ProcessExe "' process detected.")
             }
             else
             {
