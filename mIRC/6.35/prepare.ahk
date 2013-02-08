@@ -28,8 +28,13 @@ if ErrorLevel
     TestsFailed("Either registry key does not exist or we failed to read it.")
 else
 {
-    ModuleExe = %InstallLocation%\mirc.exe
-    TestsOK("")
+    if (InstallLocation = "")
+        TestsFailed("Either registry contains empty string or we failed to read it.")
+    else
+    {
+        ModuleExe = %InstallLocation%\mirc.exe
+        TestsOK("")
+    }
 }
 
 

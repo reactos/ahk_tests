@@ -28,8 +28,13 @@ else
 {
     UninstallerPath := ExeFilePathNoParam(UninstallerPath)
     SplitPath, UninstallerPath,, InstalledDir
-    ModuleExe = %InstalledDir%\ob1.exe
-    TestsOK("")
+    if (InstalledDir = "")
+        TestsFailed("Either registry contains empty string or we failed to read it.")
+    else
+    {
+        ModuleExe = %InstalledDir%\ob1.exe
+        TestsOK("")
+    }
 }
 
 

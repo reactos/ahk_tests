@@ -29,8 +29,13 @@ if ErrorLevel
 else
 {
     SplitPath, UninstallerPath,, InstalledDir
-    ModuleExe = %InstalledDir%\k-meleon.exe
-    TestsOK("")
+    if (InstalledDir = "")
+        TestsFailed("Either registry contains empty string or we failed to read it.")
+    else
+    {
+        ModuleExe = %InstalledDir%\k-meleon.exe
+        TestsOK("")
+    }
 }
 
 

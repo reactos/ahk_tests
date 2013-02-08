@@ -28,8 +28,13 @@ else
 {
     UninstallerPath := ExeFilePathNoParam(UninstallerPath) ; remove quotes and params
     SplitPath, UninstallerPath,, InstalledDir
-    ModuleExe = %InstalledDir%\mpc-hc.exe
-    TestsOK("")
+    if (InstalledDir = "")
+        TestsFailed("Either registry contains empty string or we failed to read it.")
+    else
+    {
+        ModuleExe = %InstalledDir%\mpc-hc.exe
+        TestsOK("")
+    }
 }
 
 

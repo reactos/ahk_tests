@@ -28,8 +28,13 @@ else
 {
     StringReplace, UninstallerPath, UninstallerPath, `",, All ; The Filzip uninstaller path is quoted, remove quotes
     SplitPath, UninstallerPath,, InstalledDir
-    ModuleExe = %InstalledDir%\Filzip.exe
-    TestsOK("")
+    if (InstalledDir = "")
+        TestsFailed("Either registry contains empty string or we failed to read it.")
+    else
+    {
+        ModuleExe = %InstalledDir%\Filzip.exe
+        TestsOK("")
+    }
 }
 
 

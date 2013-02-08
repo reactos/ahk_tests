@@ -27,8 +27,13 @@ else
 {
     SplitPath, UninstallerPath,, InstalledDir
     SplitPath, InstalledDir,, InstalledDir ; Split once more, since installer was in subdir (Thunderbird specific)
-    ModuleExe = %InstalledDir%\thunderbird.exe
-    TestsOK("")
+    if (InstalledDir = "")
+        TestsFailed("Either registry contains empty string or we failed to read it.")
+    else
+    {
+        ModuleExe = %InstalledDir%\thunderbird.exe
+        TestsOK("")
+    }
 }
 
 

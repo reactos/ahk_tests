@@ -28,8 +28,13 @@ else
 {
     UninstallerPath := ExeFilePathNoParam(UninstallerPath)
     SplitPath, UninstallerPath,, InstalledDir
-    ModuleExe = %InstalledDir%\abyssws.exe
-    TestsOK("")
+    if (InstalledDir = "")
+        TestsFailed("Either registry contains empty string or we failed to read it.")
+    else
+    {
+        ModuleExe = %InstalledDir%\abyssws.exe
+        TestsOK("")
+    }
 }
 
 

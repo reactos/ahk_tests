@@ -28,8 +28,13 @@ else
 {
     ; UninstallerPath := ExeFilePathNoParam(UninstallerPath) ; Remove quotes
     SplitPath, UninstallerPath,, InstalledDir
-    ModuleExe = %InstalledDir%\open-console.exe
-    TestsOK("")
+    if (InstalledDir = "")
+        TestsFailed("Either registry contains empty string or we failed to read it.")
+    else
+    {
+        ModuleExe = %InstalledDir%\open-console.exe
+        TestsOK("")
+    }
 }
 
 

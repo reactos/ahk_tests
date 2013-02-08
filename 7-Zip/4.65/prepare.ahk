@@ -28,8 +28,13 @@ else
 {
     StringReplace, UninstallerPath, UninstallerPath, `",, All ; 9.20 haves quoted path
     SplitPath, UninstallerPath,, InstalledDir
-    ModuleExe = %InstalledDir%\7zFM.exe
-    TestsOK("")
+    if (InstalledDir = "")
+        TestsFailed("Either registry contains empty string or we failed to read it.")
+    else
+    {
+        ModuleExe = %InstalledDir%\7zFM.exe
+        TestsOK("")
+    }
 }
 
 
@@ -55,7 +60,7 @@ TerminateApplication()
         Process, Close, %ProcessExe%
         Process, WaitClose, %ProcessExe%, 4
         if ErrorLevel
-            TestsFailed("Unable to terminate '" ProcessExe "' process.")
+            TestsFailed("TerminateApplication(): Unable to terminate '" ProcessExe "' process.")
         else
             TestsOK("")
     }
@@ -73,7 +78,7 @@ RunApplication(PathToFile)
 
     TestsTotal++
     IfNotExist, %ModuleExe%
-        TestsFailed("Can NOT find '" ModuleExe "'.")
+        TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
     else
     {
         if PathToFile =
@@ -85,9 +90,9 @@ RunApplication(PathToFile)
                 Process, Exist, %ProcessExe%
                 NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                 if NewPID = 0
-                    TestsFailed("Window '7-Zip File Manager' failed to appear. No '" ProcessExe "' process detected.")
+                    TestsFailed("RunApplication(): Window '7-Zip File Manager' failed to appear. No '" ProcessExe "' process detected.")
                 else
-                    TestsFailed("Window '7-Zip File Manager' failed to appear. '" ProcessExe "' process detected.")
+                    TestsFailed("RunApplication(): Window '7-Zip File Manager' failed to appear. '" ProcessExe "' process detected.")
             }
             else
                 TestsOK("")
@@ -101,9 +106,9 @@ RunApplication(PathToFile)
                 Process, Exist, %ProcessExe%
                 NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                 if NewPID = 0
-                    TestsFailed("Window '" PathToFile "\' failed to appear. No '" ProcessExe "' process detected.")
+                    TestsFailed("RunApplication(): Window '" PathToFile "\' failed to appear. No '" ProcessExe "' process detected.")
                 else
-                    TestsFailed("Window '" PathToFile "\' failed to appear. '" ProcessExe "' process detected.")
+                    TestsFailed("RunApplication(): Window '" PathToFile "\' failed to appear. '" ProcessExe "' process detected.")
             }
             else
                 TestsOK("")

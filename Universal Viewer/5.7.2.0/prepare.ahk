@@ -28,8 +28,13 @@ else
 {
     StringReplace, UninstallerPath, UninstallerPath, `",, All ; Universal Viewer string contains quotes, replace em
     SplitPath, UninstallerPath,, InstalledDir
-    ModuleExe = %InstalledDir%\Viewer.exe
-    TestsOK("")
+    if (InstalledDir = "")
+        TestsFailed("Either registry contains empty string or we failed to read it.")
+    else
+    {
+        ModuleExe = %InstalledDir%\Viewer.exe
+        TestsOK("")
+    }
 }
 
 ; Terminate application

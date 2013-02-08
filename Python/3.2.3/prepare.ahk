@@ -27,8 +27,13 @@ if ErrorLevel
 else
 {
     SplitPath, PythonIcon,, InstalledDir
-    ModuleExe = %InstalledDir%\pythonw.exe ; Path to IDLE
-    TestsOK("")
+    if (InstalledDir = "")
+        TestsFailed("Either registry contains empty string or we failed to read it.")
+    else
+    {
+        ModuleExe = %InstalledDir%\pythonw.exe ; Path to IDLE
+        TestsOK("")
+    }
 }
 
 

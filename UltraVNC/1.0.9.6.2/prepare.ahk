@@ -28,11 +28,16 @@ else
 {
     UninstallerPath := ExeFilePathNoParam(UninstallerPath)
     SplitPath, UninstallerPath,, InstalledDir
-    VNCViewerPath = %InstalledDir%\vncviewer.exe
-    VNCServerPath = %InstalledDir%\winvnc.exe
-    SplitPath, VNCViewerPath, VNCViewerExe
-    SplitPath, VNCServerPath, VNCServerExe
-    TestsOK("")
+    if (InstalledDir = "")
+        TestsFailed("Either registry contains empty string or we failed to read it.")
+    else
+    {
+        VNCViewerPath = %InstalledDir%\vncviewer.exe
+        VNCServerPath = %InstalledDir%\winvnc.exe
+        SplitPath, VNCViewerPath, VNCViewerExe
+        SplitPath, VNCServerPath, VNCServerExe
+        TestsOK("")
+    }
 }
 
 

@@ -28,8 +28,13 @@ else
 {
     UninstallerPath := ExeFilePathNoParam(UninstallerPath) ; Get rid of quotes
     SplitPath, UninstallerPath,, InstalledDir
-    ModuleExe = %InstalledDir%\lbreakout2.exe
-    TestsOK("")
+    if (InstalledDir = "")
+        TestsFailed("Either registry contains empty string or we failed to read it.")
+    else
+    {
+        ModuleExe = %InstalledDir%\lbreakout2.exe
+        TestsOK("")
+    }
 }
 
 

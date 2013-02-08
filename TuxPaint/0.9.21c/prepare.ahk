@@ -27,9 +27,14 @@ if ErrorLevel
 else
 {
     UninstallerPath := ExeFilePathNoParam(UninstallerPath) ; Remove quotes from path
-    SplitPath, UninstallerPath,, InstalledDir
-    ModuleExe = %InstalledDir%\tuxpaint.exe
-    TestsOK("")
+    SplitPath, UninstallerPath,, InstalledDir]
+    if (InstalledDir = "")
+        TestsFailed("Either registry contains empty string or we failed to read it.")
+    else
+    {
+        ModuleExe = %InstalledDir%\tuxpaint.exe
+        TestsOK("")
+    }
 }
 
 

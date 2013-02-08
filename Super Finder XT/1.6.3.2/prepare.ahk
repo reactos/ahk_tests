@@ -28,8 +28,13 @@ else
 {
     UninstallerPath := ExeFilePathNoParam(UninstallerPath) ; Get rid of quotes
     SplitPath, UninstallerPath,, InstalledDir
-    ModuleExe = %InstalledDir%\SuperFinder.exe
-    TestsOK("")
+    if (InstalledDir = "")
+        TestsFailed("Either registry contains empty string or we failed to read it.")
+    else
+    {
+        ModuleExe = %InstalledDir%\SuperFinder.exe
+        TestsOK("")
+    }
 }
 
 

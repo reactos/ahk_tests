@@ -26,8 +26,13 @@ if ErrorLevel
     TestsFailed("Either registry key does not exist or we failed to read it.")
 else
 {
-    ModuleExe = %InstalledDir%program\soffice.exe
-    TestsOK("")
+    if (InstalledDir = "")
+        TestsFailed("Either registry contains empty string or we failed to read it.")
+    else
+    {
+        ModuleExe = %InstalledDir%program\soffice.exe
+        TestsOK("")
+    }
 }
 
 

@@ -28,8 +28,13 @@ else
 {
     SplitPath, UninstallerPath,, InstalledDir
     SplitPath, InstalledDir,, InstalledDir ; Split path once more
-    ModuleExe = %InstalledDir%\sunbird.exe
-    TestsOK("")
+    if (InstalledDir = "")
+        TestsFailed("Either registry contains empty string or we failed to read it.")
+    else
+    {
+        ModuleExe = %InstalledDir%\sunbird.exe
+        TestsOK("")
+    }
 }
 
 
