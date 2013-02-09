@@ -23,9 +23,7 @@ szDocument =  %A_WorkingDir%\Media\PasswProtected.rar ; Case sensitive!
 ; Test if can extract password protected RAR archive
 TestsTotal++
 RunApplication(szDocument)
-if not bContinue
-    TestsFailed("We failed somewhere in prepare.ahk.")
-else
+if bContinue
 {
     SplitPath, szDocument, NameExt
     WinWaitActive, %NameExt% - WinRAR (evaluation copy),,5
