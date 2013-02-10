@@ -280,7 +280,7 @@ TestsFailed(DebugText)
     }
 
     if not bIsConnectedToInternet()
-        TestsFailed("TestsFailed(): No internet connection detected.")
+        TestsInfo("TestsFailed(): No internet connection detected.")
     else
     {
         szApp = %A_WorkingDir%\Apps\Cap.exe ; Screenshot capture utility by Mysoft (Grégori Macário Harbs)
