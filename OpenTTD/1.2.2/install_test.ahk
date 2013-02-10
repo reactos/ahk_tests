@@ -300,7 +300,7 @@ if bContinue
             TestsFailed("Unable to uncheck 'Run OpenTTD 1.2.2 now!' checkbox in '" szWindowCaption " (Completing)' window.")
         else
         {
-            ControlGet, bChecked, Checked, Button4
+            ControlGet, bChecked, Checked,, Button4
             if bChecked = 1
                 TestsFailed("'Run OpenTTD 1.2.2 now!' checkbox in '" szWindowCaption " (Completing)' window reported as unchecked, but further inspection proves that it was still checked.")
             else

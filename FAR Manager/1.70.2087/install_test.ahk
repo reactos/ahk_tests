@@ -279,7 +279,7 @@ if bContinue
         }
         else
         {
-            ControlGet, bChecked, Checked, Button4
+            ControlGet, bChecked, Checked,, Button4
             if bChecked = 1
                 TestsFailed("'Run Far Manager v1.70' checkbox in 'Far Manager v1.70 Setup (Completing)' window reported as unchecked, but further inspection proves that it was still checked.")
             else

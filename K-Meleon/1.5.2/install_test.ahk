@@ -267,7 +267,7 @@ if bContinue
             TestsFailed("Unable to uncheck 'Run K-Meleon 1.5.2' checkbox in 'K-Meleon 1.5.2 en-US Setup (Completing)' window.")
         else
         {
-            ControlGet, bChecked, Checked, Button4
+            ControlGet, bChecked, Checked,, Button4
             if bChecked = 1
                 TestsFailed("'Run K-Meleon 1.5.2' checkbox in 'K-Meleon 1.5.2 en-US Setup (Completing)' window reported as unchecked, but further inspection proves that it was still checked.")
             else

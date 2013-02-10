@@ -337,7 +337,7 @@ if bContinue
         else
         {
             SendInput, !r ; Uncheck 'Run Notepad'
-            ControlGet, bChecked, Checked, Button4
+            ControlGet, bChecked, Checked,, Button4
             if bChecked = 1
                 TestsFailed("Alt+R was sent to uncheck 'Run Notepad' checkbox in 'Notepad++ v6.1.2 Setup (Completing)' window, but further inspection proves that it was still checked.")
             else

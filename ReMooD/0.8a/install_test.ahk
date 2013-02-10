@@ -160,12 +160,12 @@ if bContinue
         SendInput, !r ; Alt+R to uncheck 'Run ReMooD 0.8a' checkbox
         SendInput, !s ; Alt+S to uncheck 'Show Readme' checkbox
 
-        ControlGet, bChecked, Checked, Button4
+        ControlGet, bChecked, Checked,, Button4
         if bChecked = 1
             TestsFailed("Alt+R was sent to uncheck 'Run ReMooD 0.8a' checkbox in 'ReMooD 0.8a Setup (Click Finish)' window, but further inspection proves that it was still checked.")
         else
         {
-            ControlGet, bChecked, Checked, Button5
+            ControlGet, bChecked, Checked,, Button5
             if bChecked = 1
                 TestsFailed("Alt+S was sent to uncheck 'Show Readme' checkbox in 'ReMooD 0.8a Setup (Click Finish)' window, but further inspection proves that it was still checked.")
             else

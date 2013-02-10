@@ -254,7 +254,7 @@ if bContinue
             TestsFailed("Unable to uncheck 'Launch LBreakout2' checkbox in 'Setup - LGeneral (Finished)' window.")
         else
         {
-            ControlGet, bChecked, Checked, TCheckBox1
+            ControlGet, bChecked, Checked,, TCheckBox1
             if bChecked = 1
                 TestsFailed("'Launch LBreakout2' checkbox in 'Setup - LGeneral (Finished)' window reported as unchecked, but further inspection proves that it was still checked.")
             else

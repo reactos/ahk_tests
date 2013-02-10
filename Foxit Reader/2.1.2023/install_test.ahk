@@ -211,8 +211,8 @@ if bContinue
                 TestsFailed("Unable to uncheck 'Run Foxit Reader' checkbox in 'Foxit Reader Install Wizard (Setup has successfully installed)' window.")
             else
             {
-                ControlGet, bChecked, Checked, Button2
-                if bChecked = 1
+                ControlGet, bChecked, Checked,, Button2
+                if bChecked = 0
                     TestsFailed("'Run Foxit Reader' checkbox in 'Foxit Reader Install Wizard (Setup has successfully installed)' window reported as unchecked, but further inspection proves that it was still checked.")
                 else
                 {

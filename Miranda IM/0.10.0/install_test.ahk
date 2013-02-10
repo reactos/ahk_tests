@@ -215,7 +215,7 @@ if bContinue
             TestsFailed("Unable to uncheck 'Start Miranda IM' in 'Miranda IM 0.10.0 Setup (Click Finish)' window.")
         else
         {
-            ControlGet, bChecked, Checked, Button4
+            ControlGet, bChecked, Checked,, Button4
             if bChecked = 1
                 TestsFailed("'Start Miranda IM' checkbox in 'Miranda IM 0.10.0 Setup (Click Finish)' window reported as unchecked, but further inspection proves that it was still checked.")
             else

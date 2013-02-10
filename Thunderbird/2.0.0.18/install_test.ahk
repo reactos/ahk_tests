@@ -289,7 +289,7 @@ if bContinue
         }
         else
         {
-            ControlGet, bChecked, Checked, Button4
+            ControlGet, bChecked, Checked,, Button4
             if bChecked = 1
                 TestsFailed("'Launch Mozilla Thunderbird now' checkbox in 'Mozilla Thunderbird Setup (Completing)' window reported as unchecked, but further inspection proves that it was still checked.")
             else

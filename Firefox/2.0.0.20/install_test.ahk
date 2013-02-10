@@ -286,7 +286,7 @@ if bContinue
         }
         else
         {
-            ControlGet, bChecked, Checked, Button4
+            ControlGet, bChecked, Checked,, Button4
             if bChecked = 1
                 TestsFailed("'Lounch Firefox now' checkbox in 'Mozilla Firefox Setup (Completing)' window reported as unchecked, but further inspection proves that it was still checked.")
             else

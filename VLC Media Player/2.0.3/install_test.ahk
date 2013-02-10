@@ -262,7 +262,7 @@ if bContinue
     else
     {
         SendInput, !r ; Uncheck 'Run VLC'
-        ControlGet, bChecked, Checked, Button4, VLC media player 2.0.3 Setup, Completing
+        ControlGet, bChecked, Checked,, Button4, VLC media player 2.0.3 Setup, Completing
         if bChecked = 1
             TestsFailed("'Run VLC' checkbox should be unchecked because Alt+R was sent, but further inspection proves that it was still checked.")
         else

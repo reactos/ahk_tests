@@ -241,7 +241,7 @@ if bContinue
             TestsFailed("Unable to uncheck 'Start Audiograbber 1.83 SE' checkbox in 'Audiograbber 1.83 SE Setup (Completing)' window.")
         else
         {
-            ControlGet, bChecked, Checked, Button4
+            ControlGet, bChecked, Checked,, Button4
             if bChecked = 1
                 TestsFailed("'Start Audiograbber 1.83 SE' checkbox in 'Audiograbber 1.83 SE Setup (Completing)' window reported as unchecked, but further inspection proves that it was still checked.")
             else

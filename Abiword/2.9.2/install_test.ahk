@@ -269,7 +269,7 @@ if bContinue
         }
         else
         {
-            ControlGet, bChecked, Checked, Button4
+            ControlGet, bChecked, Checked,, Button4
             if bChecked = 1
                 TestsFailed("'Run AbiWord 2.9.2' checkbox in 'AbiWord 2.9.2 Setup (Completing)' window reported as unchecked, but further inspection proves that it was still checked.")
             else

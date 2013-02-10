@@ -254,7 +254,7 @@ if bContinue
             TestsFailed("Unable to uncheck 'Launch LMarbles' checkbox in 'Setup - LMarbles (Finished)' window.")
         else
         {
-            ControlGet, bChecked, Checked, TCheckBox1
+            ControlGet, bChecked, Checked,, TCheckBox1
             if bChecked = 1
                 TestsFailed("'Launch LMarbles' checkbox in 'Setup - LMarbles (Finished)' window reported as unchecked, but further inspection proves that it was still checked.")
             else

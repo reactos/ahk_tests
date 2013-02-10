@@ -302,7 +302,7 @@ if bContinue
         ; SendInput, {SPACE} ; Uncheck the checkbox
         SendMessage, 0x201, 0, 0, Button3
         SendMessage, 0x202, 0, 0, Button3
-        ControlGet, bChecked, Checked, Button3
+        ControlGet, bChecked, Checked,, Button3
         if bChecked = 1
             TestsFailed("'Run Opera when I press Finish' checkbox in 'Opera 9.64 - InstallShield Wizard (InstallShield Wizard Completed)' window reported as unchecked, but further inspection proves that it was still checked.")
         else

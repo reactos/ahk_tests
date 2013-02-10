@@ -323,7 +323,7 @@ if bContinue
             TestsFailed("Unable to uncheck 'Start IrfanView' in 'IrfanView Setup (Installation successfull)' window.")
         else
         {
-            ControlGet, bChecked, Checked, Button2, IrfanView Setup, Installation successfull ; Need all params or it will fail
+            ControlGet, bChecked, Checked,, Button2, IrfanView Setup, Installation successfull ; Need all params or it will fail
             if bChecked = 1
                 TestsFailed("'Start IrfanView' checkbox reported as unchecked in 'IrfanView Setup (Installation successfull)' window, but further inspection proves that it was still checked.")
             else

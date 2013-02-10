@@ -265,7 +265,7 @@ if bContinue
             TestsFailed("Unable to uncheck 'Run VLC' checkbox in 'VideoLAN VLC media player 0.8.6i Setup (Completing)' window.")
         else
         {
-            ControlGet, bChecked, Checked, Button4
+            ControlGet, bChecked, Checked,, Button4
             if bChecked = 1
                 TestsFailed("'Run VLC' checkbox in 'VideoLAN VLC media player 0.8.6i Setup (Completing)' window reported as unchecked, but further inspection proves that it was still checked.")
             else
