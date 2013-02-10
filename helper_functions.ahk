@@ -426,6 +426,8 @@ WindowCleanup(ProcessName)
         Process, WaitClose, %name_no_ext%.tmp, 5
         if ErrorLevel
             OutputDebug, Helper Functions: Unable to terminate '%name_no_ext%.tmp' process.`n
+        else
+            OutputDebug, Helper Functions: Succesfully terminated '%name_no_ext%.tmp' process.`n
     }
 
     Process, Exist, Setup.exe
@@ -447,6 +449,8 @@ WindowCleanup(ProcessName)
             Process, WaitClose, msiexec.exe, 5
             if ErrorLevel
                 OutputDebug, Helper Functions: Unable to terminate 'msiexec.exe' process.`n
+            else
+                OutputDebug, Helper Functions: Successfully terminated 'msiexec.exe' process.`n
         }
     }
     
@@ -568,6 +572,8 @@ TerminateTmpProcesses()
                         iUnterminated++
                         OutputDebug, Helper Functions: Unable to terminate '%n%' process.`n
                     }
+                    else
+                        OutputDebug, Helper Functions: Successfully terminated '%n%' process.`n
                 }
             }
             else IfInString, n, %szSetup%
@@ -583,6 +589,8 @@ TerminateTmpProcesses()
                         iUnterminated++
                         OutputDebug, Helper Functions: Unable to terminate '%n%' process.`n
                     }
+                    else
+                        OutputDebug, Helper Functions: Successfully terminated '%n%' process.`n
                 }
             }
             else IfInString, n, %szInstall%
@@ -598,6 +606,8 @@ TerminateTmpProcesses()
                         iUnterminated++
                         OutputDebug, Helper Functions: Unable to terminate '%n%' process.`n
                     }
+                    else
+                        OutputDebug, Helper Functions: Successfully terminated '%n%' process.`n
                 }
             }
         }
