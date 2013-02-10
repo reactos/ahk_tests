@@ -430,6 +430,8 @@ WindowCleanup(ProcessName)
             OutputDebug, Helper Functions: Succesfully terminated '%name_no_ext%.tmp' process.`n
     }
 
+    ; FIXME: remove 'Setup.exe', 'Install.exe' and 'msiexec.exe' termination when CORE-6939 is fixed,
+    ; because TerminateTmpProcesses() will do such things for us
     Process, Exist, Setup.exe
     if ErrorLevel != 0
     {
@@ -437,6 +439,19 @@ WindowCleanup(ProcessName)
         Process, WaitClose, Setup.exe, 5
         if ErrorLevel
             OutputDebug, Helper Functions: Unable to terminate 'Setup.exe' process.`n
+    }
+
+    Process, Exist, install.exe
+    if ErrorLevel != 0
+    {
+        Process, close, install.exe
+        Process, WaitClose, install.exe, 5
+        if ErrorLevel
+        {
+            Process, WaitClose, install.exe, 5
+            if ErrorLevel
+                OutputDebug, Helper Functions: Unable to terminate 'install.exe' process.`n
+        }
     }
     
     Process, Exist, msiexec.exe
@@ -451,20 +466,6 @@ WindowCleanup(ProcessName)
                 OutputDebug, Helper Functions: Unable to terminate 'msiexec.exe' process.`n
             else
                 OutputDebug, Helper Functions: Successfully terminated 'msiexec.exe' process.`n
-        }
-    }
-    
-    
-    Process, Exist, install.exe
-    if ErrorLevel != 0
-    {
-        Process, close, install.exe
-        Process, WaitClose, install.exe, 5
-        if ErrorLevel
-        {
-            Process, WaitClose, install.exe, 5
-            if ErrorLevel
-                OutputDebug, Helper Functions: Unable to terminate 'install.exe' process.`n
         }
     }
 
@@ -559,6 +560,7 @@ TerminateTmpProcesses()
             sztmp = .tmp
             szSetup = Setup
             szInstall = Install
+            szMsiExec = msiexec
             IfInString, n, %sztmp%
             {
                 Process, Exist, %n% ; Will kill all '*.tmp' processes
@@ -596,6 +598,23 @@ TerminateTmpProcesses()
             else IfInString, n, %szInstall%
             {
                 Process, Exist, %n% ; Will kill all '*Install*' processes
+                if ErrorLevel != 0
+                {
+                    Process, close, %n%
+                    Process, WaitClose, %n%, 5
+                    if ErrorLevel
+                    {
+                        bError := true
+                        iUnterminated++
+                        OutputDebug, Helper Functions: Unable to terminate '%n%' process.`n
+                    }
+                    else
+                        OutputDebug, Helper Functions: Successfully terminated '%n%' process.`n
+                }
+            }
+            else IfInString, n, %szMsiExec%
+            {
+                Process, Exist, %n% ; Will kill all '*msiexec*' processes
                 if ErrorLevel != 0
                 {
                     Process, close, %n%
