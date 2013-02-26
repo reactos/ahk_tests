@@ -89,7 +89,28 @@ if bContinue
                             }
                             else
                             {
-                                TestsOK("")
+                                WinWaitActive, Default Browser,,3 ; This shouldn't happen
+                                if not ErrorLevel
+                                {
+                                    TestsFailed++ ; 'Default Browser' dialog appeared -> this is a failure
+                                    szDefaultBrowserBug = 4107
+                                    TestsInfo("'Default Browser' window appeared, but it shouldn't (#CORE-" szDefaultBrowserBug "?). Ignoring.")
+                                    TestsTotal++
+                                    SendInput, !y ; Hit 'Yes' in 'Default Browser' dialog
+                                    WinWaitClose, Default Browser,,3
+                                    if ErrorLevel
+                                        TestsFailed("'Default Browser' dialog appeared (when it shouldn't [#CORE-" szDefaultBrowserBug "?]) we sent Alt+Y to hit 'Yes' button, but dialog failed to close.")
+                                    else
+                                    {
+                                        WinWaitActive, Mozilla Firefox Start Page - Mozilla Firefox,, 3
+                                        if ErrorLevel
+                                            TestsFailed("'Mozilla Firefox Start Page - Mozilla Firefox' window failed to appear despite 'Default Browser' (#CORE-" szDefaultBrowserBug "?) dialog was closed.")
+                                        else
+                                            TestsOK("Despite 'Default Browser' dialog appeared (when it shouldn't [#CORE-" szDefaultBrowserBug "?]), we managed to start Firefox.")
+                                    }
+                                }
+                                else
+                                    TestsOK("Everything went as expected.")
                             }
                         }
                     }
