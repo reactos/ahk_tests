@@ -98,10 +98,10 @@ if bContinue
                                     szDefaultBrowserBug = 4107
                                     TestsInfo("'Default Browser' window appeared, but it shouldn't (#CORE-" szDefaultBrowserBug "?). Ignoring.")
                                     TestsTotal++
-                                    SendInput, !y ; Hit 'Yes' in 'Default Browser' dialog
+                                    SendInput, {ENTER} ; Hit 'Yes' in 'Default Browser' dialog
                                     WinWaitClose, Default Browser,,3
                                     if ErrorLevel
-                                        TestsFailed("'Default Browser' dialog appeared (when it shouldn't [#CORE-" szDefaultBrowserBug "?]) we sent Alt+Y to hit 'Yes' button, but dialog failed to close.")
+                                        TestsFailed("'Default Browser' dialog appeared (when it shouldn't [#CORE-" szDefaultBrowserBug "?]) we sent ENTER to hit 'Yes' button, but dialog failed to close.")
                                     else
                                     {
                                         TestsInfo("I was here 3.")
