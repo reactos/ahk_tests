@@ -64,8 +64,16 @@ else
                     {
                         TestsInfo("Window 'of 1 file - Downloads' appeared, waiting for it to close. (SetTitleMatchMode=" A_TitleMatchMode ").")
                         iTimeOut := 95
+                        iDebug := 0
                         while iTimeOut > 0
                         {
+                            iDebug++
+                            if (iDebug = 6)
+                            {
+                                WinGetActiveTitle, Title
+                                TestsInfo("Downloading... Active window: '" Title "'.")
+                                iDebug := 0
+                            }
                             IfWinActive, of 1 file - Downloads
                             {
                                 WinWaitClose, of 1 file - Downloads,, 1
