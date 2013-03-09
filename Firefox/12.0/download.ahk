@@ -38,13 +38,15 @@ else
             TestsFailed("Failed to delete '" szDownloadTo "'.")
         else
         {
+            TestsInfo("Test 1.")
             SendInput, {CTRLDOWN}l{CTRLUP}%szURL%{ENTER} ;Download some file
-            
+            TestsInfo("Test 2.")
             WinWaitActive, Opening %szFileName%,,10
             if ErrorLevel
                 TestsFailed("'Opening " szFileName "' window failed to appear, so, downloading failed.")
             else
             {
+                TestsInfo("Test 3.")
                 ; 'ControlClick' won't work here
                 SendInput, {ALTDOWN}s{ALTUP} ; Check 'Save file' radio button
                 ; 'OK' button is disabled for split of second. There is no way for us to find out
@@ -56,6 +58,7 @@ else
                     TestsFailed("'Opening " szFileName "' window failed to close despite 'ENTER' was sent.")
                 else
                 {
+                    TestsInfo("Test 4.")
                     SetTitleMatchMode, 2 ; A window's title can contain WinTitle anywhere inside it to be a match.
                     WinWaitActive, of 1 file - Downloads,,10
                     if ErrorLevel
