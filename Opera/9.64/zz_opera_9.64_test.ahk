@@ -29,6 +29,7 @@ params =
     4.FlashPlayer
     5.CloseDownload
     6.speed_dial
+    7.launch_widget
 
 )
 
@@ -64,6 +65,10 @@ if CheckParam()
             else if 1 = 6.speed_dial
             {
                 #include speed_dial.ahk
+            }
+            else if 1 = 7.launch_widget
+            {
+                #include launch_widget.ahk
             }
         }
     }
