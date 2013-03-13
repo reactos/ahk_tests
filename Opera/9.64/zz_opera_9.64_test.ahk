@@ -28,6 +28,7 @@ params =
     3.Download
     4.FlashPlayer
     5.CloseDownload
+    6.speed_dial
 
 )
 
@@ -59,6 +60,10 @@ if CheckParam()
             else if 1 = 5.CloseDownload
             {
                 #include CloseDownload.ahk
+            }
+            else if 1 = 6.speed_dial
+            {
+                #include speed_dial.ahk
             }
         }
     }
