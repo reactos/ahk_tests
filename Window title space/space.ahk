@@ -20,14 +20,8 @@ ModuleExe = %A_WorkingDir%\Apps\HelloWorldSpace.exe
 TestName = 1.space
 
 ; Terminate application
-TestsTotal++
 SplitPath, ModuleExe, ProcessExe
-Process, Close, %ProcessExe%
-Process, WaitClose, %ProcessExe%, 4
-if ErrorLevel
-    TestsFailed("Unable to terminate '" ProcessExe "' process.")
-else
-    TestsOK("")
+bTerminateProcess(ProcessExe)
 
 
 TestsTotal++

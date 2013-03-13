@@ -41,16 +41,10 @@ szDocument = %A_WorkingDir%\Media\Thunderbird 2.0.0.18 prefs.js ; Case insensiti
 
 
 ; Terminate application
-TestsTotal++
 if bContinue
 {
     SplitPath, ModuleExe, ProcessExe
-    Process, Close, %ProcessExe%
-    Process, WaitClose, %ProcessExe%, 4
-    if ErrorLevel
-        TestsFailed("Unable to terminate '" ProcessExe "' process.")
-    else
-        TestsOK("")
+    bTerminateProcess(ProcessExe)
 }
 
 

@@ -39,14 +39,11 @@ else
 
 
 ; Terminate application
-TestsTotal++
-SplitPath, ModuleExe, ProcessExe
-Process, Close, %ProcessExe%
-Process, WaitClose, %ProcessExe%, 4
-if ErrorLevel
-    TestsFailed("Process '" ProcessExe "' failed to close.")
-else
-    TestsOK("")
+if bContinue
+{
+    SplitPath, ModuleExe, ProcessExe
+    bTerminateProcess(ProcessExe)
+}
 
 
 ; Delete settings separately from RunApplication()

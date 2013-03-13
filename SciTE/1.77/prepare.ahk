@@ -21,14 +21,8 @@ TestName = prepare
 ModuleExe = %A_ProgramFiles%\SciTE\SciTE.exe
 
 ; Terminate application
-TestsTotal++
 SplitPath, ModuleExe, ProcessExe
-Process, Close, %ProcessExe%
-Process, WaitClose, %ProcessExe%, 4
-if ErrorLevel
-    TestsFailed("Unable to terminate '" ProcessExe "' process.")
-else
-    TestsOK("")
+bTerminateProcess(ProcessExe)
 
 
 ; Test if can start application

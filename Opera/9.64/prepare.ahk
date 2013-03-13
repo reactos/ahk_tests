@@ -48,16 +48,10 @@ if bContinue
 
 
 ; Terminate application
-TestsTotal++
 if bContinue
 {
     SplitPath, ModuleExe, ProcessExe
-    Process, Close, %ProcessExe%
-    Process, WaitClose, %ProcessExe%, 4
-    if ErrorLevel
-        TestsFailed("Process '" ProcessExe "' failed to close.")
-    else
-        TestsOK("")
+    bTerminateProcess(ProcessExe)
 }
 
 

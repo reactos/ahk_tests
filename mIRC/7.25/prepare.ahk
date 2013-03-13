@@ -38,14 +38,11 @@ else
 }
 
 
-; Test if connected to the Internet
-TestsTotal++
+; Terminate application
 if bContinue
 {
-    if not bIsConnectedToInternet()
-        TestsFailed("No internet connection detected.")
-    else
-        TestsOK("Internet connection detected.")
+    SplitPath, ModuleExe, ProcessExe
+    bTerminateProcess(ProcessExe)
 }
 
 ; Terminate application

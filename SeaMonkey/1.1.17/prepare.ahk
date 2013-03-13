@@ -23,14 +23,8 @@ ModuleExe = %A_ProgramFiles%\mozilla.org\SeaMonkey\seamonkey.exe ; Registry cont
 
 
 ; Terminate application
-TestsTotal++
 SplitPath, ModuleExe, ProcessExe
-Process, Close, %ProcessExe%
-Process, WaitClose, %ProcessExe%, 4
-if ErrorLevel
-    TestsFailed("Unable to terminate '" ProcessExe "' process.")
-else
-    TestsOK("")
+bTerminateProcess(ProcessExe)
 
 
 TestsTotal++

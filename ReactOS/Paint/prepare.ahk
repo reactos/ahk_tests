@@ -22,14 +22,8 @@ ModuleExe = %A_WinDir%\System32\mspaint.exe
 
 
 ; Terminate application
-TestsTotal++
 SplitPath, ModuleExe, ProcessExe
-Process, Close, %ProcessExe%
-Process, WaitClose, %ProcessExe%, 4
-if ErrorLevel
-    TestsFailed("Unable to terminate '" ProcessExe "' process.")
-else
-    TestsOK("")
+bTerminateProcess(ProcessExe)
 
 
 RegDelete, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Applets\Paint ; Delete saved settings
