@@ -30,6 +30,7 @@ params =
     5.CloseDownload
     6.speed_dial
     7.launch_widget
+    8.search_bar
 
 )
 
@@ -69,6 +70,10 @@ if CheckParam()
             else if 1 = 7.launch_widget
             {
                 #include launch_widget.ahk
+            }
+            else if 1 = 8.search_bar
+            {
+                #include search_bar.ahk
             }
         }
     }
