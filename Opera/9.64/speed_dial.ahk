@@ -18,7 +18,6 @@
  */
 
 TestName = 6.speed_dial
-szURL = http://dsx86.patrickaalto.com
 
 ; Test if speed dial works
 TestsTotal++
