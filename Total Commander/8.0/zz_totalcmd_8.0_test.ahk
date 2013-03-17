@@ -25,6 +25,7 @@ params =
 
     1.install
     2.find_files
+    3.ftp_connect
 
 )
 
@@ -44,6 +45,10 @@ if CheckParam()
             if 1 = 2.find_files
             {
                 #include find_files.ahk
+            }
+            else if 1 = 3.ftp_connect
+            {
+                #include ftp_connect.ahk
             }
         }
     }

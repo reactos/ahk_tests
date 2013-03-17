@@ -41,7 +41,7 @@ else
 if bContinue
 {
     SplitPath, ModuleExe, ProcessExe
-    bTerminateProcess(ProcessExe)
+    ;bTerminateProcess(ProcessExe)
 }
 
 
