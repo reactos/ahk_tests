@@ -53,25 +53,42 @@ else
                     else
                     {
                         SendInput {Down} ; We have only one file there, so hit down arrow to select that file
-                        SendInput !F ; Alt+F (File)
-                        SendInput {Right} ; 7-Zip -> Add to archive
-                        SendInput {Enter}
-                        WinWaitActive, Add to Archive,, 7
+                        ControlGetText, szStatusText, msctls_statusbar321, %A_ProgramFiles%\7-Zip\AHK_Test
                         if ErrorLevel
-                            TestsFailed("'Add to Archive' window failed to appear.")
+                            TestsFailed("There was problem with 'ControlGetText'.")
                         else
                         {
-                            ControlClick, Button8, Add to Archive
-                            if ErrorLevel
-                                TestsFailed("Unable to click 'OK' button in 'Add to Archive' window.")
+                            szStatusExpected = 1 object(s) selected
+                            if (szStatusText != szStatusExpected)
+                            {
+                                if (szStatusText = "0 object(s) selected")
+                                    TestsFailed("Sent DOWN key to select the file, but got '0 object(s) selected', which could mean SysListView321 control was not focused on ReactOS when app started.")
+                                else
+                                    TestsFailed("Sent DOWN key to select the file, but got unexpected text from statusbar. Is '" szStatusText "', should be '" szStatusExpected "'.")
+                            }
                             else
                             {
-                                IfNotExist, %A_ProgramFiles%\7-Zip\AHK_Test\SampleFile.7z
-                                    TestsFailed("'" A_ProgramFiles "\7-Zip\AHK_Test\SampleFile.7z' doesn't exist.")
+                                SendInput !F ; Alt+F (File)
+                                SendInput {Right} ; 7-Zip -> Add to archive
+                                SendInput {Enter}
+                                WinWaitActive, Add to Archive,, 3
+                                if ErrorLevel
+                                    TestsFailed("'Add to Archive' window failed to appear.")
                                 else
                                 {
-                                    TestsOK("Created archive '" A_ProgramFiles "\7-Zip\AHK_Test\SampleFile.7z' successfully.") 
-                                    TerminateApplication() ; We don't care now if application can close correctly, so, terminate
+                                    ControlClick, Button8, Add to Archive
+                                    if ErrorLevel
+                                        TestsFailed("Unable to click 'OK' button in 'Add to Archive' window.")
+                                    else
+                                    {
+                                        IfNotExist, %A_ProgramFiles%\7-Zip\AHK_Test\SampleFile.7z
+                                            TestsFailed("'" A_ProgramFiles "\7-Zip\AHK_Test\SampleFile.7z' doesn't exist.")
+                                        else
+                                        {
+                                            TestsOK("Created archive '" A_ProgramFiles "\7-Zip\AHK_Test\SampleFile.7z' successfully.") 
+                                            TerminateApplication() ; We don't care now if application can close correctly, so, terminate
+                                        }
+                                    }
                                 }
                             }
                         }
