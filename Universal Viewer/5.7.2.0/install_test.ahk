@@ -268,9 +268,9 @@ if bContinue
                 Process, Close, %MainAppFile%
                 Process, WaitClose, %MainAppFile%, 4
                 if ErrorLevel
-                    TestsFailed("Unable to uncheck 'Launch Universal Viewer' in 'Setup - Universal Viewer Free (Completing)' window, because process '" MainAppFile "' was detected and failed to terminate it.")
+                    TestsFailed("Unable to uncheck (using SPACE key) 'Launch Universal Viewer' in 'Setup - Universal Viewer Free (Completing)' window, because process '" MainAppFile "' was detected and failed to terminate it.")
                 else
-                    TestsFailed("Unable to uncheck 'Launch Universal Viewer' in 'Setup - Universal Viewer Free (Completing)' window, because process '" MainAppFile "' was detected.")
+                    TestsFailed("Unable to uncheck (using SPACE key) 'Launch Universal Viewer' in 'Setup - Universal Viewer Free (Completing)' window, because process '" MainAppFile "' was detected.")
             }
             else
                 TestsOK("'Setup - Universal Viewer Free (Completing)' window appeared, 'Launch Universal Viewer', 'View version history' were unchecked and 'Finish' was clicked.")
