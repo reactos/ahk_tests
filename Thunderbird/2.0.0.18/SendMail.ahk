@@ -37,24 +37,38 @@ else
         else
         {
             SendInput, reactos.dev@gmail.com ; Enter recipients e-mail
-            SendInput, {ALTDOWN}s{ALTUP} ; Go to 'Subject' field
-            FormatTime, TimeString
-            SendInput, %TimeString% ; Enter time and date into 'Subject' field
-            SendInput, {TAB}Congratulations, Thunderbird is working. ; Message body
-            SendInput, {CTRLDOWN}{ENTER}{CTRLUP} ; Ctrl+Return to send message now
-            WinWaitActive, Mail Server Password Required,,10
+            clipboard = ; Empty the clipboard
+            Send, ^a ; Ctrl+A aka Select All
+            Send, ^c ; Cltr+C aka Copy
+            ClipWait, 2
             if ErrorLevel
-                TestsFailed("Window 'Mail Server Password Required' failed to appear.")
+                TestsFailed("The attempt to copy text onto the clipboard failed. This could mean no field was focused in 'Compose: (no subject)' window while entering email.")
             else
             {
-                SendInput, 3d1ju5test{ENTER} ; Enter password
-                WinWaitActive, Inbox for reactos.dev@gmail.com - Thunderbird,,10
-                if ErrorLevel
-                    TestsFailed("Window 'Inbox for reactos.dev@gmail.com - Thunderbird' failed to appear after sending email.")
+                if (clipboard != "reactos.dev@gmail.com")
+                    TestsFailed("Clipboard contains wrong data. Is '" clipboard "', should be 'reactos.dev@gmail.com'.")
                 else
                 {
-                    Sleep, 7000 ; Sleep to actually send the message. FIXME: do not hardcode!
-                    TestsOK("Composed and sent new email successfully.")
+                    SendInput, {ALTDOWN}s{ALTUP} ; Go to 'Subject' field
+                    FormatTime, TimeString
+                    SendInput, %TimeString% ; Enter time and date into 'Subject' field
+                    SendInput, {TAB}Congratulations, Thunderbird is working. ; Message body
+                    SendInput, {CTRLDOWN}{ENTER}{CTRLUP} ; Ctrl+Return to send message now
+                    WinWaitActive, Mail Server Password Required,,10
+                    if ErrorLevel
+                        TestsFailed("Window 'Mail Server Password Required' failed to appear.")
+                    else
+                    {
+                        SendInput, 3d1ju5test{ENTER} ; Enter password
+                        WinWaitActive, Inbox for reactos.dev@gmail.com - Thunderbird,,10
+                        if ErrorLevel
+                            TestsFailed("Window 'Inbox for reactos.dev@gmail.com - Thunderbird' failed to appear after sending email.")
+                        else
+                        {
+                            Sleep, 7000 ; Sleep to actually send the message. FIXME: do not hardcode!
+                            TestsOK("Composed and sent new email successfully.")
+                        }
+                    }
                 }
             }
         }
