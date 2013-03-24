@@ -71,6 +71,27 @@ if bContinue
         TestsOK("")
 }
 
+TestsTotal++
+if bContinue
+{
+    RegRead, A_LocData, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, Local AppData
+    if ErrorLevel
+        TestsFailed("Unable to read registry: HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, Local AppData")
+    else
+    {
+        IfExist, %A_LocData%\Opera
+        {
+            FileRemoveDir, %A_LocData%\Opera, 1
+            if ErrorLevel
+                TestsFailed("Unable to delete '" A_LocData "\Opera'.")
+            else
+                TestsOK("")
+        }
+        else
+            TestsOK("")
+    }
+}
+
 
 ; Tests if can write settings
 TestsTotal++
