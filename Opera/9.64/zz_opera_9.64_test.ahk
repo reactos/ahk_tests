@@ -31,6 +31,7 @@ params =
     6.speed_dial
     7.launch_widget
     8.search_bar
+    9.connect_irc
 
 )
 
@@ -74,6 +75,10 @@ if CheckParam()
             else if 1 = 8.search_bar
             {
                 #include search_bar.ahk
+            }
+            else if 1 = 9.connect_irc
+            {
+                #include connect_irc.ahk
             }
         }
     }
