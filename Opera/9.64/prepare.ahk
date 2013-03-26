@@ -138,25 +138,57 @@ if bContinue
 }
 
 
-TestsTotal++
-if bContinue
+; Test if can start application
+RunApplication(PathToFile, AppWndCaption)
 {
-    IfNotExist, %ModuleExe%
-        TestsFailed("Can NOT find '" ModuleExe "'.")
-    else
+    global ModuleExe
+    global TestName
+    global TestsTotal
+    global bContinue
+    global ProcessExe
+
+    TestsTotal++
+    if bContinue
     {
-        Run, %ModuleExe% ; Setup/install registers Opera as default browser
-        WinWaitActive, Speed Dial - Opera,, 10
-        if ErrorLevel
-        {
-            Process, Exist, %ProcessExe%
-            NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
-            if NewPID = 0
-                TestsFailed("Window 'Speed Dial - Opera' failed to appear. No '" ProcessExe "' process detected.")
-            else
-                TestsFailed("Window 'Speed Dial - Opera' failed to appear. '" ProcessExe "' process detected.")
-        }
+        IfNotExist, %ModuleExe%
+            TestsFailed("RunApplication(): Can NOT find '" ModuleExe "'.")
         else
-            TestsOK("") 
+        {
+            ; AppWndCaption is ignored here
+            if PathToFile =
+            {
+                Run, %ModuleExe%,, Max ; Setup/install registers Opera as default browser
+                WinWaitActive, Speed Dial - Opera,,7
+                if ErrorLevel
+                {
+                    Process, Exist, %ProcessExe%
+                    NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                    if NewPID = 0
+                        TestsFailed("RunApplication(): Window 'Speed Dial - Opera' failed to appear. No '" ProcessExe "' process detected.")
+                    else
+                        TestsFailed("RunApplication(): Window 'Speed Dial - Opera' failed to appear. '" ProcessExe "' process detected.")
+                }
+                else
+                    TestsOK("")
+            }
+            else
+            {
+                IfNotExist, %PathToFile%
+                    TestsInfo("RunApplication(): Can NOT find '" PathToFile "'.") ; Just in case we are using local file
+                Run, %ModuleExe% "%PathToFile%",, Max ; Setup/install registers Opera as default browser
+                WinWaitActive, %AppWndCaption%,,7
+                if ErrorLevel
+                {
+                    Process, Exist, %ProcessExe%
+                    NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
+                    if NewPID = 0
+                        TestsFailed("RunApplication(): Window '" AppWndCaption "' failed to appear. No '" ProcessExe "' process detected.")
+                    else
+                        TestsFailed("RunApplication(): Window '" AppWndCaption "' failed to appear. '" ProcessExe "' process detected.")
+                }
+                else
+                    TestsOK("")
+            }
+        }
     }
 }

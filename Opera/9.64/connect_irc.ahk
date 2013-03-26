@@ -21,6 +21,7 @@ TestName = 9.connect_irc
 
 ; Test if can configure and connect to IRC server
 TestsTotal++
+RunApplication("","")
 if bContinue
 {
     IfWinNotActive, Speed Dial - Opera

@@ -22,9 +22,8 @@ szURL = http://iso.reactos.org/bootcd/bootcd-54727-dbgwin.7z
 
 ; Test if we can exit properly when download in progress. Bug #CORE-5134
 TestsTotal++
-if not bContinue
-    TestsFailed("We failed somewhere in prepare.ahk")
-else
+RunApplication("","")
+if bContinue
 {
     IfWinNotActive, Speed Dial - Opera
         TestsFailed("Window 'Speed Dial - Opera' is not active window.")

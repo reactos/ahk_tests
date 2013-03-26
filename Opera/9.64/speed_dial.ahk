@@ -21,6 +21,7 @@ TestName = 6.speed_dial
 
 ; Test if speed dial works
 TestsTotal++
+RunApplication("","")
 if bContinue
 {
     IfWinNotActive, Speed Dial - Opera

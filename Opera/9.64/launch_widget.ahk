@@ -21,6 +21,7 @@ TestName = 7.launch_widget
 
 ; Test if can download widget and launch it
 TestsTotal++
+RunApplication("","")
 if bContinue
 {
     IfWinNotActive, Speed Dial - Opera

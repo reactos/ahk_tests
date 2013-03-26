@@ -22,9 +22,8 @@ szURL = http://beastybombs.com/play.php
 
 ; Test if can open flash
 TestsTotal++
-if not bContinue
-    TestsFailed("We failed somewhere in prepare.ahk")
-else
+RunApplication("","")
+if bContinue
 {
     IfWinNotActive, Speed Dial - Opera
         TestsFailed("Window 'Speed Dial - Opera' is not active window.")

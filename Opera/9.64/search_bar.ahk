@@ -22,6 +22,7 @@ szSearchTerm = ReactOS
 
 ; Test if we can open search engine using search bar
 TestsTotal++
+RunApplication("","")
 if bContinue
 {
     IfWinNotActive, Speed Dial - Opera
