@@ -25,6 +25,7 @@ params =
 
     1.install
     2.SearchCurrentDoc
+    3.view_fulscreen
 
 )
 
@@ -44,6 +45,10 @@ if CheckParam()
             if 1 = 2.SearchCurrentDoc
             {
                 #include SearchCurrentDoc.ahk
+            }
+            else if 1 = 3.view_fulscreen
+            {
+                #include view_fulscreen.ahk
             }
         }
     }
