@@ -72,6 +72,7 @@ RunApplication(PathToFile)
     global bContinue
     global TestsTotal
     global ProcessExe
+    global szStartingFolder
 
     TestsTotal++
     IfNotExist, %ModuleExe%
@@ -80,17 +81,18 @@ RunApplication(PathToFile)
     {
         if PathToFile =
         {
+            SplitPath, A_WorkingDir, szStartingFolder
             Run, %ModuleExe%,, Max ; Start maximized
             ; WinRARIntegration()
-            WinWaitActive, WinRAR - WinRAR (evaluation copy),,7
+            WinWaitActive, %szStartingFolder% - WinRAR (evaluation copy),,7
             if ErrorLevel
             {
                 Process, Exist, %ProcessExe%
                 NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                 if NewPID = 0
-                    TestsFailed("RunApplication(): Window 'WinRAR - WinRAR (evaluation copy)' failed to appear. No '" ProcessExe "' process detected.")
+                    TestsFailed("RunApplication(): Window '" szStartingFolder " - WinRAR (evaluation copy)' failed to appear. No '" ProcessExe "' process detected.")
                 else
-                    TestsFailed("RunApplication(): Window 'WinRAR - WinRAR (evaluation copy)' failed to appear. '" ProcessExe "' process detected.")
+                    TestsFailed("RunApplication(): Window '" szStartingFolder " - WinRAR (evaluation copy)' failed to appear. '" ProcessExe "' process detected.")
             }
             else
                 TestsOK("")

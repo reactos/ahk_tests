@@ -25,6 +25,7 @@ params =
 
     1.install
     2.ExtractPwdProtected
+    3.add_archive
 
 )
 
@@ -44,6 +45,10 @@ if CheckParam()
             if 1 = 2.ExtractPwdProtected
             {
                 #include ExtractPwdProtected.ahk
+            }
+            else if 1 = 3.add_archive
+            {
+                #include add_archive.ahk
             }
         }
     }
