@@ -26,6 +26,7 @@ params =
     1.install
     2.ViewLicense
     3.report_all_pages
+    4.disk_benchmark
 
 )
 
@@ -49,6 +50,10 @@ if CheckParam()
             else if 1 = 3.report_all_pages
             {
                 #include report_all_pages.ahk
+            }
+            else if 1 = 4.disk_benchmark
+            {
+                #include disk_benchmark.ahk
             }
         }
     }
