@@ -52,7 +52,7 @@ else
 
         Sleep, 2500 ; Stay fullscreen for a bit. Maybe something will crash.
         IfWinNotActive, Mozilla Firefox Start Page - Mozilla Firefox
-            TestsFailed("Sent F11 and 'IfWinNotActive, Mozilla Firefox Start Page - Mozilla Firefox' became inactive (iTimeOut=" iTimeOut ").")
+            TestsFailed("Sent F11 and 'Mozilla Firefox Start Page - Mozilla Firefox' window became inactive (iTimeOut=" iTimeOut ").")
         else
         {
             WinGetPos, WinX, WinY, WinWidth, WinHeight, Mozilla Firefox Start Page - Mozilla Firefox
