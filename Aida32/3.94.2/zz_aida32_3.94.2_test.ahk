@@ -25,6 +25,7 @@ params =
 
     1.install
     2.ViewLicense
+    3.report_all_pages
 
 )
 
@@ -44,6 +45,10 @@ if CheckParam()
             if 1 = 2.ViewLicense
             {
                 #include ViewLicense.ahk
+            }
+            else if 1 = 3.report_all_pages
+            {
+                #include report_all_pages.ahk
             }
         }
     }
