@@ -27,6 +27,7 @@ params =
     2.address_bar
     3.download
     4.search_bar
+    5.fullscreen
 
 )
 
@@ -53,6 +54,10 @@ if CheckParam()
             else if 1 = 4.search_bar
             {
                 #include search_bar.ahk
+            }
+            else if 1 = 5.fullscreen
+            {
+                #include fullscreen.ahk
             }
         }
     }
