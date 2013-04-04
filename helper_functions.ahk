@@ -494,7 +494,7 @@ WindowCleanup(ProcessName)
 }
 
 
-; Terminates all '*.tmp', '*Setup*' and '*Install*' processes
+; Terminates all '*.tmp', '*.bin', '*Setup*' and '*Install*' processes
 TerminateTmpProcesses()
 {
     ; http://www.autohotkey.com/docs/commands/Process.htm
@@ -558,12 +558,30 @@ TerminateTmpProcesses()
         {
             ; Check if we have '.tmp' in process name
             sztmp = .tmp
+            szBin = .bin
             szSetup = Setup
             szInstall = Install
             szMsiExec = msiexec
             IfInString, n, %sztmp%
             {
                 Process, Exist, %n% ; Will kill all '*.tmp' processes
+                if ErrorLevel != 0
+                {
+                    Process, close, %n%
+                    Process, WaitClose, %n%, 5
+                    if ErrorLevel
+                    {
+                        bError := true
+                        iUnterminated++
+                        OutputDebug, Helper Functions: Unable to terminate '%n%' process.`n
+                    }
+                    else
+                        OutputDebug, Helper Functions: Successfully terminated '%n%' process.`n
+                }
+            }
+            else IfInString, n, %szBin%
+            {
+                Process, Exist, %n% ; Will kill all '*.bin' processes
                 if ErrorLevel != 0
                 {
                     Process, close, %n%
