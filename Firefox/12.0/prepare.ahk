@@ -132,35 +132,21 @@ EnterURL(TheURL)
     global TestsTotal
 
     SendInput, {ALTDOWN}d{ALTUP} ; Go to address bar
-    ; copy text to clipboard and compare
+    SendInput, %TheURL%
     clipboard = ; Empty the clipboard
-    Send, ^c
+    Send, ^a ; Ctrl+A
+    Send, ^c ; Ctrl+C
     ClipWait, 2
     if ErrorLevel
-        TestsFailed("The attempt to copy text onto the clipboard failed.")
+        TestsFailed("The attempt to copy text onto the clipboard failed when entering '" TheURL "'.")
     else
     {
-        if clipboard <> about:home
-            TestsFailed("Clipboard content is not the same as expected (is '" clipboard "', should be 'about:home') Can't focus address bar using Alt+D?.")
+        IfNotInString, TheURL, %clipboard%
+            TestsFailed("Entered URL to addressbar, copied it and clipboard content is wwrong. Is '" clipboard "', should be '" TheURL "'.")
         else
         {
-            SendInput, %TheURL%
-            clipboard = ; Empty the clipboard
-            Send, ^a ; Ctrl+A
-            Send, ^c ; Ctrl+C
-            ClipWait, 2
-            if ErrorLevel
-                TestsFailed("The attempt to copy text onto the clipboard failed when entering '" TheURL "'.")
-            else
-            {
-                IfNotInString, TheURL, %clipboard%
-                    TestsFailed("Entered URL to addressbar, copied it and clipboard content is wwrong. Is '" clipboard "', should be '" TheURL "'.")
-                else
-                {
-                    SendInput, {ENTER} ; Go to URL
-                    TestsOK("Entered '" TheURL "' successfully and sent ENTER to go to it.")
-                }
-            }
+            SendInput, {ENTER} ; Go to URL
+            TestsOK("Entered '" TheURL "' successfully and sent ENTER to go to it.")
         }
     }
 }
