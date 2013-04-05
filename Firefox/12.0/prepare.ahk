@@ -131,39 +131,34 @@ EnterURL(TheURL)
     global bContinue
     global TestsTotal
 
-    IfWinNotActive, Mozilla Firefox Start Page - Mozilla Firefox
-        TestsFailed("'Mozilla Firefox Start Page - Mozilla Firefox' is not active window.")
+    SendInput, {ALTDOWN}d{ALTUP} ; Go to address bar
+    ; copy text to clipboard and compare
+    clipboard = ; Empty the clipboard
+    Send, ^c
+    ClipWait, 2
+    if ErrorLevel
+        TestsFailed("The attempt to copy text onto the clipboard failed.")
     else
     {
-        SendInput, {ALTDOWN}d{ALTUP} ; Go to address bar
-        ; copy text to clipboard and compare
-        clipboard = ; Empty the clipboard
-        Send, ^c
-        ClipWait, 2
-        if ErrorLevel
-            TestsFailed("The attempt to copy text onto the clipboard failed.")
+        if clipboard <> about:home
+            TestsFailed("Clipboard content is not the same as expected (is '" clipboard "', should be 'about:home') Can't focus address bar using Alt+D?.")
         else
         {
-            if clipboard <> about:home
-                TestsFailed("Clipboard content is not the same as expected (is '" clipboard "', should be 'about:home') Can't focus address bar using Alt+D?.")
+            SendInput, %TheURL%
+            clipboard = ; Empty the clipboard
+            Send, ^a ; Ctrl+A
+            Send, ^c ; Ctrl+C
+            ClipWait, 2
+            if ErrorLevel
+                TestsFailed("The attempt to copy text onto the clipboard failed when entering '" TheURL "'.")
             else
             {
-                SendInput, %TheURL%
-                clipboard = ; Empty the clipboard
-                Send, ^a ; Ctrl+A
-                Send, ^c ; Ctrl+C
-                ClipWait, 2
-                if ErrorLevel
-                    TestsFailed("The attempt to copy text onto the clipboard failed when entering '" TheURL "'.")
+                IfNotInString, TheURL, %clipboard%
+                    TestsFailed("Entered URL to addressbar, copied it and clipboard content is wwrong. Is '" clipboard "', should be '" TheURL "'.")
                 else
                 {
-                    IfNotInString, TheURL, %clipboard%
-                        TestsFailed("Entered URL to addressbar, copied it and clipboard content is wwrong. Is '" clipboard "', should be '" TheURL "'.")
-                    else
-                    {
-                        SendInput, {ENTER} ; Go to URL
-                        TestsOK("Entered '" TheURL "' successfully and sent ENTER to go to it.")
-                    }
+                    SendInput, {ENTER} ; Go to URL
+                    TestsOK("Entered '" TheURL "' successfully and sent ENTER to go to it.")
                 }
             }
         }
