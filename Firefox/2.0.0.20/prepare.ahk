@@ -27,11 +27,12 @@ if ErrorLevel
 else
 {
     SplitPath, UninstallerPath,, InstalledDir
+    SplitPath, InstalledDir,, InstalledDir ; Need to split twice
     if (InstalledDir = "")
         TestsFailed("Either registry contains empty string or we failed to read it.")
     else
     {
-        ModuleExe = %InstalledDir%\..\firefox.exe ; Go back one folder
+        ModuleExe = %InstalledDir%\firefox.exe ; Go back one folder
         TestsOK("")
     }
 }
