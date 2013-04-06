@@ -26,6 +26,7 @@ params =
     1.install
     2.PlayVideo
     3.take_snapshot
+    4.codec_information
 
 )
 
@@ -49,6 +50,10 @@ if CheckParam()
             else if 1 = 3.take_snapshot
             {
                 #include take_snapshot.ahk
+            }
+            else if 1 = 4.codec_information
+            {
+                #include codec_information.ahk
             }
         }
     }
