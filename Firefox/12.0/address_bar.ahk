@@ -33,19 +33,23 @@ else
         EnterURL("http://dsx86.patrickaalto.com")
         if bContinue
         {
-            ; SendInput, http{:}//dsx86{.}patrickaalto{.}com{ENTER}
             WinWaitActive, DSx86 by Patrick Aalto - Mozilla Firefox,, 7
             if ErrorLevel
                 TestsFailed("'DSx86 by Patrick Aalto - Mozilla Firefox' window failed to appear, so, typing URL failed (Alt+D).")
             else
             {
-                Sleep, 5500 ; Let it to load the page, maybe we will crash
-                Process, Close, %ProcessExe%
-                Process, WaitClose, %ProcessExe%, 5
-                if ErrorLevel ; The PID still exists.
-                    TestsFailed("Unable to terminate '" ProcessExe "' process.")
-                else
-                    TestsOK("'DSx86 by Patrick Aalto - Mozilla Firefox' window appeared, so typing URL works (Alt+D), '" ProcessExe "' process closed.")
+                TestsTotal++
+                WaitForPageToLoad("DSx86 by Patrick Aalto - Mozilla Firefox", "5")
+                if bContinue
+                {
+                    Sleep, 1500 ; Let it to load the page, maybe we will crash
+                    Process, Close, %ProcessExe%
+                    Process, WaitClose, %ProcessExe%, 5
+                    if ErrorLevel ; The PID still exists.
+                        TestsFailed("Unable to terminate '" ProcessExe "' process.")
+                    else
+                        TestsOK("'DSx86 by Patrick Aalto - Mozilla Firefox' window appeared, so typing URL works (Alt+D), '" ProcessExe "' process closed.")
+                }
             }
         }
     }

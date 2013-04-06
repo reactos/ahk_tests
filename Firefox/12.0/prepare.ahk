@@ -150,3 +150,89 @@ EnterURL(TheURL)
         }
     }
 }
+
+
+; Waits specified amount of seconds for page to be loaded
+WaitForPageToLoad(szExpectedWindowTitle, nTimeOut)
+{
+    global TestName
+    global bContinue
+    global TestsTotal
+
+    while (nTimeOut > 0)
+    {
+        SetTitleMatchMode, 2 ; A window's title can contain WinTitle anywhere inside it to be a match.
+        IfWinNotActive, - Mozilla Firefox
+            TestsFailed("'- Mozilla Firefox' is NOT active window. TitleMatchMode=" A_TitleMatchMode)
+        else
+        {
+            SetTitleMatchMode, 3 ; A window's title must exactly match WinTitle to be a match.
+            WinWaitActive, %szExpectedWindowTitle%,,1
+            if ErrorLevel
+            {
+                ; WinGetActiveTitle, Title
+                ; TestsInfo(szExpectedWindowTitle " is not active. " Title " is active.")
+                nTimeOut--
+            }
+            else
+            {
+                ; get pixel, if it is still loading - sleep
+                StatusBarX := 230
+                StatusBarY := 565
+
+                if not bStatusBarAppeared
+                {
+                    iColorTimeOut := 200
+                    while (iColorTimeOut > 0)
+                    {
+                        IfWinNotActive, %szExpectedWindowTitle%
+                            TestsFailed("'" szExpectedWindowTitle "' window is NOT active anymore.")
+                        else
+                        {
+                            PixelGetColor, szColor, %StatusBarX%, %StatusBarY%
+                            if ErrorLevel
+                                TestsFailed("Unable to get '" StatusBarX "x" StatusBarY "' pixel color.")
+                            else
+                            {
+                                szLoadedColor = 0xF2F2F2
+                                IfInString, szColor, %szLoadedColor%
+                                {
+                                    bStatusBarAppeared := true
+                                    break ; Page loading is started
+                                }
+                                else
+                                {
+                                    ; TestsInfo("Waiting for statusbar to appear.")
+                                    iColorTimeOut--
+                                    Sleep, 10
+                                }
+                            }
+                        }
+                    }
+                }
+
+                PixelGetColor, szColor, %StatusBarX%, %StatusBarY%
+                if ErrorLevel
+                    TestsFailed("Unable to get '" StatusBarX "x" StatusBarY "' pixel color.")
+                else
+                {
+                    ; TestsInfo(StatusBarX "x" StatusBarY " color: " szColor)
+                    IfNotInString, szColor, %szLoadedColor%
+                    {
+                        TestsOK("Page is loaded, because statusbar is hidden.")
+                        break
+                    }
+                    else
+                    {
+                        Sleep, 1000
+                        nTimeOut--
+                    }
+                }
+            }
+        }
+    }
+
+    if (nTimeOut <= 0)
+        TestsFailed("WaitForPageToLoad(): timed out.")
+    SetTitleMatchMode, 3 ; A window's title must exactly match WinTitle to be a match.
+}
