@@ -25,6 +25,7 @@ params =
 
     1.install
     2.PlayVideo
+    3.take_snapshot
 
 )
 
@@ -44,6 +45,10 @@ if CheckParam()
             if 1 = 2.PlayVideo
             {
                 #include PlayVideo.ahk
+            }
+            else if 1 = 3.take_snapshot
+            {
+                #include take_snapshot.ahk
             }
         }
     }
