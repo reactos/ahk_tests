@@ -29,19 +29,24 @@ if not bContinue
 else
 {
     SplitPath, szDocument, NameExt
-    WinWaitActive, %NameExt% - VLC media player,,7
-    WndW = 439
-    WndH = 359
-    WinGetPos, X, Y, Width, Height, %NameExt% - VLC media player
-    if not ((Width > WndW) AND Height > WndH) ; Video is 440x360
-        TestsFailed("Size of '" NameExt " - VLC media player' window is not as expected when playing '" szDocument "' (is '" Width "x" Height "', should be at least '" WndW "x" WndH "').")
+    WinWaitActive, %NameExt% - VLC media player,,3
+    if ErrorLevel
+        TestsFailed("'" NameExt " - VLC media player' window failed to appear.")
     else
     {
-        WinClose, %NameExt% - VLC media player
-        WinWaitClose, %NameExt% - VLC media player,,7
-        if ErrorLevel
-            TestsFailed("'" NameExt " - Window 'VLC media player' failed to close.")
+        WndW = 439
+        WndH = 359
+        WinGetPos, X, Y, Width, Height, %NameExt% - VLC media player
+        if not ((Width > WndW) AND Height > WndH) ; Video is 440x360
+            TestsFailed("Size of '" NameExt " - VLC media player' window is not as expected when playing '" szDocument "' (is '" Width "x" Height "', should be at least '" WndW "x" WndH "').")
         else
-            TestsOK("Size of '" NameExt " - VLC media player' window is " Width "x" Height ", so, probably we can play '" szDocument "'.")
+        {
+            WinClose, %NameExt% - VLC media player
+            WinWaitClose, %NameExt% - VLC media player,,7
+            if ErrorLevel
+                TestsFailed("'" NameExt " - Window 'VLC media player' failed to close.")
+            else
+                TestsOK("Size of '" NameExt " - VLC media player' window is " Width "x" Height ", so, probably we can play '" szDocument "'.")
+        }
     }
 }
