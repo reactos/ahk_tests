@@ -28,6 +28,7 @@ params =
     3.download
     4.search_bar
     5.fullscreen
+    6.prefbar_addon
 
 )
 
@@ -58,6 +59,10 @@ if CheckParam()
             else if 1 = 5.fullscreen
             {
                 #include fullscreen.ahk
+            }
+            else if 1 = 6.prefbar_addon
+            {
+                #include prefbar_addon.ahk
             }
         }
     }
