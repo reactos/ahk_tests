@@ -132,6 +132,7 @@ EnterURL(TheURL)
     global TestsTotal
 
     SendInput, {ALTDOWN}d{ALTUP} ; Go to address bar
+    TestsInfo("Sent Alt+D to focus address bar.")
     SendInput, %TheURL%
     clipboard = ; Empty the clipboard
     Send, ^a ; Ctrl+A
