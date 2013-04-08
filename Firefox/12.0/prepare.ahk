@@ -131,25 +131,64 @@ EnterURL(TheURL)
     global bContinue
     global TestsTotal
 
-    SendInput, {ALTDOWN}d{ALTUP} ; Go to address bar
-    TestsInfo("Sent Alt+D to focus address bar.")
-    SendInput, %TheURL%
-    clipboard = ; Empty the clipboard
-    Send, ^a ; Ctrl+A
-    Send, ^c ; Ctrl+C
-    ClipWait, 2
-    if ErrorLevel
-        TestsFailed("The attempt to copy text onto the clipboard failed when entering '" TheURL "'.")
+    SetTitleMatchMode, 2 ; A window's title can contain WinTitle anywhere inside it to be a match.
+    IfWinNotActive, - Mozilla Firefox
+        TestsFailed("'- Mozilla Firefox' is NOT active window. (TitleMatchMode=" A_TitleMatchMode ")")
     else
     {
-        IfNotInString, TheURL, %clipboard%
-            TestsFailed("Entered URL to addressbar, copied it and clipboard content is wwrong. Is '" clipboard "', should be '" TheURL "'.")
+        clipboard = ; Empty the clipboard
+        SendInput, {ALTDOWN}d{ALTUP} ; Go to address bar
+        TestsInfo("Sent Alt+D to focus address bar.")
+        IfWinActive, Mozilla Firefox Start Page - Mozilla Firefox ; Our default window. Address bar holds 'about:home'
+        {
+            Send, ^a ; Ctrl+A
+            Send, ^c ; Ctrl+C
+            clipboard = ; clean
+            ClipWait, 2
+            if ErrorLevel
+            {
+                TestsFailed("The attempt to copy address bar text from 'Mozilla Firefox Start Page - Mozilla Firefox' window onto the clipboard failed.")
+                TestsTotal++
+                Sleep, 2500 ; Maybe ReactOS is not just fast enough to focus address bar, so, wait a bit
+                SendInput, !d ; Alt+D
+                clipboard = ; clean
+                Send, ^a ; Ctrl+A
+                Send, ^c ; Ctrl+C
+                ClipWait, 2
+                if ErrorLevel
+                    TestsFailed("Still can NOT copy text from address bar. Lag? Alt+D does not work?")
+                else
+                    TestsFailed("OK, copied text from address bar, but you should NOT see this line. It only means ReactOS is slow, etc.") ; Still failure
+            }
+            else
+            {
+                szDefaultText = about:home
+                IfNotInString, clipboard, %szDefaultText%
+                    TestsFailed("Copied address bar text of 'Mozilla Firefox Start Page - Mozilla Firefox' window and got unexpected results. Is '" clipboard "', should be '" szDefaultText "'.")
+                else
+                    TestsInfo("Address bar is focused for sure.") ; Yes, TestsInfo
+            }
+        }
+
+        SendInput, %TheURL% ; Address bar should be focused
+        clipboard = ; Empty the clipboard
+        Send, ^a ; Ctrl+A
+        Send, ^c ; Ctrl+C
+        ClipWait, 2
+        if ErrorLevel
+            TestsFailed("The attempt to copy text onto the clipboard failed when entering '" TheURL "'. Unable to focus address bar?")
         else
         {
-            SendInput, {ENTER} ; Go to URL
-            TestsOK("Entered '" TheURL "' successfully and sent ENTER to go to it.")
+            IfNotInString, TheURL, %clipboard%
+                TestsFailed("Entered URL to addressbar, copied it and clipboard content is wrong. Is '" clipboard "', should be '" TheURL "'.")
+            else
+            {
+                SendInput, {ENTER} ; Go to URL
+                TestsOK("Focused address bar using Alt+D, entered '" TheURL "' and sent ENTER to go to it.")
+            }
         }
     }
+    SetTitleMatchMode, 3 ; A window's title must exactly match WinTitle to be a match.
 }
 
 

@@ -224,7 +224,7 @@ ShowTestResults() ; Usage: ShowTestResults()
             TestsSkipped := TestsTotal - TestsOK - TestsFailed
             TestsExecuted := TestsOK + TestsFailed
             if (TestsSkipped < 0 or TestsExecuted < 0)
-                OutputDebug, %TestName%: Check TestsTotal, TestsOK and TestsFailed, because results returns less than 0.`n
+                OutputDebug, %TestName%: Check TestsTotal (%TestsTotal%), TestsOK (%TestsOK%) and TestsFailed (%TestsFailed%), because results returns less than 0.`n
             OutputDebug, %TestName%: %TestsExecuted% tests executed (0 marked as todo, %TestsFailed% failures), %TestsSkipped% skipped.`n
         }
     }
