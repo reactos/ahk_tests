@@ -143,12 +143,11 @@ EnterURL(TheURL)
         {
             Send, ^a ; Ctrl+A
             Send, ^c ; Ctrl+C
-            clipboard = ; clean
             ClipWait, 2
             if ErrorLevel
             {
                 TestsFailed("The attempt to copy address bar text from 'Mozilla Firefox Start Page - Mozilla Firefox' window onto the clipboard failed.")
-                TestsTotal++
+                TestsTotal := TestsTotal+2
                 Sleep, 2500 ; Maybe ReactOS is not just fast enough to focus address bar, so, wait a bit
                 SendInput, !d ; Alt+D
                 clipboard = ; clean
