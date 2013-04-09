@@ -20,6 +20,7 @@
 ModuleExe = %A_WorkingDir%\Apps\Java 6.25 Setup.exe
 TestName = 1.install
 MainAppFile = javaw.exe ; Mostly this is going to be process we need to look for
+bContinue := true
 
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
@@ -28,6 +29,7 @@ IfNotExist, %ModuleExe%
     TestsFailed("'" ModuleExe "' not found.")
 else
 {
+    szDefaultDir = %A_ProgramFiles%\Java
     Process, Close, %MainAppFile% ; Teminate process
     Process, WaitClose, %MainAppFile%, 4
     if ErrorLevel ; The PID still exists.
@@ -41,12 +43,8 @@ else
             ; That probably means we have not installed this app before.
             ; Check in default directory to be extra sure
             bHardcoded := true ; To know if we got path from registry or not
-            szDefaultDir = %A_ProgramFiles%\Java
             IfNotExist, %szDefaultDir%
-            {
                 TestsInfo("No previous versions detected in hardcoded path: '" szDefaultDir "'.")
-                bContinue := true
-            }
             else
             {   
                 UninstallerPath = %A_WinDir%\System32\MsiExec.exe /X{26A24AE4-039D-4CA4-87B4-2F83216025FF} /norestart /qb-!
@@ -54,20 +52,14 @@ else
                 if bContinue
                 {
                     IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
-                    {
                         TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
-                        bContinue := true
-                    }
                     else
                     {
                         FileRemoveDir, %szDefaultDir%, 1
                         if ErrorLevel
                             TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
                         else
-                        {
                             TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
-                            bContinue := true
-                        }
                     }
                 }
             }
@@ -77,31 +69,27 @@ else
             InstalledDir = %InstallLocation%
             IfNotExist, %InstalledDir%
             {
-                TestsInfo("Got '" InstalledDir "' from registry and such path does not exist.")
-                bContinue := true
-            }
-            else
-            {
-                UninstallerPath = %A_WinDir%\System32\MsiExec.exe /X{26A24AE4-039D-4CA4-87B4-2F83216025FF} /norestart /qb-!
-                WaitUninstallDone(UninstallerPath, 7)
-                if bContinue
+                IfNotExist, %szDefaultDir%
+                    TestsInfo("Got '" InstalledDir "' from registry and such path does not exist as well as hard-coded one '" szDefaultDir "'.")
+                else
                 {
-                    IfNotExist, %InstalledDir%
-                    {
-                        TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
-                        bContinue := true
-                    }
+                    TestsInfo("Got '" InstalledDir "' from registry and such path does not exist as, but hard-coded one '" szDefaultDir "' does. Lets use it.")
+                    InstalledDir = %szDefaultDir% ; Lets use existing hard-coded path
+                }
+            }
+            UninstallerPath = %A_WinDir%\System32\MsiExec.exe /X{26A24AE4-039D-4CA4-87B4-2F83216025FF} /norestart /qb-!
+            WaitUninstallDone(UninstallerPath, 7)
+            if bContinue
+            {
+                IfNotExist, %InstalledDir%
+                    TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
+                else
+                {
+                    FileRemoveDir, %InstalledDir%, 1 ; Uninstaller leaved the path for us to delete, so, do it
+                    if ErrorLevel
+                        TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
                     else
-                    {
-                        FileRemoveDir, %InstalledDir%, 1 ; Uninstaller leaved the path for us to delete, so, do it
-                        if ErrorLevel
-                            TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
-                        else
-                        {
-                            TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
-                            bContinue := true
-                        }
-                    }
+                        TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
                 }
             }
         }
