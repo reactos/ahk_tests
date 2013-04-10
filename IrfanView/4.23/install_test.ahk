@@ -19,6 +19,7 @@
 
 ModuleExe = %A_WorkingDir%\Apps\IrfanView 4.23 Setup.exe
 TestName = 1.install
+bContinue := true
 MainAppFile = i_view32.exe ; Mostly this is going to be process we need to look for
 
 ; Test if Setup file exists, if so, delete installed files, and run Setup
@@ -42,10 +43,7 @@ else
             bHardcoded := true ; To know if we got path from registry or not
             szDefaultDir = %A_ProgramFiles%\IrfanView
             IfNotExist, %szDefaultDir%
-            {
                 TestsInfo("No previous versions detected in hardcoded path: '" szDefaultDir "'.")
-                bContinue := true
-            }
             else
             {   
                 UninstallerPath = %szDefaultDir%\iv_uninstall.exe /silent
@@ -53,20 +51,14 @@ else
                 if bContinue
                 {
                     IfNotExist, %szDefaultDir% ; Uninstaller might delete the dir
-                    {
                         TestsInfo("Uninstaller deleted hardcoded path: '" szDefaultDir "'.")
-                        bContinue := true
-                    }
                     else
                     {
                         FileRemoveDir, %szDefaultDir%, 1
                         if ErrorLevel
                             TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
                         else
-                        {
                             TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
-                            bContinue := true
-                        }
                     }
                 }
             }
@@ -76,10 +68,7 @@ else
             UninstallerPath := ExeFilePathNoParam(UninstallerPath)
             SplitPath, UninstallerPath,, InstalledDir
             IfNotExist, %InstalledDir%
-            {
                 TestsInfo("Got '" InstalledDir "' from registry and such path does not exist.")
-                bContinue := true
-            }
             else
             {
                 UninstallerPath = %UninstallerPath% /silent
@@ -87,20 +76,14 @@ else
                 if bContinue
                 {
                     IfNotExist, %InstalledDir%
-                    {
                         TestsInfo("Uninstaller deleted path (registry data): '" InstalledDir "'.")
-                        bContinue := true
-                    }
                     else
                     {
                         FileRemoveDir, %InstalledDir%, 1 ; Uninstaller leaved the path for us to delete, so, do it
                         if ErrorLevel
                             TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
                         else
-                        {
                             TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
-                            bContinue := true
-                        }
                     }
                 }
             }
@@ -156,7 +139,7 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    WinWaitActive, IrfanView Setup, Welcome, 7
+    WinWaitActive, IrfanView Setup, Welcome, 5
     if ErrorLevel
         TestsFailed("'IrfanView Setup (Welcome)' window failed to appear.")
     else
@@ -166,7 +149,7 @@ if bContinue
             TestsFailed("Unable to hit 'Next' button in 'IrfanView Setup (Welcome)' window.")
         else
         {
-            WinWaitClose, IrfanView Setup, Welcome, 7
+            WinWaitClose, IrfanView Setup, Welcome, 3
             if ErrorLevel
                 TestsFailed("'IrfanView Setup (Welcome)' window failed to close despite 'Next' button being clicked.")
             else

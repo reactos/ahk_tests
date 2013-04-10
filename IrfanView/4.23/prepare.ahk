@@ -81,21 +81,18 @@ RunApplication(PathToFile)
             if PathToFile =
             {
                 Run, %ModuleExe%,, Max ; Start maximized
-                WinWaitActive, IrfanView,,7
+                WinWaitActive, IrfanView, No file loaded, 3
                 if ErrorLevel
                 {
                     Process, Exist, %ProcessExe%
                     NewPID = %ErrorLevel%  ; Save the value immediately since ErrorLevel is often changed.
                     if NewPID = 0
-                        TestsFailed("RunApplication(): Window 'IrfanView' failed to appear. No '" ProcessExe "' process detected.")
+                        TestsFailed("RunApplication(): Window 'IrfanView (No file loaded)' failed to appear. No '" ProcessExe "' process detected.")
                     else
-                        TestsFailed("RunApplication(): Window 'IrfanView' failed to appear. '" ProcessExe "' process detected.")
+                        TestsFailed("RunApplication(): Window 'IrfanView (No file loaded)' failed to appear. '" ProcessExe "' process detected.")
                 }
                 else
-                {
                     TestsOK("")
-                    Sleep, 1000
-                }
             }
             else
             {
@@ -104,7 +101,7 @@ RunApplication(PathToFile)
                 else
                 {
                     Run, %ModuleExe% "%PathToFile%",, Max
-                    Sleep, 1000
+                    ; Sleep, 1000
                     SplitPath, PathToFile, NameExt
                     WinWaitActive, %NameExt% - IrfanView,,7
                     if ErrorLevel
@@ -117,10 +114,7 @@ RunApplication(PathToFile)
                             TestsFailed("RunApplication(): Window '" NameExt " - IrfanView' failed to appear. '" ProcessExe "' process detected.")
                     }
                     else
-                    {
                         TestsOK("")
-                        Sleep, 1000
-                    }
                 }
             }
         }
