@@ -24,6 +24,7 @@ params =
 (
 
     1.install
+    2.gcc_compile
 
 )
 
@@ -34,6 +35,38 @@ if CheckParam()
     {
         #include install_test.ahk
     }
+    else 
+    {
+        if 1 != --list
+        {
+            #include prepare.ahk
+
+            if 1 = 2.gcc_compile
+            {
+                #include gcc_compile.ahk
+            }
+
+            ; We can't just terminate some cmd.exe process, because we will shut down rosautotests
+            ; IfWinExist, ReactOS Build Environment 2.0
+            ; {
+                ; TestsInfo("Ola amigo")
+                ; WinClose, ReactOS Build Environment 2.0
+                ; WinWaitClose, ReactOS Build Environment 2.0,,3
+                ; if ErrorLevel
+                ; {
+                    ; TestsInfo("Unable to close 'ReactOS Build Environment 2.0' window.")
+                    ; if RosBE_PID <> 
+                    ; {
+                        ; Process, Close, %RosBE_PID%
+                        ; Process, WaitClose, %RosBE_PID%, 3
+                        ; if ErrorLevel
+                            ; TestsInfo("Unable to terminate 'cmd.exe PID " RosBE_PID "' process.")
+                    ; }
+                ; }
+            ; }
+        }
+    }
 }
+
 
 ShowTestResults()

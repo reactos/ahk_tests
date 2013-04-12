@@ -44,7 +44,7 @@ else
         {   
             FileRemoveDir, %szDefaultDir%, 1
             if ErrorLevel
-                TestsFailed("Unable to delete hardcoded path '" szDefaultDir "' ('" MainAppFile "' process is reported as terminated).'")
+                TestsFailed("Unable to delete hardcoded path '" szDefaultDir "'")
             else
             {
                 TestsInfo("Succeeded deleting hardcoded path, because uninstaller did not: '" szDefaultDir "'.")
@@ -65,7 +65,7 @@ else
         {
             FileRemoveDir, %InstalledDir%, 1 ; This is Nullsoft and '/S' and '/silent' doesn't work
             if ErrorLevel
-                TestsFailed("Unable to delete existing '" InstalledDir "' ('" MainAppFile "' process is reported as terminated).")
+                TestsFailed("Unable to delete existing '" InstalledDir "'.")
             else
             {
                 TestsInfo("Succeeded deleting path (registry data), because uninstaller did not: '" InstalledDir "'.")
