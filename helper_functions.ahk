@@ -318,6 +318,7 @@ TestsFailed(DebugText)
                 ; NewPID = %ErrorLevel%
                 ; if NewPID != 0
                 ; {
+                    ; TestsInfo("TestsFailed(): Uploading of the screenshot took too long. Terminating.")
                     ; Process, Close, %ProcessName%
                     ; Process, WaitClose, %ProcessName%, 5
                     ; if ErrorLevel
