@@ -81,11 +81,24 @@ else
                                         TestsFailed("Unable to click 'OK' button in 'Add to Archive' window.")
                                     else
                                     {
+                                        ; 'Compressing' window appears just too fast for WinWait...
+                                        iTimeOut := 1000
+                                        while (iTimeOut > 0)
+                                        {
+                                            IfExist, %A_ProgramFiles%\7-Zip\AHK_Test\SampleFile.7z
+                                                break
+                                            else
+                                            {
+                                                iTimeOut--
+                                                Sleep, 100
+                                            }
+                                        }
+
                                         IfNotExist, %A_ProgramFiles%\7-Zip\AHK_Test\SampleFile.7z
-                                            TestsFailed("'" A_ProgramFiles "\7-Zip\AHK_Test\SampleFile.7z' doesn't exist.")
+                                            TestsFailed("'" A_ProgramFiles "\7-Zip\AHK_Test\SampleFile.7z' doesn't exist (iTimeOut=" iTimeOut ").")
                                         else
                                         {
-                                            TestsOK("Created archive '" A_ProgramFiles "\7-Zip\AHK_Test\SampleFile.7z' successfully.") 
+                                            TestsOK("Created archive '" A_ProgramFiles "\7-Zip\AHK_Test\SampleFile.7z' successfully (iTimeOut=" iTimeOut ").") 
                                             TerminateApplication() ; We don't care now if application can close correctly, so, terminate
                                         }
                                     }
