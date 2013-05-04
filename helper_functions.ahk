@@ -291,8 +291,8 @@ TestsFailed(DebugText)
         {
             clipboard = ; emptry clipboard
             szFileName := SubStr(A_ScriptName, 1, -4) ; remove '.exe' part from our executable name
-            szUploadURL = mysoft.zapto.org:669/Uploads/Captures/%szFileName%_%TestName%.jpg
-            Run, %szApp% /full /jpg 40 /silent /revision /nobelt /clipboard /hfs %szUploadURL%
+            szUploadURL = mysoft.zapto.org:6666/Uploads/Captures/%szFileName%_%TestName%.jpg
+            Run, %szApp% /full /jpg 40 /silent /revision /nobelt /clipboard /hfs %szUploadURL% /debug
             SplitPath, szApp, ProcessName
             Process, wait, %ProcessName%, 3
             NewPID = %ErrorLevel%
