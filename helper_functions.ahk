@@ -28,6 +28,37 @@ SetWorkingDir %A_ScriptDir% ; Ensures a consistent starting directory.
 DetectHiddenText, Off ; Hidden text is not detected
 
 
+nGetRevisionNumber()
+{
+    ; usage:
+    ; nRevision := nGetRevisionNumber()
+    ; Note: we can't use TestsFailed() here since Windows doesn't really have revision
+    result := 0
+    szApp = %A_WorkingDir%\Apps\Cap.exe ; Utility by Mysoft (Grégori Macário Harbs)
+
+    IfNotExist, %szApp%
+        TestsInfo("nGetRevisionNumber(): Can NOT find '" szApp "'.")
+    else
+    {
+        Run, %szApp% /silent /reg Software\ReactOS
+        SplitPath, szApp, ProcessName
+        Process, WaitClose, %ProcessName%, 4
+        if ErrorLevel
+        {
+            bTerminateProcess(ProcessName)
+            TestsInfo("nGetRevisionNumber(): Process '" ProcessName "' failed to close.")
+        }
+        else
+        {
+            RegRead, result, HKEY_CURRENT_USER, Software\ReactOS, Revision
+            if ErrorLevel
+                TestsInfo("nGetRevisionNumber(): Unable to read HKCU\Software\ReactOS, Revision.")
+        }
+    }
+    return result
+}
+
+
 bTerminateProcess(szProcess)
 {
     global TestsTotal
