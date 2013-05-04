@@ -52,7 +52,12 @@ else
                     SendInput, {ALTDOWN}s{ALTUP} ; Go to 'Subject' field
                     FormatTime, TimeString
                     SendInput, %TimeString% ; Enter time and date into 'Subject' field
-                    SendInput, {TAB}Congratulations, Thunderbird is working. ; Message body
+                    revision := nGetRevisionNumber()
+                    if (revision > 0)
+                        szText = Congratulations, Thunderbird is working on ReactOS r%revision%
+                    else
+                        szText = Congratulations, Thunderbird is working on ReactOS
+                    SendInput, {TAB}%szText% ; Message body
                     SendInput, {CTRLDOWN}{ENTER}{CTRLUP} ; Ctrl+Return to send message now
                     WinWaitActive, Mail Server Password Required,,10
                     if ErrorLevel

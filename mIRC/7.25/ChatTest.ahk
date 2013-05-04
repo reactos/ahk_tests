@@ -55,7 +55,12 @@ else
         }
         else
         {
-            ControlSetText, RichEdit20W1, I confirm that mIRC 7.25 is working on ReactOS, mIRC
+            revision := nGetRevisionNumber()
+            if (revision > 0)
+                szText = I confirm that mIRC 7.25 is working on ReactOS r%revision%
+            else
+                szText = I confirm that mIRC 7.25 is working on ReactOS
+            ControlSetText, RichEdit20W1, %szText%, mIRC
             if ErrorLevel
                 TestsFailed("Unable to set chat text in 'mIRC' window.")
             else
