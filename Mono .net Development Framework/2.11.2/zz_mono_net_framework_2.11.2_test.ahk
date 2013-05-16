@@ -26,6 +26,7 @@ params =
     1.install
     2.run_net_app
     3.compile_winforms
+    4.compile_console
 
 )
 
@@ -49,6 +50,10 @@ if CheckParam()
             else if 1 = 3.compile_winforms
             {
                 #include compile_winforms.ahk
+            }
+            else if 1 = 4.compile_console
+            {
+                #include compile_console.ahk
             }
         }
     }
