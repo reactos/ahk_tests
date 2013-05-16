@@ -75,20 +75,16 @@ else
                         TestsFailed("Unable to write to 'C:\setmonopath.bat'.")
                     else
                     {
-                        bTerminateProcess("cmd.exe")
-                        if bContinue
+                        Run, cmd.exe /c C:\setmonopath.bat, C:\,, cmdPID
+                        Process, WaitClose, %cmdPID%, 3
+                        if ErrorLevel <> 0
+                            TestsFailed("Process 'cmd.exe (PID: " cmdPID ")' failed to close.")
+                        else
                         {
-                            Run, C:\setmonopath.bat
-                            Process, WaitClose, cmd.exe, 5
-                            if ErrorLevel
-                                TestsFailed("'cmd.exe' process failed to close.")
+                            IfNotExist, C:\hello.exe
+                                TestsFailed("'C:\hello.exe' does NOT exist. Failed to compile?")
                             else
-                            {
-                                IfNotExist, C:\hello.exe
-                                    TestsFailed("'C:\hello.exe' does NOT exist. Failed to compile?")
-                                else
-                                    TestsOK("Compilation succeeded, because 'C:\hello.exe' exist.")
-                            }
+                                TestsOK("Compilation succeeded, because 'C:\hello.exe' exist.")
                         }
                     }
                 }
