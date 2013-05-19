@@ -124,13 +124,19 @@ else
             TestsFailed("'explorer.exe' process failed to start.")
         else
         {
-            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Notepad++
-            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Notepad++
-            IfExist, %A_AppData%\Notepad++
+            WinWaitActive, Program Manager,,3
+            if ErrorLevel
+                TestsFailed("'explorer.exe' process detected, but 'Program Manager' window failed to appear.")
+            else
             {
-                FileRemoveDir, %A_AppData%\Notepad++, 1
-                if ErrorLevel
-                    TestsFailed("Unable to delete '" A_AppData "\Notepad++'.")
+                RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Notepad++
+                RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Notepad++
+                IfExist, %A_AppData%\Notepad++
+                {
+                    FileRemoveDir, %A_AppData%\Notepad++, 1
+                    if ErrorLevel
+                        TestsFailed("Unable to delete '" A_AppData "\Notepad++'.")
+                }
             }
         }
 
