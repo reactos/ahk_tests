@@ -53,14 +53,16 @@ if bContinue
                         TestsFailed("Window 'Save As (File name)' failed to appear despite Ctrl+S being sent to '*new  1 - Notepad++' window.")
                     else
                     {
-                        ControlGetText, OutputVar, Edit1, Save As
+                        SendInput, !n ; Focus 'File name' field. Alt+N selects all text
+                        SendInput, ^c ; Ctrl+C aka Copy
+                        ClipWait, 2
                         if ErrorLevel
-                            TestsFailed("Unable to get 'File name' field content of 'Save As' dialog.")
+                            TestsFailed("Attempt to copy text from 'File name' field in 'Save As' window onto clipboard failed.")
                         else
                         {
                             szText = new  1
-                            IfNotInString, szText, %OutputVar%
-                                TestsFailed("Unexpected variable content. Is '" OutputVar "', should be '" szText "'.")
+                            IfNotInString, szText, %clipboard%
+                                TestsFailed("Unexpected variable content. Is '" clipboard "', should be '" szText "'.")
                             else
                                 TestsOK("Wrote some text in 'new  1 - Notepad++' window, sent Ctrl+S and 'Save As (File name)' window appeared.")
                         }
