@@ -28,6 +28,7 @@ params =
     3.OpenDocument
     4.Ctrl-F.FindDialog
     5.Send_Input
+    6.new_document
 
 )
 
@@ -59,6 +60,10 @@ if CheckParam()
             else if 1 = 5.Send_Input
             {
                 #include Send_Input.ahk
+            }
+            else if 1 = 6.new_document
+            {
+                #include new_document.ahk
             }
         }
     }
