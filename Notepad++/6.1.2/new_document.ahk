@@ -31,7 +31,8 @@ if bContinue
     {
         szWndContent = Extension test
         SendInput, %szWndContent%
-        IfWinNotActive, *new  1 - Notepad++
+        WinWaitActive, *new  1 - Notepad++,,3
+        if ErrorLevel
             TestsFailed("Window '*new  1 - Notepad++' is NOT active.")
         else
         {
