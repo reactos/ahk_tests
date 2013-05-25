@@ -22,7 +22,13 @@ TestsTotal++
 TestName = 6.new_document
 szDocument =  C:\Notepad_New_Doc.txt ; Case sensitive!
 
-RunNotepad("")
+
+if bContinue
+{
+    RunNotepad("")
+}
+
+TestsTotal++
 if bContinue
 {
     IfWinNotActive, new  1 - Notepad++
