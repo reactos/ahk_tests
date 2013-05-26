@@ -18,14 +18,18 @@
  */
 
 ; Type some text and test if 'Save As' dialog can appear
-TestsTotal++
 TestName = 2.SaveAsDesktop
 szDocument =  ; Case sensitive! [No file to open]
 
-RunNotepad(szDocument)
-if not bContinue
-    TestsFailed("We failed somewhere in prepare.ahk.")
-else
+
+if bContinue
+{
+    RunNotepad(szDocument)
+}
+
+
+TestsTotal++
+if bContinue
 {
     IfWinNotActive, new  1 - Notepad++
         TestsFailed("Window 'new  1 - Notepad++' is not active.")

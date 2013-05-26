@@ -18,7 +18,6 @@
  */
 
 ; Test if can create and save new document
-TestsTotal++
 TestName = 6.new_document
 szDocument =  C:\Notepad_New_Doc.txt ; Case sensitive!
 
@@ -27,6 +26,7 @@ if bContinue
 {
     RunNotepad("")
 }
+
 
 TestsTotal++
 if bContinue

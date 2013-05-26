@@ -18,48 +18,52 @@
  */
 
 ; Test if can create document, open it with Notepad++, delete text, write new one, save and exit
-TestsTotal++
 TestName = 3.OpenDocument
 szDocument =  %A_Desktop%\Notepad++Test.txt ; Case sensitive!
 
-FileAppend, One line.`nLine two`nLine 3, %szDocument%
-if ErrorLevel
-    TestsFailed("Failed to create '" szDocument "'.")
-else
+
+TestsTotal++
+if bContinue
 {
-    RunNotepad(szDocument)
-    if not bContinue
-        TestsFailed("We failed somewhere in prepare.ahk.")
+    FileAppend, One line.`nLine two`nLine 3, %szDocument%
+    if ErrorLevel
+        TestsFailed("Failed to create '" szDocument "'.")
     else
     {
-        IfWinNotActive, %szDocument% - Notepad++
-            TestsFailed("Window '" szDocument " - Notepad++' is not active.")
+        RunNotepad(szDocument)
+        if not bContinue
+            TestsFailed("We failed somewhere in prepare.ahk.")
         else
         {
-            SendInput, {CTRLDOWN}a{CTRLUP}{BACKSPACE}New text.
-            WinWaitActive, *%szDocument% - Notepad++,, 3 ; We were able to change text
-            if ErrorLevel
-                TestsFailed("Failed to change text.")
+            IfWinNotActive, %szDocument% - Notepad++
+                TestsFailed("Window '" szDocument " - Notepad++' is not active.")
             else
             {
-                SendInput, {CTRLDOWN}s{CTRLUP}
-                WinWaitActive, %szDocument% - Notepad++,, 3 ; We were able to save
+                SendInput, {CTRLDOWN}a{CTRLUP}{BACKSPACE}New text.
+                WinWaitActive, *%szDocument% - Notepad++,, 3 ; We were able to change text
                 if ErrorLevel
-                    TestsFailed("Failed to save.")
+                    TestsFailed("Failed to change text.")
                 else
                 {
-                    WinClose, %szDocument% - Notepad++,, 3
+                    SendInput, {CTRLDOWN}s{CTRLUP}
+                    WinWaitActive, %szDocument% - Notepad++,, 3 ; We were able to save
                     if ErrorLevel
-                        TestsFailed("Failed to close '" szDocument " - Notepad++' window.")
+                        TestsFailed("Failed to save.")
                     else
                     {
-                        iLines := FileCountLines(szDocument)
-                        if iLines <> 1
-                            TestsFailed("For some reason number of lines is wrong! Is '" iLines "' and should be '1'.")
+                        WinClose, %szDocument% - Notepad++,, 3
+                        if ErrorLevel
+                            TestsFailed("Failed to close '" szDocument " - Notepad++' window.")
                         else
                         {
-                            TestsOK("Created a document, opened it with Notepad++, entered some text, saved the doc, closed Notepad++.")
-                            FileDelete, %szDocument%
+                            iLines := FileCountLines(szDocument)
+                            if iLines <> 1
+                                TestsFailed("For some reason number of lines is wrong! Is '" iLines "' and should be '1'.")
+                            else
+                            {
+                                TestsOK("Created a document, opened it with Notepad++, entered some text, saved the doc, closed Notepad++.")
+                                FileDelete, %szDocument%
+                            }
                         }
                     }
                 }

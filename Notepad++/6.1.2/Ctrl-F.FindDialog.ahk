@@ -18,45 +18,48 @@
  */
 
 ; Test Ctrl-F 'Find' dialog
-
-TestsTotal++
 TestName = 4.Ctrl-F.FindDialog
 szDocument =  C:\NotepadTestFile.ini ; Case sensitive!
 
-FileDelete, %szDocument%
-FileAppend, This text`nwill contain some`nlines. We will use`nit to test dialogs., %szDocument%
-if ErrorLevel
-    TestsFailed("Failed to create '" szDocument "'.")
-else
+
+TestsTotal++
+if bContinue
 {
-    RunNotepad(szDocument)
-    IfWinNotActive, %szDocument% - Notepad++
-        TestsFailed("Window '" szDocument " - Notepad++' is not active.")
+    FileDelete, %szDocument%
+    FileAppend, This text`nwill contain some`nlines. We will use`nit to test dialogs., %szDocument%
+    if ErrorLevel
+        TestsFailed("Failed to create '" szDocument "'.")
     else
     {
-        SendInput, {CTRLDOWN}f{CTRLUP} ; Call dialog using Ctrl+F
-        WinWaitActive, Find,, 3
-        if ErrorLevel
-            TestsFailed("Window 'Find' failed to appear, so Ctrl+F doesn't work, bug #CORE-6112.")
+        RunNotepad(szDocument)
+        IfWinNotActive, %szDocument% - Notepad++
+            TestsFailed("Window '" szDocument " - Notepad++' is not active.")
         else
         {
-            TestFindDialog()
-            if bContinue
-                TestsOK("Ctrl+F works, found a match.")
-        }
+            SendInput, {CTRLDOWN}f{CTRLUP} ; Call dialog using Ctrl+F
+            WinWaitActive, Find,, 3
+            if ErrorLevel
+                TestsFailed("Window 'Find' failed to appear, so Ctrl+F doesn't work, bug #CORE-6112.")
+            else
+            {
+                TestFindDialog()
+                if bContinue
+                    TestsOK("Ctrl+F works, found a match.")
+            }
 
-        ; The window we need is still active, so, check if we can open 'Find' thru main menu
-        TestsTotal++
-        SendInput, {ALTDOWN}s ; Hit 'Search'
-        SendInput, f ; Hit 'Find'
-        WinWaitActive, Find,,3
-        if ErrorLevel
-            TestsFailed("Can't open 'Find' from main menu")
-        else
-        {
-            TestFindDialog()
-            if bContinue
-                TestsOK("Alt+S -> F works, found a match.")
+            ; The window we need is still active, so, check if we can open 'Find' thru main menu
+            TestsTotal++
+            SendInput, {ALTDOWN}s ; Hit 'Search'
+            SendInput, f ; Hit 'Find'
+            WinWaitActive, Find,,3
+            if ErrorLevel
+                TestsFailed("Can't open 'Find' from main menu")
+            else
+            {
+                TestFindDialog()
+                if bContinue
+                    TestsOK("Alt+S -> F works, found a match.")
+            }
         }
     }
 }
