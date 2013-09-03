@@ -53,13 +53,34 @@ if bContinue
                         TestsFailed("Unable to click addressbar in order to focus it.")
                     else
                     {
-                        SendInput, %szTestDir%{ENTER}
-                        SplitPath, szTestDir, szTestFolderName
-                        WinWaitActive, %szTestFolderName% - WinRAR (evaluation copy),,3
+                        clipboard = ; Empty the clipboard
+                        Send, ^c ; Ctrl+C
+                        ClipWait, 2
                         if ErrorLevel
-                            TestsFailed("Unable to enter address in addressbar? Because '" szTestFolderName " - WinRAR (evaluation copy)' failed to appear.")
+                            TestsFailed("The attempt to copy address bar text from '" szStartingFolder " - WinRAR (evaluation copy)' window onto the clipboard failed, despite addressbar being reported as active control.")
                         else
-                            TestsOK("Copied WinRAR.exe and navigated to '" szTestDir "'.")
+                        {
+                            clipboard = ; Empty the clipboard
+                            SendInput, %szTestDir% ; Enter the address
+                            ControlGetText, szAddressBarText, Edit1, %szStartingFolder% - WinRAR (evaluation copy)
+                            if ErrorLevel
+                                TestsFailed("There was problem with 'ControlGetText'.")
+                            else
+                            {
+                                if (szAddressBarText != szTestDir)
+                                    TestsFailed("Unexpected text (Is '" szAddressBarText "', should be '" szTestDir "').")
+                                else
+                                {
+                                    SendInput, {ENTER} ; Hit enter in Addressbar
+                                    SplitPath, szTestDir, szTestFolderName
+                                    WinWaitActive, %szTestFolderName% - WinRAR (evaluation copy),,3
+                                    if ErrorLevel
+                                        TestsFailed("Entered '" szTestDir "' as address in '" szStartingFolder " - WinRAR (evaluation copy)' window, but '" szTestFolderName " - WinRAR (evaluation copy)' failed to appear.")
+                                    else
+                                        TestsOK("Copied WinRAR.exe and navigated to '" szTestDir "' using addressbar.")
+                                }
+                            }
+                        }
                     }
                 }
             }
