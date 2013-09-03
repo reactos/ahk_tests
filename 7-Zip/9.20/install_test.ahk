@@ -196,19 +196,15 @@ if bContinue
         TestsFailed("'7-Zip 9.20 Setup (Installing)' window does not exist.")
     else
     {
-        WinActivate ; 7-Zip 9.20 Setup, Installing
-        szWndSpace := "7-Zip 9.20 Setup "
-        WinWaitActive, %szWndSpace%, Installing, 3
-        if ErrorLevel
-            TestsFailed("Unable to activate existing '7-Zip 9.20 Setup (Installing)' window.")
-        else
-        {
-            TestsInfo("'7-Zip 9.20 Setup (Installing)' window appeared, waiting for it to close.")
+        ; szWndSpace := "7-Zip 9.20 Setup "
+        ; Window becomes inactive. Normally, we want to activate all windows, but
+        ; this window appears only for a split of second when running test from SSD.
+        TestsInfo("'7-Zip 9.20 Setup (Installing)' window appeared, waiting for it to close.")
             
             iTimeOut := 20
             while iTimeOut > 0
             {
-                IfWinActive, 7-Zip 9.20 Setup, Installing
+                IfWinExist, 7-Zip 9.20 Setup, Installing
                 {
                     WinWaitClose, 7-Zip 9.20 Setup, Installing, 1
                     iTimeOut--
@@ -222,7 +218,6 @@ if bContinue
                 TestsFailed("'7-Zip 9.20 Setup (Installing)' window failed to close (iTimeOut=" iTimeOut ").")
             else
                 TestsOK("'7-Zip 9.20 Setup (Installing)' window closed (iTimeOut=" iTimeOut ").")
-        }
     }
 }
 
