@@ -357,7 +357,7 @@ TestsFailed(DebugText)
                 }
                 else
                 {
-                    if A_LastError = 0 ; szApp returns 0 in case of success and puts URL in clipboard
+                    if (A_LastError = 0) AND (clipboard != "") ; szApp returns 0 in case of success and puts URL in clipboard
                         TestsInfo("Successfully uploaded to: " clipboard ".")
                     else
                         TestsInfo("There were something wrong while running '" szApp "'.")
