@@ -62,51 +62,87 @@ else
                             if (szStatusText != szStatusExpected)
                             {
                                 if (szStatusText = "0 object(s) selected")
-                                    TestsFailed("Sent DOWN key to select the file, but got '0 object(s) selected', which could mean SysListView321 control was not focused on ReactOS when app started.")
+                                    TestsFailed("Sent DOWN key to select the file, but got '0 object(s) selected', which could mean SysListView321 control was not focused on ReactOS when app started. ReactOS is slower than Windows.")
                                 else
                                     TestsFailed("Sent DOWN key to select the file, but got unexpected text from statusbar. Is '" szStatusText "', should be '" szStatusExpected "'.")
                             }
                             else
-                            {
-                                SendInput !F ; Alt+F (File)
-                                SendInput {Right} ; 7-Zip -> Add to archive
-                                SendInput {Enter}
-                                WinWaitActive, Add to Archive,, 3
-                                if ErrorLevel
-                                    TestsFailed("'Add to Archive' window failed to appear.")
-                                else
-                                {
-                                    ControlClick, Button8, Add to Archive
-                                    if ErrorLevel
-                                        TestsFailed("Unable to click 'OK' button in 'Add to Archive' window.")
-                                    else
-                                    {
-                                        ; 'Compressing' window appears just too fast for WinWait...
-                                        iTimeOut := 1000
-                                        while (iTimeOut > 0)
-                                        {
-                                            IfExist, %A_ProgramFiles%\7-Zip\AHK_Test\SampleFile.7z
-                                                break
-                                            else
-                                            {
-                                                iTimeOut--
-                                                Sleep, 100
-                                            }
-                                        }
-
-                                        IfNotExist, %A_ProgramFiles%\7-Zip\AHK_Test\SampleFile.7z
-                                            TestsFailed("'" A_ProgramFiles "\7-Zip\AHK_Test\SampleFile.7z' doesn't exist (iTimeOut=" iTimeOut ").")
-                                        else
-                                        {
-                                            TestsOK("Created archive '" A_ProgramFiles "\7-Zip\AHK_Test\SampleFile.7z' successfully (iTimeOut=" iTimeOut ").") 
-                                            TerminateApplication() ; We don't care now if application can close correctly, so, terminate
-                                        }
-                                    }
-                                }
-                            }
+                                TestsOK("SysListView321 control was focused right away. Selected one file as statusbar text is '" szStatusText "'.")
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+
+if not bContinue
+{
+    ; Unable to select the file using DOWN arrow. Focus control and try again.
+    TestsTotal++
+    ControlFocus, SysListView321, %A_ProgramFiles%\7-Zip\AHK_Test
+    if ErrorLevel
+        TestsFailed("Unable to focus SysListView321 control using ControlFocus.")
+    else
+    {
+        TestsInfo("SysListView321 control is focused now, lets send DOWN key.")
+        SendInput {Down} ; We have only one file there, so hit down arrow to select that file
+        ControlGetText, szStatusText, msctls_statusbar321, %A_ProgramFiles%\7-Zip\AHK_Test
+        if ErrorLevel
+            TestsFailed("There was problem with 'ControlGetText'.")
+        else
+        {
+            szStatusExpected = 1 object(s) selected
+            if (szStatusText != szStatusExpected)
+            {
+                if (szStatusText = "0 object(s) selected")
+                    TestsFailed("Sent DOWN key to select the file, but got '0 object(s) selected', but SysListView321 control WAS focused.")
+                else
+                    TestsFailed("Sent DOWN key to select the file, but got unexpected text from statusbar. Is '" szStatusText "', should be '" szStatusExpected "'. SysListView321 control was focused.")
+            }
+            else
+                TestsOK("Had to focus SysListView321 control. Selected one file as statusbar text is '" szStatusText "'.")
+        }
+    }
+}
+
+
+TestsTotal++
+if bContinue
+{
+    SendInput !F ; Alt+F (File)
+    SendInput {Right} ; 7-Zip -> Add to archive
+    SendInput {Enter}
+    WinWaitActive, Add to Archive,, 3
+    if ErrorLevel
+        TestsFailed("'Add to Archive' window failed to appear.")
+    else
+    {
+        ControlClick, Button8, Add to Archive
+        if ErrorLevel
+            TestsFailed("Unable to click 'OK' button in 'Add to Archive' window.")
+        else
+        {
+            ; 'Compressing' window appears just too fast for WinWait...
+            iTimeOut := 1000
+            while (iTimeOut > 0)
+            {
+                IfExist, %A_ProgramFiles%\7-Zip\AHK_Test\SampleFile.7z
+                    break
+                else
+                {
+                    iTimeOut--
+                    Sleep, 100
+                }
+            }
+
+            IfNotExist, %A_ProgramFiles%\7-Zip\AHK_Test\SampleFile.7z
+                TestsFailed("'" A_ProgramFiles "\7-Zip\AHK_Test\SampleFile.7z' doesn't exist (iTimeOut=" iTimeOut ").")
+            else
+            {
+                TestsOK("Created archive '" A_ProgramFiles "\7-Zip\AHK_Test\SampleFile.7z' successfully (iTimeOut=" iTimeOut ").") 
+                TerminateApplication() ; We don't care now if application can close correctly, so, terminate
             }
         }
     }
