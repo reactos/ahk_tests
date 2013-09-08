@@ -89,39 +89,40 @@ if bContinue
                                     TestsFailed("'Mozilla Firefox Start Page - Mozilla Firefox' window failed to appear. '" ProcessExe "' process detected.")
                             }
                             else
-                            {
-                                TestsInfo("I was here.")
-                                WinWaitActive, Default Browser,,3 ; This shouldn't happen
-                                if not ErrorLevel
-                                {
-                                    TestsInfo("I was here 2.")
-                                    TestsFailed++ ; 'Default Browser' dialog appeared -> this is a failure
-                                    szDefaultBrowserBug = 4107
-                                    TestsInfo("'Default Browser' window appeared, but it shouldn't (#CORE-" szDefaultBrowserBug "?). Ignoring.")
-                                    TestsTotal++
-                                    SendInput, {ENTER} ; Hit 'Yes' in 'Default Browser' dialog
-                                    WinWaitClose, Default Browser,,3
-                                    if ErrorLevel
-                                        TestsFailed("'Default Browser' dialog appeared (when it shouldn't [#CORE-" szDefaultBrowserBug "?]) we sent ENTER to hit 'Yes' button, but dialog failed to close.")
-                                    else
-                                    {
-                                        TestsInfo("I was here 3.")
-                                        WinWaitActive, Mozilla Firefox Start Page - Mozilla Firefox,, 3
-                                        if ErrorLevel
-                                            TestsFailed("'Mozilla Firefox Start Page - Mozilla Firefox' window failed to appear despite 'Default Browser' (#CORE-" szDefaultBrowserBug "?) dialog was closed.")
-                                        else
-                                            TestsOK("Despite 'Default Browser' dialog appeared (when it shouldn't [#CORE-" szDefaultBrowserBug "?]), we managed to start Firefox.")
-                                    }
-                                }
-                                else
-                                    TestsOK("Everything went as expected.")
-                            }
+                                TestsOK("'Mozilla Firefox Start Page - Mozilla Firefox' window appeared.")
                         }
                     }
                 }
             }
         }
     }
+}
+
+
+if not bContinue
+{
+    TestsTotal++
+    WinWaitActive, Default Browser,,3 ; This shouldn't happen. 'Default Browser' dialog appeared -> this is a failure
+    if not ErrorLevel
+    {
+        szDefaultBrowserBug = 4107
+        TestsInfo("'Default Browser' window appeared, but it shouldn't (#CORE-" szDefaultBrowserBug "?). Ignoring.")
+        TestsTotal++
+        SendInput, {ENTER} ; Hit 'Yes' in 'Default Browser' dialog
+        WinWaitClose, Default Browser,,3
+        if ErrorLevel
+            TestsFailed("'Default Browser' dialog appeared (when it shouldn't [#CORE-" szDefaultBrowserBug "?]) we sent ENTER to hit 'Yes' button, but dialog failed to close.")
+        else
+        {
+            WinWaitActive, Mozilla Firefox Start Page - Mozilla Firefox,, 3
+            if ErrorLevel
+                TestsFailed("'Mozilla Firefox Start Page - Mozilla Firefox' window failed to appear despite 'Default Browser' (#CORE-" szDefaultBrowserBug "?) dialog was closed.")
+            else
+                TestsOK("Despite 'Default Browser' dialog appeared (when it shouldn't [#CORE-" szDefaultBrowserBug "?]), we managed to start Firefox.")
+        }
+    }
+    else
+        TestsOK("Everything went OK despite 'Default Browser' window appeared. 'Mozilla Firefox Start Page - Mozilla Firefox' window is active now.")
 }
 
 
