@@ -85,24 +85,36 @@ if bContinue
                 TestsFailed("Unable to enter '" A_Desktop "\new  1.txt' in 'File name' field in 'Save As' window.")
             else
             {
-                SendInput, !s ; Hit 'Save' in 'Save As' dialog
-                WinWaitClose, Save As,, 3
+                ControlGetText, szFileNameText, Edit1, Save As
                 if ErrorLevel
-                    TestsFailed("'Save As' dialog failed to close.")
+                    TestsFailed("There was problem with 'ControlGetText'.")
                 else
                 {
-                    WinWaitActive, %A_Desktop%\new  1.txt - Notepad++,, 3
-                    if ErrorLevel
-                        TestsFailed("'" A_Desktop "\new  1.txt - Notepad++' window is not active window.")
+                    szFileNameExpected = %A_Desktop%\new  1.txt
+                    if (szFileNameText != szFileNameExpected)
+                        TestsFailed("Unexpected text. Is '" szFileNameText "', should be '" szFileNameExpected "'.")
                     else
                     {
-                        szDocumentPath = %A_Desktop%\new  1.txt
-                        IfNotExist, %szDocumentPath%
-                            TestsFailed("File '" szDocumentPath "' does not exist, but it should.")
+                        SendInput, !s ; Hit 'Save' in 'Save As' dialog
+                        WinWaitClose, Save As,, 3
+                        if ErrorLevel
+                            TestsFailed("'Save As' dialog failed to close.")
                         else
                         {
-                            TestsInfo("'" szDocumentPath "' exist as it should.")
-                            bContinue := true
+                            WinWaitActive, %A_Desktop%\new  1.txt - Notepad++,, 3
+                            if ErrorLevel
+                                TestsFailed("'" A_Desktop "\new  1.txt - Notepad++' window is not active window.")
+                            else
+                            {
+                                szDocumentPath = %A_Desktop%\new  1.txt
+                                IfNotExist, %szDocumentPath%
+                                    TestsFailed("File '" szDocumentPath "' does not exist, but it should.")
+                                else
+                                {
+                                    TestsInfo("'" szDocumentPath "' exist as it should.")
+                                    bContinue := true
+                                }
+                            }
                         }
                     }
                 }
