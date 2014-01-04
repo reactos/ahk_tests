@@ -89,7 +89,7 @@ else
                             }
                             
                             if not bFound
-                                TestsFailed("The search image '" SearchImg "' could NOT be found on the screen (TimeOut=" TimeOut ").")
+                                TestsFailed("The search image '" SearchImg "' could NOT be found on the screen (TimeOut=" TimeOut "). #CORE-7734?")
                             else
                             {
                                 Process, Close, %MainAppFile%
