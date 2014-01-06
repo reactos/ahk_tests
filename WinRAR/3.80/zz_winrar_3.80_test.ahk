@@ -26,6 +26,7 @@ params =
     1.install
     2.ExtractPwdProtected
     3.add_archive
+    4.drag_and_drop
 
 )
 
@@ -49,6 +50,10 @@ if CheckParam()
             else if 1 = 3.add_archive
             {
                 #include add_archive.ahk
+            }
+            else if 1 = 4.drag_and_drop
+            {
+                #include drag_and_drop.ahk
             }
         }
     }
