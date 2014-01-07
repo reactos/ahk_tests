@@ -79,7 +79,8 @@ if bContinue
 
 ; Test if can drag and drop to shell
 TestsTotal++
-RunApplication(szArchiveFilename)
+if bContinue
+    RunApplication(szArchiveFilename)
 if bContinue
 {
     SplitPath, szArchiveFilename, NameExt
