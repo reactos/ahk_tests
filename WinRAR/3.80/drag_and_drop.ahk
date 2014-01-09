@@ -64,8 +64,8 @@ if bContinue
 TestsTotal++
 if bContinue
 {
-    SplitPath, szFileToArchive, NameExt
-    szDesktopFile = %A_Desktop%\%NameExt%
+    SplitPath, szFileToArchive, DocNameExt
+    szDesktopFile = %A_Desktop%\%DocNameExt%
     IfExist, %szDesktopFile%
     {
         FileDelete, %szDesktopFile%
@@ -91,53 +91,71 @@ if bContinue
     {
         ; Window appeared, we need to resize it, so, drop target is visible
         WinRestore
-        WinMove, %NameExt% - WinRAR (evaluation copy),, 0, 0, 150, 280 ; Move the window to the upper-left corner of the screen and resize it
+        WinMove, %NameExt% - WinRAR (evaluation copy),, 0, 0, 220, 280 ; Move the window to the upper-left corner of the screen and resize it
         ; We need to check if we are at right place, e.g. make sure if we are dragging what we are supposed to
         WinRARFileX := 20
-        WinRARFileY := 215
+        WinRARFileY := 197
         MouseMove, %WinRARFileX%, %WinRARFileY%
-        MouseGetPos, , , OutputHWND, ControlOverMouse
-        WinGetClass, WndClassName, ahk_id %OutputHWND%
-        WinRARClass = WinRarWindow
-        IfNotInString, WinRARClass, %WndClassName%
-            TestsFailed("Mouse cursor is not over window with a class name of '" WinRARClass "', but '" WndClassName "'.")
+        Click ; Select the file
+        clipboard = ; Clean the clipboard
+        SendInput, ^c ; Copy selected file to clipboard
+        ClipWait, 2
+        if ErrorLevel
+            TestsFailed("The attempt to copy file onto the clipboard failed.")
         else
         {
-            ; Window class is correct, now, lets check if cursor is under correct control
-            ControlName = SysListView321
-            IfNotInString, ControlName, %ControlOverMouse%
-                TestsFailed("Mouse cursor is not over WinRARs '" ControlName "' control, but '" ControlOverMouse "'.")
+            ; Now clipboard should contain something like this: C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\Rar$DR00.515\WinRAR_drag_and_drop.txt
+            IfNotInString, clipboard, %DocNameExt%
+                TestsFailed("Unexpected clipboard content: '" clipboard "'. Clipboard content should contain '" DocNameExt "'.")
             else
             {
-                ; OK, coordinates of WinRAR are good, now, find an empty place in Desktop
-                MouseMove, A_ScreenWidth - 1, 1
+                TestsInfo("Clipboard contains '" clipboard "' and thats very good.")
+                clipboard = ; Clean the clipboard
                 MouseGetPos, , , OutputHWND, ControlOverMouse
                 WinGetClass, WndClassName, ahk_id %OutputHWND%
-                DesktopClass = Progman
-                IfNotInString, DesktopClass, %WndClassName%
-                    TestsFailed("Mouse cursor is not over window with a class name of '" DesktopClass "', but '" WndClassName "'.")
+                WinRARClass = WinRarWindow
+                IfNotInString, WinRARClass, %WndClassName%
+                    TestsFailed("Mouse cursor is not over window with a class name of '" WinRARClass "', but '" WndClassName "'.")
                 else
                 {
+                    ; Window class is correct, now, lets check if cursor is under correct control
+                    ControlName = SysListView321
                     IfNotInString, ControlName, %ControlOverMouse%
-                        TestsFailed("Mouse cursor is not over Desktops '" ControlName "' control, but '" ControlOverMouse "'.")
+                        TestsFailed("Mouse cursor is not over WinRARs '" ControlName "' control, but '" ControlOverMouse "'.")
                     else
                     {
-                        MouseClickDrag, L, %WinRARFileX%, %WinRARFileY%, A_ScreenWidth - 1, 1
-                        Sleep, 500 ; Some sleep is required
-                        IfNotExist, %szDesktopFile%
-                            TestsFailed("Unable to drag&drop because '" szDesktopFile "' does NOT exist. Visual conditions were perfect. #CORE-3760?")
+                        ; OK, coordinates of WinRAR are good, now, find an empty place in Desktop
+                        MouseMove, A_ScreenWidth - 1, 1
+                        MouseGetPos, , , OutputHWND, ControlOverMouse
+                        WinGetClass, WndClassName, ahk_id %OutputHWND%
+                        DesktopClass = Progman
+                        IfNotInString, DesktopClass, %WndClassName%
+                            TestsFailed("Mouse cursor is not over window with a class name of '" DesktopClass "', but '" WndClassName "'.")
                         else
                         {
-                            ; Seems we can drag and drop, lets make sure file contents are correct
-                            FileReadLine, FileContents, %szDesktopFile%, 1
-                            if ErrorLevel
-                                TestsFailed("Failure reading existing '" szDesktopFile "'.")
+                            IfNotInString, ControlName, %ControlOverMouse%
+                                TestsFailed("Mouse cursor is not over Desktops '" ControlName "' control, but '" ControlOverMouse "'.")
                             else
                             {
-                                IfNotInString, szFileText, %FileContents%
-                                    TestsFailed("Unexpected '" szDesktopFile "' contents. Is '" FileContents "', should be '" szFileText "'.")
+                                Click A_ScreenWidth - 1, 1 ; Click somewhere else or MouseClickDrag will cause double-click
+                                MouseClickDrag, L, %WinRARFileX%, %WinRARFileY%, A_ScreenWidth - 1, 1
+                                Sleep, 500 ; Some sleep is required
+                                IfNotExist, %szDesktopFile%
+                                    TestsFailed("Unable to drag&drop because '" szDesktopFile "' does NOT exist. Visual conditions were perfect. #CORE-3760?")
                                 else
-                                    TestsOK("Drag and drop works.")
+                                {
+                                    ; Seems we can drag and drop, lets make sure file contents are correct
+                                    FileReadLine, FileContents, %szDesktopFile%, 1
+                                    if ErrorLevel
+                                        TestsFailed("Failure reading existing '" szDesktopFile "'.")
+                                    else
+                                    {
+                                        IfNotInString, szFileText, %FileContents%
+                                            TestsFailed("Unexpected '" szDesktopFile "' contents. Is '" FileContents "', should be '" szFileText "'.")
+                                        else
+                                            TestsOK("Drag and drop works.")
+                                    }
+                                }
                             }
                         }
                     }
