@@ -6,7 +6,7 @@ WinGetTitle, ActiveWndTitle, A
 WinGetText, ActiveWndText, %ActiveWndTitle%
 ControlGetFocus, FocusedName, %ActiveWndTitle%
 ControlGetText, FocusedText, %FocusedName%, %ActiveWndTitle%
-MsgBox, ActiveWnd: %ActiveWndTitle% `nFocused: %FocusedText% `nText: %ActiveWndText%
+MsgBox, ActiveWnd: "%ActiveWndTitle%" `nFocused: %FocusedText% `nText: %ActiveWndText%
  
  
 ; This example allows you to move the mouse around to see
@@ -24,5 +24,5 @@ ControlGet, ControlHwnd, Hwnd,, %control%, A
 PixelGetColor, color, %OutputVarX%, %OutputVarY%
 SetTitleMatchMode, 2
 IfWinNotActive, Notepad
-    ToolTip, ahk_id %id%`nahk_class %class%`n%title%`nControl: %control%`nControlText: %FocusedText%`nMousePos: %OutputVarX%x%OutputVarY%`nColor: %color%
+    ToolTip, ahk_id %id%`n ahk_class %class%`n WinTitle: "%title%"`n Control: %control%`n HWND: %ControlHwnd%`n ControlText: %FocusedText%`n MousePos: %OutputVarX%x%OutputVarY%`n Color: %color%
 return
