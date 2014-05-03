@@ -19,8 +19,9 @@
 
 TestName = 2.GoToPage
 szDocument =  %A_WorkingDir%\Media\Book.pdf ; Case sensitive!
+iPageNumber = 29
 
-; Test if can open PDF document, go to page 29, close document, exit Universal Viewer.
+; Test if can open PDF document, go to page iPageNumber, close document, exit Universal Viewer.
 TestsTotal++
 RunApplication(szDocument)
 if bContinue
@@ -30,7 +31,7 @@ if bContinue
         TestsFailed("Window '" NameExt " - Universal Viewer (slister)' failed to appear.")
     else
     {
-        ControlSetText, Edit1, 29, %NameExt% - Universal Viewer (slister) ; Set page number to 29
+        ControlSetText, Edit1, %iPageNumber%, %NameExt% - Universal Viewer (slister) ; Set page number
         if ErrorLevel
             TestsFailed("Unable to enter 'Page' number in '" NameExt " - Universal Viewer (slister)' window.")
         else
@@ -40,48 +41,62 @@ if bContinue
                 TestsFailed("Unable to click 'Page' number in '" NameExt " - Universal Viewer (slister)' window.")
             else
             {
-                SendInput, {ENTER} ; Hit enter to actually go to page
-                ; Sleep, 2000 ; Load page properly before searching for image on the screen
-                ; FIXME: test might work only on 800x600 screen resolution on themeless system
-                ; Need to find a way to show PDF in actual size
-                SearchImg = %A_WorkingDir%\Media\BookPage29Img800x600.jpg
-
-                IfNotExist, %SearchImg%
-                    TestsFailed("Can NOT find '" SearchImg "'.")
+                clipboard = ; Clean the clipboard
+                SendInput, ^a ; Ctrl+A aka Select All. Select all text from 'Page' field
+                SendInput, ^c ; Ctrl+C aka Copy
+                ClipWait, 2
+                if ErrorLevel
+                    TestsFailed("The attempt to copy text onto the clipboard failed.")
                 else
                 {
-                    ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, *14 %SearchImg%
-                    if ErrorLevel = 2
-                        TestsFailed("Could not conduct the ImageSearch ('" SearchImg "' exist).")
-                    else if ErrorLevel = 1
-                        TestsFailed("The search image '" SearchImg "' could NOT be found on the screen (resolution not 800x600?).")
+                    IfNotInString, iPageNumber, %clipboard%
+                        TestsFailed("Unexpected clipboard content. Is '" clipboard "', should be '" iPageNumber "'.")
                     else
                     {
-                        SendInput, {Alt}f ; Close document. WinMenuSelectItem doesn't work here. Don't use '!f' either, because it fails on Windows
-                        SendInput, c
-                        WinWaitActive, Universal Viewer, File not loaded, 5
-                        if ErrorLevel
-                            TestsFailed("Window 'Universal Viewer (File not loaded)' failed to appear.")
+                        SendInput, {ENTER} ; Hit enter to actually go to page
+                        ; Sleep, 2000 ; Load page properly before searching for image on the screen
+                        ; FIXME: test might work only on 800x600 screen resolution on themeless system
+                        ; Need to find a way to show PDF in actual size
+                        SearchImg = %A_WorkingDir%\Media\BookPage29Img800x600.jpg
+
+                        IfNotExist, %SearchImg%
+                            TestsFailed("Can NOT find '" SearchImg "'.")
                         else
                         {
-                            WinClose, Universal Viewer, File not loaded
-                            WinWaitClose, Universal Viewer, File not loaded, 7
-                            if ErrorLevel
-                                TestsFailed("Window 'Universal Viewer (File not loaded)' failed to close.")
+                            ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, *14 %SearchImg%
+                            if ErrorLevel = 2
+                                TestsFailed("Could not conduct the ImageSearch ('" SearchImg "' exist).")
+                            else if ErrorLevel = 1
+                                TestsFailed("The search image '" SearchImg "' could NOT be found on the screen (resolution not 800x600?).")
                             else
                             {
-                                Process, WaitClose, SumatraPDF.exe, 4
+                                SendInput, {Alt}f ; Close document. WinMenuSelectItem doesn't work here. Don't use '!f' either, because it fails on Windows
+                                SendInput, c
+                                WinWaitActive, Universal Viewer, File not loaded, 5
                                 if ErrorLevel
-                                {
-                                    Process, Close, SumatraPDF.exe
-                                    Process, WaitClose, SumatraPDF.exe, 4
-                                    if ErrorLevel
-                                        TestsFailed("Unable to terminate 'SumatraPDF.exe' process.")
-                                    else
-                                        TestsFailed("'SumatraPDF.exe' process failed to close on its own, so, we had to terminate it.")
-                                }
+                                    TestsFailed("Window 'Universal Viewer (File not loaded)' failed to appear.")
                                 else
-                                    TestsOK("Found image on the screen, so, page 29 was displayed correctly. Document and application closed successfully.")
+                                {
+                                    WinClose, Universal Viewer, File not loaded
+                                    WinWaitClose, Universal Viewer, File not loaded, 7
+                                    if ErrorLevel
+                                        TestsFailed("Window 'Universal Viewer (File not loaded)' failed to close.")
+                                    else
+                                    {
+                                        Process, WaitClose, SumatraPDF.exe, 6
+                                        if ErrorLevel
+                                        {
+                                            Process, Close, SumatraPDF.exe
+                                            Process, WaitClose, SumatraPDF.exe, 4
+                                            if ErrorLevel
+                                                TestsFailed("Unable to terminate 'SumatraPDF.exe' process.")
+                                            else
+                                                TestsFailed("'SumatraPDF.exe' process failed to close on its own, so, we had to terminate it.")
+                                        }
+                                        else
+                                            TestsOK("Found image on the screen, so, page " iPageNumber " was displayed correctly. Document and application closed successfully.")
+                                    }
+                                }
                             }
                         }
                     }
