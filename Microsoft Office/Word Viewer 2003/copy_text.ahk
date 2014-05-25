@@ -43,8 +43,11 @@ if bContinue
         {
             szExpected = Hello from Word document.
             clipboard = ; clean
+            TestsInfo("Cleaned clipboard contents.")
             SendInput, ^a ; Ctrl+A aka select all
+            TestsInfo("About to send Ctrl+C")
             SendInput, ^c ; Ctrl+C aka copy
+            TestsInfo("Send Ctrl+C successfully")
             ClipWait, 2
             if ErrorLevel
                 TestsFailed("Sent Ctrl+A and Ctrl+C to '" szWndCaption "' window, but copied nothing.")
