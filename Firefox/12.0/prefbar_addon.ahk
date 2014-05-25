@@ -46,7 +46,7 @@ else
                 TestsFailed("Unable to copy text into clipboard. Unable to focus 'Search all add-ons' field?")
             else
             {
-                IfNotInString, szSearchTerm, %clipboard%
+                IfNotInString, clipboard, %szSearchTerm%
                     TestsFailed("Clipboard is expected to have '" szSearchTerm "', but it holds '" clipboard "'.")
                 else
                 {

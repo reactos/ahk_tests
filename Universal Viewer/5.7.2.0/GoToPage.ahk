@@ -49,7 +49,7 @@ if bContinue
                     TestsFailed("The attempt to copy text onto the clipboard failed.")
                 else
                 {
-                    IfNotInString, iPageNumber, %clipboard%
+                    IfNotInString, clipboard, %iPageNumber%
                         TestsFailed("Unexpected clipboard content. Is '" clipboard "', should be '" iPageNumber "'.")
                     else
                     {

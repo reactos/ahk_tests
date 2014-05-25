@@ -179,7 +179,7 @@ EnterURL(TheURL)
             TestsFailed("The attempt to copy text onto the clipboard failed when entering '" TheURL "'. Unable to focus address bar?")
         else
         {
-            IfNotInString, TheURL, %clipboard%
+            IfNotInString, clipboard, %TheURL%
                 TestsFailed("Entered URL to addressbar, copied it and clipboard content is wrong. Is '" clipboard "', should be '" TheURL "'.")
             else
             {

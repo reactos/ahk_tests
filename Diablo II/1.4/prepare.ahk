@@ -128,7 +128,7 @@ RunApplication()
                         TestsFailed("RunApplication(): The attempt to copy text onto the clipboard failed.")
                     else
                     {
-                        IfNotInString, PlayerName, %clipboard%
+                        IfNotInString, clipboard, %PlayerName%
                             TestsFailed("Unexpected clipboard content. Is '" clipboard "', should be '" PlayerName "'.")
                         else
                         {

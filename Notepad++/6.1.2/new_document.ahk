@@ -50,7 +50,7 @@ if bContinue
                 TestsFailed("Attempt to copy text from '*new  1 - Notepad++' window onto clipboard failed.")
             else
             {
-                IfNotInString, szWndContent, %clipboard%
+                IfNotInString, clipboard, %szWndContent%
                     TestsFailed("Unexpected clipboard content. Is '" clipboard "', should be '" szWndContent "'.")
                 else
                 {
@@ -68,7 +68,7 @@ if bContinue
                         else
                         {
                             szText = new  1
-                            IfNotInString, szText, %clipboard%
+                            IfNotInString, clipboard, %szText%
                                 TestsFailed("Unexpected variable content. Is '" clipboard "', should be '" szText "'.")
                             else
                                 TestsOK("Wrote some text in 'new  1 - Notepad++' window, sent Ctrl+S and 'Save As (File name)' window appeared.")
@@ -101,7 +101,7 @@ if bContinue
         else
         {
             szText = new  1
-            IfNotInString, szText, %clipboard%
+            IfNotInString, clipboard, %szText%
                 TestsFailed("Unexpected clipboard content. Is '" clipboard "', should be '" szText "'. Unable to focus 'File name' field with Alt+N?")
             else
             {
@@ -115,7 +115,7 @@ if bContinue
                     TestsFailed("Attempt to copy text from 'Save As (File name)' window onto clipboard failed after typing address.")
                 else
                 {
-                    IfNotInString, szPath, %clipboard%
+                    IfNotInString, clipboard, %szPath%
                         TestsFailed("Unexpected clipboard content. Is '" clipboard "', should be '" szPath "'. Unable to focus 'File name' field with Alt+N?")
                     else
                     {

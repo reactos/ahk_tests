@@ -50,7 +50,7 @@ if bContinue
                 TestsFailed("Sent Ctrl+A and Ctrl+C to '" szWndCaption "' window, but copied nothing.")
             else
             {
-                IfNotInString, szExpected, %clipboard%
+                IfNotInString, clipboard, %szExpected%
                     TestsFailed("Sent Ctrl+A and Ctrl+C to '" szWndCaption "' window, but got unexpected results. Is '" clipboard "', should be '" szExpected "'.")
                 else
                     TestsOK("Sent Ctrl+A and Ctrl+C to '" szWndCaption "' window and succeeded copying text to the clipboard.")
