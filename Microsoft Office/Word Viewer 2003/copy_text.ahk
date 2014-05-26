@@ -47,12 +47,13 @@ if bContinue
             SendInput, ^a ; Ctrl+A aka select all
             TestsInfo("About to send Ctrl+C")
             SendInput, ^c ; Ctrl+C aka copy
-            TestsInfo("Send Ctrl+C successfully")
+            TestsInfo("Sent Ctrl+C successfully")
             ClipWait, 2
             if ErrorLevel
                 TestsFailed("Sent Ctrl+A and Ctrl+C to '" szWndCaption "' window, but copied nothing.")
             else
             {
+                TestsInfo("About to check if strings matches")
                 IfNotInString, clipboard, %szExpected%
                     TestsFailed("Sent Ctrl+A and Ctrl+C to '" szWndCaption "' window, but got unexpected results. Is '" clipboard "', should be '" szExpected "'.")
                 else
