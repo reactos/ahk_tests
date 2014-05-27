@@ -51,6 +51,8 @@ if bContinue
             ClipWait, 2
             if ErrorLevel
                 TestsFailed("Sent Ctrl+A and Ctrl+C to '" szWndCaption "' window, but copied nothing.")
+            else if clipboard =
+                TestsFailed("Sent Ctrl+A and Ctrl+C to '" szWndCaption "' window, but nothing was copied.")
             else
             {
                 TestsInfo("About to check if strings matches")
