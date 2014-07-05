@@ -32,7 +32,6 @@ params =
     7.launch_widget
     8.search_bar
     9.connect_irc
-    10.view_source
 
 )
 
@@ -80,10 +79,6 @@ if CheckParam()
             else if 1 = 9.connect_irc
             {
                 #include connect_irc.ahk
-            }
-            else if 1 = 10.view_source
-            {
-                #include view_source.ahk
             }
         }
     }
