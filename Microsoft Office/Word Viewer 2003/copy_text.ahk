@@ -19,13 +19,13 @@
 
 TestName = 2.copy_text
 szDocument =  %A_WorkingDir%\Media\Microsoft Word 2003 Doc.doc ; Case sensitive!
+szExpected = Hello from Word document.
 
-; Test if can open Word document and copy text from it to clipboard
+; Test if window is active
 TestsTotal++
 RunApplication(szDocument)
 if bContinue
 {
-
     RegRead, bHideExt, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced, HideFileExt
     if ErrorLevel
         TestsFailed("Unable to read 'HideFileExt' in 'HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced'.")
@@ -40,27 +40,65 @@ if bContinue
         if ErrorLevel
             TestsFailed("Window '" szWndCaption "' failed to appear.")
         else
+          TestsOK("Active window '" szWndCaption "'.")
+    }
+}
+
+
+; Test if can open Word document and copy text from it to clipboard using keyboard shortcuts
+TestsTotal++
+if bContinue
+{
+    IfWinNotActive, %szWndCaption%
+        TestsFailed("Window '" szWndCaption "' is not active.")
+    else
+    {
+        clipboard = ; clean
+        TestsInfo("Cleaned clipboard contents.")
+        SendInput, ^a ; Ctrl+A aka select all
+        TestsInfo("About to send Ctrl+C")
+        SendInput, ^c ; Ctrl+C aka copy
+        TestsInfo("Sent Ctrl+C successfully")
+        ClipWait, 2
+        if ErrorLevel
+            TestsFailed("Sent Ctrl+A and Ctrl+C to '" szWndCaption "' window, but copied nothing.")
+        else if clipboard =
+            TestsFailed("Sent Ctrl+A and Ctrl+C to '" szWndCaption "' window, but nothing was copied.")
+        else
         {
-            szExpected = Hello from Word document.
-            clipboard = ; clean
-            TestsInfo("Cleaned clipboard contents.")
-            SendInput, ^a ; Ctrl+A aka select all
-            TestsInfo("About to send Ctrl+C")
-            SendInput, ^c ; Ctrl+C aka copy
-            TestsInfo("Sent Ctrl+C successfully")
-            ClipWait, 2
-            if ErrorLevel
-                TestsFailed("Sent Ctrl+A and Ctrl+C to '" szWndCaption "' window, but copied nothing.")
-            else if clipboard =
-                TestsFailed("Sent Ctrl+A and Ctrl+C to '" szWndCaption "' window, but nothing was copied.")
+            TestsInfo("About to check if strings matches")
+            IfNotInString, clipboard, %szExpected%
+                TestsFailed("Sent Ctrl+A and Ctrl+C to '" szWndCaption "' window, but got unexpected results. Is '" clipboard "', should be '" szExpected "'.")
             else
-            {
-                TestsInfo("About to check if strings matches")
-                IfNotInString, clipboard, %szExpected%
-                    TestsFailed("Sent Ctrl+A and Ctrl+C to '" szWndCaption "' window, but got unexpected results. Is '" clipboard "', should be '" szExpected "'.")
-                else
-                    TestsOK("Sent Ctrl+A and Ctrl+C to '" szWndCaption "' window and succeeded copying text to the clipboard.")
-            }
+                TestsOK("Sent Ctrl+A and Ctrl+C to '" szWndCaption "' window and succeeded copying text to the clipboard.")
+        }
+    }
+}
+
+
+; Test if can copy using right-click 'Copy'
+TestsTotal++
+if bContinue
+{
+    IfWinNotActive, %szWndCaption%
+        TestsFailed("Window '" szWndCaption "' is not active.")
+    else
+    {
+        clipboard = ; clean
+        TestsInfo("Cleaned clipboard contents.")
+        Click right 70, 100 ; Right click on left upper side of the window so 'Copy' is active
+        Sleep, 300 ; Wait for popup menu to appear
+        SendInput, c ; Click 'Copy'
+        ClipWait, 2
+        if ErrorLevel or clipboard =
+            TestsFailed("Copying text using right-click 'Copy' does NOT work.")
+        else
+        {
+            TestsInfo("About to check if strings matches")
+            IfNotInString, clipboard, %szExpected%
+                TestsFailed("Right-click, then c in '" szWndCaption "' window returned unexpected results. Is '" clipboard "', should be '" szExpected "'.")
+            else
+                TestsOK("Copying text using right-click 'Copy' works (right-click then c).")
         }
     }
 }
