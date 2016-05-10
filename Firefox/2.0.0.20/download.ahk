@@ -18,7 +18,7 @@
  */
 
 TestName = 3.download
-szURL = http://iso.reactos.org/livecd/livecd-58112-dbg.7z
+szURL = http://iso.reactos.org/livecd/livecd-71187-dbg.7z
 SplitPath, szURL, szFileName
 szDownloadTo = %A_Desktop%\%szFileName% ; Desktop is our download dir. See prepare.ahk
 
