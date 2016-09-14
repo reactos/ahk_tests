@@ -1,6 +1,6 @@
-file(GLOB EXTRA_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/AHK-Tests/ ${CMAKE_CURRENT_SOURCE_DIR}/AHK-Tests/*_test.exe)
+file(GLOB EXTRA_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/Tests/ ${CMAKE_CURRENT_SOURCE_DIR}/Tests/*_test.exe)
 foreach(item ${EXTRA_FILES})
-    add_cd_file(FILE ${CMAKE_CURRENT_SOURCE_DIR}/AHK-Tests/${item} DESTINATION AHK-Tests NO_CAB NAME_ON_CD ${item} FOR bootcd regtest)
+    add_cd_file(FILE ${CMAKE_CURRENT_SOURCE_DIR}/Tests/${item} DESTINATION AHK-Tests NO_CAB NAME_ON_CD ${item} FOR bootcd regtest)
 endforeach(item)
 #removed and fetched from SVN as a temporary mesure
 #add_cd_file(FILE ${CMAKE_CURRENT_SOURCE_DIR}/AHK-Tests/rosautotest.exe DESTINATION reactos/system32 FOR bootcd regtest)

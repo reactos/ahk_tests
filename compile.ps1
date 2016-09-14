@@ -1,7 +1,7 @@
 [CmdletBinding()]
 Param(
     [string]$Ahk2Exe = ".\Compiler\ahk2exe.exe",
-    [string]$OutDir = ".\AHK-Tests"
+    [string]$OutDir = ".\Tests"
 )
 
 if (!(Test-Path $Ahk2Exe))

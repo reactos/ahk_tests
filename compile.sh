@@ -8,8 +8,8 @@ read -p "Setup checks done. Press enter to start build."
 TESTSLIST=$( find . -name zz\*.ahk -exec $WINE winepath -w {} \; )
 # avoids being bothered by spaces in file names
 IFS=$(echo -en "\n\b")
-# build all the tests and copy them to AHK-Tests/ directory
+# build all the tests and copy them to Tests/ directory
 for TEST in $TESTSLIST ; do
   "$WINE" Compiler/Ahk2Exe.exe /in "$TEST" /out "${TEST%.ahk}.exe"
 done
-find . -wholename ./AHK-Tests -prune -o -name zz_*test.exe -exec cp -a {} AHK-Tests/ \;
+find . -wholename ./Tests -prune -o -name zz_*test.exe -exec cp -a {} Tests/ \;
