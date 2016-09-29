@@ -12,4 +12,4 @@ IFS=$(echo -en "\n\b")
 for TEST in $TESTSLIST ; do
   "$WINE" Compiler/Ahk2Exe.exe /in "$TEST" /out "${TEST%.ahk}.exe"
 done
-find . -wholename ./Tests -prune -o -name zz_*test.exe -exec cp -a {} Tests/ \;
+find . -wholename ./Tests -prune -o -name zz_*test.exe -exec mv {} Tests/ \;
