@@ -24,7 +24,7 @@ params =
 (
 
     1.install
-    2.compile_code
+    ;2.compile_code FIXME: Inspect Ahkbot timeout
 
 )
 
