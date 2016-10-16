@@ -18,7 +18,7 @@
  */
 
 TestName = 2.play_wav
-szDocument =  %A_WorkingDir%\Media\ReactOS_LogOn.wav ; Case insensitive
+szDocument =  %A_WinDir%\Media\ReactOS_LogOn.wav ; Case insensitive
 
 ; Test if can play wav and exit application
 TestsTotal++
