@@ -1,5 +1,6 @@
 #!/bin/bash
 # detect wine and AHK compiler
+cd $(dirname "$0") # WHERE ARE THEY ??
 if [ x"$WINE"x == "xx" ] ; then WINE=$(which wine) ; fi
 if [  ! -x "$WINE" ] ; then echo Wine was not found in path, please install or set WINE variable. ; exit 1; fi
 if [ ! -f Compiler/Ahk2Exe.exe ] ; then echo Please add AHK compiler here ; exit 1 ; fi
