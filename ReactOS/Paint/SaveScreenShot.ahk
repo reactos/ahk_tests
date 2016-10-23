@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-TestName = 2.SaveScreenShot
+TestName = 1.SaveScreenShot
 
 ; Test if can take screenshot and save it to desktop (bug #CORE-6093)
 TestsTotal++
