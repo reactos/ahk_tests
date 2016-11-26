@@ -278,10 +278,10 @@ if bContinue
         TestsFailed("'Mozilla Firefox Setup (Completing)' window failed to appear.")
     else
     {
-        SendInput, !l ; Uncheck 'Lounch Firefox now'
+        SendInput, !l ; Uncheck 'Launch Firefox now'
         ControlGet, bChecked, Checked,, Button4
         if bChecked = 1
-            TestsFailed("Alt+L was sent to uncheck 'Lounch Firefox now' checkbox in 'Mozilla Firefox Setup (Completing)' window, but further inspection proves that it was still checked.")
+            TestsFailed("Alt+L was sent to uncheck 'Launch Firefox now' checkbox in 'Mozilla Firefox Setup (Completing)' window, but further inspection proves that it was still checked.")
         else
         {
             SendInput, !f ; Hit 'Finish' button
