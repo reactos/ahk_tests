@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloWorldNET", "HelloWorldNET\HelloWorldNET.csproj", "{CA8075A4-0D94-4077-BA01-F65225C9E09B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CA8075A4-0D94-4077-BA01-F65225C9E09B}.Debug|x86.ActiveCfg = Release|x86
+		{CA8075A4-0D94-4077-BA01-F65225C9E09B}.Debug|x86.Build.0 = Release|x86
+		{CA8075A4-0D94-4077-BA01-F65225C9E09B}.Release|x86.ActiveCfg = Release|x86
+		{CA8075A4-0D94-4077-BA01-F65225C9E09B}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
