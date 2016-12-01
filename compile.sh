@@ -9,7 +9,15 @@ TESTSLIST=$( find . -name zz\*.ahk -exec $WINE winepath -w {} \; )
 # avoids being bothered by spaces in file names
 IFS=$(echo -en "\n\b")
 # build all the tests and copy them to Tests/ directory
+rm -f ${HOME}/.wine/dosdevices/a:
+ln -s ${PWD} ${HOME}/.wine/dosdevices/a:
+echo "@echo off"> /tmp/build$$.bat
 for TEST in $TESTSLIST ; do
-  "$WINE" Compiler/Ahk2Exe.exe /in "$TEST" /out "${TEST%.ahk}.exe"
+  "$WINE" cmd /c echo Compiler\\Ahk2Exe.exe /in "$TEST" /out "${TEST%.ahk}.exe" \>\> Z:\\tmp\\build$$.bat
+  "$WINE" cmd /c echo if errorlevel 1 exit \>\>Z:\\tmp\\build$$.bat
 done
+  "$WINE" cmd /c Z:\\tmp\\build$$.bat
+GetLastError=$?
+rm -f /tmp/build$$.bat
+if [ $GetLastError -ne 0 ] ; then exit $GetLastError ; fi
 find . -wholename ./Tests -prune -o -name zz_*test.exe -exec mv {} Tests/ \;
