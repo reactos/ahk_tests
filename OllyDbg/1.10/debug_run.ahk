@@ -43,7 +43,14 @@ else
                 TestsFailed("Unable to hit 'Debug -> Run' in 'OllyDbg - " NameExt "' window.")
             else
             {
-                WinWaitActive, Calculator,,5
+                WinWaitActive, ReactOS Calculator,,5
+                if not ErrorLevel
+                    WindowTitle = ReactOS Calculator
+                else
+                {
+                    WindowTitle = Calculator
+                    WinWaitActive,Calculator,,5
+                }
                 if ErrorLevel
                 {
                     Process, Exist, %NameExt%
@@ -55,8 +62,8 @@ else
                 }
                 else
                 {
-                    WinClose, Calculator
-                    WinWaitClose, Calculator,, 3
+                    WinClose, %WindowTitle%
+                    WinWaitClose, %WindowTitle%,, 3
                     if ErrorLevel
                         TestsFailed("'Calculator' window failed to close.")
                     else
