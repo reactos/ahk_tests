@@ -18,8 +18,8 @@
  */
 
 TestName = 3.Download
-szURL = http://iso.reactos.org/livecd/livecd-57637-rel.7z
-ExpectedSize := 22672499 ; File size of szURL in bytes
+szURL = https://iso.reactos.org/temp/RosDbg.msi
+ExpectedSize := 1574400 ; File size of szURL in bytes
 
 ; Test if we can download some file
 TestsTotal++
