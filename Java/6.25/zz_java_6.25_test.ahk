@@ -25,6 +25,7 @@ params =
 
     1.install
     2.run_java_gui_app
+    3.stop_jqs
 
 )
 
@@ -43,6 +44,10 @@ if CheckParam()
             if 1 = 2.run_java_gui_app
             {
                 #include run_java_gui_app.ahk
+            }
+            else if 1 = 3.stop_jqs
+            {
+                #include stop_jqs.ahk
             }
         }
     }
