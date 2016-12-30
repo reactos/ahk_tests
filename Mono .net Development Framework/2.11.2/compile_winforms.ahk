@@ -70,7 +70,8 @@ else
                     TestsFailed("Can NOT copy '" InstalledDir "\bin\setmonopath.bat' to 'C:\setmonopath.bat'.")
                 else
                 {
-                    FileAppend, cd c:\`nmcs hello.cs -pkg:dotnet, C:\setmonopath.bat
+                    TestsInfo("Workaround for CORE-12604.")
+                    FileAppend, cd c:\`nmcs.exe hello.cs -pkg:dotnet, C:\setmonopath.bat
                     if ErrorLevel
                         TestsFailed("Unable to write to 'C:\setmonopath.bat'.")
                     else

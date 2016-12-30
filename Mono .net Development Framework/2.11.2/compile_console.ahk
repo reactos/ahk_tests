@@ -58,7 +58,8 @@ if bContinue
                     TestsFailed("Can NOT copy '" InstalledDir "\bin\setmonopath.bat' to 'C:\setmonopath.bat'.")
                 else
                 {
-                    FileAppend, cd c:\`nmcs %szSourceFile%, C:\setmonopath.bat
+                    TestsInfo("Workaround for CORE-12604.")
+                    FileAppend, cd c:\`nmcs.exe %szSourceFile%, C:\setmonopath.bat
                     if ErrorLevel
                         TestsFailed("Unable to write to 'C:\setmonopath.bat'.")
                     else
