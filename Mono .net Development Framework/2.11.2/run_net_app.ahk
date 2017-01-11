@@ -18,7 +18,7 @@
  */
 
 TestName = 2.run_net_app
-szDocument = %A_WorkingDir%\Apps\HelloWorldNET.exe
+szDocument = %A_WorkingDir%\Media\HelloWorldNET.exe
 
 ; Test if can run NET application and then close it.
 TestsTotal++
