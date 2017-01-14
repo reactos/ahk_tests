@@ -19,6 +19,7 @@
 
 TestName = 3.download
 szURL = http://iso.reactos.org/livecd/livecd-71187-dbg.7z
+ExpectedSize := 29064910 ; 27.8 MB (29,064,910 bytes)
 SplitPath, szURL, szFileName
 szDownloadTo = %A_Desktop%\%szFileName% ; Desktop is our download dir. See prepare.ahk
 
@@ -86,7 +87,6 @@ else
                         else
                         {
                             FileGetSize, DFileSize, %szDownloadTo% ; Desktop is our download dir. See prepare.ahk
-                            ExpectedSize := 29064910 ; 27.8 MB (29,064,910 bytes)
                             if DFileSize <> %ExpectedSize%
                                 TestsFailed("Downloaded file size is NOT the same as expected [is " DFileSize " and should be " ExpectedSize "].")
                             else

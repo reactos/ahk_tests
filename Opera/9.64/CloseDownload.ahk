@@ -18,7 +18,8 @@
  */
 
 TestName = 5.CloseDownload
-szURL = http://iso.reactos.org/bootcd/bootcd-54727-dbgwin.7z
+szURL = https://svn.reactos.org/storage/sylvain/50MiB.dat
+SplitPath, szFileURL, szFileName
 
 ; Test if we can exit properly when download in progress. Bug #CORE-5134
 TestsTotal++
@@ -29,8 +30,8 @@ if bContinue
         TestsFailed("Window 'Speed Dial - Opera' is not active window.")
     else
     {
-        IfExist, %A_MyDocuments%\bootcd-54727-dbgwin.7z
-            FileDelete, %A_MyDocuments%\bootcd-54727-dbgwin.7z
+        IfExist, %A_MyDocuments%\%szFileName%
+            FileDelete, %A_MyDocuments%\%szFileName%
         SetKeyDelay, 250, 150 ; FIXME: remove this line
         SendInput, {CTRLDOWN}l{CTRLUP} ; Toggle address bar
         SendInput, %szURL% ; Enter address
@@ -43,7 +44,7 @@ if bContinue
         else
         {
             if clipboard <> %szURL%
-                TestsFailed("Clipboard and URL contents are not the same (expected '" szURL "', got '" clipboard "'). Ctrl+L doesnt work?")
+                TestsFailed("Clipboard and URL contents are not the same (expected '" %szURL% "', got '" clipboard "'). Ctrl+L doesnt work?")
             else
             {
                 SendInput, {ENTER} ; go to specified address
@@ -52,21 +53,21 @@ if bContinue
                 {
                     IfWinActive, Blank page - Opera
                     {
-                        WinWaitActive, Downloading file bootcd-54727-dbgwin.7z,,1
+                        WinWaitActive, Downloading file %szFileName%,,1
                         iTimeOut--
                     }
                     else
                         break ; exit the loop if something poped-up
                 }
 
-                WinWaitActive, Downloading file bootcd-54727-dbgwin.7z,, 1
+                WinWaitActive, Downloading file %szFileName%,, 1
                 if ErrorLevel
-                    TestsFailed("Window 'Downloading file bootcd-54727-dbgwin.7z' failed to appear (iTimeOut=" iTimeOut ").")
+                    TestsFailed("Window 'Downloading file 50MiB.dat' failed to appear (iTimeOut=" iTimeOut ").")
                 else
                 {
-                    TestsInfo("'Downloading file bootcd-54727-dbgwin.7z' window appeared (iTimeOut=" iTimeOut ").")
+                    TestsInfo("'Downloading file 50MiB.dat' window appeared (iTimeOut=" iTimeOut ").")
                     SendInput, !n ; Focus 'File name' field
-                    SendInput, %A_MyDocuments%\bootcd-54727-dbgwin.7z
+                    SendInput, %A_MyDocuments%\%szFileName%
                     SendInput, {ENTER} ; Hit 'Save'
                     SetTitleMatchMode, 1 ; A window's title must start with the specified WinTitle to be a match.
                     WinWaitActive, Save,, 7

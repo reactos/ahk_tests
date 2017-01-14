@@ -18,8 +18,8 @@
  */
 
 TestName = 2.download
-szFileURL = http://iso.reactos.org/livecd/livecd-57139-dbg.7z
-
+szFileURL = https://svn.reactos.org/storage/sylvain/50MiB.dat
+SplitPath, szURL, szFileName
 
 ; Test if can download file
 TestsTotal++
@@ -33,11 +33,10 @@ else
     {
         SendInput, {ALTDOWN}d{ALTUP} ; Go to address bar
         SendInput, %szFileURL%{ENTER} 
-        SplitPath, szFileURL, NameExt
-        FileDelete, %A_Desktop%\%NameExt%
-        WinWaitActive, Opening %NameExt%,, 10
+        FileDelete, %A_Desktop%\%szFileName%
+        WinWaitActive, Opening %szFileName%,, 10
         if ErrorLevel
-            TestsFailed("Window 'Opening " NameExt "' failed to appear.")
+            TestsFailed("Window 'Opening " szFileName "' failed to appear.")
         else
         {
             SendInput, {ALTDOWN}s{ALTUP} ; Check 'Save it to disk' radio button
@@ -48,7 +47,7 @@ else
                 TestsFailed("Window 'Enter name of file to save to...' failed to appear.")
             else
             {
-                ControlSetText, Edit1, %A_Desktop%\%NameExt%, Enter name of file to save to... ; Enter file path and name
+                ControlSetText, Edit1, %A_Desktop%\%szFileName%, Enter name of file to save to... ; Enter file path and name
                 if ErrorLevel
                     TestsFailed("Unable to enter path in 'Enter name of file to save to...' window.")
                 else
@@ -65,17 +64,17 @@ else
                         {
                             SendInput, {ALTDOWN}i{ALTUP} ; Hit 'Properties' in 'Download Manager'
                             SetTitleMatchMode, 2 ; A window's title can contain WinTitle anywhere inside it to be a match.
-                            WinWaitActive, of %NameExt% Saved,,5
+                            WinWaitActive, of %szFileName% Saved,,5
                             if ErrorLevel
-                                TestsFailed("Window 'of " NameExt " Saved' failed to appear (SetTitleMatchMode=" A_TitleMatchMode ").")
+                                TestsFailed("Window 'of " szFileName " Saved' failed to appear (SetTitleMatchMode=" A_TitleMatchMode ").")
                             else
                             {   
                                 iTimeOut := 240
                                 while iTimeOut > 0
                                 {
-                                    IfWinActive, `% of %NameExt% Saved
+                                    IfWinActive, `% of %szFileName% Saved
                                     {
-                                        WinWaitActive, 100`% of %NameExt% Saved,,1 ; Wait for 100
+                                        WinWaitActive, 100`% of %szFileName% Saved,,1 ; Wait for 100
                                         if ErrorLevel
                                             iTimeOut--
                                         else
@@ -85,9 +84,9 @@ else
                                         break ; exit the loop if something poped-up
                                 }
                                 
-                                WinWaitActive, 100`% of %NameExt% Saved,,1
+                                WinWaitActive, 100`% of %szFileName% Saved,,1
                                 if ErrorLevel
-                                    TestsFailed("'100% of " NameExt " Saved' window failed to appear (iTimeOut=" iTimeOut ").")
+                                    TestsFailed("'100% of " szFileName " Saved' window failed to appear (iTimeOut=" iTimeOut ").")
                                 else
                                 {
                                     Process, Close, %ProcessExe%
@@ -95,7 +94,7 @@ else
                                     if ErrorLevel
                                         TestsFailed("Unable to terminate '" ProcessExe "' process.")
                                     else
-                                        TestsOK("'" szFileURL "' downloaded (iTimeOut=" iTimeOut "), '" ProcessExe "' terminated.")
+                                        TestsOK("'" %szFileURL% "' downloaded (iTimeOut=" iTimeOut "), '" ProcessExe "' terminated.")
                                 }
                             }
                         }
