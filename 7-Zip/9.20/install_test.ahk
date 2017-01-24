@@ -17,6 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+SetControlDelay, -1 ; Suppress the global control delay, some windows come fast.
 ModuleExe = %A_WorkingDir%\Apps\7zip_9.20_Setup.exe
 TestName = 1.install
 MainAppFile = 7zFM.exe ; Mostly this is going to be process we need to look for

@@ -17,6 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+SetControlDelay, -1
 ModuleExe = %A_WorkingDir%\Apps\Sunbird 0.9 Setup.exe
 TestName = 1.install
 MainAppFile = sunbird.exe ; Mostly this is going to be process we need to look for

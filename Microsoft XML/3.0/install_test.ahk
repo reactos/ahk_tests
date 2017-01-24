@@ -17,6 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+SetControlDelay, -1 ; Suppress the global control delay, some windows come fast.
 ModuleExe = %A_WorkingDir%\Apps\Microsoft XML 3.0 Setup.msi
 TestName = 1.install
 MainAppFile = %A_WinDir%\System32\msxml3r.dll
