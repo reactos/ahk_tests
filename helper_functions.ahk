@@ -20,7 +20,7 @@
 ; These lines are added for performance reasons, as suggested in http://www.autohotkey.com/docs/misc/Performance.htm
 #NoEnv
 SetBatchLines -1
-SetControlDelay -1 ; To improve reliability. This avoids holding the mouse button down during the click, which in turn reduces interference from the user's physical movement of the mouse.
+SetControlDelay, 1000 ; Give a small delay between control modifying commands. 
 ListLines Off
 
 SendMode Input ; Recommended for new scripts due to its superior speed and reliability.
