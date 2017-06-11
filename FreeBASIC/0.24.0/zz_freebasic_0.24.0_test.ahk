@@ -20,11 +20,12 @@
 #Include ..\..\helper_functions.ahk
 InitalizeCounters()
 
-/* FIXME: Add back 2.compile_code when CORE-12098 is fixed */
+; FIXME: Add back "2.compile_code" when CORE-12098 is fixed.
 params =
 (
 
     1.install
+
 )
 
 if CheckParam()
