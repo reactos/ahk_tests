@@ -55,13 +55,13 @@ else
                 else
                 {
                     if clipboard <> edijus
-                        TestsFailed("Clipboard content is not the same as expected (is '" clipboard "', should be 'edijus') Can't focus serch bar using Ctrl+K?.")
+                        TestsFailed("Clipboard content is not the same as expected (is '" clipboard "', should be 'edijus') Can't focus search bar using Ctrl+K?.")
                     else
                     {
                         SendInput, {ENTER}
-                        WinWaitActive, edijus - Yahoo! Search Results - Mozilla Firefox,,15 ; Time depends on connection speed
+                        WinWaitActive, edijus - Yahoo Search Results - Mozilla Firefox,,15 ; Time depends on connection speed
                         if ErrorLevel
-                            TestsFailed("'edijus - Yahoo! Search Results - Mozilla Firefox' window failed to appear, so, search bar do not work. Bug #CORE-6342?")
+                            TestsFailed("'edijus - Yahoo Search Results - Mozilla Firefox' window failed to appear, so, search bar does not work. Bug #CORE-6342?")
                         else
                         {
                             Sleep, 5500 ; Let the URL to load, maybe something will fail
@@ -70,7 +70,7 @@ else
                             if ErrorLevel ; The PID still exists.
                                 TestsFailed("Unable to terminate '" ProcessExe "' process.")
                             else
-                                TestsOK("'edijus - Yahoo! Search Results - Mozilla Firefox' window appeared, so search bar works, '" ProcessExe "' process closed.")
+                                TestsOK("'edijus - Yahoo Search Results - Mozilla Firefox' window appeared, so search bar works, '" ProcessExe "' process closed.")
                         }
                     }
                 }
