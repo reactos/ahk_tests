@@ -25,6 +25,7 @@ params =
 (
 
     1.install
+    2.compile_code
 
 )
 
