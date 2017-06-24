@@ -541,9 +541,9 @@ TerminateTmpProcesses()
 
     Process, Exist  ; sets ErrorLevel to the PID of this running script
     ; Get the handle of this script with PROCESS_QUERY_INFORMATION (0x0400)
-    h := DllCall("OpenProcess", "UInt", 0x0400, "Int", false, "UInt", ErrorLevel)
+    hThisScript := DllCall("OpenProcess", "UInt", 0x0400, "Int", false, "UInt", ErrorLevel)
     ; Open an adjustable access token with this process (TOKEN_ADJUST_PRIVILEGES = 32)
-    DllCall("Advapi32.dll\OpenProcessToken", "UInt", h, "UInt", 32, "UIntP", t)
+    DllCall("Advapi32.dll\OpenProcessToken", "UInt", hThisScript, "UInt", 32, "UIntP", t)
     VarSetCapacity(ti, 16, 0)  ; structure of privileges
     NumPut(1, ti, 0)  ; one entry in the privileges array...
     ; Retrieves the locally unique identifier of the debug privilege:
@@ -552,42 +552,37 @@ TerminateTmpProcesses()
     NumPut(2, ti, 12)  ; enable this privilege: SE_PRIVILEGE_ENABLED = 2
     ; Update the privileges of this process with the new access token:
     DllCall("Advapi32.dll\AdjustTokenPrivileges", "UInt", t, "Int", false, "UInt", &ti, "UInt", 0, "UInt", 0, "UInt", 0)
-    DllCall("CloseHandle", "UInt", h)  ; close this process handle to save memory
+    DllCall("CloseHandle", "UInt", t)  ; close the access token
+    DllCall("CloseHandle", "UInt", hThisScript)  ; close this process handle
 
     hModule := DllCall("LoadLibrary", "Str", "Psapi.dll")  ; increase performance by preloading the libaray
-    s := VarSetCapacity(a, s)  ; an array that receives the list of process identifiers:
+    s := VarSetCapacity(a, s, 0)  ; an array that receives the list of process identifiers:
     c := 0  ; counter for process idendifiers
     DllCall("Psapi.dll\EnumProcesses", "UInt", &a, "UInt", s, "UIntP", r)
     Loop, % r // 4  ; parse array for identifiers as DWORDs (32 bits):
     {
-        id := NumGet(a, A_Index * 4)
+        id := NumGet(a, (A_Index-1) * 4)
+        if id = 0
+            continue ; // Skip the "System" process
+        if id = 4
+            continue ; // Skip the "idle" process
         ; Open process with: PROCESS_VM_READ (0x0010) | PROCESS_QUERY_INFORMATION (0x0400)
         h := DllCall("OpenProcess", "UInt", 0x0010 | 0x0400, "Int", false, "UInt", id)
-        if ErrorLevel = -1
-            TestsInfo("The [DllFile\]Function parameter is a floating point number. A string or positive integer is required.")
-        else if ErrorLevel = -2
-            TestsInfo("The return type or one of the specified arg types is invalid. This error can also be caused by passing an expression that evaluates to a number to a string (str)  argument.")
-        else if ErrorLevel = -3
-            TestsInfo("The specified DllFile could not be accessed. If no explicit path was specified for DllFile, the file must exist in the system's PATH or A_WorkingDir. This error might also occur if the user lacks permission to access the file.")
-        else if ErrorLevel = -4
-            TestsInfo("The specified function could not be found inside the DLL.")
-
-        TestsInfo("DllCall('OpenProcess'...) last error: '" A_LastError "'")
+        if h = 0
+        {
+            TestsInfo("DllCall('OpenProcess'...) last error: '" A_LastError "'")
+            continue
+        }
 
         VarSetCapacity(n, s, 0)  ; a buffer that receives the base name of the module:
         e := DllCall("Psapi.dll\GetModuleBaseNameA", "UInt", h, "UInt", 0, "Str", n, "UInt", s)
-        if ErrorLevel = -1
-            TestsInfo("The [DllFile\]Function parameter is a floating point number. A string or positive integer is required.")
-        else if ErrorLevel = -2
-            TestsInfo("The return type or one of the specified arg types is invalid. This error can also be caused by passing an expression that evaluates to a number to a string (str)  argument.")
-        else if ErrorLevel = -3
-            TestsInfo("The specified DllFile could not be accessed. If no explicit path was specified for DllFile, the file must exist in the system's PATH or A_WorkingDir. This error might also occur if the user lacks permission to access the file.")
-        else if ErrorLevel = -4
-            TestsInfo("The specified function could not be found inside the DLL.")
-
-        TestsInfo("DllCall('Psapi.dll\GetModuleBaseNameA'...) last error: '" A_LastError "'")
-
         DllCall("CloseHandle", "UInt", h)  ; close process handle to save memory
+        if e = 0
+        {
+            TestsInfo("DllCall('Psapi.dll\GetModuleBaseNameA'...) last error: '" A_LastError "'")
+            continue
+        }
+
         if (n && e)  ; if image is not null add to list:
         {
             ; Check if we have '.tmp' in process name
