@@ -38,8 +38,8 @@ else
             TestsFailed("The attempt to copy text onto the clipboard failed.")
         else
         {
-            if clipboard <> http://start.mozilla.org/en-US/
-                TestsFailed("Clipboard content is not the same as expected (is '" clipboard "', should be 'http://start.mozilla.org/en-US/') Can't focus address bar using Alt+D?.")
+            if clipboard <> https://start.mozilla.org/en-US/
+                TestsFailed("Clipboard content is not the same as expected (is '" clipboard "', should be 'https://start.mozilla.org/en-US/') Can't focus address bar using Alt+D?.")
             else
             {
                 SendInput, http{:}//dsx86{.}patrickaalto{.}com{ENTER}

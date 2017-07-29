@@ -137,9 +137,9 @@ else
     if bContinue
     {
         RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Mozilla
-            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\mozilla.org
-            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MozillaPlugins
-            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Mozilla Firefox (3.0.11)
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\mozilla.org
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MozillaPlugins
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Mozilla Firefox (3.0.11)
         IfExist, %A_AppData%\Mozilla
         {
             FileRemoveDir, %A_AppData%\Mozilla, 1
@@ -192,9 +192,9 @@ if bContinue
     {
         ControlClick, Button2
         if ErrorLevel
-            TestsFailed("Unable to hit 'Next' button in 'Mozilla Firefox Setup (Welcome to the Mozilla Firefox)' window.")
+            TestsFailed("Unable to click 'Next' button in 'Mozilla Firefox Setup (Welcome to the Mozilla Firefox)' window.")
         else
-            TestsOK("'Mozilla Firefox Setup (Welcome to the Mozilla Firefox)' window appeared and 'Next' was clicked.") 
+            TestsOK("'Mozilla Firefox Setup (Welcome to the Mozilla Firefox)' window appeared and 'Next' button was clicked.")
     }
 }
 
@@ -210,9 +210,9 @@ if bContinue
     {
         ControlClick, Button2
         if ErrorLevel
-            TestsFailed("Unable to hit 'Next' button in 'Mozilla Firefox Setup (Setup Type)' window.")
+            TestsFailed("Unable to click 'Next' button in 'Mozilla Firefox Setup (Setup Type)' window.")
         else
-            TestsOK("'Mozilla Firefox Setup (Setup Type)' window appeared and 'Next' was clicked.")
+            TestsOK("'Mozilla Firefox Setup (Setup Type)' window appeared and 'Next' button was clicked.")
     }
 }
 
@@ -226,9 +226,9 @@ if bContinue
         TestsFailed("'Mozilla Firefox Setup (Summary)' window failed to appear.")
     else
     {
-        ControlClick, Button2 ; Hit 'Install' button
+        ControlClick, Button2 ; Click 'Install' button
         if ErrorLevel
-            TestsFailed("Unable to hit 'Install' button in 'Mozilla Firefox Setup (Summary)' window.")
+            TestsFailed("Unable to click 'Install' button in 'Mozilla Firefox Setup (Summary)' window.")
         else
             TestsOK("'Mozilla Firefox Setup (Summary)' window appeared and 'Install' button was clicked.")
     }
@@ -274,19 +274,19 @@ if bContinue
         {
             ControlGet, bChecked, Checked,, Button4
             if bChecked = 1
-                TestsFailed("'Lounch Firefox now' checkbox in 'Mozilla Firefox Setup (Completing)' window reported as unchecked, but further inspection proves that it was still checked.")
+                TestsFailed("'Launch Firefox now' checkbox in 'Mozilla Firefox Setup (Completing)' window reported as unchecked, but further inspection proves that it was still checked.")
             else
             {
-                ControlClick, Button2 ; Hit 'Finish'
+                ControlClick, Button2 ; Click 'Finish'
                 if ErrorLevel
-                    TestsFailed("Unable to hit 'Finish' button in 'Mozilla Firefox Setup (Completing)' window.")
+                    TestsFailed("Unable to click 'Finish' button in 'Mozilla Firefox Setup (Completing)' window.")
                 else
                 {
                     WinWaitClose,,, 5
                     if ErrorLevel
                         TestsFailed("'Mozilla Firefox Setup (Completing)' window failed to close despite 'Finish' button being clicked.")
                     else
-                        TestsOK("'Mozilla Firefox Setup (Completing)' window appeared, 'Lounch Firefox now' checkbox unchecked, 'Finish' button clicked, window closed.")
+                        TestsOK("'Mozilla Firefox Setup (Completing)' window appeared, 'Launch Firefox now' checkbox unchecked, 'Finish' button clicked, window closed.")
                 }
             }
         }

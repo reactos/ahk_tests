@@ -134,13 +134,12 @@ else
         }
     }
 
-
     if bContinue
     {
         RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\Mozilla
-            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\mozilla.org
-            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MozillaPlugins
-            RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Mozilla Firefox (2.0.0.20)
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\mozilla.org
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MozillaPlugins
+        RegDelete, HKEY_LOCAL_MACHINE, SOFTWARE\MicroSoft\Windows\CurrentVersion\Uninstall\Mozilla Firefox (2.0.0.20)
         IfExist, %A_AppData%\Mozilla
         {
             FileRemoveDir, %A_AppData%\Mozilla, 1
@@ -193,7 +192,7 @@ if bContinue
     {
         ControlClick, Button2
         if ErrorLevel
-            TestsFailed("Unable to hit 'Next' in 'Mozilla Firefox Setup (Welcome to the Mozilla Firefox)' window.")
+            TestsFailed("Unable to click 'Next' button in 'Mozilla Firefox Setup (Welcome to the Mozilla Firefox)' window.")
         else
             TestsOK("'Mozilla Firefox Setup (Welcome to the Mozilla Firefox)' window appeared and 'Next' button was clicked.")
     }
@@ -215,7 +214,7 @@ if bContinue
             TestsFailed("Unable to check 'I accept' radio button in 'License Agreement' window.")
         else
         {
-            Sleep, 300 ; Give some time for 'Next' to get enabled
+            Sleep, 300 ; Give some time for 'Next' button to get enabled
             ControlGet, OutputVar, Enabled,, Button2
             if not %OutputVar%
                 TestsFailed("'I accept' radio button is checked in 'License Agreement', but 'Next' button is disabled.")
@@ -223,7 +222,7 @@ if bContinue
             {
                 ControlClick, Button2
                 if ErrorLevel
-                    TestsFailed("Unable to hit 'Next' button in 'Mozilla Firefox Setup (License Agreement)' window despite it is enabled.")
+                    TestsFailed("Unable to click 'Next' button in 'Mozilla Firefox Setup (License Agreement)' window despite it is enabled.")
                 else
                     TestsOK("'Mozilla Firefox Setup (License Agreement)' window appeared and 'Next' button was clicked.")
             }
@@ -243,7 +242,7 @@ if bContinue
     {
         ControlClick, Button2
         if ErrorLevel
-            TestsFailed("Unable to hit 'Next' in 'Mozilla Firefox Setup (Setup Type)' window.")
+            TestsFailed("Unable to click 'Next' button in 'Mozilla Firefox Setup (Setup Type)' window.")
         else
             TestsOK("'Mozilla Firefox Setup (Setup Type)' window appeared and 'Next' button was clicked.")
     }
@@ -288,19 +287,19 @@ if bContinue
         {
             ControlGet, bChecked, Checked,, Button4
             if bChecked = 1
-                TestsFailed("'Lounch Firefox now' checkbox in 'Mozilla Firefox Setup (Completing)' window reported as unchecked, but further inspection proves that it was still checked.")
+                TestsFailed("'Launch Firefox now' checkbox in 'Mozilla Firefox Setup (Completing)' window reported as unchecked, but further inspection proves that it was still checked.")
             else
             {
-                ControlClick, Button2 ; Hit 'Finish'
+                ControlClick, Button2 ; Click 'Finish'
                 if ErrorLevel
-                    TestsFailed("Unable to hit 'Finish' button in 'Mozilla Firefox Setup (Completing)' window.")
+                    TestsFailed("Unable to click 'Finish' button in 'Mozilla Firefox Setup (Completing)' window.")
                 else
                 {
                     WinWaitClose,,, 5
                     if ErrorLevel
                         TestsFailed("'Mozilla Firefox Setup (Completing)' window failed to close despite 'Finish' button being clicked.")
                     else
-                        TestsOK("'Mozilla Firefox Setup (Completing)' window appeared, 'Lounch Firefox now' checkbox unchecked, 'Finish' button clicked, window closed.")
+                        TestsOK("'Mozilla Firefox Setup (Completing)' window appeared, 'Launch Firefox now' checkbox unchecked, 'Finish' button clicked, window closed.")
                 }
             }
         }
