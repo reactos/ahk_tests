@@ -73,7 +73,9 @@ if bContinue
                         szNoImprvHelp := "user_pref(""toolkit.telemetry.prompted""`, 2)`;`nuser_pref(""toolkit.telemetry.rejected""`, true)`;" ; We don't want to help to improve
                         szDownloadDir := "user_pref(""browser.download.folderList""`, 0)`;" ; Desktop is our default download directory
                         szNoDefBrowser := "user_pref(""browser.shell.checkDefaultBrowser""`, false)`;" ; Do not check if it is default browser
-                        FileAppend, %szNoWarningOnClose%`n%szNoFirstRun%`n%szRightsShown%`n%szNoImprvHelp%`n`n%szDownloadDir%`n%szNoDefBrowser%, %A_AppData%\Mozilla\Firefox\Profiles\ReactOS.default\prefs.js
+                        szNoWarningOnSecure := "user_pref(""security.warn_entering_secure""`, false)`;" ; Do not warn about secure pages
+                        szNoWarningOnSecureOnce := "user_pref(""security.warn_entering_secure.show_once""`, false)`;" ; Do not warn about secure pages
+                        FileAppend, %szNoWarningOnClose%`n%szNoFirstRun%`n%szRightsShown%`n%szNoImprvHelp%`n`n%szDownloadDir%`n%szNoDefBrowser%`n%szNoWarningOnSecure%`n%szNoWarningOnSecureOnce%, %A_AppData%\Mozilla\Firefox\Profiles\ReactOS.default\prefs.js
                         if ErrorLevel
                             TestsFailed("Failed to create and edit '" A_AppData "\Mozilla\Firefox\Profiles\ReactOS.default\prefs.js'.")
                         else

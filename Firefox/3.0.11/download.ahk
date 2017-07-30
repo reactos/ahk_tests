@@ -64,7 +64,7 @@ else
                     else
                     {
                         TestsInfo("Window 'of 1 file - Downloads' appeared, waiting for it to close. (SetTitleMatchMode=" A_TitleMatchMode ").")
-                        iTimeOut := 95
+                        iTimeOut := 210
                         while iTimeOut > 0
                         {
                             IfWinActive, of 1 file - Downloads
