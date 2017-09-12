@@ -59,7 +59,7 @@ if bContinue
                 else
                 {
                     TestsInfo("Workaround for CORE-12604.")
-                    FileAppend, cd c:\`nmcs.exe %szSourceFile%, C:\setmonopath.bat
+                    FileAppend, cd c:\`nmcs.bat %szSourceFile%, C:\setmonopath.bat
                     if ErrorLevel
                         TestsFailed("Unable to write to 'C:\setmonopath.bat'.")
                     else

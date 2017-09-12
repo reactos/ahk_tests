@@ -71,7 +71,7 @@ else
                 else
                 {
                     TestsInfo("Workaround for CORE-12604.")
-                    FileAppend, cd c:\`nmcs.exe hello.cs -pkg:dotnet, C:\setmonopath.bat
+                    FileAppend, cd c:\`nmcs.bat hello.cs -pkg:dotnet, C:\setmonopath.bat
                     if ErrorLevel
                         TestsFailed("Unable to write to 'C:\setmonopath.bat'.")
                     else
