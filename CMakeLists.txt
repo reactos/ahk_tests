@@ -15,3 +15,6 @@ foreach(item ${EXTRA_FILES})
     add_cd_file(FILE ${CMAKE_CURRENT_SOURCE_DIR}/Media/${item} DESTINATION AHK-Tests/Media NO_CAB NAME_ON_CD ${item} FOR bootcd regtest)
 endforeach(item)
 
+if(NOT DEFINED ENABLE_ROSTESTS)
+    add_subdirectory(${REACTOS_SOURCE_DIR}/modules/rostests/rosautotest ${CMAKE_CURRENT_BINARY_DIR}/rosautotest)
+endif()
