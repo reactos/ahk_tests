@@ -54,6 +54,9 @@ if bContinue
     }
 }
 
+szHost := "130.89.149.21:21"
+szTheFile = welcome.txt
+iExpectedFileSize := 1349
 
 TestsTotal++
 if bContinue
@@ -63,7 +66,7 @@ if bContinue
         TestsFailed("Unable to fill 'Session:' field in 'FTP: connection details' window.")
     else
     {
-        ControlSetText, TAltEdit5, 130.89.149.21:21, FTP: connection details ; Fill 'Host name[:Port]:' field
+        ControlSetText, TAltEdit5, %szHost%, FTP: connection details ; Fill 'Host name[:Port]:' field
         if ErrorLevel
             TestsFailed("Unable to fill 'Host name[:Port]:' field in 'FTP: connection details' window.")
         else
@@ -151,7 +154,6 @@ if bContinue
         TestsFailed("'Total Commander 8.0 - NOT REGISTERED' window failed to appear.")
     else
     {
-        szTheFile = welcome.txt
         IfExist, %A_Desktop%\%szTheFile%
         {
             FileDelete, %A_Desktop%\%szTheFile%
@@ -180,7 +182,7 @@ if bContinue
                         FileGetSize, iFileSize, %A_Desktop%\%szTheFile%
                         if not ErrorLevel
                         {
-                            if (iFileSize = 1366)
+                            if (iFileSize == iExpectedFileSize)
                                 break
                         }
                         Sleep, 500
@@ -188,7 +190,7 @@ if bContinue
                     }
 
                     IfNotExist, %A_Desktop%\%szTheFile%
-                        TestsFailed("Unable to download '" szTheFile "' from '130.89.149.21:21'. Check if file still exist.")
+                        TestsFailed("Unable to download '" szTheFile "' from '" szHost "'. Check if file still exist.")
                     else
                     {
                         FileGetSize, iFileSize, %A_Desktop%\%szTheFile%
@@ -196,8 +198,8 @@ if bContinue
                             TestsFailed("Unable to get file size of '" A_Desktop "\" szTheFile "'. File exist!")
                         else
                         {
-                            if (iFileSize != 1366)
-                                TestsFailed("File size doesn't match. Is '" iFileSize "', should be '1366'. Check it in '130.89.149.21:21'.")
+                            if (iFileSize != iExpectedFileSize)
+                                TestsFailed("File size doesn't match. Is '" iFileSize "', should be '" iExpectedFileSize "'. Check it in '" szHost "'.")
                             else
                                 TestsOK("Downloaded '" szTheFile "' and its size is the same as expected.")
                         }
